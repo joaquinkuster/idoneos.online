@@ -63,10 +63,13 @@
                                 </td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!cat.baja}">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalEditarCategoria' + ${cat.idCategoria}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalEditarCategoria' + ${cat.idCategoria}"
+                                                th:data-modal-url="@{'/categoria/modalEditar/' + ${cat.idCategoria}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalBajaCategoria' + ${cat.idCategoria}">Dar de baja</button>
+                                                data-bs-target="#modalBajaCategoria"
+                                                th:data-baja-accion="@{'/categoria/darDeBaja/' + ${cat.idCategoria}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja la categoría «' + ${cat.nombre} + '»?'"
+                                                th:data-baja-nota="'La categoría dejará de estar disponible en el sistema.'">Dar de baja</button>
                                     </div>
                                     <span th:if="${cat.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
@@ -138,55 +141,11 @@
 </div>
 
 <!-- Modales por categoría: modificar (CU-09) y dar de baja (CU-10) -->
-<th:block th:each="cat : ${categorias}" th:if="${!cat.baja}">
-    <div class="modal fade pn-modal" th:id="'modalEditarCategoria' + ${cat.idCategoria}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar categoría</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <div class="pn-seccion-titulo">
-                        <h4>Datos de la categoría</h4>
-                        <p>Nombre y descripción</p>
-                    </div>
-                    <form th:action="@{'/categoria/modificar/' + ${cat.idCategoria}}" method="post" class="form-ajax" data-validar novalidate
-                          th:with="bloqueada=${inscripcionesPorCategoria != null and inscripcionesPorCategoria.containsKey(cat.idCategoria) and inscripcionesPorCategoria.get(cat.idCategoria) > 0}">
-                        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano">
-                            <div class="pn-campo mb-3">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
-                                    <span class="pn-contador" th:text="${#strings.length(cat.nombre) + ' / 50'}">0 / 50</span>
-                                </div>
-                                <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${cat.nombre}" data-contador required>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-                            <div class="pn-campo mb-3">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Descripción (opcional)</label>
-                                    <span class="pn-contador" th:text="${#strings.length(cat.descripcion != null ? cat.descripcion : '') + ' / 150'}">0 / 150</span>
-                                </div>
-                                <textarea name="descripcion" class="pn-input" rows="4" maxlength="150" data-contador th:text="${cat.descripcion}"></textarea>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-                        </fieldset>
-                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
-                            La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
-                        </div>
-                        <div class="pn-modal-pie">
-                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="pn-btn pn-btn-primario" th:disabled="${bloqueada}">Actualizar</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCategoria' + ${cat.idCategoria}, 'categoría', '¿Confirmas dar de baja la categoría «' + ${cat.nombre} + '»?', 'La categoría dejará de estar disponible en el sistema.', '/categoria/darDeBaja/' + ${cat.idCategoria}, null, null)}"></th:block>
-</th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCategoria', 'categoría', '¿Confirmas dar de baja?', '', '/categoria/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/modalesBajoDemanda.js}"></script>
 </body>
 </html>

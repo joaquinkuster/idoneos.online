@@ -168,8 +168,8 @@ class GlosarioControladorTest {
                 .andExpect(content().string(Matchers.containsString("data-glosario-limpiar")))
                 .andExpect(content().string(Matchers.containsString("Registrar término")))
                 .andExpect(content().string(Matchers.containsString("modalNuevoTermino")))
-                .andExpect(content().string(Matchers.containsString("modalEditarTermino" + idTermino(primera(), "BYMA"))))
-                .andExpect(content().string(Matchers.containsString("modalBajaTermino" + idTermino(primera(), "BYMA"))))
+                .andExpect(content().string(Matchers.containsString("/glosario/modalEditar/" + idTermino(primera(), "BYMA"))))
+                .andExpect(content().string(Matchers.containsString("/glosario/darDeBaja/" + idTermino(primera(), "BYMA"))))
                 // enlace permanente por término, sin "Añadir entrada" ni "entradas"
                 .andExpect(content().string(Matchers.containsString("terminoId=" + idTermino(primera(), "BYMA"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Añadir entrada"))))
@@ -292,7 +292,7 @@ class GlosarioControladorTest {
         mockMvc.perform(get("/glosario/ver/" + primera()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("BYMA")))
-                .andExpect(content().string(Matchers.containsString("modalBajaTermino" + idTermino(primera(), "BYMA"))))
+                .andExpect(content().string(Matchers.containsString("/glosario/darDeBaja/" + idTermino(primera(), "BYMA"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar término"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalEditarTermino"))));
     }

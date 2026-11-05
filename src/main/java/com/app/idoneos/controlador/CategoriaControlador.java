@@ -155,4 +155,22 @@ public class CategoriaControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de una categoría, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     La categoría.
+     * @param modelo El modelo de la vista.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo) {
+        Categoria cat = categoriaServicio.buscarPorId(id).filter(c -> !c.getBaja())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra disponible."));
+        modelo.addAttribute("cat", cat);
+        modelo.addAttribute("inscripcionesPorCategoria", Map.of(cat.getIdCategoria(), categoriaServicio.contarInscripcionesActivas(cat)));
+        return "fragments/modalEditarCategoria :: modal(cat=${cat})";
+    }
 }

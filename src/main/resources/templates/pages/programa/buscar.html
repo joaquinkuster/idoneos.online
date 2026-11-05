@@ -75,7 +75,10 @@
                                                 th:title="${p.cantidadInscripcionesActivas > 0} ? 'Tiene inscripciones: no se puede modificar. Registrá un programa nuevo a partir de este.' : null"
                                                 th:attr="data-id=${p.idPrograma}, data-nombre=${p.nombre}, data-descripcion=${p.descripcion}, data-cronograma=${#strings.listJoin(p.cronogramaOrdenado.![tema.idTema + ':' + duracionDias], ',')}">Editar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!p.baja}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaPrograma' + ${p.idPrograma}">Dar de baja</button>
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaPrograma"
+                                                th:data-baja-accion="@{'/programa/darDeBaja/' + ${p.idPrograma}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el programa «' + ${p.nombre} + '»?'"
+                                                th:data-baja-nota="'Dejará de estar disponible en el curso.'">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -209,9 +212,9 @@
 </div>
 
 <!-- Bajas (CU-18) -->
-<th:block th:each="p : ${programas}" th:if="${!p.baja}">
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPrograma' + ${p.idPrograma}, 'programa', '¿Confirmas dar de baja el programa «' + ${p.nombre} + '»?', 'Dejará de estar disponible en el curso.', '/programa/darDeBaja/' + ${p.idPrograma}, null, null)}"></th:block>
-</th:block>
+
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPrograma', 'programa', '¿Confirmas dar de baja?', '', '/programa/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/programa.js}"></script>

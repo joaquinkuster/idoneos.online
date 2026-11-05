@@ -95,23 +95,7 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             // Listado completo: los filtros se aplican en la pantalla
             List<Autoevaluacion> autoevaluaciones = autoevaluacionServicio.buscarConFiltros(cursoId, null, null, false, docente);
             List<Pool> pools = poolServicio.buscarConFiltros(cursoId, null, null, false, docente);
-
-            // Para cada pool, los temas cuyos autoevaluaciones pueden usarlo (el formulario filtra con esto)
-            Map<Integer, String> temasPorPool = new LinkedHashMap<>();
-            for (Pool pool : pools) {
-                temasPorPool.put(pool.getIdPool(), String.join(",", autoevaluacionServicio.temasQuePuedenUsar(pool)
-                        .stream().map(u -> String.valueOf(u.getIdTema())).toList()));
-            }
-
-            // Los pools que se ofrecen, agrupados por el tema a la que pertenecen (en el orden del cronograma)
-            List<GrupoDePools> gruposDePools = new ArrayList<>();
-            for (TemaCronograma cronograma : temas) {
-                List<Pool> deLaTema = pools.stream()
-                        .filter(p -> p.getTema().getIdTema() == cronograma.getTema().getIdTema()).toList();
-                if (!deLaTema.isEmpty()) {
-                    gruposDePools.add(new GrupoDePools(cronograma.getNumeroOrden(), cronograma.getTema().getTitulo(), deLaTema));
-                }
-            }
+            cargarPoolsDelFormulario(modelo, pools, temas);
 
             String abrirModal = null;
             boolean hayAccion = accion != null && autoevaluacionId != null
@@ -129,17 +113,64 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             cargarContexto(modelo, contexto, "autoevaluaciones");
             modelo.addAttribute("temaSeleccionada", temaId);
             modelo.addAttribute("abrirModal", abrirModal);
-            modelo.addAttribute("gruposDePools", gruposDePools);
             modelo.addAttribute("autoevaluaciones", autoevaluaciones);
             modelo.addAttribute("temas", temas);
             modelo.addAttribute("pools", pools);
-            modelo.addAttribute("temasPorPool", temasPorPool);
             modelo.addAttribute("puedeGestionar", !esAdministrador);
             modelo.addAttribute("titulo", "Autoevaluaciones | Idóneos Online");
             return "pages/autoevaluacion/buscar";
         } catch (IllegalArgumentException e) {
             return volverAMisCursos(redirectAttributes, e);
         }
+    }
+
+    /**
+     * Carga en el modelo lo que necesita el formulario: para cada pool los temas que pueden usarlo y los pools agrupados por tema.
+     */
+    private void cargarPoolsDelFormulario(Model modelo, List<Pool> pools, List<TemaCronograma> temas) {
+        // Para cada pool, los temas cuyos autoevaluaciones pueden usarlo (el formulario filtra con esto)
+        Map<Integer, String> temasPorPool = new LinkedHashMap<>();
+        for (Pool pool : pools) {
+            temasPorPool.put(pool.getIdPool(), String.join(",", autoevaluacionServicio.temasQuePuedenUsar(pool)
+                    .stream().map(u -> String.valueOf(u.getIdTema())).toList()));
+        }
+
+        // Los pools que se ofrecen, agrupados por el tema a la que pertenecen (en el orden del cronograma)
+        List<GrupoDePools> gruposDePools = new ArrayList<>();
+        for (TemaCronograma cronograma : temas) {
+            List<Pool> deLaTema = pools.stream()
+                    .filter(p -> p.getTema().getIdTema() == cronograma.getTema().getIdTema()).toList();
+            if (!deLaTema.isEmpty()) {
+                gruposDePools.add(new GrupoDePools(cronograma.getNumeroOrden(), cronograma.getTema().getTitulo(), deLaTema));
+            }
+        }
+        modelo.addAttribute("temasPorPool", temasPorPool);
+        modelo.addAttribute("gruposDePools", gruposDePools);
+    }
+
+    /**
+     * Ventana de modificación de una autoevaluación, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     La autoevaluación.
+     * @param modelo El modelo de la vista.
+     * @param auth   La autenticación actual.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        Autoevaluacion a = autoevaluacionServicio.buscarPorId(id).filter(x -> !x.getBaja())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La autoevaluación no se encuentra disponible."));
+        Integer cursoId = a.getTema().getCurso().getIdCurso();
+        ContextoCurso contexto = contextoDelPanel(cursoId, usuario);
+        Docente docente = contexto.esAdministrador() ? null : usuario.getDocente();
+        Programa programa = contexto.programa();
+        List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
+        cargarPoolsDelFormulario(modelo, poolServicio.buscarConFiltros(cursoId, null, null, false, docente), temas);
+        modelo.addAttribute("curso", contexto.curso());
+        modelo.addAttribute("temas", temas);
+        modelo.addAttribute("a", a);
+        return "fragments/modalEditarAutoevaluacion :: modal(a=${a})";
     }
 
     /**

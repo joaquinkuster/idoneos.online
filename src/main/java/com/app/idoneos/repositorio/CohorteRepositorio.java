@@ -15,6 +15,15 @@ import org.springframework.stereotype.Repository;
 public interface CohorteRepositorio extends JpaRepository<Cohorte, Integer> {
 
     /**
+     * Todas las cohortes con su curso, programa y estado ya cargados (en una sola consulta, no una por cohorte).
+     *
+     * @return Todas las cohortes.
+     */
+    @Override
+    @org.springframework.data.jpa.repository.EntityGraph(attributePaths = { "curso", "programa", "estadoCohorte" })
+    List<Cohorte> findAll();
+
+    /**
      * Encuentra todos los registros activos (no dados de baja).
      *
      * @return Una lista de {@link Cohorte} activos.

@@ -15,6 +15,14 @@ import com.app.idoneos.modelo.Pago;
  */
 public interface PagoServicio {
 
+    /**
+     * Busca un pago por su identificador.
+     *
+     * @param id el identificador
+     * @return el pago, o vacío si no existe
+     */
+    Optional<Pago> buscarPorId(Integer id);
+
     // ---------------------------------------------------------------- Lecturas
 
     /**

@@ -54,7 +54,8 @@
     window.ResumenPago = { mostrar: mostrar, ocultar: ocultar };
 
     // Los recuadros que traen sus datos en atributos (por ejemplo, el de Modificar pago) se completan al cargar la página
-    document.querySelectorAll('[data-caja][data-precio]').forEach(function (caja) {
+    function completarCajas(raiz) {
+    raiz.querySelectorAll('[data-caja][data-precio]').forEach(function (caja) {
         mostrar(caja, {
             precio: parseFloat(caja.getAttribute('data-precio')) || 0,
             descuentoNombre: caja.getAttribute('data-desc-nombre'),
@@ -64,4 +65,8 @@
             total: parseFloat(caja.getAttribute('data-total')) || 0
         });
     });
+    }
+    completarCajas(document);
+    // La ventana de modificar pago llega después de la carga (modalesBajoDemanda.js)
+    document.addEventListener('ventana-cargada', function (e) { completarCajas(e.detail.ventana); });
 })();

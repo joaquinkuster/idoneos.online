@@ -246,7 +246,7 @@ class ForoControladorTest {
     void vistaDelAdministrador() throws Exception {
         mockMvc.perform(get("/foro/ver/" + primera()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("modalBajaConsulta" + consultaDe(primera()).getIdConsulta())))
+                .andExpect(content().string(Matchers.containsString("/foro/darDeBaja/" + consultaDe(primera()).getIdConsulta())))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar consulta"))));
     }
 
@@ -314,7 +314,7 @@ class ForoControladorTest {
         int id = respuesta(consulta, "Texto inicial");
 
         mockMvc.perform(get("/foro/consulta/" + consulta.getIdConsulta()))
-                .andExpect(content().string(Matchers.containsString("modalEditarRespuesta" + id)));
+                .andExpect(content().string(Matchers.containsString("/foro/modalEditarRespuesta/" + id)));
         mockMvc.perform(post("/foro/modificarRespuesta/" + id).param("texto", "Texto corregido"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Respuesta modificada correctamente."));
         mockMvc.perform(get("/foro/consulta/" + consulta.getIdConsulta()))
@@ -349,7 +349,7 @@ class ForoControladorTest {
         mockMvc.perform(get("/foro/consulta/" + consulta.getIdConsulta()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("modalBajaConsulta")))
-                .andExpect(content().string(Matchers.containsString("modalBajaRespuesta" + respuesta)))
+                .andExpect(content().string(Matchers.containsString("/foro/darDeBajaRespuesta/" + respuesta)))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalResponder"))));
     }
 

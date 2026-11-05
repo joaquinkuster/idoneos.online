@@ -13,6 +13,14 @@ import com.app.idoneos.modelo.Tema;
  */
 public interface InscripcionServicio {
 
+    /**
+     * Busca una inscripción vigente por su identificador.
+     *
+     * @param id el identificador
+     * @return la inscripción, o vacío si no existe o está dada de baja
+     */
+    Optional<Inscripcion> buscarPorId(Integer id);
+
     // ---------------------------------------------------------------- Lecturas
 
     /**

@@ -98,7 +98,10 @@
                                 <td th:if="${esAdministrador}">
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaConsulta' + ${c.idConsulta}">Dar de baja</button>
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaConsulta"
+                                                th:data-baja-accion="@{'/foro/darDeBaja/' + ${c.idConsulta}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja la consulta «' + ${c.resumen} + '»?'"
+                                                th:data-baja-nota="'También se darán de baja sus respuestas.'">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -166,7 +169,11 @@
 
 <!-- Modales de baja (CU-38, administrador) -->
 <th:block th:if="${esAdministrador}" th:each="c : ${consultas}">
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaConsulta' + ${c.idConsulta}, 'consulta', '¿Confirmas dar de baja la consulta «' + ${c.resumen} + '»?', 'También se darán de baja sus respuestas.', '/foro/darDeBaja/' + ${c.idConsulta}, null, null)}"></th:block>
+</th:block>
+
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:if="${esAdministrador}">
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaConsulta', 'consulta', '¿Confirmas dar de baja?', '', '/foro/darDeBaja/0', null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

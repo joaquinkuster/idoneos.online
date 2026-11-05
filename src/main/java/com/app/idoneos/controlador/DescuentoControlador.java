@@ -37,6 +37,20 @@ public class DescuentoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
+     * Ventana de modificación de un descuento, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     El descuento.
+     * @param modelo El modelo de la vista.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo) {
+        modelo.addAttribute("d", descuentoServicio.buscarPorId(id).filter(d -> !d.getBaja())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El descuento no se encuentra disponible.")));
+        return "fragments/modalEditarDescuento :: modal(d=${d})";
+    }
+
+    /**
      * CU-56: Busca descuentos. El listado llega completo y los filtros se aplican en la pantalla.
      *
      * @param nombre Parte del nombre (opcional).

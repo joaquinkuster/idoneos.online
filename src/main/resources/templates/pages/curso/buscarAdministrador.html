@@ -84,10 +84,13 @@
                                 <td th:text="${curso.fechaCreacion != null ? #temporals.format(curso.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!curso.baja}">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalEditarCurso' + ${curso.idCurso}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalEditarCurso' + ${curso.idCurso}"
+                                                th:data-modal-url="@{'/curso/modalEditar/' + ${curso.idCurso}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalBajaCurso' + ${curso.idCurso}">Dar de baja</button>
+                                                data-bs-target="#modalBajaCurso"
+                                                th:data-baja-accion="@{'/curso/darDeBaja/' + ${curso.idCurso}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el curso «' + ${curso.nombre} + '»?'"
+                                                th:data-baja-nota="'El curso dejará de estar disponible en el sistema.'">Dar de baja</button>
                                     </div>
                                     <span th:if="${curso.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
@@ -133,28 +136,14 @@
     </div>
 </div>
 
-<!-- Modales por curso: modificar (CU-04) y dar de baja (CU-05) -->
-<th:block th:each="curso : ${cursos}" th:if="${!curso.baja}">
-    <div class="modal fade pn-modal" th:id="'modalEditarCurso' + ${curso.idCurso}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar curso</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <th:block th:replace="~{fragments/formCurso :: formulario(${curso}, ${inscripcionesPorCurso.containsKey(curso.idCurso) and !inscripcionesPorCurso.get(curso.idCurso).isEmpty()})}"></th:block>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCurso' + ${curso.idCurso}, 'curso', '¿Confirmas dar de baja el curso «' + ${curso.nombre} + '»?', 'El curso dejará de estar disponible en el sistema.', '/curso/darDeBaja/' + ${curso.idCurso}, null, null)}"></th:block>
-</th:block>
+<!-- La ventana de modificar (CU-04) se pide al abrirla (modalesBajoDemanda.js) y la de baja (CU-05) es una sola, más abajo -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCurso', 'curso', '¿Confirmas dar de baja?', '', '/curso/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <!-- Tom Select: selectores múltiples -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<script th:src="@{/js/modalesBajoDemanda.js}"></script>
 <script th:src="@{/js/abrirModal.js}"></script>
 <script>
     // Regla propia del curso: el docente titular no puede ser a la vez ayudante del mismo curso (CU-03 y CU-04)

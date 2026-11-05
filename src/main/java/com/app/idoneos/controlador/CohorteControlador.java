@@ -57,6 +57,12 @@ public class CohorteControlador extends PanelCursoControlador {
     @Autowired
     private CursoServicioImpl cursoServicioImpl;
 
+    @Autowired
+    private com.app.idoneos.repositorio.InscripcionRepositorio inscripcionRepositorio;
+
+    @Autowired
+    private com.app.idoneos.repositorio.ClaseEnVivoRepositorio claseEnVivoRepositorio;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -74,6 +80,29 @@ public class CohorteControlador extends PanelCursoControlador {
         }
         return programaServicio.buscarPorId(programaId).filter(p -> !p.getBaja())
                 .map(cohorteServicio::faltantesDeContenido).orElse(List.of());
+    }
+
+    /**
+     * Ventana de modificación de una cohorte, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     La cohorte.
+     * @param modelo El modelo de la vista.
+     * @param auth   La autenticación actual.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        Cohorte cohorte = cohorteServicio.buscarPorId(id).filter(c -> !c.getBaja() && !c.esCancelada())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra disponible."));
+        if (!usuario.esAdministradorActivo() && !cohorte.getCurso().tieneDocente(usuario.getDocente())) {
+            throw new IllegalArgumentException("Error! No tenés acceso a esta cohorte.");
+        }
+        modelo.addAttribute("coh", cohorte);
+        modelo.addAttribute("plazoMinimoContenidoDias", cohorteServicio.plazoMinimoParaCompletarContenidoDias());
+        modelo.addAttribute("accesoDiasMaximos", Cohorte.DIAS_ACCESO_MAXIMOS);
+        modelo.addAttribute("cupoMaximoPermitido", Cohorte.CUPO_MAXIMO_PERMITIDO);
+        return "fragments/modalEditarCohorte :: modal(cohorte=${coh})";
     }
 
     /**
@@ -129,14 +158,11 @@ public class CohorteControlador extends PanelCursoControlador {
                 .filter(cohorte -> cursoDelPanel == null
                         || cohorte.getCurso().getIdCurso() == cursoDelPanel.getIdCurso())
                 .toList();
-        Map<Integer, List<Inscripcion>> inscripcionesPorCohorte = new HashMap<>();
+        // Cantidad de inscripciones y de clases vigentes por cohorte, en una consulta cada una (no una por cohorte)
+        Map<Integer, Long> inscripcionesPorCohorte = new HashMap<>();
+        inscripcionRepositorio.contarVigentesPorCohorte().forEach(f -> inscripcionesPorCohorte.put((Integer) f[0], (Long) f[1]));
         Map<Integer, Long> clasesPorCohorte = new HashMap<>();
-        for (Cohorte cohorte : cohortes) {
-            inscripcionesPorCohorte.put(cohorte.getIdCohorte(),
-                    cohorte.getInscripciones().stream().filter(inscripcion -> !inscripcion.esInactivo()).toList());
-            clasesPorCohorte.put(cohorte.getIdCohorte(),
-                    cohorte.getClasesEnVivo().stream().filter(clase -> !clase.getBaja()).count());
-        }
+        claseEnVivoRepositorio.contarVigentesPorCohorte().forEach(f -> clasesPorCohorte.put((Integer) f[0], (Long) f[1]));
 
         // Cohortes que el docente tiene como contexto de trabajo por defecto
         Set<Integer> cohortesDeTrabajo = new HashSet<>();

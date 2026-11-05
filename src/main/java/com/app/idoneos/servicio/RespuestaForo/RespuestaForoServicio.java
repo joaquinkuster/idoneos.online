@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.RespuestaForo;
 
+import java.util.Optional;
 import java.util.List;
 import com.app.idoneos.modelo.ConsultaForo;
 import com.app.idoneos.modelo.Docente;
@@ -10,6 +11,14 @@ import com.app.idoneos.modelo.RespuestaForo;
  * Servicio para gestionar las operaciones relacionadas con la respuesta del foro.
  */
 public interface RespuestaForoServicio {
+
+    /**
+     * Busca una respuesta vigente por su identificador.
+     *
+     * @param id el identificador
+     * @return el registro, o vacío si no existe o está dado de baja
+     */
+    Optional<RespuestaForo> buscarPorId(Integer id);
 
     // ---------------------------------------------------------------- Lecturas
 

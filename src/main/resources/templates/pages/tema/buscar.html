@@ -67,7 +67,10 @@
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
                                                 data-editar-tema th:attr="data-id=${t.idTema}">Editar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaTema' + ${t.idTema}">Dar de baja</button>
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaTema"
+                                                th:data-baja-accion="@{'/tema/darDeBaja/' + ${t.idTema}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el tema «' + ${t.titulo} + '»?'"
+                                                th:data-baja-nota="'Se quitará del cronograma de los programas que lo incluyen. No se puede si alguno tiene inscripciones activas.'">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -198,9 +201,9 @@
 </div>
 
 <!-- Bajas (CU-22): el tema se quita de todos los programas que lo incluyen -->
-<th:block th:each="t : ${temas}">
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTema' + ${t.idTema}, 'tema', '¿Confirmas dar de baja el tema «' + ${t.titulo} + '»?', 'Se quitará del cronograma de los programas que lo incluyen. No se puede si alguno tiene inscripciones activas.', '/tema/darDeBaja/' + ${t.idTema}, null, null)}"></th:block>
-</th:block>
+
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTema', 'tema', '¿Confirmas dar de baja?', '', '/tema/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/temas.js}"></script>

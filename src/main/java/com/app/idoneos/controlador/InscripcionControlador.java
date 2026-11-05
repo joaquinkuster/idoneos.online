@@ -281,4 +281,36 @@ public class InscripcionControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de una inscripción, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     La inscripción.
+     * @param modelo El modelo de la vista.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo) {
+        modelo.addAttribute("i", inscripcionServicio.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra disponible.")));
+        return "fragments/modalEditarInscripcion :: modal(i=${i})";
+    }
+
+    /**
+     * Ventana de corrección de los datos del certificado de una inscripción, que el listado pide al abrirla.
+     *
+     * @param id     La inscripción.
+     * @param modelo El modelo de la vista.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalCertificado/{id}")
+    public String ventanaCertificado(@PathVariable("id") Integer id, Model modelo) {
+        com.app.idoneos.modelo.Inscripcion i = inscripcionServicio.buscarPorId(id)
+                .filter(x -> x.getCertificadoVigente() != null)
+                .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no tiene un certificado vigente."));
+        modelo.addAttribute("i", i);
+        return "fragments/modalCertificado :: modal(i=${i})";
+    }
 }

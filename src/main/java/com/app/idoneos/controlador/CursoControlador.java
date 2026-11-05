@@ -87,6 +87,28 @@ public class CursoControlador extends PanelCursoControlador {
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return La vista de búsqueda de cursos.
      */
+    /**
+     * Ventana de modificación de un curso, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     El curso.
+     * @param modelo El modelo de la vista.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo) {
+        Curso curso = cursoServicio.buscarActivoPorId(id);
+        ResumenCursos resumen = cursoServicio.resumir(List.of(curso));
+        modelo.addAttribute("curso", curso);
+        modelo.addAttribute("bloqueado", resumen.inscripcionesPorCurso().containsKey(curso.getIdCurso())
+                && !resumen.inscripcionesPorCurso().get(curso.getIdCurso()).isEmpty());
+        modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
+        modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
+        modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());
+        modelo.addAttribute("docentes", docenteServicio.buscarHabilitados());
+        modelo.addAttribute("precioMaximo", (long) Curso.PRECIO_MAXIMO);
+        return "fragments/modalEditarCurso :: modal(curso=${curso}, bloqueado=${bloqueado})";
+    }
+
     @GetMapping("/buscar")
     public String buscarCursos(@RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,

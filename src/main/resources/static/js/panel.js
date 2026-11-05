@@ -925,6 +925,7 @@
         mostrar(0);
     }
     document.querySelectorAll('form[data-pasos]').forEach(iniciarPasos);
+    window.PanelIniciarPasos = iniciarPasos; // para formularios que llegan después de la carga (modalesBajoDemanda.js)
 
     // Cuando el servidor rechaza un formulario por pasos, se vuelve al paso del campo al que se refiere el error y se
     // marca ese campo. El servidor responde con un mensaje, así que el campo se deduce de las palabras de su etiqueta.

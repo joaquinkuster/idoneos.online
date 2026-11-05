@@ -99,7 +99,7 @@ public class AutenticacionConfiguracion {
                         .permitAll()
                         // CU-44, CU-46 y CU-47: buscar, registrar y modificar inscripciones (Administrador); CU-48: corregir
                         // los datos del certificado (Administrador); CU-49: dar de baja (Alumno la suya, Administrador)
-                        .requestMatchers(HttpMethod.GET, "/inscripcion/buscar").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.GET, "/inscripcion/buscar", "/inscripcion/modalEditar/*", "/inscripcion/modalCertificado/*").hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/inscripcion/registrar", "/inscripcion/modificar/*")
                         .hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/inscripcion/darDeBaja/*").hasAnyRole("Alumno", "Administrador")
@@ -112,7 +112,7 @@ public class AutenticacionConfiguracion {
                         // consulta a MODO; el administrador busca, registra y modifica pagos; el alumno ve y paga los suyos;
                         // el estado y el comprobante los ve cualquier usuario con sesión (el servicio controla de quién es)
                         .requestMatchers(HttpMethod.POST, "/pago/webhook").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/pago/buscar").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.GET, "/pago/buscar", "/pago/modalModificar/*").hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/pago/registrar", "/pago/modificar/*").hasRole("Administrador")
                         .requestMatchers(HttpMethod.GET, "/pago/estado/*", "/pago/comprobante/*").authenticated()
                         .requestMatchers("/pago/**").hasRole("Alumno")
@@ -182,6 +182,7 @@ public class AutenticacionConfiguracion {
                         // moderar (dar de baja consultas y respuestas): administrador
                         .requestMatchers(HttpMethod.GET, "/foro/ver/*", "/foro/consulta/*").authenticated()
                         .requestMatchers(HttpMethod.GET, "/foro/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.GET, "/foro/modalEditarRespuesta/*").hasRole("Docente")
                         .requestMatchers(HttpMethod.POST, "/foro/registrar", "/foro/modificar/*").hasRole("Alumno")
                         .requestMatchers(HttpMethod.POST, "/foro/responder", "/foro/modificarRespuesta/*").hasRole("Docente")
                         .requestMatchers(HttpMethod.POST, "/foro/darDeBaja/*", "/foro/darDeBajaRespuesta/*").hasRole("Administrador")

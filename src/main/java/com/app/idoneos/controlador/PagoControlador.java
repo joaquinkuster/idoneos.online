@@ -360,4 +360,22 @@ public class PagoControlador {
     private static String texto(Object valor) {
         return valor == null || valor.toString().isBlank() ? null : valor.toString();
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de un pago, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     El pago.
+     * @param modelo El modelo de la vista.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalModificar/{id}")
+    public String ventanaModificar(@PathVariable("id") Integer id, Model modelo) {
+        Pago p = pagoServicio.buscarPorId(id).filter(x -> !x.estaAprobado())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El pago no se encuentra disponible para modificar."));
+        modelo.addAttribute("p", p);
+        modelo.addAttribute("detalles", Map.of(p.getInscripcion().getIdInscripcion(), pagoServicio.calcularDetalle(p.getInscripcion())));
+        return "fragments/modalModificarPago :: modal(p=${p})";
+    }
 }

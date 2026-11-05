@@ -125,4 +125,5 @@
 
     window.DuracionTexto = texto;
     document.querySelectorAll('[data-duracion]').forEach(iniciar);
+    window.DuracionIniciar = iniciar;
 })();

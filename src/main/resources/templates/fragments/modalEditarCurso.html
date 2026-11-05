@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación de un curso. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /curso/modalEditar/{id}).
+     Usa del modelo: curso y bloqueado (tiene inscripciones activas), más los catálogos del formulario. -->
+<div th:fragment="modal(curso, bloqueado)" class="modal fade pn-modal" th:id="'modalEditarCurso' + ${curso.idCurso}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Editar curso</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{fragments/formCurso :: formulario(${curso}, ${bloqueado})}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

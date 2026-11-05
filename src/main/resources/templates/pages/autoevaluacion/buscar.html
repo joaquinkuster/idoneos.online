@@ -90,9 +90,13 @@
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarAutoevaluacion' + ${a.idAutoevaluacion}">Modificar</button>
+                                                th:data-bs-target="'#modalEditarAutoevaluacion' + ${a.idAutoevaluacion}"
+                                                th:data-modal-url="@{'/autoevaluacion/modalEditar/' + ${a.idAutoevaluacion}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaAutoevaluacion' + ${a.idAutoevaluacion}">Dar de baja</button>
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaAutoevaluacion"
+                                                th:data-baja-accion="@{'/autoevaluacion/darDeBaja/' + ${a.idAutoevaluacion}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja la autoevaluación «' + ${a.nombre} + '»?'"
+                                                th:data-baja-nota="${a.tieneIntentosActivos() ? 'Tiene ' + #lists.size(a.intentosActivos) + ' intento/s registrado/s: no se puede dar de baja.' : 'Dejará de estar disponible para los alumnos. Los pools no se modifican.'}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -138,28 +142,15 @@
 </div>
 
 <!-- Modales por autoevaluación: modificar (CU-66) y dar de baja (CU-67) -->
-<th:block th:each="a : ${autoevaluaciones}">
-    <div class="modal fade pn-modal" th:id="'modalEditarAutoevaluacion' + ${a.idAutoevaluacion}" tabindex="-1" aria-hidden="true"
-         th:if="${puedeGestionar}">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar autoevaluación</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <th:block th:replace="~{fragments/formAutoevaluacion :: formulario(${a}, ${a.tieneIntentosActivos()})}"></th:block>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaAutoevaluacion' + ${a.idAutoevaluacion}, 'autoevaluación', '¿Confirmas dar de baja la autoevaluación «' + ${a.nombre} + '»?', ${a.tieneIntentosActivos() ? 'Tiene ' + #lists.size(a.intentosActivos) + ' intento/s registrado/s: no se puede dar de baja.' : 'Dejará de estar disponible para los alumnos. Los pools no se modifican.'}, '/autoevaluacion/darDeBaja/' + ${a.idAutoevaluacion}, null, null)}"></th:block>
-</th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaAutoevaluacion', 'autoevaluación', '¿Confirmas dar de baja?', '', '/autoevaluacion/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/modalesBajoDemanda.js}"></script>
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <script th:src="@{/js/academica.js}"></script>
 <script th:src="@{/js/autoevaluacion.js}"></script>
+<script th:src="@{/js/abrirModal.js}"></script>
 </body>
 </html>

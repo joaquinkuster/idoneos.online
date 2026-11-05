@@ -1,5 +1,6 @@
 package com.app.idoneos.servicio.TerminoGlosario;
 
+import java.util.Optional;
 import java.util.List;
 import java.util.Map;
 import com.app.idoneos.modelo.Docente;
@@ -11,6 +12,14 @@ import com.app.idoneos.modelo.Usuario;
  * Servicio para gestionar las operaciones relacionadas con el término del glosario (CU-32 a CU-35).
  */
 public interface TerminoGlosarioServicio {
+
+    /**
+     * Busca un término vigente por su identificador.
+     *
+     * @param id el identificador
+     * @return el registro, o vacío si no existe o está dado de baja
+     */
+    Optional<TerminoGlosario> buscarPorId(Integer id);
 
     // ---------------------------------------------------------------- Lecturas
 

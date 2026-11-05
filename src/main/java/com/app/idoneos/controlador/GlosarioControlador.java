@@ -214,4 +214,26 @@ public class GlosarioControlador extends PanelCursoControlador {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de un término del glosario, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     El término.
+     * @param modelo El modelo de la vista.
+     * @param auth   La autenticación actual.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
+        TerminoGlosario t = terminoGlosarioServicio.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El término no se encuentra disponible."));
+        ContextoCurso contexto = contextoDelPanel(t.getTema().getCurso().getIdCurso(), (Usuario) auth.getPrincipal());
+        if (contexto.esAdministrador()) {
+            throw new IllegalArgumentException("Error! Solo el equipo docente modifica el glosario.");
+        }
+        modelo.addAttribute("t", t);
+        return "fragments/modalEditarTermino :: modal(t=${t})";
+    }
 }

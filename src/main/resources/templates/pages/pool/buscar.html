@@ -74,11 +74,15 @@
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.tieneIntentosActivos()}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalEditarPool' + ${p.idPool}">Modificar</button>
+                                                th:data-bs-target="'#modalEditarPool' + ${p.idPool}"
+                                                th:data-modal-url="@{'/pool/modalEditar/' + ${p.idPool}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and p.tieneIntentosActivos()}"
                                                 disabled title="Tiene intentos de autoevaluación asociados: su contenido no puede modificarse">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaPool' + ${p.idPool}">Dar de baja</button>
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaPool"
+                                                th:data-baja-accion="@{'/pool/darDeBaja/' + ${p.idPool}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el pool «' + ${p.nombre} + '»?'"
+                                                th:data-baja-nota="${#lists.isEmpty(p.autoevaluacionesActivas) ? 'El pool y sus preguntas dejarán de estar disponibles.' : 'Está asociado a ' + #lists.size(p.autoevaluacionesActivas) + ' autoevaluación/es activa/s: no se puede dar de baja hasta que se den de baja esas autoevaluaciones.'}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -124,26 +128,12 @@
 </div>
 
 <!-- Modales por pool: modificar (CU-62) y dar de baja (CU-63) -->
-<th:block th:each="p : ${pools}">
-    <div class="modal fade pn-modal" th:id="'modalEditarPool' + ${p.idPool}" tabindex="-1" aria-hidden="true"
-         th:if="${puedeGestionar and !p.tieneIntentosActivos()}">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar pool</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <th:block th:replace="~{fragments/formPool :: formulario(${p}, ${datosPorPool.get(p.idPool)})}"></th:block>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPool' + ${p.idPool}, 'pool', '¿Confirmas dar de baja el pool «' + ${p.nombre} + '»?', ${#lists.isEmpty(p.autoevaluacionesActivas) ? 'El pool y sus preguntas dejarán de estar disponibles.' : 'Está asociado a ' + #lists.size(p.autoevaluacionesActivas) + ' autoevaluación/es activa/s: no se puede dar de baja hasta que se den de baja esas autoevaluaciones.'}, '/pool/darDeBaja/' + ${p.idPool}, null, null)}"></th:block>
-</th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPool', 'pool', '¿Confirmas dar de baja?', '', '/pool/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/modalesBajoDemanda.js}"></script>
 <script th:src="@{/js/abrirModal.js}"></script>
 <script th:src="@{/js/academica.js}"></script>
 <script th:src="@{/js/pool.js}"></script>

@@ -92,7 +92,10 @@
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${puedeDarDeBaja}"
-                                                data-bs-toggle="modal" th:data-bs-target="'#modalBajaIntento' + ${i.idIntentoAutoevaluacion}">Dar de baja</button>
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaIntento"
+                                                th:data-baja-accion="@{'/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el intento ' + ${f.numero} + ' de «' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '»?'"
+                                                th:data-baja-nota="${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar el tema, el tema vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}">Dar de baja</button>
                                         <div class="dropdown" th:if="${puedeAprobarEste}">
                                             <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
                                                     aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
@@ -138,8 +141,12 @@
           th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax d-none"></form>
 
     <th:block th:if="${puedeDarDeBaja}">
-        <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento' + ${i.idIntentoAutoevaluacion}, 'intento', '¿Confirmas dar de baja el intento ' + ${f.numero} + ' de «' + ${i.inscripcion.alumno.usuario.nombreCompleto} + '»?', ${i.estaEnCurso() ? 'Está en curso: el alumno no podrá continuarlo y no se corregirá.' : (i.aprobado ? 'Estaba aprobado: si era el que le permitía completar el tema, el tema vuelve a estar pendiente y se anula su certificado.' : 'Dejará de contar entre los intentos del alumno.')}, '/intento/darDeBaja/' + ${i.idIntentoAutoevaluacion}, null, null)}"></th:block>
     </th:block>
+</th:block>
+
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:if="${puedeDarDeBaja}">
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaIntento', 'intento', '¿Confirmas dar de baja?', '', '/intento/darDeBaja/0', null, null)}"></th:block>
 </th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>

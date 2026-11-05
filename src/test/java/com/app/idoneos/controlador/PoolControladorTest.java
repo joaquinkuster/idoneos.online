@@ -74,7 +74,7 @@ class PoolControladorTest {
                 .andExpect(content().string(Matchers.containsString("Renta fija")))
                 .andExpect(content().string(Matchers.containsString("data-bs-target=\"#modalNuevoPool\"")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalNuevoPool\"")))
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPool" + pool("Renta fija") + "\"")))
+                .andExpect(content().string(Matchers.containsString("data-modal-url=\"/pool/modalEditar/" + pool("Renta fija") + "\"")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPool")))
                 .andExpect(content().string(Matchers.containsString("/pool/darDeBajaMasiva")))
                 .andExpect(content().string(Matchers.containsString("data-pool-formulario")))
@@ -91,8 +91,8 @@ class PoolControladorTest {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Tiene intentos de autoevaluación asociados")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalEditarPool" + pool("Marco regulatorio") + "\""))))
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarPool" + pool("Renta fija") + "\"")));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-modal-url=\"/pool/modalEditar/" + pool("Marco regulatorio") + "\""))))
+                .andExpect(content().string(Matchers.containsString("data-modal-url=\"/pool/modalEditar/" + pool("Renta fija") + "\"")));
     }
 
     @Test
@@ -127,6 +127,10 @@ class PoolControladorTest {
                 .andExpect(content().string(Matchers.containsString("action=\"/pool/registrar\"")))
                 .andExpect(content().string(Matchers.containsString("name=\"temaId\"")))
                 .andExpect(content().string(Matchers.containsString("3. Renta variable y opciones")))
+                ;
+        // La ventana de modificación se pide al abrirla
+        mockMvc.perform(get("/pool/modalEditar/" + pool("Renta fija")))
+                .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("action=\"/pool/modificar/" + pool("Renta fija") + "\"")))
                 .andExpect(content().string(Matchers.containsString("El rendimiento anual")));
     }

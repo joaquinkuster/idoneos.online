@@ -56,10 +56,8 @@
     // cuando se abre la ventana y no se ve cargarse despues
     if (window.iniciarMultiselect) { window.iniciarMultiselect(document); }
     document.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
-
-    // Apertura automatica de la ventana de una autoevaluacion (?accion=editar|baja&autoevaluacionId=...), desde la vista del curso
-    var principal = document.querySelector('[data-abrir-modal]');
-    if (principal && principal.dataset.abrirModal && document.getElementById(principal.dataset.abrirModal)) {
-        bootstrap.Modal.getOrCreateInstance(document.getElementById(principal.dataset.abrirModal)).show();
-    }
+    // La ventana de modificación llega después de la carga (modalesBajoDemanda.js)
+    document.addEventListener('ventana-cargada', function (e) {
+        e.detail.ventana.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
+    });
 })();

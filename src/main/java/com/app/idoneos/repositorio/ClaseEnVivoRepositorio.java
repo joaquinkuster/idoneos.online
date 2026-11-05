@@ -17,6 +17,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ClaseEnVivoRepositorio extends JpaRepository<ClaseEnVivo, Integer> {
 
+    /** Cantidad de clases en vivo vigentes de cada cohorte (pares idCohorte, cantidad), en una sola consulta. */
+    @org.springframework.data.jpa.repository.Query("select c.cohorte.idCohorte, count(c) from ClaseEnVivo c where c.baja = false and c.cohorte is not null group by c.cohorte.idCohorte")
+    List<Object[]> contarVigentesPorCohorte();
+
     /**
      * Encuentra todos los registros activos (no dados de baja).
      *

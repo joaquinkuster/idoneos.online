@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /pool/modalEditar/{id}). -->
+    <div th:fragment="modal(p)" class="modal fade pn-modal" th:id="'modalEditarPool' + ${p.idPool}" tabindex="-1" aria-hidden="true"
+        >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar pool</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <th:block th:replace="~{fragments/formPool :: formulario(${p}, ${datosPorPool.get(p.idPool)})}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -306,4 +306,23 @@ public class ForoControlador extends PanelCursoControlador {
         modelo.addAttribute("plazoEdicion", parametroServicio.obtenerEntero(Parametro.PLAZO_EDICION_FORO,
                 Parametro.PLAZO_EDICION_FORO_POR_DEFECTO));
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de una respuesta del foro, que la consulta pide al abrirla (en lugar de dibujar una por respuesta).
+     *
+     * @param id     La respuesta.
+     * @param modelo El modelo de la vista.
+     * @param auth   La autenticación actual.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditarRespuesta/{id}")
+    public String ventanaEditarRespuesta(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
+        RespuestaForo r = respuestaServicio.buscarPorId(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        cargarContextoDelForo(r.getConsulta().getTema(), (Usuario) auth.getPrincipal(), modelo);
+        modelo.addAttribute("r", r);
+        return "fragments/modalEditarRespuesta :: modal(r=${r})";
+    }
 }

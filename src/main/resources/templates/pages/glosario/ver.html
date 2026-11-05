@@ -74,9 +74,13 @@
                                 <a class="gl-icono" title="Enlace permanente" aria-label="Enlace permanente"
                                    th:href="@{/glosario/ver/{id}(id=${tema.idTema}, terminoId=${t.idTermino})}"><i class="fa-solid fa-link"></i></a>
                                 <button type="button" class="gl-icono" th:if="${puedeGestionar}" title="Editar término" aria-label="Editar término"
-                                        data-bs-toggle="modal" th:data-bs-target="'#modalEditarTermino' + ${t.idTermino}"><i class="fa-solid fa-pencil"></i></button>
+                                        th:data-bs-target="'#modalEditarTermino' + ${t.idTermino}"
+                                                th:data-modal-url="@{'/glosario/modalEditar/' + ${t.idTermino}}"><i class="fa-solid fa-pencil"></i></button>
                                 <button type="button" class="gl-icono gl-icono-baja" th:if="${puedeDarDeBaja}" title="Dar de baja término" aria-label="Dar de baja término"
-                                        data-bs-toggle="modal" th:data-bs-target="'#modalBajaTermino' + ${t.idTermino}"><i class="fa-solid fa-trash-can"></i></button>
+                                        data-bs-toggle="modal" data-bs-target="#modalBajaTermino"
+                                                th:data-baja-accion="@{'/glosario/darDeBaja/' + ${t.idTermino}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el término «' + ${t.termino} + '»?'"
+                                                th:data-baja-nota="'El término dejará de mostrarse en el glosario.'"><i class="fa-solid fa-trash-can"></i></button>
                             </div>
                         </div>
                         <p class="gl-definicion" th:text="${t.definicion}">Título que representa una parte del capital de una sociedad.</p>
@@ -140,56 +144,19 @@
 <!-- Modales por término: modificar (CU-34) y dar de baja (CU-35) -->
 <th:block th:each="grupo : ${grupos}">
     <th:block th:each="t : ${grupo.value}">
-        <div class="modal fade pn-modal" th:id="'modalEditarTermino' + ${t.idTermino}" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content">
-                    <div class="pn-modal-cabecera">
-                        <h3 class="pn-modal-titulo">Editar término</h3>
-                        <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                    <div class="pn-modal-cuerpo">
-                        <div class="pn-seccion-titulo">
-                            <h4>Datos del término</h4>
-                            <p>Término y definición</p>
-                        </div>
-                        <form th:action="@{'/glosario/modificar/' + ${t.idTermino}}" method="post" class="form-ajax" data-validar novalidate>
-                            <div class="row g-3 mb-3">
-                                <div class="col-12 pn-campo">
-                                    <div class="pn-etiqueta-fila">
-                                        <label class="pn-etiqueta">Término <span class="pn-obligatorio">*</span></label>
-                                        <span class="pn-contador" th:text="${#strings.length(t.termino) + ' / 50'}">0 / 50</span>
-                                    </div>
-                                    <input type="text" name="termino" class="pn-input" maxlength="50" th:value="${t.termino}" data-contador required
-                                           data-mensaje-obligatorio="Debe completar el término.">
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-                                <div class="col-12 pn-campo">
-                                    <div class="pn-etiqueta-fila">
-                                        <label class="pn-etiqueta">Definición <span class="pn-obligatorio">*</span></label>
-                                        <span class="pn-contador" th:text="${#strings.length(t.definicion) + ' / 500'}">0 / 500</span>
-                                    </div>
-                                    <textarea name="definicion" class="pn-input" rows="5" maxlength="500" data-contador required
-                                              data-mensaje-obligatorio="Debe completar la definición." th:text="${t.definicion}"></textarea>
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-                            </div>
-                            <div class="pn-modal-pie">
-                                <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <th:block th:if="${puedeDarDeBaja}">
-            <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTermino' + ${t.idTermino}, 'término', '¿Confirmas dar de baja el término «' + ${t.termino} + '»?', 'El término dejará de mostrarse en el glosario.', '/glosario/darDeBaja/' + ${t.idTermino}, null, null)}"></th:block>
         </th:block>
     </th:block>
 </th:block>
 
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
+<th:block th:if="${puedeDarDeBaja}">
+    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTermino', 'término', '¿Confirmas dar de baja?', '', '/glosario/darDeBaja/0', null, null)}"></th:block>
+</th:block>
+
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+<script th:src="@{/js/modalesBajoDemanda.js}"></script>
 <script th:src="@{/js/academica.js}"></script>
 <script th:src="@{/js/glosario.js}"></script>
 <script th:src="@{/js/glosarioFiltros.js}"></script>

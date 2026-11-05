@@ -20,6 +20,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InscripcionRepositorio extends JpaRepository<Inscripcion, Integer> {
 
+    /** Cantidad de inscripciones vigentes de cada cohorte (pares idCohorte, cantidad), en una sola consulta. */
+    @Query("select i.cohorte.idCohorte, count(i) from Inscripcion i where i.baja = false group by i.cohorte.idCohorte")
+    List<Object[]> contarVigentesPorCohorte();
+
     /**
      * Encuentra todos los registros activos (no dados de baja).
      *

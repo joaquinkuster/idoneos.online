@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /inscripcion/modalCertificado/{id}). -->
+    <div th:fragment="modal(i)" class="modal fade pn-modal" th:id="'modalCertificado' + ${i.idInscripcion}" tabindex="-1" aria-hidden="true"
+        >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Corregir datos del certificado</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Datos del certificado</h4>
+                        <p>Nombre y DNI del alumno</p>
+                    </div>
+                    <form th:action="@{'/certificado/corregir/' + ${i.certificadoVigente.idCertificado}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="pn-campo mb-3">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Nombre del alumno <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador" th:text="${#strings.length(i.certificadoVigente.nombreAlumno) + ' / 100'}">0 / 100</span>
+                            </div>
+                            <input type="text" name="nombre" class="pn-input" maxlength="100" th:value="${i.certificadoVigente.nombreAlumno}" data-contador required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="pn-campo mb-3">
+                            <label class="pn-etiqueta">DNI <span class="pn-obligatorio">*</span></label>
+                            <input type="text" name="dni" class="pn-input" maxlength="8" inputmode="numeric" th:value="${i.certificadoVigente.dniAlumno}" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Corregir</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

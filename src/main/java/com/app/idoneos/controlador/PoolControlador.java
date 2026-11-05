@@ -240,4 +240,26 @@ public class PoolControlador extends PanelCursoControlador {
             throw new IllegalStateException("No se pudo armar el contenido del pool.", e);
         }
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de un pool, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     El pool.
+     * @param modelo El modelo de la vista.
+     * @param auth   La autenticación actual.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
+        Usuario usuario = (Usuario) auth.getPrincipal();
+        Pool p = poolServicio.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra disponible."));
+        ContextoCurso contexto = contextoDelPanel(p.getTema().getCurso().getIdCurso(), usuario); // verifica el acceso al curso
+        modelo.addAttribute("curso", contexto.curso());
+        modelo.addAttribute("p", p);
+        modelo.addAttribute("datosPorPool", Map.of(p.getIdPool(), aJson(datosDelPool(p))));
+        return "fragments/modalEditarPool :: modal(p=${p})";
+    }
 }

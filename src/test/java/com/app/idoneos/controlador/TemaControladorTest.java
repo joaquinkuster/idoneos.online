@@ -99,7 +99,7 @@ class TemaControladorTest {
                 .andExpect(content().string(Matchers.containsString("data-editar-tema")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
-                .andExpect(content().string(Matchers.containsString("id=\"modalBajaTema" + tema.getIdTema() + "\"")))
+                .andExpect(content().string(Matchers.containsString("/tema/darDeBaja/" + tema.getIdTema() + "")))
                 // el listado ya no es el del cronograma de un programa
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma de "))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-baja-masiva"))));
@@ -198,7 +198,7 @@ class TemaControladorTest {
         mockMvc.perform(post("/tema/darDeBaja/" + tema.getIdTema()))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Tema dada de baja con éxito."));
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalBajaTema" + tema.getIdTema() + "\""))));
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/tema/darDeBaja/" + tema.getIdTema() + ""))));
     }
 
     @Test

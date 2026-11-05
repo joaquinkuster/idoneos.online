@@ -12,9 +12,9 @@
             </div>
             <div class="pn-modal-cuerpo text-center">
                 <div class="pn-baja-icono"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <h4 class="pn-modal-titulo mb-2" th:text="${pregunta}">¿Confirmas dar de baja?</h4>
-                <p class="small text-muted mb-0" th:text="${nota}">Aclaración.</p>
-                <form th:action="@{${accion}}" method="post" class="form-ajax">
+                <h4 class="pn-modal-titulo mb-2" th:text="${pregunta}" data-baja-pregunta>¿Confirmas dar de baja?</h4>
+                <p class="small text-muted mb-0" th:text="${nota}" data-baja-nota>Aclaración.</p>
+                <form th:action="@{${accion}}" method="post" class="form-ajax" data-baja-formulario>
                     <input type="hidden" th:if="${campoNombre != null}" th:name="${campoNombre}" th:value="${campoValor}">
                     <div class="pn-modal-pie">
                         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>

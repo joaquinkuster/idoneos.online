@@ -263,6 +263,7 @@
         }).observe(pasoResumen, { attributes: true, attributeFilter: ['class'] });
     }
 
+    window.HojaDeRutaIniciar = iniciar;
     function arrancar() { document.querySelectorAll('form[data-resumen]').forEach(iniciar); }
     if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', arrancar); } else { arrancar(); }
 })();

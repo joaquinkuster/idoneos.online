@@ -365,4 +365,27 @@ public class MaterialControlador extends PanelCursoControlador {
         Usuario usuario = (Usuario) auth.getPrincipal();
         return usuario.esAdministradorActivo() ? null : usuario.getDocente();
     }
+
+    // ---------------------------------------------------------------- Ventana de modificación a pedido
+
+    /**
+     * Ventana de modificación de un material, que el listado pide al abrirla (en lugar de dibujar una por fila).
+     *
+     * @param id     El material.
+     * @param modelo El modelo de la vista.
+     * @param auth   La autenticación actual.
+     * @return El fragmento con la ventana.
+     */
+    @GetMapping("/modalEditar/{id}")
+    public String ventanaEditar(@PathVariable("id") Integer id, Model modelo, Authentication auth) {
+        TemaRecurso m = materialServicio.buscarPorId(id).filter(x -> !x.getBaja())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El material no se encuentra disponible."));
+        ContextoCurso contexto = contextoDelPanel(m.getCurso().getIdCurso(), (Usuario) auth.getPrincipal());
+        if (contexto.esAdministrador()) {
+            throw new IllegalArgumentException("Error! Solo el equipo docente modifica el material.");
+        }
+        modelo.addAttribute("curso", contexto.curso());
+        modelo.addAttribute("m", m);
+        return "fragments/modalEditarMaterial :: modal(m=${m})";
+    }
 }

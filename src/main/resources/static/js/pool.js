@@ -280,11 +280,17 @@
         });
     }
 
-    var editores = document.querySelectorAll('[data-pool-editor]');
-    Array.prototype.forEach.call(editores, function (raiz, i) {
-        raiz.dataset.uid = String(i);
-        var formulario = raiz.closest('form');
-        if (formulario && !formulario.id) { formulario.id = 'formPool' + i; }
-        iniciar(raiz);
-    });
+    var contador = 0;
+    function iniciarEditores(raizDocumento) {
+        Array.prototype.forEach.call(raizDocumento.querySelectorAll('[data-pool-editor]'), function (raiz) {
+            var i = contador++;
+            raiz.dataset.uid = String(i);
+            var formulario = raiz.closest('form');
+            if (formulario && !formulario.id) { formulario.id = 'formPool' + i; }
+            iniciar(raiz);
+        });
+    }
+    iniciarEditores(document);
+    // Las ventanas de modificación llegan después de la carga (modalesBajoDemanda.js)
+    document.addEventListener('ventana-cargada', function (e) { iniciarEditores(e.detail.ventana); });
 })();

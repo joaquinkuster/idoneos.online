@@ -149,11 +149,11 @@ class ProgramaControladorTest {
         mockMvc.perform(get("/programa/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-id=\"" + nuevo.getIdPrograma() + "\"")))
-                .andExpect(content().string(Matchers.containsString("id=\"modalBajaPrograma" + nuevo.getIdPrograma() + "\"")))
+                .andExpect(content().string(Matchers.containsString("/programa/darDeBaja/" + nuevo.getIdPrograma() + "")))
                 .andExpect(content().string(Matchers.containsString("Anterior")))
                 // el programa anterior (con una cohorte activa) conserva sus acciones
                 .andExpect(content().string(Matchers.containsString("data-id=\"" + anterior + "\"")))
-                .andExpect(content().string(Matchers.containsString("id=\"modalBajaPrograma" + anterior + "\"")));
+                .andExpect(content().string(Matchers.containsString("/programa/darDeBaja/" + anterior + "")));
     }
 
     @Test

@@ -112,12 +112,19 @@ class AutoevaluacionControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Evaluación final\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Intentos registrados\""))))
                 .andExpect(content().string(Matchers.containsString("id=\"modalNuevaAutoevaluacion\"")))
-                .andExpect(content().string(Matchers.containsString("id=\"modalEditarAutoevaluacion")))
+                .andExpect(content().string(Matchers.containsString("data-modal-url=\"/autoevaluacion/modalEditar/")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaAutoevaluacion")))
                 .andExpect(content().string(Matchers.containsString("/autoevaluacion/darDeBajaMasiva")))
                 .andExpect(content().string(Matchers.containsString("data-autoevaluacion-pools")))
-                .andExpect(content().string(Matchers.containsString("ya registra intentos")))
                 .andExpect(content().string(Matchers.containsString("/js/autoevaluacion.js")));
+
+        // La ventana de modificación se pide al abrirla: la de una autoevaluación con intentos avisa que está limitada
+        boolean avisa = false;
+        for (String nombre : new String[] { "Autoevaluación Tema 1: Marco regulatorio", "Autoevaluación Tema 2: Ejercicios de rendimiento", "Autoevaluación del tema 3" }) {
+            avisa |= mockMvc.perform(get("/autoevaluacion/modalEditar/" + autoevaluacion(nombre))).andReturn().getResponse()
+                    .getContentAsString().contains("ya registra intentos");
+        }
+        assertTrue(avisa);
     }
 
     @Test
@@ -149,11 +156,12 @@ class AutoevaluacionControladorTest {
     }
 
     /** El HTML de la ventana de modificación de una autoevaluación. */
-    private String modal(String pagina, int idAutoevaluacion) {
-        int desde = pagina.indexOf("id=\"modalEditarAutoevaluacion" + idAutoevaluacion + "\"");
-        int hasta = pagina.indexOf("id=\"modalBajaAutoevaluacion" + idAutoevaluacion + "\"");
-        assertTrue(desde >= 0 && hasta > desde);
-        return pagina.substring(desde, hasta);
+    private String modal(String pagina, int idAutoevaluacion) throws Exception {
+        // La ventana no viene en el listado: se pide al abrirla
+        String modal = mockMvc.perform(get("/autoevaluacion/modalEditar/" + idAutoevaluacion)).andExpect(status().isOk())
+                .andReturn().getResponse().getContentAsString();
+        assertTrue(modal.contains("id=\"modalEditarAutoevaluacion" + idAutoevaluacion + "\""));
+        return modal;
     }
 
     @Test

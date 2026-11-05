@@ -75,7 +75,7 @@
                                 th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:data-o-curso="${coh.curso.nombre}"
                                 th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
-                                th:attr="data-dependencias=${(inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.idCohorte) ? inscripcionesPorCohorte.get(coh.idCohorte).size() : 0) + (clasesPorCohorte != null and clasesPorCohorte.containsKey(coh.idCohorte) ? clasesPorCohorte.get(coh.idCohorte) : 0)}"
+                                th:attr="data-dependencias=${(inscripcionesPorCohorte != null and inscripcionesPorCohorte.containsKey(coh.idCohorte) ? inscripcionesPorCohorte.get(coh.idCohorte) : 0) + (clasesPorCohorte != null and clasesPorCohorte.containsKey(coh.idCohorte) ? clasesPorCohorte.get(coh.idCohorte) : 0)}"
                                 th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${coh.idCohorte}" th:disabled="${coh.baja}"></td>
@@ -95,10 +95,14 @@
                                 <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!coh.baja}">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal" th:unless="${coh.esCancelada()}"
-                                                th:data-bs-target="'#modalEditarCohorte' + ${coh.idCohorte}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:unless="${coh.esCancelada()}"
+                                                th:data-bs-target="'#modalEditarCohorte' + ${coh.idCohorte}"
+                                                th:data-modal-url="@{'/cohorte/modalEditar/' + ${coh.idCohorte}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
-                                                th:data-bs-target="'#modalBajaCohorte' + ${coh.idCohorte}">Dar de baja</button>
+                                                data-bs-target="#modalBajaCohorte"
+                                                th:data-baja-accion="@{'/cohorte/darDeBaja/' + ${coh.idCohorte}}"
+                                                th:data-baja-nota="'Se desvinculará de los docentes que la tienen como cohorte de trabajo.'"
+                                                th:data-baja-pregunta="${'¿Confirmas dar de baja la cohorte «' + coh.curso.nombre + (coh.programa != null ? ' - ' + coh.programa.nombre : '') + '»?'}">Dar de baja</button>
                                     </div>
                                     <span th:if="${coh.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
@@ -268,111 +272,13 @@
     </div>
 </div>
 
-<!-- Modales por cohorte: modificar (CU-13) y dar de baja (CU-14) -->
-<th:block th:each="coh : ${cohortes}" th:if="${!coh.baja}">
-    <!-- Las canceladas no se modifican (solo se pueden dar de baja) -->
-    <div class="modal fade pn-modal" th:id="'modalEditarCohorte' + ${coh.idCohorte}" th:unless="${coh.esCancelada()}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="pn-modal-cabecera">
-                    <h3 class="pn-modal-titulo">Editar cohorte</h3>
-                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="pn-modal-cuerpo">
-                    <form th:action="@{'/cohorte/modificar/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
-                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
-                          th:attr="data-dias=${coh.curso.duracionDias}, data-envivo=${coh.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.curso.nombre}, data-ctx-programa=${coh.programa != null ? coh.programa.nombre : ''}, data-pendiente=${coh.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-maximo-acceso=${accesoDiasMaximos}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
-                          th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.curso.incluyeModalidad('En vivo')}">
-    <div class="pn-pasos pn-pasos-nombrados">
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Fechas</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Acceso y cupo</span></span><span class="pn-pasos-linea"></span>
-        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
-    </div>
-    <div class="pn-paso" data-grupo="Fechas">
-        <div class="pn-seccion-titulo">
-            <h4>Fechas de la cohorte</h4>
-            <p>Plazos de inscripción y de dictado</p>
-        </div>
-        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano"><div class="row g-3">
-<div class="col-md-6 pn-campo">
-                                    <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
-                                    <input type="date" name="fechaInicioInscripcion" class="pn-input" th:value="${#temporals.format(coh.fechaInicioInscripcion, 'yyyy-MM-dd')}" required>
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-<div class="col-md-6 pn-campo">
-                                    <label class="pn-etiqueta">Fin de inscripción <span class="pn-obligatorio">*</span></label>
-                                    <input type="date" name="fechaFinInscripcion" class="pn-input" th:value="${#temporals.format(coh.fechaFinInscripcion, 'yyyy-MM-dd')}" required>
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-<div class="col-md-6 pn-campo" th:if="${enVivo}">
-                                    <label class="pn-etiqueta">Inicio de dictado <span class="pn-obligatorio">*</span></label>
-                                    <input type="date" name="fechaInicioDictado" class="pn-input" th:value="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'yyyy-MM-dd') : ''}">
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-        </div></fieldset>
-    </div>
-    <div class="pn-paso" data-grupo="Acceso y cupo">
-        <div class="pn-seccion-titulo">
-            <h4>Acceso y cupo</h4>
-            <p>Tolerancia extra de acceso y cantidad de alumnos</p>
-        </div>
-        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano"><div class="row g-3">
-<div class="col-md-6 pn-campo">
-                                    <div class="pn-etiqueta-con-ayuda">
-                                        <label class="pn-etiqueta">Tolerancia extra para ponerse al día</label>
-                                        <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la tolerancia extra" title="Ayuda"
-                                                th:data-ayuda-destino="'ayudaDias' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
-                                    </div>
-                                    <th:block th:replace="~{fragments/campoDuracion :: duracion('tiempoExtra', ${coh.accesoDias > coh.curso.duracionDias ? coh.accesoDias - coh.curso.duracionDias : null}, ${false}, null)}"></th:block>
-                                    <span class="d-none" data-resumen-linea="Acceso para el alumno" data-acceso-total></span>
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-<div class="col-md-6 pn-campo">
-                                    <label class="pn-etiqueta">Cupo máximo (opcional)</label>
-                                    <input type="number" name="cupoMaximo" class="pn-input" min="1" th:attr="data-maximo=${cupoMaximoPermitido}" th:value="${coh.cupoMaximo}" placeholder="Cupo máximo">
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-                        <div class="col-12 ayuda-desplegable" th:id="'ayudaDias' + ${coh.idCohorte}">
-                            <div class="ayuda-desplegable-interior">
-                                <div class="cn-info">
-                                    <span>El alumno accede durante la duración del curso (<strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(coh.curso.duracionDias)}">4 semanas</strong>) más esta tolerancia extra. Es opcional.
-                                        <th:block th:if="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de inicio de dictado más los días de acceso.</th:block>
-                                        <th:block th:unless="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
-                                </div>
-                            </div>
-                        </div>
-        </div></fieldset>
-    </div>
-    <div class="pn-paso">
-        <div class="pn-seccion-titulo">
-            <h4>Resumen</h4>
-            <p>Estos son los cambios que se van a guardar</p>
-        </div>
-        <div class="pn-arbol" data-resumen-arbol></div>
-    </div>
-    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
-        La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
-    </div>
-    <div class="pn-aviso pn-aviso-dorado" th:if="${coh.esPendiente()}">
-        La cohorte está <strong>pendiente</strong>: se activa cuando el docente complete el contenido del programa.
-    </div>
-    <div class="pn-modal-pie">
-        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
-        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
-    </div>
-</form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCohorte' + ${coh.idCohorte}, 'cohorte', '¿Confirmas dar de baja la cohorte «' + ${coh.curso.nombre + (coh.programa != null ? ' - ' + coh.programa.nombre : '')} + '»?', 'Se desvinculará de los docentes que la tienen como cohorte de trabajo.', '/cohorte/darDeBaja/' + ${coh.idCohorte}, null, null)}"></th:block>
-</th:block>
+<!-- Las ventanas de modificar y de baja de las cohortes no se dibujan por fila: la de modificar se pide al abrirla (modalesBajoDemanda.js) y la de baja es una sola, más abajo -->
+<!-- Una sola ventana de baja para todas las cohortes: el botón de cada fila le pasa la acción y la pregunta -->
+<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCohorte', 'cohorte', '¿Confirmas dar de baja la cohorte?', 'Se desvinculará de los docentes que la tienen como cohorte de trabajo.', '/cohorte/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/ayudaDesplegable.js}"></script>
+<script th:src="@{/js/modalesBajoDemanda.js}"></script>
 <script th:src="@{/js/abrirModal.js}"></script>
 <script>
     // Validaciones propias de las cohortes (reglas de CU-12 y CU-13)
