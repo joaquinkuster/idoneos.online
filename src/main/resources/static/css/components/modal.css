@@ -1,0 +1,383 @@
+/* ==========================================================================
+   FORMULARIOS EN VENTANAS MODALES
+   ========================================================================== */
+.pn-modal .modal-content {
+    border: 0;
+    border-radius: 16px;
+    background: #FFFFFF;
+    box-shadow: 0 24px 60px rgba(8, 20, 38, 0.25);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    overflow: hidden;
+}
+
+.pn-modal-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.pn-modal-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--pn-texto);
+    margin: 0;
+}
+
+.pn-modal-cerrar {
+    background: transparent;
+    border: 0;
+    color: var(--pn-texto-suave);
+    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.pn-modal-cerrar:hover {
+    background: var(--pn-fondo);
+    color: var(--pn-texto);
+}
+
+.pn-modal-cuerpo {
+    padding: 22px 24px 8px;
+}
+
+.pn-modal-pie {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 16px 0;
+    border-top: 1px solid var(--pn-borde);
+    margin-top: 16px;
+}
+
+/* Ventanas de baja: el mismo aspecto de las alertas del sistema (460 px, sin franja de título, texto y botones centrados) */
+.pn-modal-alerta .modal-dialog {
+    max-width: 460px;
+}
+
+.pn-modal-alerta .pn-modal-cabecera {
+    display: none;
+}
+
+.pn-modal-alerta .pn-modal-cuerpo {
+    padding: 28px 24px 24px;
+    text-align: center;
+}
+
+.pn-modal-alerta .pn-modal-cuerpo h4.pn-modal-titulo {
+    font-size: 20px;
+}
+
+.pn-modal-alerta .pn-modal-cuerpo p {
+    color: var(--pn-texto-suave);
+    font-size: 14px;
+}
+
+.pn-modal-alerta .pn-modal-pie {
+    justify-content: center;
+    gap: 12px;
+    margin-top: 0;
+    padding: 20px 0 0;
+    border-top: 0;
+}
+
+.pn-modal-alerta .pn-modal-pie .pn-btn {
+    padding: 0 22px;
+    height: 40px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pn-modal-alerta .pn-modal-pie .pn-btn-secundario {
+    background: transparent;
+    color: #334155;
+    border: 1px solid var(--pn-borde-input);
+}
+
+.pn-modal-alerta .pn-modal-pie .pn-btn-secundario:hover {
+    background: #F1F5F9;
+}
+
+.pn-modal-alerta .pn-campo {
+    text-align: left;
+}
+
+.pn-modal-pie .pn-pie-izquierda {
+    margin-right: auto;
+}
+
+.pn-seccion-titulo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.pn-seccion-titulo h4 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--pn-texto);
+}
+
+.pn-seccion-titulo p {
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+    margin: 4px 0 0;
+}
+
+.pn-etiqueta {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 6px;
+}
+
+.pn-etiqueta .pn-obligatorio {
+    color: var(--pn-peligro);
+}
+
+.pn-etiqueta-fila {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.pn-contador {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+}
+
+.pn-input {
+    display: block;
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--pn-texto);
+    background-color: #FFFFFF;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 8px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+textarea.pn-input {
+    height: auto;
+    padding: 10px 12px;
+    resize: vertical;
+}
+
+.pn-input:focus {
+    outline: none;
+    border-color: var(--pn-gold);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
+}
+
+.pn-input[readonly],
+.pn-input:disabled,
+.pn-input.pn-bloqueado {
+    background-color: var(--pn-fondo);
+    color: var(--pn-texto-suave);
+}
+
+.pn-input.pn-bloqueado {
+    pointer-events: none;
+}
+
+.pn-input.es-invalido {
+    border-color: var(--pn-peligro);
+}
+
+.pn-ayuda-error {
+    font-size: 12px;
+    color: var(--pn-peligro);
+    margin-top: 4px;
+}
+
+.pn-ayuda-error:empty {
+    display: none;
+}
+
+/* Tiempo escrito en partes (horas y minutos, o meses, semanas y días): una casilla por parte y el total debajo */
+.pn-tiempo-total {
+    display: none;
+}
+
+.pn-tiempo-fila {
+    display: flex;
+    gap: 10px;
+}
+
+/* Cada casilla lleva su unidad arriba, a la izquierda, y todas se reparten el ancho de la columna */
+.pn-tiempo-parte {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
+
+.pn-tiempo-parte span {
+    margin-bottom: 4px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-tiempo-parte input {
+    width: 100%;
+}
+
+/* Duración en días, semanas o meses (o mixta): la cantidad (o las tres casillas) y, al lado, la unidad */
+.pn-duracion-fila {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.pn-duracion-valor {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.pn-duracion-mixto {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+}
+
+.pn-duracion-mixto[hidden],
+.pn-duracion-valor[hidden] {
+    display: none;
+}
+
+.pn-duracion-unidad {
+    flex: 0 0 120px;
+    width: 120px;
+}
+
+.pn-tiempo-eq {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-tiempo-eq b {
+    font-weight: 600;
+    color: var(--pn-texto, inherit);
+}
+
+.pn-aviso {
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.pn-aviso-dorado {
+    background: var(--pn-gold-soft);
+    color: #92400E;
+}
+
+.pn-aviso-azul {
+    background: #DBEAFE;
+    color: #1E40AF;
+}
+
+.pn-aviso-rojo {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+/* Los selectores múltiples (Tom Select) se ven como el resto de los campos */
+.pn-modal .ts-wrapper,
+.pn-filtros .ts-wrapper {
+    width: 100%;
+    position: relative;
+}
+
+/* La flecha a la derecha, como en los demás selectores */
+.pn-modal .ts-wrapper::after,
+.pn-filtros .ts-wrapper::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.pn-modal .ts-wrapper.dropdown-active::after,
+.pn-filtros .ts-wrapper.dropdown-active::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.pn-modal .ts-wrapper.multi .ts-control,
+.pn-filtros .ts-wrapper.multi .ts-control {
+    padding-right: 34px;
+}
+
+.pn-modal .ts-wrapper .ts-control,
+.pn-filtros .ts-wrapper .ts-control {
+    min-height: 42px;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 8px;
+    box-shadow: none;
+    color: var(--pn-texto, #0F172A);
+}
+
+.pn-modal .ts-wrapper.focus .ts-control,
+.pn-filtros .ts-wrapper.focus .ts-control {
+    border-color: var(--pn-gold);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
+}
+
+.pn-vista-previa {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid var(--pn-borde-input);
+}
+
+/* Confirmación de baja */
+.pn-baja-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #FEE2E2;
+    color: var(--pn-peligro);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin: 0 auto 15px;
+}
+
+.pn-baja-detalle {
+    background: var(--pn-fondo);
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 13px;
+    text-align: left;
+    margin-top: 16px;
+}
+
+.pn-baja-fila {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+}

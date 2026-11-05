@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación de una cohorte. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /cohorte/modificar/{id}).
+     Usa del modelo: cohorte, plazoMinimoContenidoDias, accesoDiasMaximos y cupoMaximoPermitido. -->
+    <div th:fragment="modal(cohorte)" class="modal fade pn-modal" th:id="'modalModificarCohorte' + ${cohorte.idCohorte}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar cohorte</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <form th:action="@{'/cohorte/modificar/' + ${cohorte.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
+                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
+                          th:attr="data-dias=${cohorte.curso.duracionDias}, data-envivo=${cohorte.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${cohorte.curso.nombre}, data-ctx-programa=${cohorte.programa != null ? cohorte.programa.nombre : ''}, data-pendiente=${cohorte.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-maximo-acceso=${accesoDiasMaximos}, data-resumen-titulo=${'(' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
+                          th:with="bloqueada=${cohorte.cantidadInscriptos > 0}, enVivo=${cohorte.curso.incluyeModalidad('En vivo')}">
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Fechas</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Acceso y cupo</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Fechas">
+        <div class="pn-seccion-titulo">
+            <h4>Fechas de la cohorte</h4>
+            <p>Plazos de inscripción y de dictado</p>
+        </div>
+        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano"><div class="row g-3">
+<div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaInicioInscripcion" class="pn-input" th:value="${#temporals.format(cohorte.fechaInicioInscripcion, 'yyyy-MM-dd')}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+<div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Fin de inscripción <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaFinInscripcion" class="pn-input" th:value="${#temporals.format(cohorte.fechaFinInscripcion, 'yyyy-MM-dd')}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+<div class="col-md-6 pn-campo" th:if="${enVivo}">
+                                    <label class="pn-etiqueta">Inicio de dictado <span class="pn-obligatorio">*</span></label>
+                                    <input type="date" name="fechaInicioDictado" class="pn-input" th:value="${cohorte.fechaInicioDictado != null ? #temporals.format(cohorte.fechaInicioDictado, 'yyyy-MM-dd') : ''}">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+        </div></fieldset>
+    </div>
+    <div class="pn-paso" data-grupo="Acceso y cupo">
+        <div class="pn-seccion-titulo">
+            <h4>Acceso y cupo</h4>
+            <p>Tolerancia extra de acceso y cantidad de alumnos</p>
+        </div>
+        <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano"><div class="row g-3">
+<div class="col-md-6 pn-campo">
+                                    <div class="pn-etiqueta-con-ayuda">
+                                        <label class="pn-etiqueta">Tolerancia extra para ponerse al día</label>
+                                        <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la tolerancia extra" title="Ayuda"
+                                                th:data-ayuda-destino="'ayudaDias' + ${cohorte.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
+                                    </div>
+                                    <th:block th:replace="~{fragments/components/inputs/duracion :: duracion('tiempoExtra', ${cohorte.accesoDias > cohorte.curso.duracionDias ? cohorte.accesoDias - cohorte.curso.duracionDias : null}, ${false}, null)}"></th:block>
+                                    <span class="d-none" data-resumen-linea="Acceso para el alumno" data-acceso-total></span>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+<div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Cupo máximo (opcional)</label>
+                                    <input type="number" name="cupoMaximo" class="pn-input" min="1" th:attr="data-maximo=${cupoMaximoPermitido}" th:value="${cohorte.cupoMaximo}" placeholder="Cupo máximo">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                        <div class="col-12 ayuda-desplegable" th:id="'ayudaDias' + ${cohorte.idCohorte}">
+                            <div class="ayuda-desplegable-interior">
+                                <div class="cn-info">
+                                    <span>El alumno accede durante la duración del curso (<strong th:text="${T(com.app.idoneos.util.DuracionUtil).formatear(cohorte.curso.duracionDias)}">4 semanas</strong>) más esta tolerancia extra. Es opcional.
+                                        <th:block th:if="${cohorte.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de inicio de dictado más los días de acceso.</th:block>
+                                        <th:block th:unless="${cohorte.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
+                                </div>
+                            </div>
+                        </div>
+        </div></fieldset>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Estos son los cambios que se van a guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
+        La cohorte tiene <strong th:text="${cohorte.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
+    </div>
+    <div class="pn-aviso pn-aviso-dorado" th:if="${cohorte.esPendiente()}">
+        La cohorte está <strong>pendiente</strong>: se activa cuando el docente complete el contenido del programa.
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+    </div>
+</form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

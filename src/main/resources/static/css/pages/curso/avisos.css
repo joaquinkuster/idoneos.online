@@ -1,0 +1,65 @@
+/* ---------- Cronograma, estados vacíos y avisos ---------- */
+.ac-aviso {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin: 14px 0;
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid;
+    font-size: 14px;
+}
+
+.ac-aviso i {
+    font-size: 20px;
+    margin-top: 2px;
+}
+
+.ac-aviso strong {
+    display: block;
+}
+
+.ac-aviso span,
+.ac-aviso p {
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+.ac-aviso-atraso {
+    background: #FEF2F2;
+    border-color: #FECACA;
+    color: #991B1B;
+}
+
+.ac-nota {
+    margin: 14px 0;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-clases {
+    margin-top: 14px;
+}
+
+/* ---------- Pantallas chicas ---------- */
+@media (max-width: 760px) {
+
+    .ac-titulo {
+        font-size: 22px;
+    }
+
+    .ac-tema-cuerpo,
+    .ac-tema-aviso {
+        padding-left: 20px;
+    }
+
+    .ac-actividad {
+        flex-wrap: wrap;
+    }
+
+    .ac-actividad-estado {
+        align-items: flex-start;
+        text-align: left;
+        width: 100%;
+    }
+}

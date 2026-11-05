@@ -1,0 +1,89 @@
+/* ---------- Selector "Agregar un recurso o actividad" ---------- */
+.ac-selector {
+    display: flex;
+    min-height: 320px;
+    border-top: 1px solid var(--pn-borde);
+}
+
+.ac-selector-lista {
+    width: 270px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--pn-borde);
+    padding: 6px 0;
+    overflow-y: auto;
+    max-height: 420px;
+}
+
+.ac-selector-grupo {
+    padding: 12px 18px 4px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--pn-texto-suave);
+}
+
+.ac-selector-opcion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 18px;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.ac-selector-opcion:hover,
+.ac-selector-opcion.elegida {
+    background: var(--pn-gold-soft);
+}
+
+.ac-selector-opcion input[type="radio"] {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.ac-selector-opcion .ac-recurso-icon {
+    flex-shrink: 0;
+}
+
+.ac-selector-opcion small {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-selector-opcion-deshabilitada {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.ac-selector-opcion-deshabilitada:hover {
+    background: transparent;
+}
+
+.ac-selector-detalle {
+    flex: 1;
+    padding: 20px 24px;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    line-height: 1.6;
+}
+
+.ac-selector-detalle strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 16px;
+    color: var(--pn-navy);
+}
+
+@media (max-width: 760px) {
+    .ac-selector {
+        flex-direction: column;
+    }
+
+    .ac-selector-lista {
+        width: 100%;
+        max-height: 220px;
+        border-right: 0;
+        border-bottom: 1px solid var(--pn-borde);
+    }
+}

@@ -1,0 +1,14 @@
+/* ==========================================================================
+   Capas: las alertas (SweetAlert) y las ventanas modales oscurecen todo, también el navbar y el menú lateral
+   ========================================================================== */
+.modal-backdrop {
+    --bs-backdrop-zindex: 2500;
+}
+
+.modal {
+    --bs-modal-zindex: 2600;
+}
+
+.swal2-container {
+    z-index: 3000 !important;
+}

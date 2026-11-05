@@ -1,0 +1,45 @@
+<!-- Navbar reducido del cuestionario: solo el logo (sin enlace, para no salir del intento sin querer) y el menú del usuario con
+     la única opción de cerrar sesión. Usa los mismos estilos del navbar del sistema (navbar.css y layout/userMenu.js), pero no
+     el reloj del intento va en el medio y el navbar queda fijo arriba mientras se hace scroll. -->
+<header th:fragment="navbar(segundos)" class="nb nb-intento" data-navbar>
+    <div class="nb-izq">
+        <span class="nb-marca">
+            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+            <span><span class="nb-marca-serif">Idóneos</span> <b>Online</b></span>
+        </span>
+    </div>
+
+    <!-- Reloj del intento: lo dibuja static/js/pages/intento/intento.js a partir de los segundos que informa el servidor -->
+    <div class="in-reloj" th:if="${segundos != null}" data-reloj-caja>
+        <span data-reloj aria-live="off">--:--</span>
+    </div>
+
+    <div class="um-wrapper" th:if="${usuario != null}">
+        <button type="button" class="um-trigger" data-menu-usuario aria-haspopup="true" aria-expanded="false">
+            <th:block th:replace="~{fragments/components/avatar :: avatar(${usuario}, 'av-menu')}"></th:block>
+            <span class="um-datos">
+                <span class="um-nombre" th:text="${usuario.nombreCompleto}">Valentina Ruiz</span>
+                <span class="um-rol" th:text="${usuario.rolActivo != null ? usuario.rolActivo.nombre : 'Usuario'}">Alumno</span>
+            </span>
+            <i class="fa-solid fa-chevron-down um-flecha"></i>
+        </button>
+        <div class="um-dropdown" role="menu">
+            <div class="um-seccion">
+                <button type="button" class="um-item um-item-peligro" onclick="confirmarCerrarSesion()">Cerrar sesión</button>
+                <form id="formularioCerrarSesion" th:action="@{/logout}" method="post" class="d-none"></form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Cabecera del cuestionario (modo foco: sin menú lateral). Parámetros: curso, autoevaluacion y segundos (los que le quedan al
+     intento según el servidor, o null si no tiene tiempo límite). El navbar reducido lleva el logo, el reloj (que dibuja
+     static/js/pages/intento/intento.js) y el menú con "Cerrar sesión", que está permitido: no termina el intento, el tiempo sigue corriendo y
+     al volver a ingresar se retoma el cuestionario. Debajo del navbar va el título de la autoevaluación. -->
+<th:block th:fragment="cabecera(curso, autoevaluacion, segundos)">
+<th:block th:replace="~{fragments/layout/navbarIntento :: navbar(${segundos})}"></th:block>
+<div class="in-titulo-intento">
+    <span class="in-cabecera-curso" th:text="${curso.nombre + ' · ' + autoevaluacion.tema.titulo}">Curso · Tema</span>
+    <h1 class="in-titulo-intento-nombre" th:text="${autoevaluacion.nombre}">Autoevaluación</h1>
+</div>
+</th:block>

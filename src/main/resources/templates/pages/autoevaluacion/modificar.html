@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /autoevaluacion/modificar/{id}). -->
+    <div th:fragment="modal(a)" class="modal fade pn-modal" th:id="'modalModificarAutoevaluacion' + ${a.idAutoevaluacion}" tabindex="-1" aria-hidden="true"
+        >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Editar autoevaluación</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <th:block th:replace="~{pages/autoevaluacion/formulario :: formulario(${a}, ${a.tieneIntentosActivos()})}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

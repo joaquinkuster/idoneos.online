@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
-    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
-        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:if="${esDocente}"><th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block></th:block>
+        <th:block th:unless="${esDocente}"><th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block></th:block>
 
         <main class="pn-contenido">
             <nav class="ac-migas" aria-label="Ruta de navegación">
@@ -23,21 +23,9 @@
                 <strong>Cronogramas</strong>
             </nav>
 
-            <div class="pn-encabezado">
-                <div>
-                    <h1 class="pn-titulo">Cronogramas</h1>
-                    <!-- Programa que se mira: por defecto el de la cohorte por defecto; se puede buscar cualquier otro del curso -->
-                    <form method="get" th:action="@{/cronograma/buscar}" class="cn-selector-programa" th:if="${!#lists.isEmpty(programasDelCurso)}">
-                        <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-                        <label class="pn-etiqueta" for="programaIdCronograma">Programa</label>
-                        <select id="programaIdCronograma" name="programaId" class="pn-input" data-buscable data-cambia-envia>
-                            <option value="" th:if="${programa == null}" selected>Sin programa</option>
-                            <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}" th:text="${p.nombre}"
-                                    th:selected="${programa != null and programa.idPrograma == p.idPrograma}">Versión 1</option>
-                        </select>
-                    </form>
-                    <p class="pn-subtitulo" th:if="${programa == null}">La cohorte todavía no tiene programa: asignale uno desde el inicio del curso.</p>
-                </div>
+            <!-- La misma card de cabecera del inicio del curso, con el selector de programa (sin cohorte por defecto ni pestañas) -->
+            <div class="ac-principal">
+                <th:block th:replace="~{pages/curso/cabecera :: cabecera(false, true)}"></th:block>
             </div>
 
             <!-- Con inscripciones activas el cronograma es lo que el alumno vio y pagó: solo se puede consultar -->
@@ -49,21 +37,22 @@
             </div>
 
             <th:block th:if="${programa != null}" th:with="cronoCohorte=${esDocente ? cohorte : null}">
-                <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${temasDelCurso}, ${puedeEditar}, false)}"></th:block>
+                <th:block th:replace="~{pages/cronograma/board :: board(${curso}, ${programa}, ${cronograma}, ${temasDelCurso}, ${puedeEditar}, false)}"></th:block>
             </th:block>
             <th:block th:if="${programa == null}">
-                <th:block th:replace="~{fragments/vacio :: bloque('fa-calendar', 'No hay cronograma para mostrar', 'La cohorte de trabajo todavía no tiene programa. Elegí uno desde el inicio del curso para armar su cronograma.', null, null)}"></th:block>
+                <th:block th:replace="~{fragments/components/empty :: bloque('fa-calendar', 'No hay cronograma para mostrar', 'La cohorte de trabajo todavía no tiene programa. Elegí uno desde el inicio del curso para armar su cronograma.', null, null)}"></th:block>
             </th:block>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
     </div>
 </div>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/academica.js}"></script>
-<script th:src="@{/js/tooltipCronograma.js}"></script>
-<script th:src="@{/js/cronograma.js}" th:if="${programa != null}"></script>
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/curso.js}"></script>
+<script th:src="@{/js/pages/curso/contexto.js}"></script>
+<script th:src="@{/js/pages/cronograma/tooltip.js}"></script>
+<script th:src="@{/js/pages/cronograma/board.js}" th:if="${programa != null}"></script>
 <script>
     // Cambiar el programa del selector recarga el cronograma de ese programa
     document.querySelectorAll('[data-cambia-envia]').forEach(function (s) {

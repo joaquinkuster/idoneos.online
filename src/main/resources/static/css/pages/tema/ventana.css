@@ -1,0 +1,78 @@
+/* Ventana de temas: la lista del curso a la izquierda y el formulario del tema elegido a la derecha */
+.pn-temas-doble {
+    display: grid;
+    grid-template-columns: minmax(200px, 280px) 1fr;
+    gap: 16px;
+}
+
+.pn-temas-lista {
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 420px;
+}
+
+.pn-temas-lista-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.pn-temas-items {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    overflow-y: auto;
+}
+
+.pn-tema-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--pn-texto);
+    font-size: 13px;
+    text-align: left;
+}
+
+.pn-tema-item:hover {
+    background: rgba(59, 130, 246, 0.08);
+}
+
+.pn-tema-item.activo {
+    border-color: #3B82F6;
+    background: rgba(59, 130, 246, 0.12);
+}
+
+.pn-tema-item-titulo {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pn-temas-formulario-titulo {
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.pn-temas-formulario-pie {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+@media (max-width: 767px) {
+    .pn-temas-doble {
+        grid-template-columns: 1fr;
+    }
+}

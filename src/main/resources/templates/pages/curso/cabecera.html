@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Card de cabecera del curso: título, programa y cohorte, selectores (cohorte por defecto y, en el cronograma, programa) y las pestañas.
+         navbar: si lleva las pestañas de las secciones; selectorPrograma: vista del cronograma, que lleva el selector de programa en lugar del
+         de cohorte por defecto. -->
+    <th:block th:fragment="cabecera(navbar, selectorPrograma)">
+                <header class="ac-cabecera-simple">
+                    <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
+                    <p class="ac-subtitulo-curso" th:if="${programa != null}">
+                        <span th:text="${programa.nombre}">Programa 2026</span>
+                        <th:block th:if="${cohorte != null}">
+                            · <span
+                                th:text="${'Cohorte ' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ' · ' + cohorte.estado}">Cohorte
+                                01/01/2026 · En dictado</span>
+                        </th:block>
+                        <th:block th:if="${inscripcion != null}">
+                            · <span
+                                th:text="${'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso
+                                hasta 01/01/2027</span>
+                        </th:block>
+                    </p>
+                    <!-- Docente: cohorte de trabajo (se guarda en su participación en el curso); el programa es el de esa cohorte -->
+                    <div class="ac-contexto" th:if="${(puedeGestionar == true and !selectorPrograma) or (selectorPrograma and !#lists.isEmpty(programasDelCurso))}">
+                        <div class="ac-contexto-campo" th:if="${puedeGestionar == true and !selectorPrograma}">
+                            <label class="ac-contexto-etiqueta" for="selectCohortePorDefecto">Cohorte por defecto</label>
+                            <select id="selectCohortePorDefecto" class="ac-contexto-select" data-selector-contexto data-buscable
+                                data-url="/cohorte/establecerPorDefecto/{valor}"
+                                th:disabled="${#lists.size(cohortesDelPrograma) < 2}">
+                                <option th:if="${#lists.isEmpty(cohortesDelPrograma)}" value="">Sin cohortes</option>
+                                <option th:each="c : ${cohortesDelPrograma}" th:value="${c.idCohorte}"
+                                    th:text="${c.etiqueta}"
+                                    th:selected="${cohorte != null and cohorte.idCohorte == c.idCohorte}">Marzo 2026 (En dictado)</option>
+                            </select>
+                        </div>
+                        <!-- Programa que se mira en el cronograma: por defecto el de la cohorte por defecto; se puede elegir otro del curso -->
+                        <form method="get" th:action="@{/cronograma/buscar}" class="ac-contexto-campo" th:if="${selectorPrograma and !#lists.isEmpty(programasDelCurso)}">
+                            <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                            <label class="ac-contexto-etiqueta" for="selectProgramaCronograma">Programa</label>
+                            <select id="selectProgramaCronograma" name="programaId" class="ac-contexto-select" data-buscable data-cambia-envia>
+                                <option value="" th:if="${programa == null}" selected>Sin programa</option>
+                                <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}" th:text="${p.nombre}"
+                                        th:selected="${programa != null and programa.idPrograma == p.idPrograma}">Versión 1</option>
+                            </select>
+                        </form>
+                    </div>
+                    <!-- Pestañas de las secciones del curso (en la página principal y en el cronograma) -->
+                    <th:block th:if="${navbar}">
+                        <th:block th:replace="~{fragments/layout/navbarCurso :: navbar(${urlBase}, ${curso}, ${esDocente})}"></th:block>
+                    </th:block>
+                </header>
+    </th:block>
+</body>
+
+</html>

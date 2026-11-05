@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}, data-editar=${temaAEditar}">
             <nav class="ac-migas" aria-label="Ruta de navegación">
@@ -31,7 +31,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/tema/buscar" th:attr="data-opciones=${tablaOpciones}">
+            <section class="pn-card" data-tabla data-tabla-servidor="/tema/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de temas</h2>
                 </div>
@@ -74,7 +74,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -95,7 +95,7 @@
             </section>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
     </div>
 </div>
 
@@ -138,7 +138,7 @@
                                             <span class="pn-chip pn-chip-verde d-none" data-estado></span>
                                         </div>
                                     </div>
-                                    <div class="pn-temas-vacio" data-temas-vacio>
+                                    <div class="pn-temas-empty" data-temas-empty>
                                         <p>No hay temas agregados aún</p>
                                         <small>Agregá el primero →</small>
                                     </div>
@@ -202,11 +202,11 @@
 
 <!-- Bajas (CU-22): el tema se quita de todos los programas que lo incluyen -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
-<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaTema', 'tema', '¿Confirmas dar de baja?', '', '/tema/darDeBaja/0', null, null)}"></th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaTema', 'tema', '¿Confirmas dar de baja?', '', '/tema/darDeBaja/0', null, null)}"></th:block>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/temas.js}"></script>
-<script th:src="@{/js/ayudaDesplegable.js}"></script>
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/pages/tema/tema.js}"></script>
+<script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 </body>
 </html>

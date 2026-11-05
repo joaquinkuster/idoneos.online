@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/pago/modo.css}">
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+            <th:block th:replace="~{fragments/layout/breadcrumb :: migas(null, null, 'Mis pagos')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+
+                    <section class="pn-card" data-tabla data-tabla-servidor="/pago/buscar" th:attr="data-opciones=${tablaOpciones}">
+                        <div class="pn-lista-cabecera">
+                            <h2 class="pn-lista-titulo">Historial de pagos</h2>
+                            <span class="pn-seleccionados" data-total-filtradas data-singular="pago encontrado" data-plural="pagos encontrados"
+                                  th:text="${#lists.size(pagos) + (#lists.size(pagos) == 1 ? ' pago encontrado' : ' pagos encontrados')}">0 pagos encontrados</span>
+                        </div>
+
+                        <!-- Filtros (CU-50): curso, estado y rango de fechas -->
+                        <form th:action="@{/pago/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                            <a th:href="@{/pago/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                        </form>
+
+                        <div class="pn-tabla-contenedor">
+                            <table class="pn-tabla">
+                                <thead>
+                                    <tr>
+                                        <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                        <th data-col="Monto" data-campo="monto" data-filtro="numero">Monto</th>
+                                        <th data-col="Medio de pago" data-campo="medioDePago" data-filtro="lista">Medio de pago</th>
+                                        <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                        <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha" data-orden-inicial="desc">Fecha de creación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                                    <tr th:each="p : ${pagos}" data-fila th:data-f-mediodepago="${p.metodoPago.nombre}" th:data-f-monto="${p.monto}">
+                                        <td>
+                                            <span class="pn-celda-principal pn-truncar" th:text="${p.inscripcion.curso.nombre}">Curso</span>
+                                            <span class="pn-celda-secundaria d-block" th:if="${p.descuento != null}"
+                                                  th:text="${'Descuento: ' + p.descuento.nombre + ' (' + #numbers.formatDecimal(p.descuento.porcentaje, 1, 0) + '%)'}">Descuento</span>
+                                        </td>
+                                        <td th:text="${'$ ' + #numbers.formatDecimal(p.monto, 1, 'POINT', 2, 'COMMA')}">$ 150.000,00</td>
+                                        
+                                        <td><span class="pn-truncar" th:text="${p.medioDePago}">MODO</span></td>
+                                        <td>
+                                            <span class="pn-insignia"
+                                                  th:classappend="${p.estaAprobado()} ? 'pn-insignia-verde' : (${p.estaPendiente()} ? 'pn-insignia-dorada' : 'pn-insignia-roja')"
+                                                  th:text="${p.estadoPago.nombre}">Aprobado</span>
+                                        </td>
+                                        <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
+                                        <td>
+                                            <div class="pn-acciones">
+                                                <button type="button" class="btn btn-secondary btn-sm pn-btn-motivo" data-motivo-pago
+                                                        th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
+                                                        th:attr="data-bs-content=${p.detalleErrorOperacion}">Ver motivo</button>
+                                                <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-pagar
+                                                        th:if="${p.estaRechazado() and !p.inscripcion.estaHabilitada() and !p.inscripcion.esInactivo()}"
+                                                        th:data-url="@{'/pago/reintentar/' + ${p.idPago}}"
+                                                        th:data-inscripcion="${p.inscripcion.idInscripcion}">Reintentar</button>
+                                                <a class="pn-btn pn-btn-ver pn-btn-chico" target="_blank" rel="noopener"
+                                                   th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
+                                                   th:href="@{'/pago/comprobante/' + ${p.idPago}}">Generar comprobante</a>
+                                                <span class="pn-celda-secundaria" th:if="${p.estaPendiente()}">Esperando confirmación</span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-credit-card', 'Todavía no hay pagos', 'Cuando te inscribas a un curso con costo y lo pagues, vas a ver acá el pago y su comprobante.')}"></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="pn-tabla-pie">
+                            <div class="pn-por-pagina">
+                                <span>Filas por página:</span>
+                                <select data-por-pagina>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="0">Todo</option>
+                                </select>
+                                <span data-rango>0-0 de 0</span>
+                            </div>
+                            <div class="pn-paginador" data-paginador></div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/layout/footer :: footer}"></div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
+    <script th:src="@{/js/core/validacion.js}"></script>
+    <script th:src="@{/js/core/tabla.js}"></script>
+    <script th:src="@{/js/core/panel.js}"></script>
+    <script th:src="@{/js/pages/pago/pago.js}"></script>
+    <script th:src="@{/js/pages/pago/motivo.js}"></script>
+</body>
+</html>

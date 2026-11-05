@@ -1,0 +1,32 @@
+/* Etiqueta de un campo con el botón de ayuda (ícono de información) a su derecha */
+.pn-etiqueta-con-ayuda {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-bottom: 6px;
+}
+
+.pn-etiqueta-con-ayuda .pn-etiqueta {
+    margin-bottom: 0;
+}
+
+.pn-etiqueta-con-ayuda .cn-ayuda {
+    width: 20px;
+    height: 20px;
+    margin: -4px 0;
+    font-size: 14px;
+}
+
+/* El aviso desplegable dentro de una fila de formulario no deja el espacio entre columnas mientras está cerrado */
+.row > .ayuda-desplegable {
+    margin-top: 0;
+}
+
+/* Cerrado, tampoco deja el espacio inferior que la grilla (.g-3) le da a cada columna; abierto, sí */
+.row.g-3 > .ayuda-desplegable {
+    padding-bottom: 0;
+}
+
+.row.g-3 > .ayuda-desplegable.abierto {
+    padding-bottom: 18px;
+}

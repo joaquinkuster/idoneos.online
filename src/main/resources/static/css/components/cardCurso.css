@@ -1,0 +1,248 @@
+/* ==========================================================================
+   CARD DE CURSO (catálogo e inicio), mismo lenguaje que Acerca de
+   ========================================================================== */
+.cc-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: #FFFFFF;
+    border: 1px solid #DDD5BF;
+    border-radius: 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cc-card {
+    cursor: pointer; /* toda la card es un enlace a la ficha del curso (ver .cc-boton::after en botones.css) */
+}
+
+.cc-card:hover {
+    border-color: #0A192F;
+    box-shadow: 0 10px 26px rgba(10, 25, 47, 0.12);
+}
+
+/* Con el teclado, el foco del enlace se marca alrededor de toda la card */
+.cc-card:has(.cc-boton:focus-visible) {
+    border-color: #0A192F;
+    outline: 2px solid #D4A03D;
+    outline-offset: 2px;
+}
+
+/* Tres tonos para todos los cursos: azul, ámbar y verde (según el curso) */
+.cc-tono-0 { --t1: 29, 61, 107; --t2: 14, 35, 64; }
+.cc-tono-1 { --t1: 107, 74, 20; --t2: 43, 29, 8; }
+.cc-tono-2 { --t1: 20, 80, 63; --t2: 10, 42, 34; }
+
+.cc-imagen {
+    position: relative;
+    height: 150px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgb(var(--t1)), rgb(var(--t2)));
+}
+
+.cc-imagen img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+}
+
+.cc-card:hover .cc-imagen img {
+    transform: scale(1.05);
+}
+
+/* Degradé del mismo tono sobre la imagen del curso */
+.cc-velo {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(var(--t1), 0.74), rgba(var(--t2), 0.38));
+}
+
+.cc-estado {
+    position: absolute;
+    left: 14px;
+    bottom: 14px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    background: #0A192F;
+    border-radius: 4px;
+}
+
+.cc-cuerpo {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 20px 20px 18px;
+}
+
+.cc-etiqueta {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.cc-titulo {
+    margin: 8px 0 6px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 21px;
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #0B1B33;
+}
+
+.cc-descripcion {
+    display: -webkit-box;
+    margin: 0;
+    overflow: hidden;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: #3F4E66;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.cc-datos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 16px 0;
+    border-top: 1px solid #EFE9D9;
+    border-bottom: 1px solid #EFE9D9;
+}
+
+.cc-datos > div {
+    padding: 10px 0;
+    font-size: 13px;
+}
+
+.cc-datos > div + div {
+    padding-left: 14px;
+    border-left: 1px solid #EFE9D9;
+}
+
+.cc-datos small,
+.cc-docente small {
+    display: block;
+    margin-bottom: 2px;
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6B6552;
+}
+
+.cc-datos span {
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.cc-pie {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.cc-docente span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0B1B33;
+}
+
+.cc-precio {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #0B1B33;
+    white-space: nowrap;
+}
+
+/* Hero del inicio: puntos sobre fondo oscuro, del mismo estilo discreto que los de Acerca de */
+.ix-hero-puntos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    margin-top: 34px;
+}
+
+.ix-hero-punto {
+    width: 6px;
+    height: 6px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.4);
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.ix-hero-punto:hover {
+    background: rgba(255, 255, 255, 0.65);
+}
+
+.ix-hero-punto.activo {
+    width: 16px;
+    background: var(--wf-gold, #D4A03D);
+}
+
+.ix-hero-punto:focus-visible {
+    outline: 2px solid #D4A03D;
+    outline-offset: 3px;
+}
+
+.wf-hero-parallelogram {
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.wf-hero-parallelogram.arrastrando {
+    cursor: grabbing;
+}
+
+/* Grillas de cards de curso (catálogo, Mis cursos): cuatro por fila en PC, dos en pantallas medianas y una en celulares */
+.wf-cards-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 26px;
+}
+
+@media (max-width: 1199.98px) {
+    .wf-cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 599.98px) {
+    .wf-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Transición "zoom y escala" de las fotos del hero: la que sale se achica y se apaga, y la que entra crece desde el centro */
+#heroCarousel.carousel-fade .carousel-item {
+    transform: scale(0.82);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+#heroCarousel.carousel-fade .carousel-item.active,
+#heroCarousel.carousel-fade .carousel-item-next.carousel-item-start,
+#heroCarousel.carousel-fade .carousel-item-prev.carousel-item-end {
+    transform: scale(1);
+}
+
+#heroCarousel.carousel-fade .active.carousel-item-start,
+#heroCarousel.carousel-fade .active.carousel-item-end {
+    transform: scale(0.82);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}

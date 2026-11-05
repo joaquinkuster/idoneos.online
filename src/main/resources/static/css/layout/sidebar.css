@@ -1,0 +1,94 @@
+/* ==========================================================================
+   GESTIÓN ACADÉMICA (MOD-F-02) — IDÓNEOS ONLINE
+   Acceso al curso del alumno (CU-27): cabecera del curso, pestañas, acordeón de temas al estilo Moodle,
+   cronograma y clases en vivo. Usa las variables de panel.css (azul marino y dorado).
+   ========================================================================== */
+
+/* ---------- Barra lateral: título de grupo de enlaces (reutilizable) ---------- */
+.pn-menu-grupo {
+    margin: 16px 14px 4px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #9FB3CC;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* El menú es una columna con scroll: sin esto, los títulos se aplastan y el texto queda cortado */
+    flex-shrink: 0;
+}
+
+.pn-menu-nav > .pn-menu-grupo:first-child {
+    margin-top: 2px;
+    padding-top: 0;
+    border-top: 0;
+}
+
+.pn-app.colapsado .pn-menu-grupo span {
+    display: none;
+}
+
+/* El título de un grupo es desplegable: con una flecha a la derecha que gira cuando el grupo está cerrado */
+.pn-menu-grupo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.pn-menu-grupo:hover {
+    color: #FFFFFF;
+}
+
+.pn-menu-grupo-flecha {
+    flex-shrink: 0;
+    font-size: 10px;
+    transition: transform 0.15s ease;
+}
+
+.pn-menu-grupo.cerrado .pn-menu-grupo-flecha {
+    transform: rotate(-90deg);
+}
+
+.pn-menu-grupo-cuerpo.cerrado {
+    display: none;
+}
+
+/* El cuerpo de un grupo abierto va en un contenedor más claro que el menú, separado del título */
+.pn-menu-grupo-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 12px 4px 6px;
+    padding: 6px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
+}
+
+/* Con el menú contraído los grupos se mantienen: el título queda como una flecha y el contenedor con solo los íconos */
+.pn-app.colapsado .pn-menu-grupo {
+    justify-content: center;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+/* Contraído, el contenedor ocupa casi todo el ancho del menú para que los íconos no queden apretados */
+.pn-app.colapsado .pn-menu-nav {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.pn-app.colapsado .pn-menu-grupo-cuerpo {
+    margin: 10px 0 6px;
+    padding: 6px 0;
+    gap: 4px;
+}
+
+.pn-app.colapsado .pn-menu-grupo-cuerpo .pn-menu-enlace {
+    width: 100%;
+    padding: 12px 0;
+}

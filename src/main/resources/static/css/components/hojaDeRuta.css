@@ -1,0 +1,240 @@
+/* Hoja de ruta: pasos con nombre y resumen en árbol */
+.pn-pasos-nombrados {
+    align-items: flex-start;
+    max-width: 640px;
+}
+
+.pn-pasos-nombrados .pn-pasos-linea {
+    margin: 16px 10px 0;
+}
+
+.pn-pasos-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    min-width: 72px;
+}
+
+.pn-pasos-nombre {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    text-align: center;
+}
+
+.pn-pasos-punto.activo + .pn-pasos-nombre {
+    color: var(--pn-navy-dark);
+    font-weight: 700;
+}
+
+.pn-arbol {
+    padding: 16px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+    font-size: 13px;
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+/* Árbol del resumen: mismo estilo que el organigrama (RRHH). Cada nodo tiene una línea vertical con un codo, un punto y
+   un título. Colores: curso (dorado), programa (azul), los niveles siguientes alternan dorado y azul, lo que se registra (verde) y lo
+   que se modifica (naranja). */
+.pn-nodo {
+    --color: #94A3B8;
+    position: relative;
+    padding-left: 24px;
+    margin-top: 8px;
+}
+
+.pn-nodo:first-child {
+    margin-top: 0;
+}
+
+.pn-nodo::before,
+.pn-nodo::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    background: var(--color);
+}
+
+.pn-nodo::before {
+    top: 11px;
+    bottom: 11px;
+    width: 2px;
+}
+
+.pn-nodo::after {
+    top: 11px;
+    width: 16px;
+    height: 2px;
+}
+
+.pn-nodo-oro { --color: #D4A03D; }
+.pn-nodo-azul { --color: #3B82F6; }
+.pn-nodo-verde { --color: #22C55E; }
+.pn-nodo-naranja { --color: #22C55E; } /* lo que se modifica: el mismo verde que lo que se registra (línea, punto y leyenda) */
+.pn-nodo-gris { --color: #94A3B8; }
+
+.pn-nodo-fila {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 22px;
+}
+
+.pn-punto {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color);
+}
+
+.pn-nodo-primero > .pn-nodo-fila > .pn-punto {
+    width: 10px;
+    height: 10px;
+}
+
+.pn-nodo-titulo {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--pn-texto);
+}
+
+.pn-nodo-primero > .pn-nodo-fila > .pn-nodo-titulo {
+    font-size: 14.5px;
+    font-weight: 700;
+}
+
+.pn-chip {
+    --color: #94A3B8;
+    padding: 2px 9px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pn-texto);
+    background: color-mix(in srgb, var(--color) 18%, transparent);
+}
+
+.pn-chip-oro { --color: #D4A03D; }
+.pn-chip-azul { --color: #3B82F6; }
+.pn-chip-verde { --color: #22C55E; }
+.pn-chip-naranja { --color: #22C55E; }
+.pn-chip-gris { --color: #94A3B8; }
+
+/* El estado (nueva, N cambios) va a la derecha de la fila */
+.pn-chip-estado {
+    margin-left: auto;
+}
+
+/* Leyenda de colores */
+.pn-arbol-leyenda {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin: 0 0 14px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-leyenda-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.pn-leyenda-item i {
+    display: inline-block;
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--color);
+}
+
+.pn-arbol-editar {
+    margin-left: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 12px;
+    font-weight: 600;
+    color: #1E6FD9;
+    cursor: pointer;
+}
+
+.pn-arbol-editar i {
+    font-size: 10px;
+    margin-right: 3px;
+}
+
+.pn-arbol-editar:hover {
+    text-decoration: underline;
+}
+
+/* Datos: una banda por fila. Verde si se registra, naranja si cambió y sin banda (atenuada) si no cambió */
+.pn-arbol-dato {
+    margin-top: 3px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--pn-texto);
+    overflow-wrap: anywhere;
+}
+
+.pn-arbol-dato strong {
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.pn-dato-nuevo { background: rgba(34, 197, 94, 0.12); }
+.pn-dato-cambio { background: rgba(34, 197, 94, 0.12); }
+.pn-dato-igual { color: var(--pn-texto); }
+
+.pn-arbol-antes {
+    color: var(--pn-texto);
+}
+
+.pn-dato-cambio .pn-arbol-antes {
+    margin-right: 0;
+}
+
+.pn-arbol-flecha {
+    margin: 0 7px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-arbol-empty {
+    font-style: italic;
+    color: #94A3B8;
+}
+
+.pn-arbol-sin-cambios {
+    margin: 6px 0 0;
+    padding-left: 10px;
+    color: var(--pn-texto-suave);
+    font-style: italic;
+}
+
+/* Barra de desplazamiento del resumen: fina y gris, como la del menú lateral */
+.pn-arbol {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+
+.pn-arbol::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pn-arbol::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pn-arbol::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.45);
+    border-radius: 8px;
+}
+
+.pn-arbol::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.65);
+}

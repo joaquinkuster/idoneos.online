@@ -1,0 +1,116 @@
+/* Skeleton de los listados que se piden al servidor (filtrar, ordenar, paginar): mientras llegan las filas, las que están a la vista
+   se dibujan como bloques grises que pulsan. Usa las mismas filas, cards o ítems que ya estaban, así la altura no salta y no hay que
+   saber cuántas columnas tiene cada listado. Lo activa core/tabla.js y pages/termino/filtros.js con la clase pn-cargando. */
+
+:root { --sk-bloque: #E2E8F0; }
+
+@keyframes pnSkeleton {
+    0%, 100% { opacity: .55; }
+    50% { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------- Tabla: una barra por celda */
+[data-tabla].pn-cargando tbody { pointer-events: none; }
+[data-tabla].pn-cargando tbody td { position: relative; }
+[data-tabla].pn-cargando tbody td > * { visibility: hidden; }
+[data-tabla].pn-cargando tbody td::after {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    width: 70%;
+    height: 12px;
+    margin-top: -6px;
+    border-radius: 6px;
+    background: var(--sk-bloque);
+    animation: pnSkeleton 1.3s ease-in-out infinite;
+}
+[data-tabla].pn-cargando tbody td:nth-child(3n+1)::after { width: 82%; }
+[data-tabla].pn-cargando tbody td:nth-child(3n+2)::after { width: 58%; }
+/* Casilla de selección y columna de acciones: bloque corto */
+[data-tabla].pn-cargando tbody td:first-child::after { width: 14px; height: 14px; margin-top: -7px; }
+[data-tabla].pn-cargando tbody td:last-child::after { width: 56px; height: 26px; margin-top: -13px; left: auto; right: 12px; }
+/* Texto suelto dentro de la celda (sin etiqueta): también se oculta */
+[data-tabla].pn-cargando tbody td { color: transparent; }
+
+/* ---------------------------------------------------------------- Cards y listas: cada hoja de la card es un bloque */
+[data-tabla].pn-cargando [data-cards],
+[data-glosario].pn-cargando [data-glosario-contenido] { pointer-events: none; }
+[data-tabla].pn-cargando [data-cards] :not(:has(*)):not(img),
+[data-glosario].pn-cargando [data-glosario-contenido] :not(:has(*)):not(img) {
+    color: transparent !important;
+    background: var(--sk-bloque) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    border-radius: 6px;
+    animation: pnSkeleton 1.3s ease-in-out infinite;
+}
+[data-tabla].pn-cargando [data-cards] img,
+[data-glosario].pn-cargando [data-glosario-contenido] img { visibility: hidden; }
+[data-tabla].pn-cargando [data-cards] .cc-imagen { background: var(--sk-bloque) !important; animation: pnSkeleton 1.3s ease-in-out infinite; }
+[data-tabla].pn-cargando [data-cards] .cc-card { background: #fff; }
+
+@media (prefers-reduced-motion: reduce) {
+    [data-tabla].pn-cargando tbody td::after,
+    [data-tabla].pn-cargando [data-cards] *,
+    [data-glosario].pn-cargando [data-glosario-contenido] * { animation: none !important; }
+}
+
+/* ---------------------------------------------------------------- Bloques sueltos (los usan las piezas de abajo) */
+.pn-sk { display: block; background: var(--sk-bloque); border-radius: 6px; animation: pnSkeleton 1.3s ease-in-out infinite; }
+
+/* ---------------------------------------------------------------- Ventana de modificación que se está pidiendo */
+.pn-sk-ventana {
+    position: fixed;
+    inset: 0;
+    z-index: 1055;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 5vh 16px;
+    background: rgba(8, 20, 38, .5);
+}
+.pn-sk-ventana-caja {
+    width: min(640px, 100%);
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px 24px;
+}
+.pn-sk-ventana-caja .pn-sk-titulo { height: 20px; width: 40%; margin-bottom: 22px; }
+.pn-sk-ventana-caja .pn-sk-etiqueta { height: 10px; width: 22%; margin-bottom: 8px; }
+.pn-sk-ventana-caja .pn-sk-campo { height: 40px; width: 100%; margin-bottom: 18px; }
+.pn-sk-ventana-caja .pn-sk-pie { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+.pn-sk-ventana-caja .pn-sk-pie .pn-sk { height: 36px; width: 96px; }
+
+/* ---------------------------------------------------------------- Tablero del cronograma antes de que lo dibuje el script */
+.pn-sk-board { padding: 6px 0; }
+.pn-sk-board-semanas { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-bottom: 14px; }
+.pn-sk-board-semanas .pn-sk { height: 12px; }
+.pn-sk-board-fila { height: 34px; margin-bottom: 12px; }
+.pn-sk-lista .pn-sk { height: 38px; margin-bottom: 10px; }
+
+/* ---------------------------------------------------------------- Visor de recursos mientras llega el documento */
+.mv-estado-skeleton { align-items: flex-start; padding-top: 28px; }
+.mv-estado-skeleton::before {
+    content: '';
+    display: block;
+    width: min(62%, 460px);
+    aspect-ratio: 3 / 4;
+    max-height: calc(100% - 20px);
+    border-radius: 6px;
+    background: var(--sk-bloque);
+    animation: pnSkeleton 1.3s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------- Imagen de una card mientras llega (carga diferida) */
+.cc-imagen:has(> img)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--sk-bloque);
+    animation: pnSkeleton 1.3s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pn-sk, .mv-estado-skeleton::before, .cc-imagen:has(> img)::before { animation: none !important; }
+}

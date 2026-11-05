@@ -1,0 +1,41 @@
+/* ==========================================================================
+   TEMAS (MOD-F-02): menú de cada tema en la vista del curso y su descripción y contenido
+   ========================================================================== */
+.ac-tema {
+    position: relative;
+}
+
+.ac-menu-tema {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+}
+
+.ac-tema-cabecera {
+    padding-right: 56px;
+}
+
+.ac-acciones-debajo {
+    justify-content: flex-end;
+    margin: -4px 0 14px;
+}
+
+.ac-tema-descripcion {
+    margin: 14px 0 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+}
+
+.ac-tema-contenido {
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--pn-texto);
+    white-space: pre-line;
+}
+
+/* Sin descripción, el contenido también queda separado del título */
+.ac-tema-contenido:first-child {
+    margin-top: 14px;
+}

@@ -1,0 +1,65 @@
+/* ==========================================================================
+   RECUADRO DEL PAGO (formularios del administrador): precio, descuento, ya pagado y total a pagar
+   ========================================================================== */
+.pn-resumen-pago {
+    padding: 12px 14px;
+    background: #F1F5F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
+}
+
+.pn-resumen-titulo {
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #0A192F;
+}
+
+.pn-resumen-fila,
+.pn-resumen-total {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: #475569;
+}
+
+.pn-resumen-fila {
+    padding: 2px 0;
+}
+
+.pn-resumen-fila[hidden],
+.pn-resumen-total[hidden],
+.pn-resumen-nota[hidden] {
+    display: none;
+}
+
+.pn-resumen-precio {
+    color: #0A192F;
+}
+
+.pn-resumen-total {
+    align-items: baseline;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #CBD5E1;
+    color: #0A192F;
+}
+
+.pn-resumen-total strong {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 20px;
+}
+
+.pn-resumen-nota {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: #64748B;
+}
+
+.pn-etiqueta-ayuda {
+    font-weight: 400;
+    color: #64748B;
+}

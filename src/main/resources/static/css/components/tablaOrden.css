@@ -1,0 +1,29 @@
+/* La fila con el desplegable "Más" abierto queda por encima de las filas de abajo */
+.pn-tabla.pn-con-columnas tbody td:last-child:has(.dropdown-menu.show) {
+    z-index: 10;
+}
+
+/* Orden por columna: el título se puede pulsar y muestra una flecha con el sentido */
+.pn-tabla thead th.pn-th-ordenable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.pn-tabla thead th.pn-th-ordenable:hover {
+    color: var(--pn-navy);
+}
+
+.pn-orden-flechas {
+    display: inline-flex;
+    flex-direction: column;
+    margin-left: 5px;
+    vertical-align: middle;
+    line-height: 0.6;
+    font-size: 10px;
+    color: #B6BFCA;
+}
+
+.pn-orden-asc .pn-orden-flechas .fa-caret-up,
+.pn-orden-desc .pn-orden-flechas .fa-caret-down {
+    color: var(--pn-navy);
+}

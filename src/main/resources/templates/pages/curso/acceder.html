@@ -2,17 +2,17 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 
 <body class="pn-body">
     <div class="pn-app" id="pnApp">
         <!-- Barra lateral reutilizable, con el menú de Gestión académica -->
-        <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+        <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
         <div class="pn-principal">
             <th:block
-                th:replace="~{fragments/panel :: barra(null)}">
+                th:replace="~{fragments/layout/panel :: barra(null)}">
             </th:block>
 
             <main class="pn-contenido">
@@ -31,49 +31,16 @@
                 </div>
 
                 <!-- Contenido del curso y, a la derecha, el cajón del cronograma (solo en la página principal) -->
-                <div class="ac-con-cajon"
-                    th:with="mostrarCajon=${seccion == 'temas' and programa != null and !#lists.isEmpty(programa.cronogramaOrdenado)}"
-                    th:classappend="${mostrarCajon} ? 'ac-tiene-cajon'">
+                <div class="ac-con-drawer"
+                    th:with="mostrarDrawer=${seccion == 'temas' and programa != null and !#lists.isEmpty(programa.cronogramaOrdenado)}"
+                    th:classappend="${mostrarDrawer} ? 'ac-tiene-drawer'">
                 <div class="ac-principal">
                 <!-- Cabecera del curso -->
-                <header class="ac-cabecera-simple">
-                    <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
-                    <p class="ac-subtitulo-curso" th:if="${programa != null}">
-                        <span th:text="${programa.nombre}">Programa 2026</span>
-                        <th:block th:if="${cohorte != null}">
-                            · <span
-                                th:text="${'Cohorte ' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ' · ' + cohorte.estado}">Cohorte
-                                01/01/2026 · En dictado</span>
-                        </th:block>
-                        <th:block th:if="${inscripcion != null}">
-                            · <span
-                                th:text="${'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso
-                                hasta 01/01/2027</span>
-                        </th:block>
-                    </p>
-                    <!-- Docente: cohorte de trabajo (se guarda en su participación en el curso); el programa es el de esa cohorte -->
-                    <div class="ac-contexto" th:if="${puedeGestionar}">
-                        <div class="ac-contexto-campo">
-                            <label class="ac-contexto-etiqueta" for="selectCohortePorDefecto">Cohorte por defecto</label>
-                            <select id="selectCohortePorDefecto" class="ac-contexto-select" data-selector-contexto data-buscable
-                                data-url="/cohorte/establecerPorDefecto/{valor}"
-                                th:disabled="${#lists.size(cohortesDelPrograma) < 2}">
-                                <option th:if="${#lists.isEmpty(cohortesDelPrograma)}" value="">Sin cohortes</option>
-                                <option th:each="c : ${cohortesDelPrograma}" th:value="${c.idCohorte}"
-                                    th:text="${c.etiqueta}"
-                                    th:selected="${cohorte != null and cohorte.idCohorte == c.idCohorte}">Marzo 2026 (En dictado)</option>
-                            </select>
-                        </div>
-                    </div>
-                    <!-- Pestañas de las secciones del curso (solo en la página principal) -->
-                    <th:block th:if="${seccion == 'temas'}">
-                        <th:block th:replace="~{fragments/pestaniasCurso :: pestanias(${urlBase}, ${curso}, ${esDocente})}"></th:block>
-                    </th:block>
-                </header>
+                <th:block th:replace="~{pages/curso/cabecera :: cabecera(${seccion == 'temas'}, false)}"></th:block>
 
                 <!-- Diseño del curso para la cohorte de trabajo: los 5 pasos (datos, programa, temas, cronograma y contenido), con el
                      detalle del paso elegido debajo. Lo que era la página Diseño, para que sea lo primero que ve el docente -->
-                <section class="ec-carta" th:if="${seccion == 'temas' and esDocente}"
+                <section class="ec-card" th:if="${seccion == 'temas' and esDocente}"
                     th:with="paso=${estadoDiseno.pasoActual}, completo=${estadoDiseno.pasoActual == 6},
                              datosOk=${estadoDiseno.datosCompletos}, progOk=${programa != null}, temasOk=${estadoDiseno.temasCompletos},
                              cronOk=${programa != null and estadoDiseno.duracionAsignada},
@@ -110,7 +77,7 @@
                             <div data-ec-panel="1" hidden>
                                 <div class="ec-cab"><h4>Datos del curso</h4><span class="ec-chip" th:classappend="${datosOk} ? 'ok' : 'pe'" th:text="${datosOk ? 'Completo' : 'Pendiente'}">Pendiente</span></div>
                                 <p class="ec-nota" th:text="${datosOk ? 'Nivel, objetivos y carga horaria completos.' : 'Faltan: ' + #strings.listJoin(estadoDiseno.faltantesDeDatos, ', ') + '.'}">Detalle</p>
-                                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalEditarCurso"
+                                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalModificarCurso"
                                     th:text="${datosOk ? 'Editar datos' : 'Completar datos'}">Completar datos</button>
                             </div>
                             <!-- 2. Programa de la cohorte -->
@@ -182,7 +149,7 @@
 
                 <!--/* Pendiente (implementación futura): alerta de la clase en vivo que se está transmitiendo ahora
                 <section class="ac-en-directo" th:if="${seccion == 'temas' and cohorte != null and cohorte.claseEnCurso != null}">
-                    <span class="ac-en-directo-icono"><i class="fa-solid fa-tower-broadcast"></i></span>
+                    <span class="ac-en-directo-icon"><i class="fa-solid fa-tower-broadcast"></i></span>
                     <div class="ac-en-directo-texto">
                         <span class="ac-en-directo-etiqueta"><i class="fa-solid fa-circle"></i> En directo ahora</span>
                         <strong th:text="${cohorte.claseEnCurso.titulo}">Clase magistral</strong>
@@ -196,7 +163,7 @@
 
                 <!-- ================= Sección: Temas (acordeón) ================= -->
                 <section id="temasDelCurso" th:if="${seccion == 'temas'}">
-                    <!-- Sin programa en la cohorte de trabajo: la carta de arriba explica cómo asignarlo -->
+                    <!-- Sin programa en la cohorte de trabajo: la card de arriba explica cómo asignarlo -->
                     <p class="ec-nota" th:if="${programa == null}">Sin temas para mostrar: la cohorte todavía no tiene programa.</p>
                     <th:block th:if="${programa != null}">
                     <div class="ac-barra-acordeon">
@@ -211,7 +178,7 @@
                         <button type="button" class="ac-enlace-boton" data-ac-colapsar>Colapsar todo</button>
                     </div>
 
-                    <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-layer-group', 'El programa todavía no tiene temas', ${esDocente ? 'Usá «Registrar tema» para cargar la primera.' : 'Cuando se carguen temas, vas a verlas acá.'}, null, null)}"></th:block></th:block>
+                    <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-layer-group', 'El programa todavía no tiene temas', ${esDocente ? 'Usá «Registrar tema» para cargar la primera.' : 'Cuando se carguen temas, vas a verlas acá.'}, null, null)}"></th:block></th:block>
 
                     <div class="ac-acordeon">
                         <article class="ac-tema" th:each="uc : ${programa.cronogramaOrdenado}"
@@ -268,16 +235,16 @@
                                     <div class="ac-grupo-cabecera" th:if="${!#lists.isEmpty(materiales)}">
                                         <h3 class="ac-grupo-titulo">Materiales</h3>
                                         <a class="ac-grupo-enlace" th:if="${esDocente}"
-                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})}">Ver listado</a>
+                                            th:href="@{/recurso/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})}">Ver listado</a>
                                     </div>
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(materiales)}">
                                         <li class="ac-actividad" th:each="m : ${materiales}">
                                             <th:block
-                                                th:replace="~{fragments/iconoMaterial :: icono(${m.tipo}, '')}">
+                                                th:replace="~{fragments/components/iconRecurso :: icon(${m.tipo}, '')}">
                                             </th:block>
                                             <!-- Un enlace externo lleva directo a su página (en otra pestaña); el resto abre la vista del material -->
                                             <a class="ac-actividad-titulo" th:text="${m.titulo}" rel="noopener"
-                                                th:href="${m.recurso.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/material/ver/' + ${m.idTemaRecurso}}"
+                                                th:href="${m.recurso.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/recurso/ver/' + ${m.idTemaRecurso}}"
                                                 th:target="${m.recurso.esEnlaceExterno()} ? '_blank' : null">Material</a>
                                             <span class="pn-insignia pn-insignia-gris" th:if="${m.oculto}">Oculto</span>
                                             <div class="dropdown ac-menu-material" th:if="${puedeGestionar}">
@@ -286,10 +253,10 @@
                                                         class="fa-solid fa-ellipsis-vertical"></i></button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                     <li><a class="dropdown-item"
-                                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='editar', materialId=${m.idTemaRecurso})}">Modificar</a>
+                                                            th:href="@{/recurso/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='editar', materialId=${m.idTemaRecurso})}">Modificar</a>
                                                     </li>
                                                     <li><a class="dropdown-item text-danger"
-                                                            th:href="@{/material/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='baja', materialId=${m.idTemaRecurso})}">Dar
+                                                            th:href="@{/recurso/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='baja', materialId=${m.idTemaRecurso})}">Dar
                                                             de baja</a></li>
                                                 </ul>
                                             </div>
@@ -301,14 +268,14 @@
                                         th:if="${!#lists.isEmpty(u.terminosGlosarioOrdenados)}">
                                         <h3 class="ac-grupo-titulo">Glosario</h3>
                                         <a class="ac-grupo-enlace"
-                                            th:href="${esDocente} ? @{/glosario/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/glosario/ver/' + ${u.idTema}}">Ver
+                                            th:href="${esDocente} ? @{/termino/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/termino/buscarPorTema/' + ${u.idTema}}">Ver
                                             listado</a>
                                     </div>
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(u.terminosGlosarioOrdenados)}">
                                         <li class="ac-actividad">
-                                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Glosario', '')}">
+                                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Glosario', '')}">
                                             </th:block>
-                                            <a class="ac-actividad-titulo" th:href="@{'/glosario/ver/' + ${u.idTema}}"
+                                            <a class="ac-actividad-titulo" th:href="@{'/termino/buscarPorTema/' + ${u.idTema}}"
                                                 th:text="${'Glosario ' + uc.numeroOrden}">Glosario</a>
                                         </li>
                                     </ul>
@@ -323,7 +290,7 @@
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(autoevaluaciones)}">
                                         <li class="ac-actividad" th:each="a : ${autoevaluaciones}">
                                             <th:block
-                                                th:replace="~{fragments/iconoMaterial :: icono('Autoevaluación', '')}">
+                                                th:replace="~{fragments/components/iconRecurso :: icon('Autoevaluación', '')}">
                                             </th:block>
                                             <a class="ac-actividad-titulo" th:text="${a.nombre}"
                                                 th:href="${esDocente or esAdministrador} ? @{/autoevaluacion/buscar(cursoId=${curso.idCurso})} : @{'/autoevaluacion/ver/' + ${a.idAutoevaluacion}}">Autoevaluación</a>
@@ -348,15 +315,15 @@
                                     <div class="ac-grupo-cabecera">
                                         <h3 class="ac-grupo-titulo">Foro</h3>
                                         <a class="ac-grupo-enlace"
-                                            th:href="${esDocente} ? @{/foro/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/foro/ver/' + ${u.idTema}}">Ver
+                                            th:href="${esDocente} ? @{/consulta/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/consulta/buscarPorTema/' + ${u.idTema}}">Ver
                                             listado</a>
                                     </div>
                                     <ul class="ac-actividades">
                                         <li class="ac-actividad">
-                                            <th:block th:replace="~{fragments/iconoMaterial :: icono('Foro', '')}">
+                                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Foro', '')}">
                                             </th:block>
                                             <a class="ac-actividad-titulo"
-                                                th:href="@{'/foro/ver/' + ${u.idTema}}">Foro de consultas</a>
+                                                th:href="@{'/consulta/buscarPorTema/' + ${u.idTema}}">Foro de consultas</a>
                                         </li>
                                     </ul>
 
@@ -373,15 +340,15 @@
 
                 <!-- ================= Sección: Cronograma (solo lectura) ================= -->
                 <section th:if="${seccion == 'cronograma'}">
-                    <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-calendar', 'El programa todavía no tiene temas', 'Cuando se carguen temas, vas a ver su cronograma acá.', null, null)}"></th:block></th:block>
+                    <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-calendar', 'El programa todavía no tiene temas', 'Cuando se carguen temas, vas a ver su cronograma acá.', null, null)}"></th:block></th:block>
 
                     <div th:if="${!#lists.isEmpty(programa.cronogramaOrdenado)}">
-                        <!-- En qué día va la cohorte (igual que en la vista del docente) -->
-                        <p class="ac-nota" th:if="${cohorte != null}"
+                        <!-- En qué día va la cohorte (solo para el docente) -->
+                        <p class="ac-nota" th:if="${cohorte != null and esDocente}"
                             th:text="${'Día actual de la cohorte: ' + cohorte.diaActual + ' de ' + programa.duracionTotalDias + ' (contado desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Día actual</p>
 
                         <th:block th:with="cronoCohorte=${cohorte},cronoInscripcion=${esDocente ? null : inscripcion}">
-                            <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${programa.cronogramaOrdenado}, ${temasDelCronograma}, false, true)}"></th:block>
+                            <th:block th:replace="~{pages/cronograma/board :: board(${curso}, ${programa}, ${programa.cronogramaOrdenado}, ${temasDelCronograma}, false, true)}"></th:block>
                         </th:block>
                     </div>
                 </section>
@@ -390,12 +357,12 @@
                 <section th:if="${seccion == 'clases'}">
                     <h2 class="ac-seccion-titulo">Clases en vivo de tu cohorte</h2>
 
-                    <th:block th:if="${cohorte == null or #lists.isEmpty(cohorte.clasesEnVivoPublicadas)}"><th:block th:replace="~{fragments/vacio :: bloque('fa-video-slash', 'Todavía no hay clases en vivo', ${esDocente ? 'Cuando se programen clases en vivo para la cohorte, vas a verlas acá.' : 'Cuando se programen clases en vivo para tu cohorte, vas a verlas acá.'}, null, null)}"></th:block></th:block>
+                    <th:block th:if="${cohorte == null or #lists.isEmpty(cohorte.clasesEnVivoPublicadas)}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-video-slash', 'Todavía no hay clases en vivo', ${esDocente ? 'Cuando se programen clases en vivo para la cohorte, vas a verlas acá.' : 'Cuando se programen clases en vivo para tu cohorte, vas a verlas acá.'}, null, null)}"></th:block></th:block>
 
                     <ul class="ac-actividades ac-clases"
                         th:if="${cohorte != null and !#lists.isEmpty(cohorte.clasesEnVivoPublicadas)}">
                         <li class="ac-actividad" th:each="c : ${cohorte.clasesEnVivoPublicadas}">
-                            <span class="ac-recurso-icono ac-recurso-icono-rosa"><i
+                            <span class="ac-recurso-icon ac-recurso-icon-rosa"><i
                                     class="fa-solid fa-video"></i></span>
                             <div class="ac-actividad-info">
                                 <span class="ac-actividad-titulo ac-sin-enlace" th:text="${c.titulo}">Clase</span>
@@ -412,25 +379,25 @@
                 </section>
                 </div>
 
-                <th:block th:if="${mostrarCajon}">
-                    <th:block th:replace="~{fragments/cajonCronograma :: cajon(${programa}, ${cohorte}, ${inscripcion})}"></th:block>
+                <th:block th:if="${mostrarDrawer}">
+                    <th:block th:replace="~{pages/cronograma/drawer :: drawer(${programa}, ${cohorte}, ${inscripcion})}"></th:block>
                 </th:block>
                 </div>
             </main>
 
-            <th:block th:replace="~{fragments/panel :: pie('Gestión académica')}"></th:block>
+            <th:block th:replace="~{fragments/layout/panel :: pie('Gestión académica')}"></th:block>
         </div>
     </div>
 
     <!-- Selector de recurso o actividad: al elegir, lleva al ABM de materiales de este curso (con el tema elegido) -->
     <th:block th:if="${puedeGestionar}">
-        <th:block th:replace="~{fragments/selectorRecurso :: selector('/material/buscar?cursoId=' + ${curso.idCurso})}">
+        <th:block th:replace="~{pages/recurso/selector :: selector('/recurso/buscar?cursoId=' + ${curso.idCurso})}">
         </th:block>
     </th:block>
 
 
     <!-- Datos del curso: se editan acá mismo, sin salir del inicio -->
-    <div class="modal fade pn-modal" id="modalEditarCurso" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal fade pn-modal" id="modalModificarCurso" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
@@ -438,23 +405,23 @@
                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="pn-modal-cuerpo">
-                    <th:block th:replace="~{fragments/formDatosCurso :: formulario(${curso})}"></th:block>
+                    <th:block th:replace="~{pages/curso/modificarPorDocente :: formulario(${curso})}"></th:block>
                 </div>
             </div>
         </div>
     </div>
 
-    <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-    <script th:src="@{/js/ayudaDesplegable.js}"></script>
-    <script th:src="@{/js/academica.js}"></script>
-    <script th:src="@{/js/tooltipCronograma.js}"></script>
-    <script th:src="@{/js/pestaniasCurso.js}"></script>
-    <script th:src="@{/js/cajonCronograma.js}"></script>
-    <script th:src="@{/js/cronograma.js}" th:if="${seccion == 'cronograma'}"></script>
-    <script th:src="@{/js/contexto.js}" th:if="${puedeGestionar}"></script>
-    <script th:if="${puedeGestionar}" th:src="@{/js/material.js}"></script>
+    <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+    <script th:src="@{/js/components/ayudaDesplegable.js}"></script>
+    <script th:src="@{/js/core/curso.js}"></script>
+    <script th:src="@{/js/pages/cronograma/tooltip.js}"></script>
+    <script th:src="@{/js/layout/navbarCurso.js}"></script>
+    <script th:src="@{/js/pages/cronograma/drawer.js}"></script>
+    <script th:src="@{/js/pages/cronograma/board.js}" th:if="${seccion == 'cronograma'}"></script>
+    <script th:src="@{/js/pages/curso/contexto.js}" th:if="${puedeGestionar}"></script>
+    <script th:if="${puedeGestionar}" th:src="@{/js/pages/recurso/recurso.js}"></script>
 <script>
-    // Carta Diseño del curso: el paso elegido muestra su detalle; "Cargar" abre el tema que falta en el acordeón
+    // Card Diseño del curso: el paso elegido muestra su detalle; "Cargar" abre el tema que falta en el acordeón
     (function () {
         var detalle = document.querySelector('[data-ec-detalle]');
         if (!detalle) { return; }

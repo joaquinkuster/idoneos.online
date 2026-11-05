@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}, data-editar=${programaAEditar}">
             <nav class="ac-migas" aria-label="Ruta de navegación">
@@ -31,7 +31,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/programa/buscar" th:attr="data-opciones=${tablaOpciones}">
+            <section class="pn-card" data-tabla data-tabla-servidor="/programa/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de programas</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
@@ -82,7 +82,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-folder-open', 'No se encontraron programas', 'Ningún programa coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-folder-open', 'No se encontraron programas', 'Ningún programa coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -103,7 +103,7 @@
             </section>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
     </div>
 </div>
 
@@ -145,7 +145,7 @@
                                             <span class="pn-chip pn-chip-verde d-none" data-estado></span>
                                         </div>
                                     </div>
-                                    <div class="pn-temas-vacio" data-programas-vacio>
+                                    <div class="pn-temas-empty" data-programas-empty>
                                         <p>No hay programas agregados aún</p>
                                         <small>Agregá el primero →</small>
                                     </div>
@@ -213,10 +213,10 @@
 
 <!-- Bajas (CU-18) -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
-<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPrograma', 'programa', '¿Confirmas dar de baja?', '', '/programa/darDeBaja/0', null, null)}"></th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaPrograma', 'programa', '¿Confirmas dar de baja?', '', '/programa/darDeBaja/0', null, null)}"></th:block>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/programa.js}"></script>
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/pages/programa/programa.js}"></script>
 </body>
 </html>

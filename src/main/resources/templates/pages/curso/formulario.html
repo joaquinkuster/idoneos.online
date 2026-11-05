@@ -1,0 +1,133 @@
+<!-- Formulario por pasos para registrar (curso == null) o modificar un curso.
+     Parámetros: curso (el curso a modificar o null), bloqueado (true si el curso tiene inscripciones activas y solo
+     pueden modificarse el precio y el equipo docente). -->
+<form th:fragment="formulario(curso, bloqueado)"
+      th:action="@{${curso == null ? '/curso/registrar' : '/curso/modificar/' + curso.idCurso}}"
+      method="post" class="form-ajax" data-validar data-pasos data-validador="curso" data-resumen="Curso"
+      th:attr="data-modo=${curso == null ? 'alta' : 'modificacion'}" novalidate>
+
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Equipo</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+
+    <!-- Paso 1: datos básicos. El nivel, la descripción, los objetivos, la imagen y la carga horaria los completa el docente -->
+    <div class="pn-paso" data-grupo="Datos básicos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos básicos</h4>
+            <p>Los datos académicos los completa el docente desde el inicio del curso</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Categoría <span class="pn-obligatorio">*</span></label>
+                <select name="categoriaId" class="pn-input" required data-buscable th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                    <option value="">Categoría</option>
+                    <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"
+                            th:selected="${curso != null and curso.categoria != null and curso.categoria.idCategoria == cat.idCategoria}">Categoría</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Precio (ARS) <span class="pn-obligatorio">*</span></label>
+                <input type="number" name="precio" class="pn-input" step="0.01" min="0" th:max="${precioMaximo}" placeholder="Precio" required data-resumen-formato="moneda"
+                       th:value="${curso != null ? curso.precio : ''}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador" th:text="${curso != null ? #strings.length(curso.nombre) + ' / 50' : '0 / 50'}">0 / 50</span>
+                </div>
+                <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required
+                       th:value="${curso != null ? curso.nombre : ''}" th:readonly="${bloqueado}" th:classappend="${bloqueado} ? 'pn-bloqueado'">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Duración <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la duración" title="Ayuda"
+                            th:data-ayuda-destino="${'ayudaDuracion' + (curso != null ? curso.idCurso : 'Nueva')}"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <th:block th:replace="~{fragments/components/inputs/duracion :: duracion('duracion', ${curso != null ? curso.duracionDias : null}, ${bloqueado}, 'Debe completar la duración.')}"></th:block>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Emite certificado</label>
+                </div>
+                <select name="emiteCertificado" class="pn-input" th:classappend="${bloqueado} ? 'pn-bloqueado'" th:attr="tabindex=${bloqueado} ? '-1' : null">
+                    <option value="true" th:selected="${curso == null or curso.emiteCertificado}">Sí</option>
+                    <option value="false" th:selected="${curso != null and !curso.emiteCertificado}">No</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 ayuda-desplegable" th:id="${'ayudaDuracion' + (curso != null ? curso.idCurso : 'Nueva')}">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>La <strong>duración</strong> es el tiempo que el docente asigna entre los temas del programa. Elegí «Mixto» para combinar meses, semanas y días.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 2: equipo docente y modalidades -->
+    <div class="pn-paso" data-grupo="Equipo y modalidades">
+        <div class="pn-seccion-titulo">
+            <h4>Equipo docente y modalidades</h4>
+            <p>Las modalidades definen qué contenido debe tener cada tema</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Docente titular <span class="pn-obligatorio">*</span></label>
+                <select name="docenteTitularId" class="pn-input" required data-buscable>
+                    <option value="">Docente titular</option>
+                    <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                            th:selected="${curso != null and curso.docenteTitular != null and curso.docenteTitular.idDocente == d.idDocente}">Docente</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Docentes ayudantes (opcional)</label>
+                <select name="idsDocentesAyudantes" class="ts-multiselect" multiple placeholder="Docentes ayudantes">
+                    <option th:each="d : ${docentes}" th:value="${d.idDocente}" th:text="${d.usuario.nombreCompleto}"
+                            th:selected="${curso != null and curso.docentesAyudantes.contains(d)}">Docente</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <label class="pn-etiqueta">Modalidades <span class="pn-obligatorio">*</span></label>
+                <div th:style="${bloqueado} ? 'pointer-events: none; opacity: .7;' : ''">
+                    <select name="idsModalidades" class="ts-multiselect" multiple placeholder="Modalidades" required
+                            data-mensaje-obligatorio="Debe seleccionar al menos una modalidad.">
+                        <option th:each="m : ${modalidades}" th:value="${m.idModalidad}" th:text="${m.nombre}"
+                                th:selected="${curso != null and curso.modalidades.contains(m)}">Modalidad</option>
+                    </select>
+                </div>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 3: resumen estructural en árbol (se arma con lo cargado; en una modificación, solo con lo que cambió) -->
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p th:text="${curso == null ? 'Revisá los datos antes de guardar' : 'Estos son los cambios que se van a guardar'}">Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+
+    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueado}">
+        El curso tiene inscripciones activas: solo pueden modificarse el <strong>precio</strong> y el <strong>equipo docente</strong>. El resto de los datos es el que el alumno vio y pagó al inscribirse.
+    </div>
+
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar
+                th:text="${curso == null ? 'Confirmar y guardar' : 'Confirmar cambios'}">Confirmar y guardar</button>
+    </div>
+</form>

@@ -1,0 +1,133 @@
+/* ==========================================================================
+   SQUIRCLE GEOMETRY & MODERN IOS GLASSMORPHISM ENGINE
+   Aplicado globalmente a todas las pantallas, componentes, cards y botones
+   Preservando paleta oficial (Navy #081426, Oro #D4A03D, Blanco #FFFFFF)
+   ========================================================================== */
+
+/* 4. CARDS, CONTENEDORES Y PANELES (iOS FROSTED GLASS EFECTO ULTRA-PULIDO) */
+.wf-card,
+.wf-course-card {
+    border-radius: var(--squircle-lg) !important;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+    background: var(--ios-glass-bg) !important;
+    backdrop-filter: var(--ios-glass-blur) !important;
+    -webkit-backdrop-filter: var(--ios-glass-blur) !important;
+    border: 1px solid var(--ios-glass-border) !important;
+    box-shadow: var(--ios-glass-shadow) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.wf-card:hover,
+.wf-course-card:hover {
+    box-shadow: var(--ios-glass-shadow-hover) !important;
+    border-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.wf-course-card {
+    overflow: hidden !important;
+}
+
+.wf-course-card-thumb {
+    border-radius: calc(var(--squircle-lg) - 2px) calc(var(--squircle-lg) - 2px) 0 0 !important;
+    backdrop-filter: blur(10px);
+}
+
+.wf-course-card-footer {
+    background: transparent !important;
+}
+
+/* 6. MODALES Y DIÁLOGOS (iOS FLOATING MODAL SHEET GLASS) */
+.modal-content {
+    border-radius: var(--squircle-xl) !important;
+    corner-smoothing: 60%;
+    -webkit-corner-smoothing: 60%;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(28px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 32px 80px rgba(8, 20, 38, 0.22), 0 8px 24px rgba(8, 20, 38, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+    overflow: hidden !important;
+}
+
+/* 7. DROPDOWNS FLOTANTES (iOS Popover Glass) */
+.dropdown-menu {
+    border-radius: var(--squircle-md) !important;
+    corner-smoothing: 60%;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(24px) saturate(190%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.75) !important;
+    box-shadow: 0 20px 48px rgba(8, 20, 38, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 9. BADGES Y PILLS EN SQUIRCLE Y SUAVE LUMINISCENCIA */
+.wf-badge,
+.wf-pill-tag,
+.wf-pill-status {
+    border-radius: var(--squircle-pill) !important;
+    padding: 5px 12px !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    letter-spacing: 0.3px;
+    font-weight: 700;
+}
+
+.wf-pill-tag,
+.wf-pill-status {
+    background: linear-gradient(135deg, rgba(212, 160, 61, 0.95) 0%, rgba(197, 144, 48, 0.95) 100%) !important;
+    box-shadow: 0 2px 8px rgba(212, 160, 61, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+    border: none !important;
+}
+
+/* 12. HERO BANNERS CON DEGRADADO SUAVE Y PROFUNDIDAD */
+.wf-hero-banner {
+    position: relative;
+    overflow: hidden;
+}
+
+.wf-hero-banner::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(212, 160, 61, 0.08) 0%, rgba(19, 42, 74, 0.15) 50%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+/* MODALES RÁPIDOS: fondo sólido (sin desenfoque del fondo, que se recalcula en cada cuadro de la animación)
+   y animación corta. El efecto glass se mantiene en la navbar y en los elementos chicos. */
+.modal-content {
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.modal.fade .modal-dialog {
+    transition: transform 0.15s ease-out !important;
+}
+
+.modal-backdrop.fade {
+    transition: opacity 0.15s linear !important;
+}
+
+/* MULTISELECT (Tom Select): ocupa todo el ancho disponible del campo */
+.ts-wrapper {
+    width: 100%;
+}
+
+.ts-wrapper .ts-control {
+    width: 100%;
+    min-height: 44px;
+}
+
+/* Las secciones con container-fluid usan el mismo ancho que el resto del contenido */
+.wf-body > .container-fluid,
+.wf-hero-section .container-fluid {
+    max-width: var(--wf-ancho-contenedor);
+    margin-left: auto;
+    margin-right: auto;
+}

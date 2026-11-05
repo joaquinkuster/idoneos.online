@@ -1,0 +1,102 @@
+/* ---------- Actividades de un tema ---------- */
+.ac-actividades {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ac-actividad {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+}
+
+.ac-recurso-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: #FFFFFF;
+    flex-shrink: 0;
+}
+
+.ac-recurso-icon-azul { background: #3B82F6; }
+.ac-recurso-icon-naranja { background: #F97316; }
+.ac-recurso-icon-violeta { background: #8B5CF6; }
+.ac-recurso-icon-rojo { background: #EF4444; }
+.ac-recurso-icon-verde { background: #22C55E; }
+.ac-recurso-icon-amarillo { background: #EAB308; }
+.ac-recurso-icon-rosa { background: #EC4899; }
+.ac-recurso-icon-gris { background: #94A3B8; }
+
+.ac-recurso-icon-chico {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.ac-tipo-celda {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    width: 130px;
+    margin: 0 auto;
+    text-align: left;
+}
+
+.ac-tipo-celda .ac-recurso-icon {
+    flex-shrink: 0;
+}
+
+.ac-actividad-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ac-actividad-titulo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+a.ac-actividad-titulo:hover {
+    text-decoration: underline;
+}
+
+.ac-sin-enlace {
+    color: var(--pn-texto);
+}
+
+.ac-actividad-meta {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-actividad-estado {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+}
+
+.ac-actividad-estado small {
+    font-size: 11px;
+    color: var(--pn-texto-suave);
+}

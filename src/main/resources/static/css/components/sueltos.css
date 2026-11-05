@@ -1,0 +1,374 @@
+/* ==========================================================================
+   Estilos sueltos que antes estaban escritos en línea en las plantillas
+   ========================================================================== */
+.ix-hero-velo {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background: url('/img/cursos/introduccion-finanzas.jpg') center/cover no-repeat;
+    pointer-events: none;
+}
+
+.ix-hero-contenido {
+    z-index: 2;
+}
+
+.ix-hero-titulo {
+    font-size: 38px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.ix-hero-texto {
+    max-width: 560px;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.ix-hero-imagen {
+    min-height: 480px;
+    transform: scale(1.1);
+    filter: brightness(0.88);
+}
+
+.fx-hero-texto {
+    max-width: 760px;
+}
+
+.wf-badge-baja {
+    padding: 4px 10px;
+    background: #E2E8F0;
+    border: 1px solid #CBD5E1;
+    color: #475569;
+    font-weight: 800;
+}
+
+.wf-icon-suave {
+    color: #94A3B8;
+}
+
+.wf-progreso-fino {
+    height: 8px;
+}
+
+.err-card {
+    background: #FFFFFF;
+}
+
+.err-icon {
+    font-size: 56px;
+    color: var(--wf-gold, #D4A03D);
+}
+
+.err-titulo {
+    color: #081426;
+}
+
+/* Botón de la card y, para el administrador, el menú de tres puntos a su derecha */
+.cc-acciones {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.cc-acciones .cc-boton {
+    flex: 1;
+    width: auto;
+    margin-top: 0;
+}
+
+/* El menú queda por encima del enlace que se estira sobre toda la card (.cc-boton::after); su botón mide lo mismo que el
+   botón principal */
+.cc-opciones {
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+}
+
+.cc-opciones .ac-menu-boton {
+    width: var(--boton-alto);
+    height: var(--boton-alto);
+    font-size: 16px;
+}
+
+/* Botones de la card que no son el enlace de toda la card (Pagar y acceso bloqueado) */
+.cc-boton-fijo::after {
+    display: none;
+}
+
+button.cc-boton {
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.cc-card:has(.cc-boton-fijo) {
+    cursor: default;
+}
+
+.cc-boton-inactivo,
+.cc-card:hover .cc-boton-inactivo {
+    background: transparent;
+    color: var(--boton-navy);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Progreso del alumno en la card */
+.cc-progreso {
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #64748B;
+}
+
+.cc-progreso-cabecera {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.cc-progreso small {
+    display: block;
+    margin-top: 4px;
+}
+
+.cc-vencimiento {
+    font-size: 12px;
+    color: #64748B;
+}
+
+/* Términos y condiciones dentro de la card de inscripción de la ficha */
+.fx-terminos {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 12px 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: #64748B;
+    cursor: pointer;
+}
+
+.fx-terminos input {
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* Línea de inscripción de la ficha: el texto y, a su derecha, el botón de ayuda */
+.fx-apoyo-fila {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+    margin-top: 10px;
+}
+
+.fx-apoyo-fila .fx-apoyo {
+    margin: 0;
+}
+
+/* Aviso que se despliega con una transición suave: el alto va de 0fr a 1fr y el texto aparece */
+.ayuda-desplegable {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.25s ease, opacity 0.25s ease;
+}
+
+.ayuda-desplegable.abierto {
+    grid-template-rows: 1fr;
+    opacity: 1;
+}
+
+.ayuda-desplegable-interior {
+    min-height: 0;
+    overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ayuda-desplegable {
+        transition: none;
+    }
+}
+
+/* Caja (checkout): resumen de la inscripción y del pago */
+.caja-imagen {
+    width: 120px;
+    height: 90px;
+    flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #EEF4FA;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748B;
+    font-size: 26px;
+}
+
+.caja-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.caja-curso {
+    margin: 0 0 10px;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.caja-detalle {
+    margin: 0 0 2px;
+    font-size: 13px;
+    color: #64748B;
+}
+
+.caja-separador {
+    margin: 14px 0;
+    border: 0;
+    border-top: 1px solid #CBD5E1;
+    opacity: 1;
+}
+
+.caja-lista {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    color: #64748B;
+}
+
+.caja-lista li {
+    margin-bottom: 4px;
+}
+
+.caja-lista i {
+    margin-right: 6px;
+    color: #3B6D11;
+}
+
+.caja-fila {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    font-size: 14px;
+}
+
+.caja-descuento {
+    color: #3B6D11;
+}
+
+.caja-total {
+    align-items: baseline;
+}
+
+.caja-total strong {
+    font-size: 26px;
+}
+
+.caja-boton {
+    width: 100%;
+    margin-top: 12px;
+    height: 42px;
+}
+
+.caja-nota {
+    margin: 8px 0 0;
+    font-size: 12px;
+    text-align: center;
+    color: #64748B;
+}
+
+/* Botón de la card de inscripción de la ficha (Ingresá para inscribirte / sin cohortes): separado de la línea de arriba */
+.fx-inscripcion > .fx-boton-inscribir,
+.fx-inscripcion [data-bloque] > .fx-boton-inscribir {
+    margin-top: 14px;
+}
+
+/* Alerta de error del formulario de inscripción de la ficha: separada de la línea de arriba */
+.fx-inscripcion .alert-formulario {
+    margin-top: 14px;
+}
+
+/* Las cards de la caja llevan aire interno (la card base no tiene padding propio) */
+.pn-card.caja-card {
+    padding: 22px 24px;
+}
+
+.caja-card .pn-lista-cabecera {
+    padding: 0 0 14px;
+}
+
+/* Etiqueta de descuento sobre la imagen de la card (arriba a la derecha) */
+.cc-descuento {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 2;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #0A192F;
+    background: #D4A03D;
+    border-radius: 4px;
+}
+
+/* Precio original tachado junto al precio con descuento (cards y ficha) */
+.cc-precio-tachado,
+.fx-precio-tachado {
+    margin-right: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    color: #94A3B8;
+    text-decoration: line-through;
+}
+
+.fx-precio-tachado {
+    font-size: 18px;
+}
+
+.fx-descuento {
+    margin: 4px 0 18px;
+    color: #3B6D11;
+    font-weight: 600;
+}
+
+/* «Recordarme» de la ficha: contorno navy, para que el dorado quede solo para «Inscribirme» */
+.fx-boton-recordar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--boton-alto);
+    padding: 0 18px;
+    border: 1px solid var(--boton-navy, #0F233D);
+    border-radius: var(--boton-radio);
+    background: #FFFFFF;
+    color: var(--boton-navy, #0F233D);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.fx-boton-recordar:hover {
+    background: #F1F5F9;
+    color: var(--boton-navy, #0F233D);
+}
+
+/* Separado de la línea «La inscripción abre el…» de arriba */
+[data-bloque="proxima"] > .fx-boton-recordar {
+    margin-top: 14px;
+}
+
+[data-bloque][hidden] {
+    display: none;
+}

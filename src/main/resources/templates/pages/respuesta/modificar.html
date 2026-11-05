@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /respuesta/modificar/{id}). -->
+    <div th:fragment="modal(r)" class="modal fade pn-modal" th:id="'modalModificarRespuesta' + ${r.idRespuesta}" tabindex="-1" aria-hidden="true"
+        >
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Modificar respuesta</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>Datos de la respuesta</h4>
+                        <p th:text="${'Texto de la respuesta; podés modificarla hasta ' + plazoEdicion + ' minutos después de registrarla'}">Texto de la respuesta</p>
+                    </div>
+                    <form th:action="@{'/respuesta/modificar/' + ${r.idRespuesta}}" method="post" class="form-ajax" data-validar novalidate>
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Respuesta <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(r.texto) + ' / 500'}">0 / 500</span>
+                                </div>
+                                <textarea name="texto" class="pn-input" rows="6" maxlength="500" data-contador required
+                                          data-mensaje-obligatorio="Debe completar el texto de la respuesta." th:text="${r.texto}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Actualizar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

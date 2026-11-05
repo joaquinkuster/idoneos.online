@@ -1,0 +1,19 @@
+/* ---------------------------------------------------------------- INICIO DE SESIÓN: esquinas redondeadas de cada mitad */
+.auth-card {
+    background: transparent;
+}
+
+.auth-izquierda {
+    background: #FFFFFF;
+    border-radius: 1.5rem 0 0 1.5rem;
+}
+
+.auth-derecha {
+    border-radius: 0 1.5rem 1.5rem 0;
+}
+
+@media (max-width: 800px) {
+    .auth-izquierda {
+        border-radius: 1.5rem;
+    }
+}

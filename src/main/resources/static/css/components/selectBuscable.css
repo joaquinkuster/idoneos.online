@@ -1,0 +1,76 @@
+/* Selectores con búsqueda por texto (selectBuscable.js) */
+.sb {
+    position: relative;
+}
+
+.sb-oculto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sb-campo {
+    padding-right: 34px;
+    text-overflow: ellipsis;
+    cursor: text;
+}
+
+.sb-flecha {
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.sb-abierto .sb-flecha {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.sb-deshabilitado .sb-flecha {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.sb-lista {
+    position: fixed;
+    z-index: 2700; /* por encima de los modales (2600) */
+    margin: 0;
+    padding: 4px;
+    list-style: none;
+    overflow-y: auto;
+    font-size: 14px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(8, 20, 38, 0.16);
+}
+
+.sb-opcion {
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.sb-activa {
+    background: #F3F5F8;
+}
+
+.sb-opcion-elegida {
+    font-weight: 700;
+}
+
+.sb-opcion-inactiva {
+    color: var(--pn-texto-suave);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.sb-empty {
+    padding: 10px;
+    color: var(--pn-texto-suave);
+}

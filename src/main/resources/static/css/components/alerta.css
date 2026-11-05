@@ -1,0 +1,172 @@
+/* ==========================================================================
+   ALERTAS (SweetAlert2): cierre de sesión
+   ========================================================================== */
+.swal-confirmacion {
+    width: 400px;
+    max-width: 92vw;
+    border-radius: 16px;
+    padding: 28px 24px 24px;
+}
+
+.swal-confirmacion .swal2-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.swal-confirmacion .swal2-html-container {
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+}
+
+.swal2-icon.swal-icon-peligro {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border: 0;
+    background: #FEE2E2;
+    color: var(--pn-peligro);
+}
+
+.swal2-icon.swal-icon-peligro .swal2-icon-content {
+    font-size: 36px;
+}
+
+/* El título queda más cerca del ícono (SweetAlert le deja un relleno arriba) */
+.swal2-icon.swal-icon-peligro ~ .swal2-title {
+    padding-top: 0;
+}
+
+/* Avisos del sistema (éxito, error, información y advertencia): el mismo círculo de 80 px de las bajas, con el color del tipo */
+.swal2-icon.swal-icon-exito,
+.swal2-icon.swal-icon-error,
+.swal2-icon.swal-icon-info,
+.swal2-icon.swal-icon-advertencia {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border: 0;
+}
+
+.swal2-icon.swal-icon-exito .swal2-icon-content,
+.swal2-icon.swal-icon-error .swal2-icon-content,
+.swal2-icon.swal-icon-info .swal2-icon-content,
+.swal2-icon.swal-icon-advertencia .swal2-icon-content {
+    font-size: 36px;
+}
+
+.swal2-icon.swal-icon-exito {
+    background: #DCFCE7;
+    color: #15803D;
+}
+
+.swal2-icon.swal-icon-error {
+    background: #FEE2E2;
+    color: var(--pn-peligro);
+}
+
+.swal2-icon.swal-icon-info {
+    background: #E6EEF7;
+    color: var(--pn-ver);
+}
+
+.swal2-icon.swal-icon-advertencia {
+    background: var(--pn-gold-soft);
+    color: #B7791F;
+}
+
+.swal2-icon[class*='swal-icon-'] ~ .swal2-title {
+    padding-top: 0;
+}
+
+/* El mismo círculo del ícono de las bajas, en azul, para las confirmaciones que no son una baja */
+.swal2-icon.swal-icon-confirmar {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border: 0;
+    background: #E6EEF7;
+    color: var(--pn-ver);
+}
+
+/* El título queda más cerca del ícono (SweetAlert le deja un relleno arriba) */
+.swal2-icon.swal-icon-confirmar ~ .swal2-title {
+    padding-top: 0;
+}
+
+.swal2-icon.swal-icon-confirmar .swal2-icon-content {
+    font-size: 36px;
+}
+
+.swal-boton-peligro,
+.swal-boton-info,
+.swal-boton-exito,
+.swal-boton-advertencia,
+.swal-boton-cancelar {
+    border-radius: 8px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin: 0 6px;
+}
+
+.swal-boton-peligro {
+    background: var(--pn-peligro);
+    color: #FFFFFF;
+    border: 0;
+}
+
+.swal-boton-peligro:hover {
+    background: #B91C1C;
+}
+
+/* Cada alerta lleva el botón principal del color de su tipo: rojo, azul o amarillo; el secundario es transparente */
+.swal-boton-info {
+    background: var(--pn-ver);
+    color: #FFFFFF;
+    border: 0;
+}
+
+.swal-boton-info:hover {
+    background: #244A72;
+}
+
+.swal-boton-exito {
+    background: #166534;
+    color: #FFFFFF;
+    border: 0;
+}
+
+.swal-boton-exito:hover {
+    background: #14532D;
+}
+
+/* Amarillo con letra azul oscuro en negrita (contraste de más de 10 a 1): en reposo el tono más intenso y al pasar el mouse el más suave */
+.swal-boton-advertencia {
+    background: #F2CB45;
+    color: var(--pn-navy-dark);
+    font-weight: 700;
+    border: 0;
+}
+
+.swal-boton-advertencia:hover {
+    background: #F8D96B;
+}
+
+.swal-boton-cancelar {
+    background: transparent;
+    color: #334155;
+    border: 1px solid var(--pn-borde-input);
+}
+
+.swal-boton-cancelar:hover {
+    background: #F1F5F9;
+}
+
+/* SweetAlert enfoca el botón principal al abrirse: sin el borde (negro) del foco del navegador ni la sombra de SweetAlert */
+.swal2-popup .swal2-actions button:focus,
+.swal2-popup .swal2-actions button:focus-visible {
+    outline: none;
+    box-shadow: none;
+}

@@ -1,0 +1,30 @@
+/* ---------------------------------------------------------------- BREADCRUMB DEBAJO DEL BANNER */
+/* La barra ocupa todo el ancho (así su fondo no deja bordes) y el contenido respeta el ancho máximo del sitio */
+.wf-migas-barra {
+    width: 100%;
+    padding: 16px max(48px, calc((100% - var(--wf-ancho-contenedor, 1680px)) / 2 + 48px)) 0;
+}
+
+.wf-migas {
+    margin: 0;
+    color: #94A3B8;
+}
+
+.wf-migas a {
+    color: #64748B;
+}
+
+.wf-migas a:hover {
+    color: #B7791F;
+}
+
+.wf-migas-actual {
+    color: #0F233D;
+    font-weight: 700;
+}
+
+@media (max-width: 991.98px) {
+    .wf-migas-barra {
+        padding: 14px 24px 0;
+    }
+}

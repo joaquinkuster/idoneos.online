@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
             <div class="pn-encabezado">
@@ -21,7 +21,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/descuento/buscar" th:attr="data-opciones=${tablaOpciones}">
+            <section class="pn-card" data-tabla data-tabla-servidor="/descuento/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de descuentos</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
@@ -71,8 +71,8 @@
                                 <td th:text="${#temporals.format(d.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!d.baja}">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalEditarDescuento' + ${d.idDescuento}"
-                                                th:data-modal-url="@{'/descuento/modalEditar/' + ${d.idDescuento}}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalModificarDescuento' + ${d.idDescuento}"
+                                                th:data-modal-url="@{'/descuento/modificar/' + ${d.idDescuento}}">Modificar</button>
                                         <span th:title="${d.cantidadUsada > 0} ? 'Se aplicó a ' + ${d.cantidadUsada} + ' inscripción(es): ya no puede darse de baja' : null">
                                             <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
                                                     data-bs-target="#modalBajaDescuento"
@@ -85,7 +85,7 @@
                                     <span th:if="${d.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(9, 'fa-percent', 'No se encontraron descuentos', 'Ningún descuento coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-percent', 'No se encontraron descuentos', 'Ningún descuento coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -107,7 +107,7 @@
             </section>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie('Panel del administrador')}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
     </div>
 </div>
 
@@ -194,11 +194,11 @@
     </div>
 </div>
 
-<!-- La ventana de modificar (CU-58) se pide al abrirla (modalesBajoDemanda.js) y la de baja (CU-59) es una sola, más abajo -->
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
-<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaDescuento', 'descuento', '¿Confirmas dar de baja?', '', '/descuento/darDeBaja/0', null, null)}"></th:block>
+<!-- La ventana de modificar (CU-58) se pide al abrirla (core/modalModificar.js) y la de baja (CU-59) es una sola, más abajo -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaDescuento', 'descuento', '¿Confirmas dar de baja?', '', '/descuento/darDeBaja/0', null, null)}"></th:block>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/modalesBajoDemanda.js}"></script>
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
 </body>
 </html>

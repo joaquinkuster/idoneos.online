@@ -1,0 +1,256 @@
+package com.app.idoneos.controller;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.List;
+
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.app.idoneos.model.Curso;
+import com.app.idoneos.model.Inscripcion;
+import com.app.idoneos.model.Programa;
+import com.app.idoneos.model.TemaCronograma;
+import com.app.idoneos.repository.CursoRepository;
+import com.app.idoneos.repository.InscripcionRepository;
+
+/**
+ * Pruebas de la página del cronograma (CU-23 y CU-24). Fausto Spotorno es titular de "Macroeconomía de Coyuntura" (un
+ * programa con tres temas, sin inscripciones: se puede modificar) y de "Mercado de Capitales Argentino" (con
+ * inscripciones activas: solo lectura).
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+class CronogramaControllerTest {
+
+    private static final String FAUSTO = "fausto.spotorno@idoneos.online";
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private CursoRepository cursoRepository;
+
+    @Autowired
+    private InscripcionRepository inscripcionRepository;
+
+    private Curso curso(String nombre) {
+        return cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
+    }
+
+    private Curso macro() {
+        return curso("Macroeconomía de Coyuntura");
+    }
+
+    private Curso mercado() {
+        return curso("Mercado de Capitales Argentino");
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("La pantalla recibe el máximo de días del cronograma: la duración del curso")
+    void maximoDeSemanasParametrizado() throws Exception {
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("data-dias-maximos=\"" + macro().getDuracionDias() + "\"")));
+    }
+
+    private String cursoId(Curso curso) {
+        return String.valueOf(curso.getIdCurso());
+    }
+
+    private Programa programaDe(Curso curso) {
+        return curso.getProgramaVigente();
+    }
+
+    private List<Integer> temasDe(Curso curso) {
+        return programaDe(curso).getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList();
+    }
+
+    // ------------------------------------------------------------------ Consulta y edición
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El docente ve el cronograma de un programa sin inscripciones listo para modificar")
+    void paginaEditable() throws Exception {
+        Programa programa = programaDe(macro());
+
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("<h1 class=\"pn-titulo\">Cronogramas</h1>")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Modificar cronograma"))))
+                .andExpect(content().string(Matchers.containsString("id=\"programaIdCronograma\"")))
+                .andExpect(content().string(Matchers.containsString(">" + programa.getNombre() + "</option>")))
+                // cards sin íconos de información; la ayuda es un botón junto al título que muestra el texto
+                .andExpect(content().string(Matchers.containsString("data-ayuda-texto")))
+                .andExpect(content().string(Matchers.containsString("data-ayuda ")))
+                // navbar único con los enlaces del sitio, sin "Mis cursos"
+                .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
+                .andExpect(content().string(Matchers.containsString("nb-enlace\">Acerca de<")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("nb-enlace\">Mis cursos<"))))
+                .andExpect(content().string(Matchers.containsString("data-editable=\"true\"")))
+                .andExpect(content().string(Matchers.containsString("data-programa-id=\"" + programa.getIdPrograma() + "\"")))
+                // cards: duración total, mínimo requerido y cohortes activas
+                .andExpect(content().string(Matchers.containsString("Duración total")))
+                .andExpect(content().string(Matchers.containsString("Mínimo requerido")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Cohortes activas"))))
+                // los dos paneles, las dos vistas y los botones (el de guardar se llama "Modificar")
+                .andExpect(content().string(Matchers.containsString("Temas disponibles")))
+                .andExpect(content().string(Matchers.containsString("data-nueva-tema")))
+                .andExpect(content().string(Matchers.containsString("Vista de calendario")))
+                .andExpect(content().string(Matchers.containsString("Vista por temas")))
+                .andExpect(content().string(Matchers.containsString("data-zona")))
+                .andExpect(content().string(Matchers.containsString("data-cancelar")))
+                .andExpect(content().string(Matchers.containsString("data-modificar")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Guardar cambios"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma en solo lectura"))))
+                .andExpect(content().string(Matchers.containsString("/js/pages/cronograma/board.js")));
+        // los temas del cronograma viajan a la pantalla, en orden y con sus días
+        for (TemaCronograma c : programa.getCronogramaOrdenado()) {
+            mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
+                    .andExpect(content().string(Matchers.containsString("data-id=\"" + c.getTema().getIdTema()
+                            + "\" data-dias=\"" + c.getDuracionDias() + "\"")));
+        }
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("Con inscripciones activas el cronograma se muestra en solo lectura, con su aviso")
+    void soloLecturaPorInscripciones() throws Exception {
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(mercado())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("Cronograma en solo lectura")))
+                .andExpect(content().string(Matchers.containsString("tiene inscripciones activas")))
+                .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-panel-disponibles"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-modificar"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-zona"))))
+                // sin edición no hay botón de ayuda ni su texto
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-ayuda"))))
+                // la semana actual de la cohorte de trabajo sigue informada, sin el atraso del alumno
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Día actual de la cohorte"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Vas al día"))));
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El administrador ve el cronograma en solo lectura, sin aviso de inscripciones")
+    void administrador() throws Exception {
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma en solo lectura"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-modificar"))));
+        mockMvc.perform(post("/cronograma/modificar")).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("Un docente que no participa en el curso vuelve a Mis cursos")
+    void docenteAjeno() throws Exception {
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
+                .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/curso/buscar"));
+        mockMvc.perform(get("/cronograma/buscar")).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/curso/buscar"));
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El alumno no accede a la página del cronograma: ve el suyo desde la vista del curso")
+    void alumno() throws Exception {
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(mercado()))).andExpect(status().isForbidden());
+        mockMvc.perform(post("/cronograma/modificar")).andExpect(status().isForbidden());
+        int inscripcion = inscripcionRepository.findAll().stream()
+                .filter(i -> i.getAlumno().getUsuario().getCorreo().equals("valentina.ruiz@correo.com"))
+                .mapToInt(Inscripcion::getIdInscripcion).findFirst().orElseThrow();
+        mockMvc.perform(get("/inscripcion/acceder/" + inscripcion).param("seccion", "cronograma"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")));
+    }
+
+    // ------------------------------------------------------------------ CU-24 Formulario
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("CU-24: modificar el cronograma responde en JSON y la página muestra el nuevo orden y los nuevos días")
+    void modificar() throws Exception {
+        Programa programa = programaDe(macro());
+        List<Integer> temas = temasDe(macro());
+        // el cronograma no puede superar la duración del curso: se reparte en tres partes que entran justo
+        int total = programa.getDuracionTotalDias();
+        int parte = total / 3;
+
+        mockMvc.perform(post("/cronograma/modificar").param("programaId", String.valueOf(programa.getIdPrograma()))
+                .param("ids", String.valueOf(temas.get(2)), String.valueOf(temas.get(0)), String.valueOf(temas.get(1)))
+                .param("dias", String.valueOf(parte), String.valueOf(parte), String.valueOf(total - 2 * parte)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/json"))
+                .andExpect(jsonPath("$.mensaje").value("Cronograma modificado correctamente."));
+
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
+                .andExpect(content().string(Matchers.containsString("data-id=\"" + temas.get(2) + "\" data-dias=\"" + parte + "\"")));
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("CU-24: las duraciones inválidas y el programa con inscripciones responden 400 con el mensaje del CU")
+    void rechazos() throws Exception {
+        Programa programa = programaDe(macro());
+        List<Integer> temas = temasDe(macro());
+        String id = String.valueOf(programa.getIdPrograma());
+
+        mockMvc.perform(post("/cronograma/modificar").param("programaId", id)
+                .param("ids", String.valueOf(temas.get(0))).param("dias", "0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
+        mockMvc.perform(post("/cronograma/modificar").param("programaId", id)
+                .param("ids", String.valueOf(temas.get(0))).param("dias", "tres"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("mayor a cero")));
+
+        Programa conInscripciones = programaDe(mercado());
+        mockMvc.perform(post("/cronograma/modificar").param("programaId", String.valueOf(conInscripciones.getIdPrograma())))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene inscripciones activas")));
+    }
+
+    // ------------------------------------------------------------------ Enlaces
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El menú del docente enlaza a su página del cronograma, y la sección vieja de la vista del curso redirige")
+    void enlacesDelDocente() throws Exception {
+        mockMvc.perform(get("/curso/acceder/" + mercado().getIdCurso()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("/cronograma/buscar?cursoId=" + mercado().getIdCurso())));
+        mockMvc.perform(get("/curso/acceder/" + mercado().getIdCurso()).param("seccion", "cronograma"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/cronograma/buscar?cursoId=" + mercado().getIdCurso()));
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El menú del alumno mantiene su cronograma dentro de la vista del curso")
+    void enlaceDelAlumno() throws Exception {
+        int inscripcion = inscripcionRepository.findAll().stream()
+                .filter(i -> i.getAlumno().getUsuario().getCorreo().equals("valentina.ruiz@correo.com"))
+                .mapToInt(Inscripcion::getIdInscripcion).findFirst().orElseThrow();
+
+        mockMvc.perform(get("/inscripcion/acceder/" + inscripcion))
+                .andExpect(content().string(Matchers.containsString("?seccion=cronograma")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/cronograma/buscar"))));
+    }
+}

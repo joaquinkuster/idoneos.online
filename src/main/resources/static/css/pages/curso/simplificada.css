@@ -1,0 +1,138 @@
+/* ---------- Vista del curso simplificada ---------- */
+.ac-cabecera-simple {
+    margin-bottom: 20px;
+    padding: 24px 28px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+}
+
+/* Con pestañas, estas hacen de borde inferior de la card */
+.ac-cabecera-simple:has(.ac-curso-navbar) {
+    padding-bottom: 0;
+}
+
+.ac-cabecera-simple .ac-curso-navbar {
+    margin: 22px -28px 0;
+    padding: 0 28px 0 14px; /* el texto de la primera pestaña (14px de padding propio) queda alineado con el título */
+    border-bottom: 0;
+}
+
+.ac-cabecera-simple .ac-navbar-item {
+    margin-bottom: 0;
+}
+
+.ac-cabecera-simple .ac-subtitulo-curso {
+    margin-top: 8px;
+}
+
+.ac-cabecera-simple .ac-contexto {
+    margin-top: 18px;
+}
+
+.ac-subtitulo-curso {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-tema-cuerpo .ac-actividad {
+    align-items: center;
+    padding: 10px 14px;
+}
+
+.ac-tema-cuerpo .ac-actividad-titulo {
+    flex: 1;
+    min-width: 0;
+}
+
+.ac-agregar {
+    margin-top: 12px;
+    padding: 4px 0;
+    background: none;
+    border: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-ver);
+    cursor: pointer;
+}
+
+.ac-agregar:hover {
+    text-decoration: underline;
+}
+
+.ac-menu-boton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.ac-menu-boton:hover {
+    background: var(--pn-fondo);
+    color: var(--pn-texto);
+}
+
+/* Menú de tres puntos (temas, materiales, cards de curso e inscripciones): fondo sólido, sin el efecto glass de los
+   desplegables del sitio, y letra de 14 px */
+.ac-menu-boton + .dropdown-menu {
+    font-size: 14px;
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.ac-menu-boton + .dropdown-menu .dropdown-item {
+    font-size: 14px;
+}
+
+/* Opciones del menú de tres puntos: al pasar el mouse o hacer clic, un gris muy claro (en lugar del azul de Bootstrap) */
+.ac-menu-boton + .dropdown-menu .dropdown-item:hover,
+.ac-menu-boton + .dropdown-menu .dropdown-item:focus,
+.ac-menu-boton + .dropdown-menu .dropdown-item:active {
+    background: #F3F5F8;
+    color: var(--pn-texto);
+}
+
+.ac-menu-boton + .dropdown-menu .dropdown-item.text-danger:hover,
+.ac-menu-boton + .dropdown-menu .dropdown-item.text-danger:focus,
+.ac-menu-boton + .dropdown-menu .dropdown-item.text-danger:active {
+    color: #DC3545;
+}
+
+/* Títulos grises que agrupan las actividades de un tema, con su enlace "Ver listado" */
+.ac-grupo-cabecera {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 16px 0 6px;
+}
+
+.ac-tema-cuerpo .ac-grupo-cabecera:first-child {
+    margin-top: 6px;
+}
+
+.ac-grupo-titulo {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+}
+
+.ac-grupo-enlace {
+    font-size: 13px;
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+.ac-grupo-enlace:hover {
+    text-decoration: underline;
+}

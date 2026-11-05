@@ -1,0 +1,55 @@
+/* ==========================================================================
+   SISTEMA RESPONSIVO (TABLETS, MÓVILES Y PANTALLAS PEQUEÑAS)
+   ========================================================================== */
+
+@media (max-width: 991.98px) {
+
+    .wf-hero-banner {
+        padding: 22px 24px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .wf-hero-title {
+        font-size: 22px;
+    }
+
+    .wf-hero-desc {
+        font-size: 12.5px;
+    }
+
+    .wf-main-content {
+        padding: 22px 18px;
+    }
+
+    .wf-card {
+        padding: 22px 18px;
+    }
+
+    .wf-cards-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .col-md-4,
+.col-md-6,
+.col-md-8 {
+        flex: 0 0 100%;
+        max-width: 100%;
+        margin-bottom: 12px;
+    }
+
+}
+
+@media (max-width: 575.98px) {
+    .wf-btn {
+        width: 100%;
+    }
+
+    .wf-course-card-body {
+        padding: 16px;
+    }
+
+    .wf-course-card-footer {
+        padding: 12px 16px 16px;
+    }
+}

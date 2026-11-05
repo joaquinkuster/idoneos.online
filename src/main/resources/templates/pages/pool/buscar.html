@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
     <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
-    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
             <nav class="ac-migas" aria-label="Ruta de navegación">
@@ -33,7 +33,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/pool/buscar" th:attr="data-opciones=${tablaOpciones}">
+            <section class="pn-card" data-tabla data-tabla-servidor="/pool/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de pools</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
@@ -74,8 +74,8 @@
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.tieneIntentosActivos()}"
-                                                th:data-bs-target="'#modalEditarPool' + ${p.idPool}"
-                                                th:data-modal-url="@{'/pool/modalEditar/' + ${p.idPool}}">Modificar</button>
+                                                th:data-bs-target="'#modalModificarPool' + ${p.idPool}"
+                                                th:data-modal-url="@{'/pool/modificar/' + ${p.idPool}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and p.tieneIntentosActivos()}"
                                                 disabled title="Tiene intentos de autoevaluación asociados: su contenido no puede modificarse">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
@@ -86,7 +86,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(7, 'fa-circle-question', 'No se encontraron pools', 'Ningún pool coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-circle-question', 'No se encontraron pools', 'Ningún pool coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -108,7 +108,7 @@
             </section>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
     </div>
 </div>
 
@@ -121,7 +121,7 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <th:block th:replace="~{fragments/formPool :: formulario(null, ${datosNuevo})}"></th:block>
+                <th:block th:replace="~{pages/pool/formulario :: formulario(null, ${datosNuevo})}"></th:block>
             </div>
         </div>
     </div>
@@ -129,13 +129,13 @@
 
 <!-- Modales por pool: modificar (CU-62) y dar de baja (CU-63) -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
-<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaPool', 'pool', '¿Confirmas dar de baja?', '', '/pool/darDeBaja/0', null, null)}"></th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaPool', 'pool', '¿Confirmas dar de baja?', '', '/pool/darDeBaja/0', null, null)}"></th:block>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/modalesBajoDemanda.js}"></script>
-<script th:src="@{/js/abrirModal.js}"></script>
-<script th:src="@{/js/academica.js}"></script>
-<script th:src="@{/js/pool.js}"></script>
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
+<script th:src="@{/js/core/abrirModal.js}"></script>
+<script th:src="@{/js/core/curso.js}"></script>
+<script th:src="@{/js/pages/pool/pool.js}"></script>
 </body>
 </html>

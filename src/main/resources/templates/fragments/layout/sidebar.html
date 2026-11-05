@@ -1,0 +1,133 @@
+<!-- Barra lateral reutilizable de los módulos con diseño de panel (administración, gestión académica, etc.).
+     Cada módulo arma su menú más abajo en este mismo archivo y lo pasa al marco como parámetro. -->
+
+<!-- Marco de la barra lateral: lugar para la navegación del módulo y pie. Empieza debajo del navbar, que lleva la
+     marca y el botón para contraerla.
+     navegacion: fragmento con los enlaces del módulo (se arma con 'enlace' y 'grupo'). -->
+<th:block th:fragment="marco(navegacion)">
+    <aside class="pn-menu" aria-label="Menú lateral">
+        <nav class="pn-menu-nav" th:insert="${navegacion}"></nav>
+        <div class="pn-menu-pie">© 2026 Idóneos Online</div>
+    </aside>
+    <div class="pn-fondo-menu" data-cerrar-menu></div>
+    <!-- Arma los grupos del menú ahora, antes del primer dibujo (si esperara al final de la página se vería sin agrupar) -->
+    <script th:src="@{/js/layout/sidebar.js}"></script>
+</th:block>
+
+<!-- Enlace del menú. url: ruta de la aplicación ('#' = sin acción por ahora); icon: clase de FontAwesome;
+     activo: clave de la página actual; clave: clave de este enlace (se marca como activo si coinciden). -->
+<a th:fragment="enlace(url, icon, texto, activo, clave)" th:href="${url == '#' ? '#' : url}" class="pn-menu-enlace"
+   th:classappend="${activo == clave} ? 'activo'" th:attr="data-sin-accion=${url == '#'} ? '' : null"
+   th:title="${texto}">
+    <span th:text="${texto}">Enlace</span>
+</a>
+
+<!-- Enlace del menú con un indicador de estado a la derecha: estado 'ok' (verde, está completo) o 'pendiente' (naranja, falta
+     algo); sin estado, no lleva indicador. -->
+<a th:fragment="enlaceEstado(url, icon, texto, activo, clave, estado)" th:href="${url}" class="pn-menu-enlace"
+   th:classappend="${activo == clave} ? 'activo'" th:title="${texto}">
+    <span th:text="${texto}">Enlace</span><span class="pn-menu-estado" th:if="${estado != null}"
+        th:classappend="${estado}" th:title="${estado == 'ok' ? 'Completo' : 'Falta completar'}"></span>
+</a>
+
+<!-- Enlace del menú del curso para quien lo gestiona: la entidad de cada grupo (Programas, Temas, Cohortes) va en negrita y lo
+     que se acaba de habilitar con el paso actual del diseño lleva un punto. -->
+<a th:fragment="enlaceGuia(url, texto, activo, clave, entidad, nuevo)" th:href="${url}" class="pn-menu-enlace"
+   th:classappend="${activo == clave} ? 'activo'" th:data-entidad="${entidad} ? 'true' : null" th:data-nuevo="${nuevo} ? 'true' : null"
+   th:title="${texto}">
+    <span th:text="${texto}">Enlace</span>
+</a>
+
+<!-- Grupo cuyo título es un enlace (lleva al ABM de esa sección) y a la vez abre y cierra los enlaces que le siguen. -->
+<div th:fragment="grupoEnlace(url, texto, activo, clave)" class="pn-menu-grupo" th:classappend="${activo == clave} ? 'activo'"
+     th:title="${texto}" role="button" tabindex="0" aria-expanded="true" data-grupo-menu>
+    <a th:href="${url}" class="pn-menu-grupo-enlace" th:text="${texto}">Grupo</a><i class="fa-solid fa-chevron-down pn-menu-grupo-flecha" aria-hidden="true"></i>
+</div>
+
+<!-- Título de un grupo de enlaces del menú. Es desplegable: al hacerle clic se ocultan o se muestran los enlaces que le siguen
+     hasta el próximo grupo (lo arma static/js/core/panel.js). -->
+<div th:fragment="grupo(texto)" class="pn-menu-grupo" th:title="${texto}" role="button" tabindex="0" aria-expanded="true" data-grupo-menu>
+    <span th:text="${texto}">Grupo</span><i class="fa-solid fa-chevron-down pn-menu-grupo-flecha" aria-hidden="true"></i>
+</div>
+
+<!-- ================= Menús de cada módulo ================= -->
+
+<!-- ========== Panel del administrador (MOD-F-01) ========== -->
+<th:block th:fragment="administrador(activo)">
+    <th:block th:replace="~{fragments/layout/sidebar :: marco(~{fragments/layout/sidebar :: enlacesAdministrador(${activo})})}"></th:block>
+</th:block>
+
+<th:block th:fragment="enlacesAdministrador(activo)">
+    <div th:replace="~{fragments/layout/sidebar :: grupo('Cursos')}"></div>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/curso/buscar', 'fa-book-open', 'Cursos', ${activo}, 'cursos')}"></a>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/cohorte/buscar', 'fa-calendar-days', 'Cohortes', ${activo}, 'cohortes')}"></a>
+
+    <div th:replace="~{fragments/layout/sidebar :: grupo('Inscripciones')}"></div>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/descuento/buscar', 'fa-percent', 'Descuentos', ${activo}, 'descuentos')}"></a>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/inscripcion/buscar', 'fa-user-graduate', 'Inscripciones', ${activo}, 'inscripciones')}"></a>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/pago/buscar', 'fa-credit-card', 'Pagos', ${activo}, 'pagos')}"></a>
+</th:block>
+
+<!-- ========== Gestión académica (MOD-F-02), para el alumno y el docente ==========
+     urlBase: ruta del curso abierto ('/inscripcion/acceder/{id}' o '/curso/acceder/{id}'). La navegación se organiza según la jerarquía
+     Curso → Programa → Cohorte → Tema; los enlaces con '#' no tienen acción por ahora. -->
+<th:block th:fragment="gestionAcademica(activo, urlBase)">
+    <th:block th:replace="~{fragments/layout/sidebar :: marco(~{fragments/layout/sidebar :: enlacesGestionAcademica(${activo}, ${urlBase})})}"></th:block>
+</th:block>
+
+<th:block th:fragment="enlacesGestionAcademica(activo, urlBase)">
+    <a th:replace="~{fragments/layout/sidebar :: enlace(${urlBase}, 'fa-house', ${curso != null ? #strings.abbreviate(curso.nombre, 22) : 'Curso'}, ${activo}, 'curso')}"></a>
+
+    <!-- Docente y administrador: tres grupos (Plan de estudios, Contenido y Dictado) que se despliegan al tocar su título; el primer
+         ítem de cada uno es la entidad (Programas, Temas, Cohortes). Al docente el menú se le habilita de a poco, según el paso del
+         diseño en que está su cohorte (nivelMenu): Programas desde el paso 2, Temas desde el 3, Cronogramas desde el 4 y todo el
+         contenido de los temas desde el 5. Lo de la cohorte (participantes, progreso, intentos y calificaciones) se habilita cuando
+         deja de estar pendiente. Lo que todavía no corresponde no se muestra. -->
+    <th:block th:if="${esDocente == true or esAdministrador == true}"
+              th:with="nivel=${nivelMenu != null ? nivelMenu : 5}, pendiente=${cohortePendiente != null and cohortePendiente}, guia=${nivelMenu != null}">
+        <th:block th:if="${nivel >= 2}">
+            <div th:replace="~{fragments/layout/sidebar :: grupo('Plan de estudios')}"></div>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/programa/buscar?cursoId=' + ${curso.idCurso}, 'Programas', ${activo}, 'programas', true, ${guia and nivel == 2})}"></a>
+            <th:block th:if="${nivel >= 4}">
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/cronograma/buscar?cursoId=' + ${curso.idCurso}, 'Cronogramas', ${activo}, 'cronograma', false, ${guia and nivel == 4})}"></a>
+            </th:block>
+        </th:block>
+
+        <th:block th:if="${nivel >= 3}">
+            <div th:replace="~{fragments/layout/sidebar :: grupo('Contenido')}"></div>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/tema/buscar?cursoId=' + ${curso.idCurso}, 'Temas', ${activo}, 'temas', true, ${guia and nivel == 3})}"></a>
+            <th:block th:if="${nivel >= 5}">
+                <!-- Las clases en vivo solo existen en los cursos con esa modalidad -->
+                <th:block th:if="${curso.incluyeModalidad('En vivo')}">
+                    <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${urlBase} + '?seccion=clases', 'Clases en vivo', ${activo}, 'clases', false, ${guia and nivel == 5})}"></a>
+                </th:block>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/recurso/buscar?cursoId=' + ${curso.idCurso}, 'Recursos', ${activo}, 'materiales', false, ${guia and nivel == 5})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/pool/buscar?cursoId=' + ${curso.idCurso}, 'Pools', ${activo}, 'pools', false, ${guia and nivel == 5})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'Autoevaluaciones', ${activo}, 'autoevaluaciones', false, ${guia and nivel == 5})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/termino/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, ${guia and nivel == 5})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/consulta/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, ${guia and nivel == 5})}"></a>
+            </th:block>
+        </th:block>
+
+        <div th:replace="~{fragments/layout/sidebar :: grupo('Dictado')}"></div>
+        <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/cohorte/buscar?cursoId=' + ${curso.idCurso}, 'Cohortes', ${activo}, 'cohortes', true, false)}"></a>
+        <th:block th:if="${!pendiente}">
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/participante/buscar?cursoId=' + ${curso.idCurso}, 'Participantes', ${activo}, 'docentes', false, false)}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/progreso/buscar?cursoId=' + ${curso.idCurso}, 'Progresos', ${activo}, 'progreso', false, false)}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/intento/buscar?cursoId=' + ${curso.idCurso}, 'Intentos', ${activo}, 'intentos', false, false)}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/intento/buscarPorAutoevaluacion?cursoId=' + ${curso.idCurso}, 'Calificaciones', ${activo}, 'calificaciones', false, false)}"></a>
+        </th:block>
+    </th:block>
+
+    <!-- Alumno: los mismos grupos que el docente (Plan de estudios, Contenido y Dictado), solo con lo que el alumno puede ver. Las
+         autoevaluaciones y las clases en vivo se abren desde cada tema: sus pantallas de gestión son del docente. -->
+    <th:block th:unless="${esDocente == true or esAdministrador == true}">
+        <div th:replace="~{fragments/layout/sidebar :: grupo('Plan de estudios')}"></div>
+        <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${urlBase} + '?seccion=cronograma', 'Cronograma', ${activo}, 'cronograma', true, false)}"></a>
+
+        <div th:replace="~{fragments/layout/sidebar :: grupo('Dictado')}"></div>
+        <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${#strings.replace(urlBase, '/inscripcion/acceder/', '/participante/ver/')}, 'Participantes', ${activo}, 'docentes', true, false)}"></a>
+        <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${#strings.replace(urlBase, '/inscripcion/acceder/', '/intento/buscarPorInscripcion/')}, 'Calificaciones', ${activo}, 'calificaciones', false, false)}"></a>
+    </th:block>
+</th:block>

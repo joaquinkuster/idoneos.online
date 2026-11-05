@@ -1,0 +1,31 @@
+/* ==========================================================================
+   ENCABEZADO DE PÁGINA, CARDS Y BOARD
+   ========================================================================== */
+.pn-encabezado {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.pn-titulo {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--pn-texto);
+    margin: 0;
+}
+
+.pn-subtitulo {
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    margin: 4px 0 0;
+}
+
+.pn-card {
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}

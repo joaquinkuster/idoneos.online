@@ -1,0 +1,81 @@
+/* ==========================================================================
+   AJUSTES DEL PANEL Y DE LOS LISTADOS
+   ========================================================================== */
+/* Botón Editar: amarillo más claro */
+.pn-btn-editar {
+    background: #F8D96B;
+    color: var(--pn-navy-dark);
+}
+
+.pn-btn-editar:hover {
+    background: #F2CB45;
+    color: var(--pn-navy-dark);
+}
+
+/* Filtros con etiqueta (mismo estilo que los formularios) */
+.pn-filtros {
+    align-items: flex-end;
+}
+
+.pn-filtros .pn-etiqueta {
+    margin-bottom: 4px;
+    font-size: 12px;
+}
+
+/* Desplegable de columnas: por encima del contenido pero siempre por debajo del menú lateral */
+.pn-columnas-wrapper {
+    position: relative;
+    z-index: 20;
+}
+
+.pn-columnas-menu {
+    z-index: 30;
+    max-height: 60vh;
+    overflow-y: auto;
+    left: auto;
+    right: 0;
+}
+
+.pn-columnas-menu.alinear-izquierda {
+    left: 0;
+    right: auto;
+}
+
+/* Botón de baja masiva en la cabecera del listado */
+.pn-lista-cabecera .pn-btn {
+    margin-left: auto;
+}
+
+/* Línea de tiempo de los pasos más espaciada */
+.pn-pasos {
+    max-width: 520px;
+    margin: 10px auto 26px;
+}
+
+.pn-pasos-linea {
+    margin: 0 14px;
+}
+
+/* Paginación del catálogo (enlaces) */
+.pn-paginador a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #334155;
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.pn-paginador a:hover {
+    background: var(--pn-fondo);
+}
+
+.pn-paginador a.deshabilitado {
+    opacity: 0.4;
+    pointer-events: none;
+}

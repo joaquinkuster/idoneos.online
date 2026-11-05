@@ -1,0 +1,16 @@
+/* Indicador de estado de un enlace del menú lateral: verde si está completo, naranja si falta algo */
+.pn-menu-estado {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+}
+
+.pn-menu-estado.ok {
+    background: #22C55E;
+}
+
+.pn-menu-estado.pendiente {
+    background: #F59E0B;
+}

@@ -1,0 +1,453 @@
+/* ==========================================================================
+   CRONOGRAMA (MOD-F-02): paneles, grilla por días, semanas o meses, barras y resumen
+   ========================================================================== */
+/* Duración total y mínimo requerido: a la derecha de la cabecera del panel del cronograma */
+.cn-datos {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.cn-datos strong {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.cn-columnas {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.cn-panel {
+    padding: 16px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+}
+
+.cn-izq {
+    width: 360px;
+    flex-shrink: 0;
+}
+
+.cn-der {
+    flex: 1;
+    min-width: 0;
+}
+
+.cn-panel-titulo {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.cn-buscar {
+    margin-bottom: 10px;
+}
+
+.cn-nueva {
+    width: 100%;
+    margin-bottom: 12px;
+    padding: 9px;
+    font-weight: 600;
+    color: var(--pn-ver);
+    background: #EEF4FA;
+    border: 1px solid #BFD3E6;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.cn-nueva:hover {
+    background: #E1ECF6;
+}
+
+.cn-disponible {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 9px 10px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-left: 4px solid var(--c);
+    border-radius: 8px;
+    cursor: grab;
+}
+
+.cn-disponible.usada {
+    opacity: 0.45;
+    cursor: default;
+}
+
+.cn-disponible b,
+.cn-card b {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-texto);
+}
+
+.cn-disponible small,
+.cn-card small {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.cn-asa-fila {
+    margin-left: auto;
+    color: var(--pn-texto-suave);
+    cursor: grab;
+}
+
+.cn-empty {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.cn-cabecera {
+    display: flex;
+    /* Los elementos quedan a la izquierda: al ocultarse la escala (vista por temas) las pestañas no se corren */
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px 24px;
+}
+
+.cn-navbar {
+    display: flex;
+    gap: 6px;
+}
+
+/* Escala de la grilla del calendario (día, semana o mes) */
+.cn-escala {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    margin: 12px 0 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+}
+
+.cn-escala select {
+    width: auto;
+    padding: 5px 8px;
+}
+
+/* Duración de un tema en la vista por temas: el mismo campo de los formularios (cantidad + unidad), más compacto */
+.cn-duracion-fila {
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.cn-duracion-fila .pn-duracion-mixto {
+    flex: 0 0 auto;
+    gap: 6px;
+}
+
+.cn-duracion-fila .pn-tiempo-parte {
+    width: 64px;
+}
+
+.cn-navbar-item {
+    padding: 7px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* Pestaña activa: un azul suave con borde y texto azul, para que no pese más que el cronograma */
+.cn-navbar-item.activa {
+    color: #244A72;
+    background: #E8EFF8;
+    border-color: #5E82BC;
+}
+
+.cn-grilla {
+    margin-top: 14px;
+    overflow-x: auto;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+}
+
+.cn-fila {
+    display: grid;
+    position: relative;
+    min-width: 560px;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.cn-fila:last-child {
+    border-bottom: 0;
+}
+
+.cn-cabecera-fila {
+    background: var(--pn-fondo);
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    text-align: center;
+}
+
+.cn-cabecera-fila div {
+    padding: 8px 0;
+}
+
+.cn-celda-temas {
+    padding-left: 12px !important;
+    text-align: left;
+    font-weight: 600;
+}
+
+.cn-fila.arrastrando {
+    opacity: 0.4;
+}
+
+.cn-fila.sobre {
+    box-shadow: inset 0 3px 0 var(--pn-ver);
+}
+
+.cn-tema {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-right: 1px solid var(--pn-borde);
+}
+
+.cn-numero {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    background: var(--pn-fondo);
+    border-radius: 50%;
+}
+
+.cn-card {
+    flex: 1;
+    min-width: 0;
+    padding: 4px 8px;
+    background: var(--pn-fondo);
+    border-left: 4px solid var(--c);
+    border-radius: 6px;
+}
+
+.cn-card b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cn-unidad {
+    border-right: 1px solid var(--pn-borde);
+}
+
+.cn-barra {
+    position: relative;
+    grid-row: 1;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    margin: 8px 3px;
+    padding: 0 10px;
+    overflow: hidden;
+    font-size: 12px;
+    font-weight: 600;
+    color: #FFFFFF;
+    white-space: nowrap;
+    background: var(--c);
+    border-radius: 6px;
+}
+
+/* Línea roja del día actual (ancho de 10px para poder pasar el mouse por encima) */
+.cn-actual {
+    grid-row: 1;
+    z-index: 2;
+    justify-self: center;
+    width: 10px;
+    background: linear-gradient(90deg, transparent 4px, #DC2626 4px, #DC2626 6px, transparent 6px);
+}
+
+.cn-cabecera-fila .cn-numero-actual {
+    font-weight: 800;
+    color: #991B1B;
+    background: #FEE2E2;
+}
+
+.cn-hoy {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.cn-hoy i {
+    width: 8px;
+    height: 2px;
+    background: #DC2626;
+}
+
+/* Leyenda flotante de barras y líneas (la maneja tooltipCronograma.js) */
+.cn-tooltip {
+    position: fixed;
+    z-index: 2000;
+    max-width: 260px;
+    padding: 6px 10px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #FFFFFF;
+    background: var(--pn-navy-dark, #0F1B2D);
+    border-radius: 6px;
+    pointer-events: none;
+}
+
+.cn-tooltip[hidden] {
+    display: none;
+}
+
+.cn-borde {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 9px;
+    cursor: ew-resize;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.cn-zona {
+    margin-top: 12px;
+    padding: 14px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+    border: 1px dashed var(--pn-borde-input);
+    border-radius: 8px;
+}
+
+.cn-zona.sobre,
+.cn-izq.sobre {
+    background: #EEF4FA;
+    border-color: var(--pn-ver);
+}
+
+.cn-vista-temas {
+    margin-top: 14px;
+}
+
+.cn-titulo-fila {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cn-ayuda {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    font-size: 16px;
+    color: var(--pn-texto-suave);
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.cn-ayuda:hover,
+.cn-ayuda.activa {
+    color: var(--pn-ver);
+    background: #EEF4FA;
+}
+
+.cn-info[hidden] {
+    display: none;
+}
+
+.cn-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 12px;
+    font-size: 13px;
+    color: var(--pn-ver);
+    background: #EEF4FA;
+    border-radius: 8px;
+}
+
+.cn-resumen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 10px;
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+}
+
+.cn-resumen-pastillas {
+    display: contents;
+}
+
+.cn-pastilla {
+    padding: 5px 10px;
+    font-size: 12px;
+    border: 1px solid var(--pn-borde);
+    border-left: 4px solid var(--c);
+    border-radius: 8px;
+}
+
+.cn-resumen-total {
+    margin-left: auto;
+    font-weight: 700;
+}
+
+.cn-pie {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+    .cn-columnas {
+        flex-direction: column;
+        align-items: stretch; /* con flex-start el panel tomaba el ancho de su contenido y se salía de la pantalla */
+    }
+
+    .cn-izq,
+    .cn-der {
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* El board se desplaza en horizontal para ver todos los días y temas */
+    .cn-grilla {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

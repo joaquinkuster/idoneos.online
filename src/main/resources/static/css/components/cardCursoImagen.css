@@ -1,0 +1,27 @@
+/* ---------------------------------------------------------------- CARDS DE CURSO: imagen con carga diferida */
+.wf-course-card-thumb {
+    overflow: hidden;
+}
+
+.wf-course-thumb-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+}
+
+.wf-thumb-con-imagen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(8, 20, 38, 0.35), rgba(8, 20, 38, 0.85));
+    z-index: 1;
+}
+
+.wf-thumb-con-imagen .wf-course-thumb-icon,
+.wf-thumb-con-imagen .wf-course-pills-row {
+    position: relative;
+    z-index: 2;
+}

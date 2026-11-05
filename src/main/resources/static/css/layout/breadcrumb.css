@@ -1,0 +1,30 @@
+/* ==========================================================================
+   RUTA DE NAVEGACIÓN (breadcrumb)
+   ========================================================================== */
+.wf-migas {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #94A3B8;
+}
+
+.wf-migas a {
+    color: #CBD5E1;
+    text-decoration: none;
+}
+
+.wf-migas a:hover {
+    color: var(--pn-gold);
+}
+
+.wf-migas-separador {
+    opacity: 0.6;
+}
+
+.wf-migas-actual {
+    color: #FFFFFF;
+    font-weight: 600;
+}

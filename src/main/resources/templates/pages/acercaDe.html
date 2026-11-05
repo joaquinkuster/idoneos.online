@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 
 <body class="wf-canvas-bg ac-acerca">
@@ -11,7 +11,7 @@
         <div class="screen-frame">
 
             <!-- Top Navbar Oficial Dinámica -->
-            <div th:replace="~{fragments/navbar :: navbar}"></div>
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
 
             <!-- Hero -->
             <div class="wf-hero-banner">
@@ -25,7 +25,7 @@
                 </div>
             </div>
 
-            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Acerca de')}"></th:block>
+            <th:block th:replace="~{fragments/layout/breadcrumb :: migas(null, null, 'Acerca de')}"></th:block>
 
             <div class="wf-body ac-pagina">
 
@@ -106,7 +106,7 @@
                             <div class="ac-slider-ventana">
                                 <div class="ac-slider-pista" data-pista>
                                     <article class="ac-slide" data-slide>
-                                        <div class="ac-carta">
+                                        <div class="ac-card">
                                             <span class="ac-foto" aria-hidden="true">FS</span>
                                             <h4>Fausto Spotorno</h4>
                                             <div class="ac-rol">Director académico</div>
@@ -121,7 +121,7 @@
                                         </div>
                                     </article>
                                     <article class="ac-slide" data-slide>
-                                        <div class="ac-carta">
+                                        <div class="ac-card">
                                             <span class="ac-foto ac-foto-dorada" aria-hidden="true">SB</span>
                                             <h4>Sebastián Bordato</h4>
                                             <div class="ac-rol">Docente · Ideólogo del proyecto</div>
@@ -145,14 +145,14 @@
             </div>
 
             <!-- Footer Oficial de Idóneos Online -->
-            <div th:replace="~{fragments/footer :: footer}"></div>
+            <div th:replace="~{fragments/layout/footer :: footer}"></div>
 
         </div>
     </div>
 
     <!-- Bootstrap Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/js/slider.js}"></script>
+    <script th:src="@{/js/components/slider.js}"></script>
 </body>
 
 </html>

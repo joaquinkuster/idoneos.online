@@ -1,0 +1,24 @@
+/* ==========================================================================
+   MOD-F-05: CLASES EN VIVO & GOOGLE MEET-STYLE IMMERSIVE STUDIO (CU-70 / CU-72)
+   ========================================================================== */
+
+/* Animación de Radar / Ondas de Transmisión */
+@keyframes liveSignalPulse {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 16px rgba(220, 38, 38, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+    }
+}
+
+@keyframes liveWaveform {
+    0%, 100% { height: 6px; }
+    50% { height: 24px; }
+}

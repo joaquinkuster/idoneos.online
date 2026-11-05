@@ -1,0 +1,24 @@
+/* ==========================================================================
+   PANEL DEL ADMINISTRADOR, MENÚ DEL USUARIO Y ALERTAS — IDÓNEOS ONLINE
+   Estructura inspirada en el diseño de CataratasRH (menú lateral, listados en tabla, formularios en
+   ventanas modales y botones de acción sólidos), con los colores de Idóneos: azul marino y dorado.
+   ========================================================================== */
+
+:root {
+    --pn-navy: #0F233D;
+    --pn-navy-dark: #081426;
+    --pn-gold: #D4A03D;
+    --pn-gold-hover: #C59030;
+    --pn-gold-soft: #FEF3C7;
+    --pn-borde: #E2E8F0;
+    --pn-borde-input: #CBD5E1;
+    --pn-fondo: #F1F5F9;
+    --pn-texto: #0F172A;
+    --pn-texto-suave: #64748B;
+    --pn-peligro: #DC2626;
+    --pn-ver: #2F5D8C;
+    --pn-avatar: linear-gradient(135deg, #2F5D8C 0%, #0F233D 100%);
+    --pn-exito: #16A34A;
+    --pn-ancho-menu: 248px;
+    --pn-ancho-menu-colapsado: 72px;
+}

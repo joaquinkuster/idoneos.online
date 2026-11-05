@@ -1,0 +1,36 @@
+/* ---------- Ruta de navegación ---------- */
+.ac-migas {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-migas a {
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+.ac-migas a:hover {
+    text-decoration: underline;
+}
+
+.ac-migas i {
+    font-size: 9px;
+    opacity: 0.6;
+}
+
+.ac-migas strong {
+    color: var(--pn-texto);
+}
+
+.ac-titulo {
+    margin: 4px 0 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--pn-navy);
+    line-height: 1.2;
+}

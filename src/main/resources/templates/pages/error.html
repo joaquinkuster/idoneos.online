@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="wf-canvas-bg">
 
@@ -9,7 +9,7 @@
         <div class="screen-frame">
 
             <!-- Top Navbar Oficial Dinámica -->
-            <div th:replace="~{fragments/navbar :: navbar}"></div>
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
 
             <!-- Hero Banner Contextual Superior (Navy) -->
             <div class="wf-hero-banner">
@@ -25,8 +25,8 @@
 
             <div class="wf-body">
                 <div class="wf-main-content">
-                    <div class="wf-card text-center py-5 err-tarjeta">
-                        <div class="mb-3 err-icono">
+                    <div class="wf-card text-center py-5 err-card">
+                        <div class="mb-3 err-icon">
                             <i class="fa-solid fa-compass"></i>
                         </div>
                         <h4 class="fw-bold mb-2 err-titulo" th:text="${encabezado}">Página no encontrada</h4>
@@ -44,12 +44,12 @@
             </div>
 
             <!-- Footer Oficial -->
-            <div th:replace="~{fragments/footer :: footer}"></div>
+            <div th:replace="~{fragments/layout/footer :: footer}"></div>
 
         </div>
     </div>
 
     <!-- Scripts Globales -->
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
 </body>
 </html>

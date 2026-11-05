@@ -1,0 +1,42 @@
+<!-- Navbar único de Idóneos Online: lo usan el sitio público y los paneles (administración y gestión académica).
+     - Sitio público con banner oscuro: transparente arriba y blanco al hacer scroll. Paneles y páginas sin banner: blanco.
+     - Con menú lateral, el botón de la izquierda lo contrae (o lo abre, en pantallas chicas); el menú empieza debajo.
+     El comportamiento está en static/js/layout/navbar.js y los estilos en static/css/layout/navbar.css. -->
+<header th:fragment="navbar" class="nb" data-navbar>
+    <div class="nb-izq">
+        <!-- Solo con menú lateral (navbar.js lo muestra) -->
+        <button type="button" class="nb-menu" data-menu-lateral aria-label="Menú lateral">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <a th:href="@{/inicio}" class="nb-marca" title="Idóneos Online">
+            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+            <span><span class="nb-marca-serif">Idóneos</span> <b>Online</b></span>
+        </a>
+    </div>
+
+    <!-- Pantallas chicas: abre y cierra los enlaces y el menú del usuario -->
+    <button type="button" class="nb-toggle" data-nb-toggle aria-label="Abrir menú" aria-expanded="false" aria-controls="nbEnlaces">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    <nav class="nb-enlaces" id="nbEnlaces" aria-label="Navegación principal">
+        <a th:href="@{/inicio}" class="nb-enlace">Inicio</a>
+        <a th:href="@{/catalogo}" class="nb-enlace">Catálogo</a>
+        <a th:href="@{/acercaDe}" class="nb-enlace">Acerca de</a>
+
+        <!-- Visitante -->
+        <a th:if="${usuario == null}" th:href="@{/login}" class="nb-ingresar">Ingresar</a>
+
+        <!-- Usuario autenticado -->
+        <th:block th:replace="~{fragments/layout/userMenu :: menu}"></th:block>
+    </nav>
+
+    <!-- Avisos del servidor (mensaje de éxito o error de una redirección) con SweetAlert -->
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
+        mostrarExito(/*[[${mensaje}]]*/ '');
+    </script>
+    <script th:if="${error != null and !#strings.isEmpty(error)}" th:inline="javascript">
+        mostrarError(/*[[${error}]]*/ '');
+    </script>
+
+</header>

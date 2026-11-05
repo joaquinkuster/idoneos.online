@@ -1,0 +1,60 @@
+/* ---------- Protección del contenido de los materiales ---------- */
+.mv-protegido .mv-contenedor {
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.mv-pagina {
+    pointer-events: none; /* sin "guardar imagen como" sobre la página dibujada */
+}
+
+.mv-reproductor {
+    position: relative;
+    background: #000000;
+}
+
+.mv-reproductor .mv-video {
+    max-height: 72vh;
+}
+
+.mv-reproductor:fullscreen .mv-video {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+}
+
+.mv-pantalla-video {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    color: #FFFFFF;
+    background: rgba(15, 23, 42, 0.55);
+}
+
+.mv-pantalla-video:hover:not(:disabled) {
+    background: rgba(15, 23, 42, 0.8);
+    color: #FFFFFF;
+}
+
+.mv-marca {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-repeat: repeat;
+}
+
+/* Sin imprimir: el material solo se ve en la plataforma */
+@media print {
+    .mv-protegido .pn-app {
+        display: none !important;
+    }
+
+    .mv-protegido::before {
+        content: "Este material no se puede imprimir: solo puede verse desde la plataforma.";
+        display: block;
+        padding: 40px;
+        font-size: 18px;
+    }
+}

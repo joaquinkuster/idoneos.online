@@ -1,0 +1,536 @@
+package com.app.idoneos.service.tema;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.app.idoneos.model.Alumno;
+import com.app.idoneos.model.Cohorte;
+import com.app.idoneos.model.Curso;
+import com.app.idoneos.model.Docente;
+import com.app.idoneos.model.Parametro;
+import com.app.idoneos.model.Programa;
+import com.app.idoneos.model.Tema;
+import com.app.idoneos.model.TemaCronograma;
+import com.app.idoneos.model.Usuario;
+import com.app.idoneos.repository.CursoRepository;
+import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.ProgramaRepository;
+import com.app.idoneos.repository.TemaCronogramaRepository;
+import com.app.idoneos.repository.TemaRepository;
+import com.app.idoneos.service.CrudService;
+import com.app.idoneos.service.inscripcion.InscripcionService;
+import com.app.idoneos.service.parametro.ParametroService;
+import com.app.idoneos.util.DuracionUtil;
+import com.app.idoneos.util.MensajeErrorUtil;
+import com.app.idoneos.util.RespuestaFormularioUtil;
+import com.app.idoneos.util.TextoUtil;
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Tema}.
+ * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link TemaService}.
+ */
+@Service
+public class TemaServiceImpl implements TemaService {
+
+    @Autowired
+    private com.app.idoneos.service.programa.ProgramaService programaService;
+
+    @Autowired
+    private TemaRepository temaRepository;
+
+    @Autowired
+    private DocenteCursoRepository docenteCursoRepository;
+
+    @Autowired
+    private com.app.idoneos.repository.CursoRepository cursoRepository;
+
+    @Autowired
+    private InscripcionService inscripcionService;
+
+    @Autowired
+    private ProgramaRepository programaRepository;
+
+    @Autowired
+    private TemaCronogramaRepository temaCronogramaRepository;
+
+    @Autowired
+    private ParametroService parametroService;
+
+    // ---------------------------------------------------------------- Lecturas
+
+    /**
+     * Busca el tema por su identificador. Solo devuelve registros activos (no dados de baja).
+     *
+     * @param id El identificador del registro.
+     * @return Un {@link Optional} con el registro encontrado.
+     */
+    @Override
+    public Optional<Tema> buscarPorId(Integer id) {
+        return temaRepository.findById(id)
+                .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
+    }
+
+    /**
+     * Obtiene todos los registros. Solo devuelve registros activos.
+     *
+     * @return Una lista de registros.
+     */
+    @Override
+    public List<Tema> obtenerTodo() {
+        return temaRepository.findByBajaFalse();
+    }
+
+    /**
+     * Verifica si existe un registro con el identificador dado y está activo.
+     *
+     * @param id El identificador del registro.
+     * @return true si existe, false en caso contrario.
+     */
+    @Override
+    public boolean existePorId(Integer id) {
+        return temaRepository.existsById(id) &&
+                buscarPorId(id).isPresent(); // Solo cuenta registros activos
+    }
+
+    /**
+     * Busca los registros vigentes de tema asociados a curso.
+     *
+     * @param curso el registro de Curso asociado
+     * @return una lista de Tema asociados al Curso indicado
+     */
+    @Override
+    public List<Tema> buscarPorCurso(Curso curso) {
+        return temaRepository.findByCursoAndBajaFalse(curso);
+    }
+
+    /**
+     * Indica si un usuario puede ver el contenido de un tema.
+     */
+    @Override
+    public boolean puedeVerContenido(Tema tema, Usuario usuario) {
+        if (usuario.esAdministradorActivo()) {
+            return true;
+        }
+        Docente docente = usuario.getDocente();
+        if (docente != null && docenteCursoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
+                .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente())) {
+            return true;
+        }
+        Alumno alumno = usuario.getAlumno();
+        return alumno != null && inscripcionService.buscarConAccesoATema(alumno, tema).isPresent();
+    }
+
+    /**
+     * CU-19: Busca los temas del cronograma de un programa por título.
+     */
+    @Override
+    public List<TemaCronograma> buscarConFiltros(Programa programa, String titulo) {
+        String buscado = TextoUtil.normalizar(titulo);
+        return programa.getCronogramaOrdenado().stream()
+                .filter(c -> buscado.isEmpty() || TextoUtil.normalizar(c.getTema().getTitulo()).contains(buscado))
+                .toList();
+    }
+
+    // ---------------------------------------------------------------- Creaciones
+
+    /**
+     * Guarda el tema en la base de datos.
+     *
+     * @param entidad El registro a guardar.
+     * @return El registro guardado.
+     */
+    @Override
+    public Tema guardar(Tema entidad) {
+        return temaRepository.save(entidad);
+    }
+
+    /**
+     * CU-20: Agrega un tema (nueva o existente) al final del cronograma de un programa.
+     */
+    @Override
+    @Transactional
+    public Tema agregar(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
+            String descripcion, String contenido) {
+        return agregar(docente, programaId, temaExistenteId, titulo, descripcion, contenido, null);
+    }
+
+    /**
+     * CU-20: Agrega un tema al cronograma de un programa, con los días de duración indicados.
+     */
+    @Override
+    @Transactional
+    public Tema agregar(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
+            String descripcion, String contenido, Integer duracionDias) {
+        Programa programa = buscarProgramaActivo(programaId);
+        Curso curso = programa.getCurso();
+        obtenerParticipacion(curso, docente);
+        // Sin duración indicada, el tema entra con la del parámetro o con los días que queden hasta la duración del curso
+        int restante = curso.getDuracionDias() - programa.getDuracionTotalDias();
+        if (restante <= 0) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("duracion", "Error! La duración del cronograma ya alcanzó la duración "
+                    + "del curso. Para disponer de más tiempo, modificá el cronograma o comunicate con un administrador para que extienda la duración del curso.");
+        }
+        int duracion = duracionDias != null ? duracionDias : Math.min(diasPorTemaNuevo(), restante);
+        validarDuracion(programa, duracion, 0);
+
+        Tema tema;
+        if (temaExistenteId != null) {
+            tema = temaRepository.findById(temaExistenteId)
+                    .filter(u -> !u.esInactivo() && u.getCurso().getIdCurso() == curso.getIdCurso())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Error! El tema que se quiere incorporar no se encuentra activa en este curso."));
+            if (tema.perteneceAlCronograma(programa)) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("temaExistenteId", "Error! El tema ya forma parte del cronograma de este programa.");
+            }
+            if (tema.getProgramasQueLaIncluyen().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Error! El tema no forma parte del cronograma de ningún otro programa del curso.");
+            }
+        } else {
+            String tituloLimpio = validarDatos(titulo);
+            validarTituloLibre(curso, tituloLimpio, null);
+            tema = new Tema(curso, tituloLimpio, contenidoLimpio(contenido));
+            tema.setDescripcion(validarDescripcion(descripcion));
+            tema = temaRepository.save(tema);
+        }
+        int orden = programa.getTemasCronograma().stream().mapToInt(TemaCronograma::getNumeroOrden).max().orElse(0)
+                + 1;
+        TemaCronograma cronograma = temaCronogramaRepository
+                .save(new TemaCronograma(programa, tema, orden, duracion));
+        programa.getTemasCronograma().add(cronograma);
+        tema.getTemasCronograma().add(cronograma);
+        return tema;
+    }
+
+    /**
+     * Registra un tema del curso, sin incorporarlo todavía al cronograma de ningún programa.
+     */
+    @Override
+    @Transactional
+    public Tema registrar(Docente docente, Integer cursoId, String titulo, String descripcion, String contenido) {
+        Curso curso = cursoRepository.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
+        obtenerParticipacion(curso, docente);
+        String tituloLimpio = validarDatos(titulo);
+        validarTituloLibre(curso, tituloLimpio, null);
+        Tema tema = new Tema(curso, tituloLimpio, contenidoLimpio(contenido));
+        tema.setDescripcion(validarDescripcion(descripcion));
+        tema = temaRepository.save(tema);
+        curso.getTemas().add(tema);
+        return tema;
+    }
+
+    /**
+     * Guarda de una vez los temas nuevos y los modificados de un curso.
+     */
+    @Override
+    @Transactional
+    public int guardarCambios(Docente docente, Integer cursoId, List<CambioDeTema> cambios) {
+        if (cambios == null || cambios.isEmpty()) {
+            throw new IllegalArgumentException("Error! No hay cambios para guardar.");
+        }
+        int cantidad = 0;
+        for (CambioDeTema cambio : cambios) {
+            try {
+                if (cambio.id() == null) {
+                    registrar(docente, cursoId, cambio.titulo(), cambio.descripcion(), cambio.contenido());
+                } else {
+                    modificar(cambio.id(), docente, cambio.titulo(), cambio.descripcion(), cambio.contenido());
+                }
+                cantidad++;
+            } catch (IllegalArgumentException e) {
+                // Se indica de qué tema es el error y no se guarda ninguno (la transacción se revierte)
+                String nombre = cambio.titulo() == null || cambio.titulo().isBlank() ? "(sin título)" : "«" + cambio.titulo().trim() + "»";
+                throw new IllegalArgumentException("Error! Tema " + nombre + ": " + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
+        return cantidad;
+    }
+
+    /**
+     * Da de baja un tema del curso: lo quita del cronograma de todos sus programas y lo deja dado de baja.
+     */
+    @Override
+    @Transactional
+    public void darDeBajaPorCurso(Integer id, Docente docente) {
+        Tema tema = temaRepository.findById(id == null ? -1 : id).filter(t -> !t.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activo."));
+        obtenerParticipacion(tema.getCurso(), docente);
+        List<Programa> programas = tema.getProgramasQueLaIncluyen();
+        for (Programa programa : programas) {
+            if (programa.getCantidadInscripcionesActivas() > 0) {
+                throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el tema", tema.getTitulo(),
+                        "el programa «" + programa.getNombre() + "» tiene "
+                                + MensajeErrorUtil.formatearCantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
+                                        "inscripciones activas")
+                                + " y su cronograma es lo que los alumnos vieron y pagaron al inscribirse", ""));
+            }
+        }
+        for (Programa programa : programas) {
+            darDeBaja(tema.getIdTema(), programa.getIdPrograma(), docente);
+        }
+        if (!tema.esInactivo()) {
+            tema.marcarInactivo();
+            tema.setUltimaModificacion(LocalDateTime.now());
+            temaRepository.save(tema);
+        }
+    }
+
+    // ---------------------------------------------------------------- Modificaciones
+
+    /**
+     * Modifica un registro existente.
+     *
+     * @param entidad El registro con los datos actualizados.
+     * @return El registro modificado.
+     */
+    @Override
+    public Tema modificar(Tema entidad) {
+        return temaRepository.save(entidad);
+    }
+
+    /**
+     * CU-21: Modifica un tema sin inscripciones activas asociadas.
+     */
+    @Override
+    @Transactional
+    public Tema modificar(Integer id, Docente docente, String titulo, String descripcion, String contenido) {
+        Tema tema = temaRepository.findById(id == null ? -1 : id).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        obtenerParticipacion(tema.getCurso(), docente);
+        if (tema.tieneInscripcionesActivas()) {
+            throw new IllegalArgumentException("Error! El tema tiene inscripciones activas asociadas: no puede "
+                    + "modificarse porque es parte de lo que el alumno vio y pagó al inscribirse.");
+        }
+        String tituloLimpio = validarDatos(titulo);
+        validarTituloLibre(tema.getCurso(), tituloLimpio, tema);
+        tema.setTitulo(tituloLimpio);
+        tema.setDescripcion(validarDescripcion(descripcion));
+        tema.setContenido(contenidoLimpio(contenido));
+        tema.setUltimaModificacion(LocalDateTime.now());
+        return temaRepository.save(tema);
+    }
+
+    /**
+     * CU-21: Modifica un tema sin inscripciones activas asociadas, incluidos sus días de duración en el cronograma de un
+     * programa.
+     */
+    @Override
+    @Transactional
+    public Tema modificar(Integer id, Integer programaId, Docente docente, String titulo, String descripcion,
+            String contenido, Integer duracionDias) {
+        Programa programa = buscarProgramaActivo(programaId);
+        Tema tema = modificar(id, docente, titulo, descripcion, contenido);
+        TemaCronograma cronograma = programa.getTemasCronograma().stream()
+                .filter(c -> !c.getBaja() && c.getTema().getIdTema() == tema.getIdTema()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Error! El tema '" + tema.getTitulo() + "' no pertenece al cronograma de este programa."));
+        if (duracionDias != null && duracionDias != cronograma.getDuracionDias()) {
+            validarDuracion(programa, duracionDias, cronograma.getDuracionDias());
+            LocalDateTime ahora = LocalDateTime.now();
+            cronograma.setDuracionDias(duracionDias);
+            cronograma.setUltimaModificacion(ahora);
+            temaCronogramaRepository.save(cronograma);
+            programa.setUltimaModificacion(ahora);
+            programaRepository.save(programa);
+        }
+        return tema;
+    }
+
+    /** Días que ocupa un tema nuevo en el cronograma cuando no se indica otra duración (parámetro del sistema). */
+    private int diasPorTemaNuevo() {
+        return Math.max(1, parametroService.obtenerEntero(Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO,
+                Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO));
+    }
+
+    /**
+     * Verifica que la duración de un tema sea válida: un entero mayor a cero que no deje el cronograma por encima de la
+     * duración del curso ni de los días de acceso de una cohorte del programa.
+     *
+     * @param programa El programa del cronograma.
+     * @param duracion La duración que se quiere para el tema, en días.
+     * @param actual   La duración que el tema ya tiene en el cronograma, o 0 si se está agregando.
+     */
+    private void validarDuracion(Programa programa, int duracion, int actual) {
+        if (duracion <= 0) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("duracion",
+                    MensajeErrorUtil.armarFormatoInvalido("La duración en el cronograma", "número entero mayor a cero"));
+        }
+        int maximo = programa.getCurso().getDuracionDias();
+        int sinElTema = programa.getDuracionTotalDias() - actual;
+        if (sinElTema + duracion > maximo) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("duracion", "Error! La duración en el cronograma supera lo que queda: "
+                    + "el tema puede durar hasta " + DuracionUtil.formatear(Math.max(0, maximo - sinElTema))
+                    + ", porque la duración del curso es de " + DuracionUtil.formatear(maximo) + ".");
+        }
+        int total = sinElTema + duracion;
+        for (Cohorte cohorte : programa.getCohortesActivas()) {
+            if (cohorte.getAccesoDias() < total) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("duracion", "Error! La duración en el cronograma deja el programa en "
+                        + DuracionUtil.formatear(total) + ", más que los " + DuracionUtil.formatear(cohorte.getAccesoDias())
+                        + " de acceso de la cohorte «" + cohorte.getEtiqueta() + "». Modificá la cohorte o acortá la duración.");
+            }
+        }
+    }
+
+    // ---------------------------------------------------------------- Bajas
+
+    /**
+     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
+     *
+     * @param entidad El registro a borrar.
+     */
+    @Override
+    public void borrar(Tema entidad) {
+        entidad.marcarInactivo(); // Baja lógica
+        temaRepository.save(entidad);
+    }
+
+    /**
+     * CU-22: Da de baja un tema del cronograma de un programa.
+     */
+    @Override
+    @Transactional
+    public void darDeBaja(Integer id, Integer programaId, Docente docente) {
+        Programa programa = buscarProgramaActivo(programaId);
+        TemaCronograma aQuitar = validarBaja(id, programa, docente);
+        validarMinimoAlQuitar(programa, List.of(aQuitar));
+        quitarDelCronograma(programa, List.of(aQuitar));
+    }
+
+    /**
+     * CU-22: Da de baja varios temas del cronograma de un programa (todas o ninguna).
+     */
+    @Override
+    @Transactional
+    public void darDeBajaVarias(List<Integer> ids, Integer programaId, Docente docente) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un tema.");
+        }
+        Programa programa = buscarProgramaActivo(programaId);
+        // Se valida todo antes de quitar alguna
+        List<TemaCronograma> aQuitar = ids.stream().distinct().map(id -> validarBaja(id, programa, docente)).toList();
+        validarMinimoAlQuitar(programa, aQuitar);
+        quitarDelCronograma(programa, aQuitar);
+    }
+
+    /** Verifica que, sin estos temas, el programa con cohortes en curso conserve el mínimo de contenido publicado. */
+    private void validarMinimoAlQuitar(Programa programa, List<TemaCronograma> aQuitar) {
+        java.util.Set<Integer> ids = aQuitar.stream().map(c -> c.getTema().getIdTema()).collect(java.util.stream.Collectors.toSet());
+        programaService.verificarMinimoDeTemas(programa, ids).ifPresent(bloqueo -> {
+            Tema primera = aQuitar.get(0).getTema();
+            throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el tema", primera.getTitulo(),
+                    (bloqueo.minimo() == 1 ? "es la único tema que debe conservar su programa"
+                            : "es una de las " + bloqueo.minimoEnTemas() + " que debe conservar su programa")
+                            + " y este tiene cohortes en curso",
+                    "Registrá otro tema antes."));
+        });
+    }
+
+    /** Verifica que el tema se pueda quitar del cronograma del programa y devuelve su lugar en el cronograma. */
+    private TemaCronograma validarBaja(Integer id, Programa programa, Docente docente) {
+        Tema tema = temaRepository.findById(id == null ? -1 : id).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
+        if (docente != null) {
+            obtenerParticipacion(programa.getCurso(), docente);
+        }
+        TemaCronograma cronograma = programa.getTemasCronograma().stream()
+                .filter(c -> c.getTema().getIdTema() == tema.getIdTema()).findFirst()
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "Error! El tema '" + tema.getTitulo() + "' no pertenece al cronograma de este programa."));
+        if (programa.getCantidadInscripcionesActivas() > 0) {
+            // Las inscripciones no se pueden deshacer: no hay un paso que indicar
+            throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el tema", tema.getTitulo(),
+                    "el programa «" + programa.getNombre() + "» tiene "
+                            + MensajeErrorUtil.formatearCantidad(programa.getCantidadInscripcionesActivas(), "inscripción activa",
+                                    "inscripciones activas")
+                            + " y su cronograma es lo que los alumnos vieron y pagaron al inscribirse", ""));
+        }
+        return cronograma;
+    }
+
+    /**
+     * Quita los temas del cronograma del programa, renumera las que quedan y da de baja los temas que ya no
+     * forman parte del cronograma de ningún programa.
+     */
+    private void quitarDelCronograma(Programa programa, List<TemaCronograma> aQuitar) {
+        LocalDateTime ahora = LocalDateTime.now();
+        for (TemaCronograma cronograma : aQuitar) {
+            Tema tema = cronograma.getTema();
+            programa.getTemasCronograma().remove(cronograma);
+            tema.getTemasCronograma().remove(cronograma);
+            temaCronogramaRepository.delete(cronograma);
+        }
+        temaCronogramaRepository.flush();
+
+        // Las restantes se renumeran sin huecos, de a una para no repetir un número de orden
+        int orden = 1;
+        for (TemaCronograma restante : programa.getTemasCronograma().stream()
+                .sorted(Comparator.comparingInt(TemaCronograma::getNumeroOrden)).toList()) {
+            if (restante.getNumeroOrden() != orden) {
+                restante.setNumeroOrden(orden);
+                restante.setUltimaModificacion(ahora);
+                temaCronogramaRepository.saveAndFlush(restante);
+            }
+            orden++;
+        }
+    }
+
+    private Programa buscarProgramaActivo(Integer programaId) {
+        return programaRepository.findById(programaId == null ? -1 : programaId).filter(p -> !p.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
+    }
+
+    /** Obtiene la participación del docente en el curso (como titular o ayudante). */
+    private void obtenerParticipacion(Curso curso, Docente docente) {
+        if (docente == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+        }
+        boolean participa = docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+                .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
+        if (!participa) {
+            throw new IllegalArgumentException("Error! No participás en este curso.");
+        }
+    }
+
+    /** Valida el título y el contenido, y devuelve el título sin espacios sobrantes. */
+    /** El contenido de un tema es opcional: se puede completar después de registrarlo. */
+    private String contenidoLimpio(String contenido) {
+        return contenido == null || contenido.isBlank() ? null : contenido.trim();
+    }
+
+    private String validarDatos(String titulo) {
+        if (titulo == null || titulo.isBlank()) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("titulo", "Error! Debe completar el título del tema.");
+        }
+        if (titulo.trim().length() > Tema.LONGITUD_TITULO) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("titulo", MensajeErrorUtil.armarDemasiadoLargo("El título", Tema.LONGITUD_TITULO, "caracteres"));
+        }
+        return titulo.trim();
+    }
+
+    private String validarDescripcion(String descripcion) {
+        String limpia = descripcion == null || descripcion.isBlank() ? null : descripcion.trim();
+        if (limpia != null && limpia.length() > Tema.LONGITUD_DESCRIPCION) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("descripcion", MensajeErrorUtil.armarDemasiadoLargo("La descripción", Tema.LONGITUD_DESCRIPCION, "caracteres"));
+        }
+        return limpia;
+    }
+
+    /** Verifica que el curso no tenga otro tema con el mismo título (el título es único por curso). */
+    private void validarTituloLibre(Curso curso, String titulo, Tema propia) {
+        boolean repetido = temaRepository.findAll().stream()
+                .anyMatch(u -> u.getCurso().getIdCurso() == curso.getIdCurso() && u.getTitulo().equalsIgnoreCase(titulo)
+                        && (propia == null || u.getIdTema() != propia.getIdTema()));
+        if (repetido) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("titulo", "Error! Ya existe un tema con ese título en el curso.");
+        }
+    }
+}

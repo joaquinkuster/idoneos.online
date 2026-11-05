@@ -1,0 +1,29 @@
+/* ---------------------------------------------------------------- CARDS DE CURSO: datos en formato tabular */
+.wf-course-tabla {
+    margin: 0 0 12px;
+}
+
+.wf-course-tabla > div {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.wf-course-tabla > div:first-child {
+    border-top: 1px solid #E2E8F0;
+}
+
+.wf-course-tabla dt {
+    flex: 0 0 84px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #081426;
+}
+
+.wf-course-tabla dd {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+}

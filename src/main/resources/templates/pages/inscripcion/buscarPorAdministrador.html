@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Inscripciones</h1>
+                    <p class="pn-subtitulo">Consulta y gestiona las inscripciones de los alumnos a las cohortes</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevaInscripcion">
+                    <i class="fa-solid fa-plus"></i> Registrar inscripción
+                </button>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/inscripcion/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de inscripciones</h2>
+                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/inscripcion/darDeBajaMasiva" data-elementos="inscripciones"
+                            data-termino-uno="inscripción" data-termino-varios="inscripciones">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros (CU-44): curso, cohorte, alumno, estado de acceso y fecha de inscripción -->
+                <form th:action="@{/inscripcion/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <a th:href="@{/inscripcion/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todas"></th>
+                                <th data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
+                                <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="lista">Cohorte</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                <th data-col="Certificado" data-campo="certificado" data-filtro="texto">Certificado</th>
+                                <th data-col="Fecha de vencimiento" data-campo="fechaVencimiento" data-filtro="fecha">Fecha de vencimiento</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="i : ${inscripciones}" data-fila
+                                th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
+                                th:data-f-curso="${i.curso.nombre}"
+                                th:data-f-cohorte="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}"
+                                th:data-f-estado="${i.estadoAcceso}"
+                                th:data-f-certificado="${i.certificadoVigente != null ? i.certificadoVigente.numero : ''}"
+                                th:data-f-fechavencimiento="${i.fechaVencimientoAcceso != null ? #temporals.format(i.fechaVencimientoAcceso, 'yyyy-MM-dd') : ''}"
+                                th:data-f-fechacreacion="${#temporals.format(i.fechaCreacion, 'yyyy-MM-dd HH:mm')}" data-dependencias="0">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${i.idInscripcion}"></td>
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${i.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
+                                    <span class="pn-celda-secundaria d-block" th:text="${'DNI ' + i.alumno.usuario.dni}">DNI 30123456</span>
+                                </td>
+                                <td><span class="pn-truncar" th:text="${i.curso.nombre}">Curso</span></td>
+                                <td><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${i.estadoAcceso == 'Vigente'} ? 'pn-insignia-verde' : (${i.estadoAcceso == 'Programada'} ? 'pn-insignia-azul' : (${i.estadoAcceso == 'Pendiente de pago'} ? 'pn-insignia-dorada' : 'pn-insignia-roja'))"
+                                          th:text="${i.estadoAcceso}">Vigente</span>
+                                </td>
+                                <td th:text="${i.certificadoVigente != null ? i.certificadoVigente.numero : '—'}">—</td>
+                                <td th:text="${i.fechaVencimientoAcceso != null ? #temporals.format(i.fechaVencimientoAcceso, 'dd/MM/yyyy') : '—'}">01/01/2027</td>
+                                <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/10/2026 10:30</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalModificarInscripcion' + ${i.idInscripcion}"
+                                                th:data-modal-url="@{'/inscripcion/modificar/' + ${i.idInscripcion}}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalBajaInscripcion"
+                                                th:data-baja-accion="@{'/inscripcion/darDeBaja/' + ${i.idInscripcion}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja la inscripción de ' + ${i.alumno.usuario.nombreCompleto} + ' a «' + ${i.curso.nombre} + '»?'">Dar de baja</button>
+                                        <!-- Otras opciones, solo en las inscripciones a las que corresponden -->
+                                        <div class="dropdown" th:if="${i.estadoAcceso == 'Pendiente de pago' or i.certificadoVigente != null}">
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li th:if="${i.estadoAcceso == 'Pendiente de pago'}"><a class="dropdown-item"
+                                                    th:href="@{/pago/buscar(registrarPara=${i.idInscripcion})}">Registrar pago</a></li>
+                                                <li th:if="${i.certificadoVigente != null}"><button type="button" class="dropdown-item" th:data-bs-target="'#modalCertificado' + ${i.idInscripcion}"
+                                                th:data-modal-url="@{'/inscripcion/modalCertificado/' + ${i.idInscripcion}}">Corregir datos del certificado</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-user-graduate', 'No se encontraron inscripciones', 'Ninguna inscripción coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar inscripción (CU-46) -->
+<div class="modal fade pn-modal" id="modalNuevaInscripcion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar inscripción</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="alta" data-resumen-nuevo="nueva"
+                      data-contexto='[{"etiqueta":"Curso","campo":"cohorteId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"cohorteId","atributo":"data-programa"},{"etiqueta":"Cohorte","campo":"cohorteId","atributo":"data-cohorte"}]' novalidate>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Alumno y cohorte</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Detalle del pago</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Alumno">
+        <div class="pn-seccion-titulo">
+            <h4>Alumno y cohorte</h4>
+            <p>Alumno y cohorte con inscripción abierta</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo">
+                            <label class="pn-etiqueta">Alumno <span class="pn-obligatorio">*</span></label>
+                            <select name="alumnoId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el alumno.">
+                                <option value="">Alumno</option>
+                                <option th:each="a : ${alumnos}" th:value="${a.idAlumno}"
+                                        th:data-desc-nombre="${descuentosPorAlumno.get(a.idAlumno) != null ? descuentosPorAlumno.get(a.idAlumno).nombre : ''}"
+                                        th:data-desc-pct="${descuentosPorAlumno.get(a.idAlumno) != null ? descuentosPorAlumno.get(a.idAlumno).porcentaje : 0}"
+                                        th:text="${a.usuario.nombreCompleto + ' - DNI ' + a.usuario.dni}">Valentina Ruiz - DNI 30123456</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-12 pn-campo" data-resumen-omitir>
+                            <label class="pn-etiqueta">Cohorte con inscripción abierta <span class="pn-obligatorio">*</span></label>
+                            <select name="cohorteId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar la cohorte.">
+                                <option value="">Cohorte</option>
+                                <option th:each="c : ${cohortesAbiertas}" th:value="${c.idCohorte}"
+                                        th:data-precio="${c.programa.curso.precio}"
+                                        th:data-curso="${c.programa.curso.nombre}" th:data-programa="${c.programa.nombre}" th:data-cohorte="${c.etiqueta}"
+                                        th:text="${c.programa.curso.nombre + ' - ' + c.programa.nombre + ' (hasta el ' + #temporals.format(c.fechaFinInscripcion, 'dd/MM/yyyy') + ' · ' + (c.cupoDisponible != null ? c.cupoDisponible + (c.cupoDisponible == 1 ? ' cupo' : ' cupos') : 'sin límite de cupo') + ')'}">Curso - Programa</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Detalle del pago" data-sin-rama>
+        <div class="pn-seccion-titulo">
+            <h4>Detalle del pago</h4>
+            <p>Precio, descuento y términos y condiciones de la inscripción</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12" data-caja hidden>
+                            <div class="pn-resumen-pago">
+                                <div class="pn-resumen-titulo">Pago de esta inscripción</div>
+                                <div class="pn-resumen-fila pn-resumen-precio">
+                                    <span>Precio del curso</span><span data-caja-precio data-resumen-linea="Precio">$ 0</span>
+                                </div>
+                                <div class="pn-resumen-fila" data-caja-descuento-fila hidden>
+                                    <span data-caja-descuento-etiqueta>Descuento</span><span data-caja-descuento data-resumen-linea="Descuento">- $ 0</span>
+                                </div>
+                                <div class="pn-resumen-total" data-caja-total-fila>
+                                    <span>Total a pagar</span><strong data-caja-total data-resumen-linea="Total a pagar">$ 0</strong>
+                                </div>
+                                <p class="pn-resumen-nota" data-caja-nota hidden></p>
+                            </div>
+                        </div>
+<div class="col-12 pn-campo">
+                            <label class="d-flex gap-2 align-items-start small">
+                                <input type="checkbox" name="terminos" value="true" class="mt-1" required data-mensaje-obligatorio="Debe confirmar que el alumno acepta los términos y condiciones de las políticas de privacidad.">
+                                <span>Confirmo que el alumno acepta los términos y condiciones de las políticas de privacidad: ante la baja del curso,
+                                    sus certificados e intentos de autoevaluación se darán de baja, su progreso dejará de ser accesible y sus
+                                    intervenciones en los foros públicos del curso se conservarán de forma anónima.</span>
+                            </label>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
+    </div>
+</form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- La ventana de modificar (CU-47) y la de corregir el certificado (CU-48) se piden al abrirlas (core/modalModificar.js); la de baja (CU-49) es una sola -->
+<th:block th:replace="~{pages/inscripcion/baja :: bloque('modalBajaInscripcion', '¿Confirmas dar de baja la inscripción?', 0)}"></th:block>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
+<script th:src="@{/js/pages/pago/resumen.js}"></script>
+<script th:src="@{/js/components/ayudaDesplegable.js}"></script>
+<script>
+    // Recuadro «Pago de esta inscripción»: con el alumno y la cohorte elegidos, muestra el precio, el descuento que le
+    // corresponde a ese alumno y el total a pagar
+    (function () {
+        var formulario = document.querySelector('#modalNuevaInscripcion form');
+        if (!formulario || !window.ResumenPago) { return; }
+        var alumno = formulario.elements['alumnoId'];
+        var cohorte = formulario.elements['cohorteId'];
+        var caja = formulario.querySelector('[data-caja]');
+        function actualizar() {
+            var opcionAlumno = alumno.options[alumno.selectedIndex];
+            var opcionCohorte = cohorte.options[cohorte.selectedIndex];
+            if (!alumno.value || !cohorte.value) { window.ResumenPago.ocultar(caja); return; }
+            var precio = parseFloat(opcionCohorte.getAttribute('data-precio')) || 0;
+            var porcentaje = parseFloat(opcionAlumno.getAttribute('data-desc-pct')) || 0;
+            var conDescuento = Math.max(0, Math.round(precio * (100 - porcentaje)) / 100);
+            var descuento = precio - conDescuento;
+            var nota = 'Queda pendiente de pago: después te lleva a registrar el pago.';
+            if (precio <= 0) {
+                nota = 'El curso no tiene costo: la inscripción queda habilitada.';
+            } else if (conDescuento <= 0) {
+                nota = 'El descuento cubre todo el precio: la inscripción queda habilitada sin pago.';
+            }
+            window.ResumenPago.mostrar(caja, { precio: precio, descuentoNombre: opcionAlumno.getAttribute('data-desc-nombre'),
+                descuentoPorcentaje: porcentaje, descuento: descuento, pagado: 0, total: conDescuento, nota: nota });
+        }
+        alumno.addEventListener('change', actualizar);
+        cohorte.addEventListener('change', actualizar);
+    })();
+</script>
+</body>
+</html>

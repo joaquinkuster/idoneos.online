@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="wf-canvas-bg fondo-crema">
 
@@ -10,7 +10,7 @@
         <div class="screen-frame">
 
             <!-- Top Navbar Oficial Dinámica -->
-            <div th:replace="~{fragments/navbar :: navbar}"></div>
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
 
             <!-- Hero Banner Contextual Superior (Navy) -->
             <div class="wf-hero-banner">
@@ -24,14 +24,14 @@
                 </div>
             </div>
 
-            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, ${esAdministrador == true ? 'Cursos' : 'Mis cursos'})}"></th:block>
+            <th:block th:replace="~{fragments/layout/breadcrumb :: migas(null, null, ${esAdministrador == true ? 'Cursos' : 'Mis cursos'})}"></th:block>
 
             <div class="wf-body py-4">
                 <div class="container-fluid px-4 px-lg-5">
 
                     <!-- Filtros: mismo diseño que "Mis cursos" del alumno y el catálogo -->
-                    <div data-tabla th:attr="data-tabla-servidor=${esAdministrador == true ? '/curso/misCursos' : '/curso/buscar'}">
-                        <section class="pn-tarjeta mb-4">
+                    <div data-tabla th:attr="data-tabla-servidor=${esAdministrador == true ? '/curso/buscar?vista=cards' : '/curso/buscar'}">
+                        <section class="pn-card mb-4">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos como docente'}">Mis cursos como docente</h2>
                             <span class="pn-seleccionados" data-total-filtradas data-singular="curso encontrado" data-plural="cursos encontrados" th:text="${totalCursos + (totalCursos == 1 ? ' curso encontrado' : ' cursos encontrados')}">0 cursos encontrados</span>
@@ -86,9 +86,9 @@
                     </section>
 
                     <!-- Sin cursos -->
-                    <div th:if="${#lists.isEmpty(cursos)}" class="pn-tarjeta pn-vacio-grande"
+                    <div th:if="${#lists.isEmpty(cursos)}" class="pn-card pn-empty-grande"
                          th:with="hayFiltros=${(busqueda != null and !#strings.isEmpty(busqueda)) or categoriaSeleccionada != null or nivelSeleccionado != null or docenteSeleccionado != null or modalidadSeleccionada != null}">
-                        <i class="fa-solid fa-book-open pn-vacio-icono"></i>
+                        <i class="fa-solid fa-book-open pn-empty-icon"></i>
                         <h3 th:if="${!hayFiltros and esAdministrador != true}">Todavía no tenés cursos asignados</h3>
                         <p th:if="${!hayFiltros and esAdministrador != true}">Cuando participes en un curso como titular o ayudante, vas a verlo acá.</p>
                         <!-- Administrador: sin cursos registrados, invita a registrar el primero (lleva al ABM con el alta abierta) -->
@@ -101,12 +101,12 @@
                     </div>
 
                     <!-- Sin coincidencias con los filtros (los filtros se aplican en el navegador) -->
-                    <div data-vacio hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
+                    <div data-empty hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
 
                     <!-- Grilla de cursos del docente -->
-                    <div class="wf-cards-grid" data-tarjetas th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                    <div class="wf-cards-grid" data-cards th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                         <th:block th:each="curso : ${cursos}">
-                            <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${curso},
+                            <th:block th:replace="~{fragments/components/cardCurso :: card(${curso},
                                 ${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? programasPorCurso.get(curso.idCurso).get(0).cantidadTemas : 0},
                                 ${cursosConInscripcionAbierta != null and cursosConInscripcionAbierta.contains(curso.idCurso) ? 'Inscripción abierta' : null},
                                 '/curso/acceder/' + ${curso.idCurso}, 'Acceder al curso',
@@ -115,7 +115,7 @@
                     </div>
 
                     <!-- Pie: cursos por página y paginador (mismo estilo que "Mis cursos" del alumno) -->
-                    <section class="pn-tarjeta mt-4" th:if="${totalCursos > 0}">
+                    <section class="pn-card mt-4" th:if="${totalCursos > 0}">
                         <div class="pn-tabla-pie">
                             <div class="pn-por-pagina">
                                 <span>Cursos por página:</span>
@@ -136,13 +136,15 @@
             </div>
 
             <!-- Footer Oficial -->
-            <div th:replace="~{fragments/footer :: footer}"></div>
+            <div th:replace="~{fragments/layout/footer :: footer}"></div>
 
         </div>
     </div>
 
     <!-- Scripts Globales y SweetAlert2 -->
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
-    <script th:src="@{/js/panel.js}"></script>
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
+    <script th:src="@{/js/core/validacion.js}"></script>
+    <script th:src="@{/js/core/tabla.js}"></script>
+    <script th:src="@{/js/core/panel.js}"></script>
 </body>
 </html>

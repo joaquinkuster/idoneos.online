@@ -1,0 +1,10 @@
+/* Todas las ventanas (menos las alertas) tienen el mismo ancho */
+.pn-modal:not(.pn-modal-alerta) .modal-dialog {
+    --bs-modal-width: 960px;
+    max-width: var(--bs-modal-width);
+}
+
+/* Un campo de tiempo sin la línea que repite el total */
+.pn-sin-equivalencia .pn-tiempo-eq {
+    display: none;
+}

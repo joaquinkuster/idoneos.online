@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="auth-body">
 
     <!-- Top Navbar Oficial Dinámica -->
-    <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
 
     <div class="auth-pagina">
 
@@ -19,7 +19,7 @@
         </div>
 
         <div class="auth-contenedor">
-            <div class="auth-tarjeta">
+            <div class="auth-card">
 
                 <!-- Izquierda: formulario -->
                 <div class="auth-izquierda">
@@ -78,7 +78,7 @@
         </div>
     </div>
 
-    <script th:src="@{/js/login.js}"></script>
+    <script th:src="@{/js/pages/login.js}"></script>
     <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
         mostrarExito(/*[[${mensaje}]]*/ '');
     </script>

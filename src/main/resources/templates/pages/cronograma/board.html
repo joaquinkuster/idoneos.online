@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Board del cronograma de un programa (vista de calendario y por temas), que dibuja static/js/pages/cronograma/board.js.
+         Con puedeEditar se puede reordenar y cambiar los días (docente); si no, es de solo lectura (alumno,
+         administrador, o docente con inscripciones activas).
+         curso, programa: el curso y su programa; cronograma: los temas del programa en orden;
+         temasDelCurso: los temas que se muestran; soloPublicado: contar solo el material publicado (alumno). -->
+    <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno), se marca el día actual con la línea
+         roja, se muestra el atraso del alumno junto al título y cada tema lleva su estado. -->
+    <th:block th:fragment="board(curso, programa, cronograma, temasDelCurso, puedeEditar, soloPublicado)"
+        th:with="enCurso=${cronoCohorte != null and cronoCohorte.haComenzadoCronograma()},
+                 terminado=${cronoCohorte != null and cronoCohorte.haFinalizadoCronograma()}">
+            <div class="cn" id="cronograma" th:attr="data-editable=${puedeEditar}, data-programa-id=${programa.idPrograma},
+                 data-dia-actual=${enCurso and !terminado ? cronoCohorte.diaActual : 0},
+                 data-duracion=${programa.duracionTotalDias},
+                 data-dias-maximos=${diasMaximos}, data-paso=${programa.pasoCronograma}, data-dias-nuevo=${diasNuevoTema},
+                 data-url-modificar=@{/cronograma/modificar}, data-url-nueva=@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">
+                <!-- Datos para la pantalla: los temas del curso y las que están en el cronograma, en orden -->
+                <div hidden>
+                    <span data-tema th:each="u : ${temasDelCurso}"
+                          th:attr="data-id=${u.idTema}, data-titulo=${u.titulo}, data-material=${#lists.size(soloPublicado ? u.materialesPublicados : u.materialesVigentes)}"></span>
+                    <span data-colocada th:each="uc : ${cronograma}"
+                          th:attr="data-id=${uc.tema.idTema}, data-dias=${uc.duracionDias},
+                                   data-estado=${cronoInscripcion != null ? cronoInscripcion.getEstadoTemaResumido(uc) : (cronoCohorte != null ? cronoCohorte.getEstadoTemaResumido(uc) : '')}"></span>
+                </div>
+
+                <div class="cn-columnas">
+                    <!-- Temas disponibles (solo cuando se puede modificar) -->
+                    <aside class="cn-panel cn-izq" th:if="${puedeEditar}" data-panel-disponibles>
+                        <h2 class="cn-panel-titulo">Temas disponibles</h2>
+                        <input type="text" class="pn-input cn-buscar" placeholder="Buscar tema..." data-buscar autocomplete="off">
+                        <button type="button" class="cn-nueva" data-nueva-tema><i class="fa-solid fa-plus"></i> Nuevo tema</button>
+                        <div data-disponibles><div class="pn-sk-lista" aria-hidden="true"><span class="pn-sk"></span><span class="pn-sk"></span><span class="pn-sk"></span></div></div>
+                    </aside>
+
+                    <section class="cn-panel cn-der">
+                        <div class="cn-cabecera">
+                            <div class="cn-titulo-fila">
+                                <h2 class="cn-panel-titulo mb-0">Cronograma</h2>
+                                <!-- Avance del alumno respecto del calendario de la cohorte -->
+                                <th:block th:if="${enCurso and cronoInscripcion != null}">
+                                    <span class="pn-insignia pn-insignia-roja" th:if="${cronoInscripcion.estaAtrasada()}"
+                                        th:text="${cronoInscripcion.diasDeAtraso + (cronoInscripcion.diasDeAtraso == 1 ? ' día de atraso' : ' días de atraso')}">1 día de atraso</span>
+                                    <span class="pn-insignia pn-insignia-verde" th:unless="${cronoInscripcion.estaAtrasada()}">Vas al día</span>
+                                </th:block>
+                                <!-- Ayuda de la edición: muestra u oculta el texto explicativo de abajo (en solo lectura no hay) -->
+                                <button type="button" class="cn-ayuda" data-ayuda aria-expanded="false" aria-label="Ayuda del cronograma" th:if="${puedeEditar}"
+                                    title="Ayuda"><i class="fa-solid fa-circle-info"></i></button>
+                            </div>
+                            <div class="cn-navbar">
+                                <button type="button" class="cn-navbar-item activa" data-vista="calendario">Vista de calendario</button>
+                                <button type="button" class="cn-navbar-item" data-vista="temas">Vista por temas</button>
+                            </div>
+                            <!-- Duración total del programa y mínimo de temas que exige el sistema -->
+                            <div class="cn-datos">
+                                <span>Duración total: <strong data-total th:text="${T(com.app.idoneos.util.DuracionUtil).formatear(programa.duracionTotalDias)}">9 semanas</strong></span>
+                                <span th:if="${minimoTemasConMaterial != null}">Mínimo requerido: <strong th:text="${minimoTemasConMaterial + (minimoTemasConMaterial == 1 ? ' tema' : ' temas')}">2 temas</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
+                            <span>Podés arrastrar los temas para reordenarlos o modificar su duración. Para quitar un tema, arrastralo al panel izquierdo.</span>
+                        </div>
+
+                        <!-- Escala de la grilla: solo cambia cómo se dibuja; la duración siempre se guarda en días -->
+                        <label class="cn-escala" data-escala-etiqueta>Escala
+                            <select class="pn-input" data-escala aria-label="Escala del calendario">
+                                <option value="dias">Días</option>
+                                <option value="semanas">Semanas</option>
+                                <option value="meses">Meses</option>
+                            </select>
+                        </label>
+                        <div class="cn-grilla" data-grilla>
+                            <!-- Skeleton hasta que board.js dibuja la grilla (la reemplaza) -->
+                            <div class="pn-sk-board" aria-hidden="true">
+                                <div class="pn-sk-board-semanas"><span class="pn-sk" th:each="i : ${#numbers.sequence(1, 20)}"></span></div>
+                                <span class="pn-sk pn-sk-board-fila" style="width:34%;margin-left:4%"></span>
+                                <span class="pn-sk pn-sk-board-fila" style="width:46%;margin-left:12%"></span>
+                                <span class="pn-sk pn-sk-board-fila" style="width:28%;margin-left:36%"></span>
+                            </div>
+                        </div>
+                        <div class="cn-zona" data-zona th:if="${puedeEditar}">
+                            Arrastrá un tema desde la izquierda o hacé clic en + Nuevo tema
+                        </div>
+
+                        <div class="cn-vista-temas" data-vista-temas hidden>
+                            <table class="pn-tabla">
+                                <thead>
+                                    <tr><th>Orden</th><th>Tema</th><th>Duración</th><th>Período</th></tr>
+                                </thead>
+                                <tbody data-tabla></tbody>
+                            </table>
+                        </div>
+
+                        <!-- Qué es la línea roja de la grilla -->
+                        <p class="cn-hoy" th:if="${enCurso and !terminado}"><i></i> Hoy (día actual)</p>
+                    </section>
+                </div>
+
+                <div class="cn-pie" th:if="${puedeEditar}">
+                    <button type="button" class="pn-btn pn-btn-secundario" data-cancelar>Cancelar</button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-modificar>Modificar</button>
+                </div>
+            </div>
+    </th:block>
+</body>
+
+</html>

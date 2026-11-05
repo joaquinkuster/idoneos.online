@@ -1,0 +1,64 @@
+/* ==========================================================================
+   DETALLE DESPLEGABLE DE UNA FILA (tabla dentro de la tabla)
+   La fila de detalle va justo debajo de la fila del listado; si ésta se oculta (filtro o paginado), el detalle también.
+   El alto se anima con grid-template-rows (0fr -> 1fr), así lo que está debajo se desplaza suavemente.
+   ========================================================================== */
+.pn-tabla tbody tr[data-fila][hidden] + tr.pn-fila-detalle {
+    display: none;
+}
+
+.pn-tabla tbody tr.pn-fila-detalle > td {
+    padding: 0;
+    border-bottom: 0;
+    background: transparent;
+}
+
+.pn-tabla tbody tr.pn-fila-detalle.abierto > td {
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.pn-detalle {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+}
+
+.pn-fila-detalle.abierto .pn-detalle {
+    grid-template-rows: 1fr;
+}
+
+.pn-detalle-interior {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.pn-fila-detalle.abierto .pn-detalle-interior {
+    padding: 4px 16px 16px;
+}
+
+/* La tabla de temas ocupa el ancho de la fila, con un margen parejo a los lados, sobre un gris suave que incluye
+   el encabezado (se pisa el fondo blanco de .pn-tabla thead th). */
+.pn-tabla.pn-tabla-anidada {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: #F7F9FB;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.pn-tabla.pn-tabla-anidada thead th,
+.pn-tabla.pn-tabla-anidada tbody td {
+    background: transparent;
+}
+
+.pn-tabla.pn-tabla-anidada tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pn-detalle {
+        transition: none;
+    }
+}

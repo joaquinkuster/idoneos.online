@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Cohortes</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Cohortes</h1>
+                    <p class="pn-subtitulo" th:text="${'Cohortes de ' + curso.nombre}">Cohortes del curso</p>
+                </div>
+            </div>
+
+                    <section class="pn-card" data-tabla data-tabla-servidor="/cohorte/buscar" th:attr="data-opciones=${tablaOpciones}">
+                        <div class="pn-lista-cabecera">
+                            <h2 class="pn-lista-titulo">Listado de cohortes</h2>
+                            <span class="pn-seleccionados" data-total-filtradas data-singular="cohorte encontrada" data-plural="cohortes encontradas"
+                                  th:text="${tablaTotal + (tablaTotal == 1 ? ' cohorte encontrada' : ' cohortes encontradas')}">0 cohortes encontradas</span>
+                        </div>
+
+                        <!-- Filtros (CU-11): programa, nombre, estado, rango de fechas de inscripción y orden -->
+                        <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                        <!-- Tabla -->
+                        <div class="pn-tabla-contenedor">
+                            <table class="pn-tabla">
+                                <thead>
+                            <tr>
+                                <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                <th data-col="Programa" data-campo="programa" data-filtro="lista">Programa</th>
+                                <th data-col="Inicio de inscripción" data-orden-inicial="desc" data-campo="fechaInicioInscripcion" data-filtro="fecha">Inicio de inscripción</th>
+                                <th data-col="Fin de inscripción" data-campo="fechaFinInscripcion" data-filtro="fecha">Fin de inscripción</th>
+                                <th data-col="Inicio de dictado" data-campo="fechaInicioDictado" data-filtro="fecha">Inicio de dictado</th>
+                                <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
+                                <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
+                                <th data-col="Días de acceso" data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                                <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                                    <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
+                                        th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
+                                        th:data-o-curso="${coh.curso.nombre}"
+                                        th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
+                                th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div></td>
+                                <td><div class="pn-truncar" th:text="${coh.programa != null ? coh.programa.nombre : 'Sin programa'}">Programa</div></td>
+                                <td th:text="${#temporals.format(coh.fechaInicioInscripcion, 'dd/MM/yyyy')}">01/03/2026</td>
+                                <td th:text="${#temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</td>
+                                <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
+                                <td th:text="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">30/06/2026</td>
+                                <td th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' de ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0 de 40</td>
+                                <td th:text="${coh.accesoDias}">12</td>
+                                <td>
+                                            <span class="pn-insignia"
+                                                  th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima' or coh.estado == 'Pendiente'} ? 'pn-insignia-dorada' : (${coh.estado == 'Cancelada'} ? 'pn-insignia-roja' : 'pn-insignia-gris'))))"
+                                                  th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
+                                        </td>
+                                <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td>
+                                            <div class="pn-acciones" th:if="${programasDelCurso.containsKey(coh.idCohorte)}">
+                                                <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
+                                                        th:data-bs-target="'#modalAsignarPrograma' + ${coh.idCohorte}">Asignar programa</button>
+                                            </div>
+                                            <span th:unless="${programasDelCurso.containsKey(coh.idCohorte)}" class="pn-celda-secundaria">—</span>
+                                        </td>
+                            </tr>
+                                    <tr th:replace="~{fragments/components/empty :: fila(11, 'fa-calendar-days', 'No se encontraron cohortes', 'Ninguna cohorte coincide con los criterios ingresados.')}"></tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pie: filas por página y paginador -->
+                        <div class="pn-tabla-pie">
+                            <div class="pn-por-pagina">
+                                <span>Filas por página:</span>
+                                <select data-por-pagina>
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="0">Todo</option>
+                                </select>
+                                <span data-rango>0-0 de 0</span>
+                            </div>
+                            <div class="pn-paginador" data-paginador></div>
+                        </div>
+                    </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Gestión académica')}"></th:block>
+    </div>
+</div>
+
+<!-- Modales: asignar el programa a una cohorte pendiente (el administrador la registra sin programa y el docente
+                 elige el suyo). Si el programa tiene el contenido completo, la cohorte pasa a activa -->
+            <th:block th:each="coh : ${cohortesAsignables}">
+                <th:block th:replace="~{pages/programa/asignar :: modal(${coh}, ${programasDelCurso.get(coh.idCohorte)}, ${faltantesPorPrograma})}"></th:block>
+            </th:block>
+
+    <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+    <script th:src="@{/js/pages/programa/asignar.js}"></script>
+    <script th:src="@{/js/core/abrirModal.js}"></script>
+</body>
+</html>

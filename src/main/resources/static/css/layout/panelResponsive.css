@@ -1,0 +1,51 @@
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+    .pn-menu {
+        transform: translateX(-100%);
+        width: var(--pn-ancho-menu) !important;
+    }
+
+    .pn-app.menu-abierto .pn-menu {
+        transform: translateX(0);
+    }
+
+    .pn-app.menu-abierto .pn-fondo-menu {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background: rgba(8, 20, 38, 0.5);
+        z-index: 1100;
+    }
+
+    .pn-principal,
+    .pn-app.colapsado .pn-principal {
+        margin-left: 0;
+    }
+
+    .pn-contenido {
+        padding: 18px 16px;
+    }
+
+    .pn-app.colapsado .pn-menu-enlace span {
+        display: inline;
+    }
+
+    .pn-app.colapsado .pn-menu-enlace {
+        justify-content: flex-start;
+        padding: 11px 14px;
+    }
+
+    .um-datos {
+        display: none;
+    }
+}
+
+@media (max-width: 560px) {
+
+    .pn-modal-pie {
+        flex-wrap: wrap;
+    }
+}

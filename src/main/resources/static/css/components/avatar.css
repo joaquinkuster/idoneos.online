@@ -1,0 +1,72 @@
+/* ==========================================================================
+   AVATAR: la foto de perfil del usuario o, si no tiene, sus iniciales sobre un degradé azul
+   ========================================================================== */
+.av {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: var(--pn-avatar);
+    color: #FFFFFF;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.av img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.av-chico {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+}
+
+.av-grande {
+    width: 46px;
+    height: 46px;
+    font-size: 16px;
+}
+
+.av-menu {
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
+}
+
+/* Cards filtradas o fuera de la página actual (las maneja panel.js) */
+[data-card][hidden] {
+    display: none !important;
+}
+
+/* "Editar" en las cards de cursos: parte del amarillo del hover de los ABM y al pasar el mouse se oscurece apenas */
+.wf-course-card-footer .pn-btn-editar {
+    background: #F2CB45;
+}
+
+.wf-course-card-footer .pn-btn-editar:hover {
+    background: #E5BB2C;
+}
+
+/* Modales de baja: el motivo por el que no se puede dar de baja se muestra en una alerta roja bajo el subtítulo */
+.pn-modal .pn-modal-cuerpo .alert-formulario {
+    margin-top: 16px;
+}
+
+/* Campo para elegir un archivo: el texto queda alineado con los demás campos */
+.pn-input-archivo {
+    padding-top: 9px;
+}
+
+/* Grupo de campos que se bloquea entero sin dibujar el borde del fieldset */
+.pn-fieldset-plano {
+    margin: 0;
+    padding: 0;
+    border: 0;
+}

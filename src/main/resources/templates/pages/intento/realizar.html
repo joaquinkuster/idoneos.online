@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="in-body" id="intento"
       th:attr="data-intento=${intento.idIntentoAutoevaluacion}, data-segundos=${segundosRestantes}, data-pregunta=${actual.idPreguntaIntento},
                data-multiple=${actual.pregunta.esOpcionMultiple}, data-libre=${libre}, data-total=${total},
                data-url-ficha='/autoevaluacion/ver/' + ${autoevaluacion.idAutoevaluacion}">
 
-    <th:block th:replace="~{fragments/intentoCabecera :: cabecera(${curso}, ${autoevaluacion}, ${segundosRestantes})}"></th:block>
+    <th:block th:replace="~{fragments/layout/navbarIntento :: cabecera(${curso}, ${autoevaluacion}, ${segundosRestantes})}"></th:block>
 
     <main class="in-principal">
         <!-- Izquierda: datos de la pregunta -->
@@ -78,6 +78,6 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/js/intento.js}"></script>
+    <script th:src="@{/js/pages/intento/intento.js}"></script>
 </body>
 </html>

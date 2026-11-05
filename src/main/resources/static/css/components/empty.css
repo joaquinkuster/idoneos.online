@@ -1,0 +1,35 @@
+/* ---------------------------------------------------------------- LISTADOS VACÍOS: mensaje y botón */
+.pn-empty-grande {
+    text-align: center;
+    padding: 56px 24px;
+}
+
+.pn-empty-icon {
+    font-size: 34px;
+    color: #94A3B8;
+    margin-bottom: 14px;
+}
+
+.pn-empty-grande h3 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #081426;
+    margin: 0 0 6px;
+}
+
+.pn-empty-grande p {
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    margin: 0 0 22px;
+}
+
+/* Sin botón debajo, el último texto no deja espacio de más */
+.pn-empty-grande > :last-child {
+    margin-bottom: 0;
+}
+
+/* En una celda de tabla */
+.pn-tabla tbody td.pn-empty-grande {
+    padding: 64px 24px;
+    border-bottom: 0;
+}

@@ -1,0 +1,14 @@
+/* Selector múltiple todavía sin armar (Tom Select llega al final de la página): se reserva su lugar sin mostrar el
+   <select> crudo, para que no se vea cargarse. Si Tom Select no llega, a los 4 segundos se muestra el <select> común. */
+select.ts-multiselect:not(.tomselected) {
+    appearance: none;
+    height: 42px;
+    overflow: hidden;
+    border: 0;
+    border-radius: 8px;
+    color: transparent;
+    background: var(--sk-bloque);
+    pointer-events: none;
+    animation: pnSkeleton 1.3s ease-in-out infinite, pnSelectMostrar 0s linear 4s forwards;
+}
+@keyframes pnSelectMostrar { to { height: auto; overflow: visible; appearance: auto; border: revert; border-radius: revert; color: inherit; background: revert; pointer-events: auto; animation-play-state: paused; opacity: 1; } }

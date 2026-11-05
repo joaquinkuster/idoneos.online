@@ -1,0 +1,277 @@
+/* ==========================================================================
+   LISTADOS EN TABLA
+   ========================================================================== */
+.pn-lista-cabecera {
+    padding: 20px 22px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.pn-lista-titulo {
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0;
+}
+
+.pn-seleccionados {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+    background: var(--pn-fondo);
+    border-radius: 9999px;
+    padding: 4px 12px;
+}
+
+.pn-filtros {
+    margin: 18px 22px 0;
+    padding: 14px;
+    background: var(--pn-fondo);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pn-filtros .pn-input {
+    background-color: #FFFFFF;
+}
+
+.pn-filtros-campo {
+    flex: 1 1 150px;
+    min-width: 130px;
+}
+
+.pn-filtros-campo-grande {
+    flex: 2 1 220px;
+}
+
+.pn-columnas-wrapper {
+    position: relative;
+}
+
+.pn-columnas-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 50;
+    min-width: 200px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-radius: 10px;
+    box-shadow: 0 12px 30px rgba(8, 20, 38, 0.16);
+    padding: 8px;
+}
+
+.pn-columnas-wrapper.abierto .pn-columnas-menu {
+    display: block;
+}
+
+.pn-columnas-menu label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.pn-columnas-menu label:hover {
+    background: var(--pn-fondo);
+}
+
+.pn-tabla-contenedor {
+    margin: 18px 22px 0;
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.pn-tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.pn-tabla thead th {
+    padding: 14px 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    text-align: center;
+    color: var(--pn-texto-suave);
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--pn-borde);
+    white-space: normal; /* los títulos pueden partirse en dos renglones para ahorrar ancho */
+}
+
+.pn-tabla tbody td {
+    padding: 12px 6px;
+    text-align: center;
+    vertical-align: middle;
+    white-space: nowrap; /* cada registro ocupa un solo renglón */
+    border-bottom: 1px solid var(--pn-borde);
+    color: var(--pn-texto);
+}
+
+.pn-tabla tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.pn-tabla tbody tr[data-fila]:hover {
+    background: #F8FAFC;
+}
+
+.pn-tabla tbody tr.pn-fila-baja {
+    background: #F8FAFC;
+    color: var(--pn-texto-suave);
+}
+
+.pn-tabla .pn-col-seleccion {
+    width: 36px;
+    padding-left: 12px;
+    padding-right: 0;
+}
+
+.pn-tabla input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--pn-gold);
+    cursor: pointer;
+}
+
+.pn-celda-principal {
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+/* Limita el largo de un texto en las celdas de las tablas: al llegar al límite corta con "..." (el texto completo se ve
+   al pasar el mouse; panel.js completa el title). Tamaños: pn-truncar-corto (12), por defecto (16) y pn-truncar-largo (20)
+   caracteres aproximados (los renglones de las tablas no se parten). Se usa sobre un span dentro de la celda: <span class="pn-truncar">texto</span> */
+.pn-truncar {
+    display: inline-block;
+    max-width: var(--pn-truncar-largo, 16ch);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: bottom;
+}
+
+.pn-truncar-corto {
+    --pn-truncar-largo: 12ch;
+}
+
+.pn-truncar-largo {
+    --pn-truncar-largo: 20ch;
+}
+
+.pn-celda-secundaria {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    font-weight: 400;
+}
+
+.pn-acciones {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.pn-insignia {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pn-insignia-verde {
+    background: #DCFCE7;
+    color: #15803D;
+}
+
+.pn-insignia-dorada {
+    background: var(--pn-gold-soft);
+    color: #92400E;
+}
+
+.pn-insignia-azul {
+    background: #DBEAFE;
+    color: #1D4ED8;
+}
+
+.pn-insignia-gris {
+    background: #E2E8F0;
+    color: #475569;
+}
+
+.pn-insignia-roja {
+    background: #FEE2E2;
+    color: #B91C1C;
+}
+
+.pn-tabla-pie {
+    margin: 0;
+    padding: 16px 22px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-por-pagina {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pn-por-pagina select {
+    padding: 6px 8px;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 8px;
+    background: #FFFFFF;
+    font-size: 13px;
+}
+
+.pn-paginador {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pn-paginador button {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #334155;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.pn-paginador button:hover:not(:disabled) {
+    background: var(--pn-fondo);
+}
+
+.pn-paginador button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pn-paginador span {
+    padding: 0 8px;
+    font-weight: 600;
+    color: #334155;
+}

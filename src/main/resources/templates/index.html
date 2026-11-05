@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
     
     <style>
         /* Hero Parallelogram Slider Frame Oficial */
@@ -66,7 +66,7 @@
         <div class="screen-frame">
 
             <!-- Top Navbar Oficial Dinámica -->
-            <div th:replace="~{fragments/navbar :: navbar}"></div>
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
 
             <!-- Hero Section con Slider en Paralelogramo e Iluminación Oficial -->
             <div class="wf-hero-section">
@@ -177,7 +177,7 @@
                         <div class="ac-slider-ventana">
                             <div class="ac-slider-pista" data-pista>
                                 <div class="ac-slide ac-slide-llena" data-slide th:each="c : ${cursos}">
-                                    <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantTemasPorCurso != null ? cantTemasPorCurso.get(c.idCurso) : null}, ${cursosProximamente != null and cursosProximamente.contains(c.idCurso) ? 'Próximamente' : 'Inscripción abierta'}, '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
+                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${c}, ${cantTemasPorCurso != null ? cantTemasPorCurso.get(c.idCurso) : null}, ${cursosProximamente != null and cursosProximamente.contains(c.idCurso) ? 'Próximamente' : 'Inscripción abierta'}, '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
                                 </div>
                             </div>
                         </div>
@@ -187,14 +187,14 @@
             </section>
 
             <!-- Footer Oficial de Idóneos Online -->
-            <div th:replace="~{fragments/footer :: footer}"></div>
+            <div th:replace="~{fragments/layout/footer :: footer}"></div>
 
         </div>
     </div>
 
     <!-- Scripts Globales y Manejador SweetAlert2 -->
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
-    <script th:src="@{/js/slider.js}"></script>
-    <script th:src="@{/js/inicio.js}"></script>
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
+    <script th:src="@{/js/components/slider.js}"></script>
+    <script th:src="@{/js/pages/inicio.js}"></script>
 </body>
 </html>

@@ -6,8 +6,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import com.app.idoneos.servicio.Curso.CursoServicioImpl;
-import com.app.idoneos.servicio.SemillaServicio;
+import com.app.idoneos.service.curso.CursoServiceImpl;
+import com.app.idoneos.service.SemillaService;
 
 /**
  * Clase principal de la aplicación que se ejecuta al iniciar el servicio Spring Boot.
@@ -20,10 +20,10 @@ public class IdoneosApplication implements CommandLineRunner {
      * Servicio encargado de insertar los datos de semilla al inicio de la aplicación.
      */
     @Autowired
-    private SemillaServicio semillaServicio;
+    private SemillaService semillaService;
 
     @Autowired
-    private CursoServicioImpl cursoServicio;
+    private CursoServiceImpl cursoService;
 
     /**
      * Si se insertan los datos de semilla (usuarios, cursos y demás datos de demostración) al arrancar. Está apagado
@@ -52,9 +52,9 @@ public class IdoneosApplication implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // La semilla solo se ejecuta si se pidió con la propiedad idoneos.semilla
         if (insertarSemilla) {
-            semillaServicio.insertarSemilla();
+            semillaService.insertarSemilla();
         }
         // Lleva las imágenes de los cursos a la carpeta de cada curso (datos creados con versiones anteriores)
-        cursoServicio.migrarImagenes();
+        cursoService.migrarImagenes();
     }
 }

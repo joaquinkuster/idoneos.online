@@ -1,0 +1,90 @@
+/* ==========================================================================
+   BOTONES SÓLIDOS
+   ========================================================================== */
+.pn-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.05s ease;
+}
+
+.pn-btn:active {
+    transform: translateY(1px);
+}
+
+.pn-btn:disabled,
+.pn-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pn-btn-primario {
+    background: var(--pn-navy);
+    color: #FFFFFF;
+}
+
+.pn-btn-primario:hover {
+    background: var(--pn-navy-dark);
+    color: #FFFFFF;
+}
+
+.pn-btn-secundario {
+    background: #E2E8F0;
+    color: #334155;
+}
+
+.pn-btn-secundario:hover {
+    background: #CBD5E1;
+    color: #334155;
+}
+
+.pn-btn-peligro {
+    background: var(--pn-peligro);
+    color: #FFFFFF;
+}
+
+.pn-btn-peligro:hover {
+    background: #B91C1C;
+    color: #FFFFFF;
+}
+
+.pn-btn-ver {
+    background: var(--pn-ver);
+    color: #FFFFFF;
+}
+
+.pn-btn-ver:hover {
+    background: #244A72;
+    color: #FFFFFF;
+}
+
+.pn-btn-contorno {
+    background: #FFFFFF;
+    color: #334155;
+    border-color: var(--pn-borde-input);
+}
+
+.pn-btn-contorno:hover {
+    /* El fondo del hover llega hasta el borde del botón (con el borde en un gris más oscuro), sin dejar los costados sin cubrir */
+    background: #E2E8F0;
+    border-color: #94A3B8;
+    background-clip: border-box;
+    color: #334155;
+}
+
+.pn-btn-chico {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+}

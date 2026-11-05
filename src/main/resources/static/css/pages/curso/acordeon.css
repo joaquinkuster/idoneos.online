@@ -1,0 +1,99 @@
+/* ---------- Acordeón de temas (estilo Moodle) ---------- */
+.ac-acordeon {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ac-tema {
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde);
+    border-left: 4px solid var(--pn-borde-input);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.ac-tema-habilitada {
+    border-left-color: var(--pn-gold);
+}
+
+.ac-tema-completada {
+    border-left-color: var(--pn-exito);
+}
+
+.ac-tema-cabecera {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 20px;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    color: var(--pn-texto);
+    cursor: pointer;
+    flex-wrap: wrap;
+}
+
+.ac-tema-cabecera:disabled {
+    cursor: not-allowed;
+    color: var(--pn-texto-suave);
+}
+
+.ac-tema-flecha {
+    font-size: 13px;
+    color: var(--pn-navy);
+    transition: transform 0.2s ease;
+}
+
+.ac-tema-cabecera.collapsed .ac-tema-flecha {
+    transform: rotate(-90deg);
+}
+
+.ac-tema-cabecera:disabled .ac-tema-flecha {
+    transform: rotate(-90deg);
+    color: var(--pn-borde-input);
+}
+
+.ac-tema-numero {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pn-gold-hover);
+}
+
+.ac-tema-nombre {
+    flex: 1;
+    min-width: 180px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--pn-navy);
+}
+
+.ac-tema-cabecera:disabled .ac-tema-nombre {
+    color: var(--pn-texto-suave);
+}
+
+.ac-tema-candado {
+    color: var(--pn-texto-suave);
+}
+
+.ac-tema-aviso {
+    margin: 0;
+    padding: 0 20px 16px 52px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-tema-cuerpo {
+    padding: 4px 20px 20px 52px;
+    border-top: 1px solid var(--pn-borde);
+}
+
+.ac-tema-descripcion {
+    margin: 14px 0 0;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+}

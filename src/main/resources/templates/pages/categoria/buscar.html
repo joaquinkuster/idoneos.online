@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
-    <th:block th:replace="~{fragments/head :: recursos}"></th:block>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
-    <th:block th:replace="~{fragments/menus :: administrador(${menuActivo})}"></th:block>
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
 
     <div class="pn-principal">
-        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
             <div class="pn-encabezado">
@@ -21,7 +21,7 @@
                 </button>
             </div>
 
-            <section class="pn-tarjeta" data-tabla data-tabla-servidor="/categoria/buscar" th:attr="data-opciones=${tablaOpciones}">
+            <section class="pn-card" data-tabla data-tabla-servidor="/categoria/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de categorías</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
@@ -63,8 +63,8 @@
                                 </td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!cat.baja}">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalEditarCategoria' + ${cat.idCategoria}"
-                                                th:data-modal-url="@{'/categoria/modalEditar/' + ${cat.idCategoria}}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalModificarCategoria' + ${cat.idCategoria}"
+                                                th:data-modal-url="@{'/categoria/modificar/' + ${cat.idCategoria}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
                                                 data-bs-target="#modalBajaCategoria"
                                                 th:data-baja-accion="@{'/categoria/darDeBaja/' + ${cat.idCategoria}}"
@@ -74,7 +74,7 @@
                                     <span th:if="${cat.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-tags', 'No se encontraron categorías', 'Ninguna categoría coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-tags', 'No se encontraron categorías', 'Ninguna categoría coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -96,7 +96,7 @@
             </section>
         </main>
 
-        <th:block th:replace="~{fragments/panel :: pie('Panel del administrador')}"></th:block>
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
     </div>
 </div>
 
@@ -142,10 +142,10 @@
 
 <!-- Modales por categoría: modificar (CU-09) y dar de baja (CU-10) -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
-<th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCategoria', 'categoría', '¿Confirmas dar de baja?', '', '/categoria/darDeBaja/0', null, null)}"></th:block>
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaCategoria', 'categoría', '¿Confirmas dar de baja?', '', '/categoria/darDeBaja/0', null, null)}"></th:block>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<script th:src="@{/js/modalesBajoDemanda.js}"></script>
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
 </body>
 </html>

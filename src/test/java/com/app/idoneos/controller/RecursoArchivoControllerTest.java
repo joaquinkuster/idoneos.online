@@ -1,0 +1,214 @@
+package com.app.idoneos.controller;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.hamcrest.Matchers;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.app.idoneos.model.Docente;
+import com.app.idoneos.model.TemaRecurso;
+import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
+import com.app.idoneos.model.Tema;
+import com.app.idoneos.repository.DocenteRepository;
+import com.app.idoneos.repository.TemaRepository;
+import com.app.idoneos.service.recurso.RecursoService;
+
+/**
+ * Pruebas de la entrega del contenido de los materiales ({@code GET /recurso/archivo/{id}}): solo la reciben quienes
+ * tienen acceso y solo cuando el pedido lo hace la propia página del material (nunca por navegación directa, iframe ni
+ * desde otro sitio); los videos admiten pedidos por rangos. Valentina Ruiz es alumna de la cohorte en dictado de
+ * "Mercado de Capitales Argentino" (con el tema 2 habilitada y la 3 bloqueada).
+ */
+@SpringBootTest
+@AutoConfigureMockMvc
+@Transactional
+class RecursoArchivoControllerTest {
+
+    private static final byte[] MP4 = { 0, 0, 0, 0x18, 'f', 't', 'y', 'p', 'm', 'p', '4', '2', 1, 2, 3, 4 };
+    private static final byte[] PDF = { '%', 'P', 'D', 'F', '-', '1', '.', '7', 0, 0, 0, 0 };
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private RecursoService materialService;
+
+    @Autowired
+    private TemaRepository temaRepository;
+
+    @Autowired
+    private DocenteRepository docenteRepository;
+
+    private Docente docente(String correo) {
+        return docenteRepository.findAll().stream().filter(d -> d.getUsuario().getCorreo().equals(correo)).findFirst()
+                .orElseThrow();
+    }
+
+    private Tema tema(String curso, String titulo) {
+        return temaRepository.findAll().stream()
+                .filter(u -> u.getCurso().getNombre().equals(curso) && u.getTitulo().equals(titulo)).findFirst()
+                .orElseThrow();
+    }
+
+    private RecursoService.DatosRecurso datos(String titulo, boolean oculto, String autor, String enlace) {
+        return new RecursoService.DatosRecurso(titulo, null, oculto, autor, enlace, null, null, null, null, null);
+    }
+
+    /** Sube una grabación al tema indicado, como lo haría el docente titular del curso. */
+    private TemaRecurso subir(Tema tema, boolean oculto) {
+        return materialService.subir(docente("fausto.spotorno@idoneos.online"), tema.getIdTema(),
+                "GRABACION", datos("Clase de prueba", oculto, null, null),
+                new MockMultipartFile("archivo", "clase.mp4", "video/mp4", MP4), true);
+    }
+
+    private TemaRecurso subirEnTemaDos(boolean oculto) {
+        return subir(tema("Mercado de Capitales Argentino", "Renta fija y bonos"), oculto);
+    }
+
+    /** El pedido que hace el reproductor o el visor de la propia página del material. */
+    private MockHttpServletRequestBuilder pedidoDeLaPagina(int idMaterial) {
+        return get("/recurso/archivo/" + idMaterial).header("Sec-Fetch-Dest", "video").header("Sec-Fetch-Site",
+                "same-origin");
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El docente del curso recibe el video en el reproductor, sin nombre de archivo y sin caché")
+    void docenteRecibeElContenido() throws Exception {
+        TemaRecurso material = subirEnTemaDos(true);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk())
+                .andExpect(content().bytes(MP4)).andExpect(content().contentType("video/mp4"))
+                .andExpect(header().string("Content-Disposition", "inline"))
+                .andExpect(header().string("Cache-Control", Matchers.containsString("no-store")));
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El PDF también se entrega solo al visor de la página (pedido de tipo 'empty', como el de PDF.js)")
+    void pdfParaElVisor() throws Exception {
+        TemaRecurso pdf = materialService.subir(docente("fausto.spotorno@idoneos.online"),
+                tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
+                "PRESENTACION", datos("Diapositivas", false, "Autor", null),
+                new MockMultipartFile("archivo", "clase.pdf", "application/pdf", PDF), true);
+
+        mockMvc.perform(get("/recurso/archivo/" + pdf.getIdTemaRecurso()).header("Sec-Fetch-Dest", "empty")
+                .header("Sec-Fetch-Site", "same-origin")).andExpect(status().isOk())
+                .andExpect(content().contentType("application/pdf"));
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("No se entrega por navegación directa, en un iframe, desde otro sitio ni sin encabezados del navegador")
+    void soloParaLaPropiaPagina() throws Exception {
+        int id = subirEnTemaDos(false).getIdTemaRecurso();
+
+        // abrir la dirección en otra pestaña, o con "guardar enlace como"
+        mockMvc.perform(get("/recurso/archivo/" + id).header("Sec-Fetch-Dest", "document").header("Sec-Fetch-Site",
+                "same-origin")).andExpect(status().isForbidden());
+        // incrustarla en un iframe, embed u object
+        mockMvc.perform(get("/recurso/archivo/" + id).header("Sec-Fetch-Dest", "iframe").header("Sec-Fetch-Site",
+                "same-origin")).andExpect(status().isForbidden());
+        // pedirla desde otro sitio
+        mockMvc.perform(get("/recurso/archivo/" + id).header("Sec-Fetch-Dest", "video").header("Sec-Fetch-Site",
+                "cross-site")).andExpect(status().isForbidden());
+        // sin informar el origen del pedido (herramientas de línea de comandos)
+        mockMvc.perform(get("/recurso/archivo/" + id)).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El alumno con el tema habilitado recibe el contenido y puede pedir un rango del video")
+    void alumnoRecibeElContenidoYPideUnRango() throws Exception {
+        TemaRecurso material = subirEnTemaDos(false);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk())
+                .andExpect(content().bytes(MP4));
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso()).header("Range", "bytes=0-3"))
+                .andExpect(status().isPartialContent())
+                .andExpect(content().bytes(new byte[] { 0, 0, 0, 0x18 }))
+                .andExpect(header().string("Content-Range", "bytes 0-3/" + MP4.length));
+    }
+
+    @Test
+    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El alumno no recibe el material de un tema bloqueado ni el material oculto")
+    void alumnoSinAccesoABloqueadoNiOculto() throws Exception {
+        TemaRecurso deTemaBloqueada = subir(tema("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
+        TemaRecurso oculto = subirEnTemaDos(true);
+
+        mockMvc.perform(pedidoDeLaPagina(deTemaBloqueada.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(oculto.getIdTemaRecurso())).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "martin.gomez@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El alumno cuyo dictado todavía no comenzó no recibe el material")
+    void alumnoConDictadoSinComenzar() throws Exception {
+        TemaRecurso material = subirEnTemaDos(false);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "tomas.herrera@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El alumno que no está inscripto en el curso no recibe el material")
+    void alumnoSinInscripcion() throws Exception {
+        TemaRecurso material = subirEnTemaDos(false);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("Un docente que no participa en el curso no recibe el material")
+    void docenteAjenoAlCurso() throws Exception {
+        TemaRecurso material = subir(tema("Macroeconomía de Coyuntura", "Inflación y precios"), false);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("El administrador recibe el contenido de cualquier curso")
+    void administradorRecibeElContenido() throws Exception {
+        TemaRecurso material = subirEnTemaDos(true);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
+    @DisplayName("Un enlace externo no tiene contenido propio, y un material dado de baja o inexistente responde 404")
+    void enlaceBajaOInexistente() throws Exception {
+        TemaRecurso enlace = materialService.subir(docente("fausto.spotorno@idoneos.online"),
+                tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
+                "ENLACE", datos("Libro", false, "Autor", "https://sitio.com/libro.pdf"), null, true);
+        TemaRecurso deBaja = subirEnTemaDos(false);
+        materialService.darDeBaja(deBaja.getIdTemaRecurso(), null);
+
+        mockMvc.perform(pedidoDeLaPagina(enlace.getIdTemaRecurso())).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(deBaja.getIdTemaRecurso())).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(999999)).andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Sin sesión no se entrega ningún contenido: se pide iniciar sesión")
+    void sinSesion() throws Exception {
+        TemaRecurso material = subirEnTemaDos(false);
+
+        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().is3xxRedirection());
+    }
+}

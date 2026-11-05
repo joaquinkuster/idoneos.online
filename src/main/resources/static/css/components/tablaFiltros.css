@@ -1,0 +1,181 @@
+/* Filtros por rango (desde / hasta) y botón de columnas en el encabezado */
+.pn-filtros-rango {
+    flex: 2 1 240px;
+}
+
+.pn-filtros-par {
+    display: flex;
+    gap: 6px;
+}
+
+.pn-filtros-par .pn-input {
+    min-width: 0;
+}
+
+.pn-tabla thead th.pn-th-acciones {
+    position: relative;
+    white-space: nowrap;
+}
+
+.pn-th-acciones .pn-columnas-wrapper {
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+    z-index: 20;
+}
+
+.pn-columnas-icon {
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: 1px solid var(--pn-borde);
+    border-radius: 6px;
+    background: #FFFFFF;
+    color: var(--pn-texto-suave);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.pn-columnas-icon:hover {
+    background: var(--pn-fondo);
+    color: var(--pn-navy);
+}
+
+.pn-th-acciones .pn-columnas-menu {
+    position: fixed;
+    top: auto;
+    right: auto;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.pn-columnas-restablecer {
+    display: block;
+    width: 100%;
+    margin-top: 6px;
+    padding: 7px 8px;
+    border: none;
+    border-top: 1px solid var(--pn-borde);
+    background: none;
+    text-align: left;
+    font-size: 13px;
+    color: var(--pn-azul, #1E6FD9);
+    cursor: pointer;
+}
+
+/* La última columna (acciones y botón de columnas) queda fija a la derecha cuando la tabla se desplaza */
+.pn-tabla.pn-con-columnas thead th:last-child,
+.pn-tabla.pn-con-columnas tbody td:last-child {
+    position: sticky;
+    right: 0;
+    background: #FFFFFF;
+    box-shadow: -1px 0 0 var(--pn-borde);
+}
+
+.pn-tabla.pn-con-columnas tbody td:last-child {
+    z-index: 1;
+}
+
+.pn-tabla.pn-con-columnas thead th:last-child {
+    z-index: 5;
+}
+
+/* Filtros: todas las columnas miden lo mismo. Un filtro de rango (desde / hasta) usa el ancho de una sola columna,
+   partido en dos mitades. */
+.pn-filtros {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    align-items: end;
+    gap: 10px 12px;
+}
+
+.pn-filtros .pn-filtros-campo,
+.pn-filtros .pn-filtros-campo-grande,
+.pn-filtros .pn-filtros-rango {
+    flex: none;
+    min-width: 0;
+}
+
+.pn-filtros .pn-filtros-par {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.pn-filtros .pn-filtros-par .pn-input {
+    padding-left: 8px;
+    padding-right: 6px;
+    font-size: 12px;
+}
+
+.pn-filtros > .pn-btn {
+    justify-self: start;
+}
+
+/* Botón "Más" de las acciones de una fila: aparece solo cuando hay más de dos acciones. Modificar y Dar de baja
+   quedan siempre a la vista; lo demás va en un menú aparte, como el desplegable de Bootstrap. Los tres botones miden lo
+   mismo. */
+.pn-acciones .pn-btn-editar,
+.pn-acciones .pn-btn-peligro,
+.pn-acciones .pn-mas {
+    width: 96px;
+    justify-content: center;
+}
+
+.pn-mas {
+    gap: 4px;
+    background: #244A72;
+    border-color: #244A72;
+    color: #FFFFFF;
+}
+
+.pn-mas:hover,
+.pn-mas:focus,
+.pn-mas.show {
+    background: #1C3B5C;
+    border-color: #1C3B5C;
+    color: #FFFFFF;
+}
+
+.pn-mas .fa-chevron-down {
+    font-size: 10px;
+}
+
+.pn-mas + .dropdown-menu {
+    min-width: 160px;
+    padding: 8px 0;
+    font-size: 12px;
+    background: #FFFFFF !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid rgba(0, 0, 0, 0.175);
+    border-radius: 8px;
+    box-shadow: none;
+}
+
+.pn-mas + .dropdown-menu .dropdown-item {
+    display: block;
+    padding: 6px 16px;
+    border-radius: 0;
+    font-size: 12px;
+    color: #212529;
+}
+
+.pn-mas + .dropdown-menu .dropdown-item:hover,
+.pn-mas + .dropdown-menu .dropdown-item:focus,
+.pn-mas + .dropdown-menu .dropdown-item:active {
+    background: #E9ECEF;
+    color: #212529;
+}
+
+/* La columna fija de acciones acompaña el fondo de la fila al pasar el mouse y en las filas dadas de baja */
+.pn-tabla.pn-con-columnas tbody tr[data-fila]:hover td:last-child,
+.pn-tabla.pn-con-columnas tbody tr.pn-fila-baja td:last-child {
+    background: #F8FAFC;
+}
+
+/* Más aire entre el título "Acciones" y el botón de columnas */
+.pn-th-acciones .pn-columnas-wrapper {
+    margin-left: 16px;
+}

@@ -1,0 +1,347 @@
+/* ==========================================================================
+   SITIO PÚBLICO: botón del usuario, banners internos, cards de cursos, ficha del curso e inicio de sesión.
+   La estructura del inicio de sesión sigue la de CataratasRH, con los colores de Idóneos.
+   ========================================================================== */
+
+/* BANNERS DE LAS PÁGINAS INTERNAS: más altos, con la presencia del banner principal */
+.nb ~ .wf-hero-banner {
+    padding: 150px 48px 72px;
+    min-height: 360px;
+    align-items: flex-end;
+    border-bottom: 3px solid var(--wf-gold); /* la misma línea dorada que remata el footer */
+    background:
+        radial-gradient(750px circle at 75% 50%, rgba(14, 165, 233, 0.22), transparent 70%),
+        radial-gradient(1100px 480px at 15% -10%, #16335C 0%, transparent 60%),
+        linear-gradient(160deg, #071324, #0A192F 60%, #081426);
+}
+
+.nb ~ .wf-hero-banner .wf-hero-title {
+    font-size: 40px;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.nb ~ .wf-hero-banner .wf-hero-desc {
+    font-size: 16px;
+    max-width: 640px;
+}
+
+@media (max-width: 991.98px) {
+    .nb ~ .wf-hero-banner {
+        padding: 110px 24px 48px;
+        min-height: 280px;
+        /* a la izquierda, en línea con los demás contenedores (flex-end los llevaba a la derecha al apilarse) */
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .nb ~ .wf-hero-banner .wf-hero-title {
+        font-size: 30px;
+    }
+}
+
+/* El texto del banner arranca donde arranca el contenido de la página (mismo ancho máximo que las secciones y el footer) */
+@media (min-width: 992px) {
+    .nb ~ .wf-hero-banner {
+        padding-left: max(48px, calc((100% - var(--wf-ancho-contenedor)) / 2 + 48px));
+        padding-right: max(48px, calc((100% - var(--wf-ancho-contenedor)) / 2 + 48px));
+    }
+}
+
+/* CARDS DE CURSOS: insignias en mayúsculas y datos en gris y negrita */
+.wf-pill-tag,
+.wf-pill-status {
+    text-transform: uppercase;
+}
+
+.wf-course-pills-row {
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.wf-pill-tag,
+.wf-pill-status {
+    white-space: nowrap;
+}
+
+/* INICIO DE SESIÓN */
+body.auth-body {
+    min-height: 100vh;
+    background: #071324;
+}
+
+.auth-fondo {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+}
+
+.auth-fondo-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+}
+
+.auth-fondo-slide.activo {
+    opacity: 1;
+}
+
+.auth-fondo-capa {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, rgba(7, 19, 36, 0.86), rgba(10, 25, 47, 0.78));
+}
+
+.auth-pagina {
+    position: relative;
+    min-height: 100vh;
+}
+
+.auth-contenedor {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 96px 2rem 2rem;
+}
+
+.auth-card {
+    background: #FFFFFF;
+    border-radius: 1.5rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    max-width: 1000px;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 600px;
+}
+
+.auth-izquierda {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-derecha {
+    background: linear-gradient(135deg, #0F233D 0%, #081426 100%);
+    padding: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #FFFFFF;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-derecha::after {
+    content: "";
+    position: absolute;
+    top: -30%;
+    right: -30%;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212, 160, 61, 0.22) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.auth-cabecera {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.auth-logo {
+    width: 72px;
+    height: 72px;
+    object-fit: contain;
+    margin: 0 auto 1rem;
+    display: block;
+}
+
+.auth-titulo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #081426;
+    margin: 0 0 0.5rem;
+}
+
+.auth-titulo span {
+    color: var(--pn-gold);
+}
+
+.auth-subtitulo {
+    color: var(--pn-texto-suave);
+    font-size: 0.8125rem;
+    margin: 0;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.auth-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.auth-grupo label {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.auth-grupo input {
+    width: 100%;
+    height: 42px;
+    padding: 0 1rem;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--pn-texto);
+    background: #FFFFFF;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.auth-grupo input:focus {
+    outline: none;
+    border-color: var(--pn-gold);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
+}
+
+.auth-clave {
+    position: relative;
+}
+
+.auth-clave input {
+    padding-right: 3rem;
+}
+
+.auth-clave-ver {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 36px;
+    height: 36px;
+    border: 0;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.auth-clave-ver:hover {
+    background: var(--pn-fondo);
+    color: var(--pn-texto);
+}
+
+.auth-error {
+    padding: 0.75rem 1rem;
+    background: #FEF2F2;
+    color: #DC2626;
+    border: 1px solid #FECACA;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* Registro visible solo en pantallas chicas (el panel de la derecha se oculta) */
+.auth-registro-movil {
+    display: none;
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.8125rem;
+    color: var(--pn-texto-suave);
+}
+
+.auth-registro-movil p {
+    margin: 0 0 0.5rem;
+}
+
+.auth-promo {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.auth-promo h2 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+}
+
+.auth-promo p {
+    font-size: 0.875rem;
+    margin-bottom: 1.75rem;
+    opacity: 0.85;
+}
+
+@media (max-width: 800px) {
+    .auth-card {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+
+    .auth-derecha {
+        display: none;
+    }
+
+    .auth-registro-movil {
+        display: block;
+    }
+
+    .auth-izquierda {
+        padding: 2rem 1.5rem;
+    }
+}
+
+/* INICIO DE SESIÓN: opciones debajo de la contraseña */
+.auth-opciones {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.8125rem;
+}
+
+.auth-recordarme {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #334155;
+    cursor: pointer;
+}
+
+.auth-recordarme input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--wf-gold);
+    cursor: pointer;
+}
+
+.auth-enlace {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: #B7791F;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-enlace:hover {
+    text-decoration: underline;
+}

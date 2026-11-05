@@ -1,0 +1,41 @@
+/* ==========================================================================
+   ALERTAS DE ÉXITO Y ERROR: mismo tamaño y estilo que la de cerrar sesión
+   ========================================================================== */
+.swal-boton-confirmar {
+    background: var(--pn-navy);
+    color: #FFFFFF;
+    border: 0;
+    border-radius: 8px;
+    padding: 10px 26px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.swal-boton-confirmar:hover {
+    background: var(--pn-navy-dark);
+}
+
+.swal-confirmacion .swal2-icon {
+    margin-top: 0;
+}
+
+/* Confirmación de baja masiva: mismo aspecto que la baja individual */
+.swal-baja {
+    width: 460px;
+}
+
+.swal-baja .swal-texto-baja {
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+    margin: 0;
+}
+
+.swal-baja .pn-baja-detalle {
+    margin-top: 16px;
+}
+
+.swal-boton-peligro:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

@@ -1,0 +1,7 @@
+/* ---------- Barra superior: enlaces del módulo (arrancan donde termina la barra lateral) ---------- */
+/* Enlaces del menú sin acción por ahora */
+.pn-menu-enlace[data-sin-accion],
+.ac-actividad-titulo[data-sin-accion],
+.ac-grupo-enlace[data-sin-accion] {
+    cursor: default;
+}

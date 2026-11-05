@@ -1,0 +1,70 @@
+<!-- Selector "Agregar un recurso o actividad" (al estilo de Moodle): lista a la izquierda, descripción de lo elegido a
+     la derecha. Se usa en la vista del curso y en el ABM de materiales.
+     destino: ruta a la que se redirige al elegir (se le agrega 'nuevo={id del tipo}'); vacío = abre el formulario de
+     alta en la misma página. Requiere el atributo de modelo 'tiposDeSubida' (tipos de material que se suben a mano).
+     La opción Glosario lleva al glosario del tema con el formulario de alta abierto. Las que todavía no tienen su ABM
+     figuran como "Próximamente". -->
+<div th:fragment="selector(destino)" class="modal fade pn-modal" id="modalSelectorRecurso" tabindex="-1" aria-hidden="true"
+     th:attr="data-destino=${destino}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Agregar un recurso o actividad</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo p-0">
+                <div class="ac-selector">
+                    <div class="ac-selector-lista" role="radiogroup" aria-label="Recursos y actividades">
+                        <div class="ac-selector-grupo">Recursos</div>
+
+                        <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}"
+                               th:attr="data-tipo-id=${t.name()}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}">
+                            <input type="radio" name="recurso" th:value="${t.name()}">
+                            <th:block th:replace="~{fragments/components/iconRecurso :: icon(${t.nombre}, 'ac-recurso-icon-chico')}"></th:block>
+                            <span th:text="${t.nombre}">Grabación</span>
+                        </label>
+                        <label class="ac-selector-opcion" data-glosario="true" data-nombre="Glosario"
+                               data-descripcion="Conjunto de términos con su definición, para que los alumnos consulten el vocabulario del tema. Se abre el glosario del tema con el formulario para registrar un término.">
+                            <input type="radio" name="recurso" value="glosario">
+                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Glosario', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Glosario</span>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Resumen', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Resumen</span><small>Próximamente</small>
+                        </label>
+
+                        <div class="ac-selector-grupo">Actividades</div>
+                        <label class="ac-selector-opcion" data-ruta="/autoevaluacion/buscar" data-nombre="Autoevaluación"
+                               data-descripcion="Cuestionario con el que el alumno controla lo aprendido en el tema. Se abre el listado de autoevaluaciones del curso.">
+                            <input type="radio" name="recurso" value="autoevaluacion">
+                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Autoevaluación', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Autoevaluación</span>
+                        </label>
+                        <label class="ac-selector-opcion" data-ruta="/pool/buscar" data-nombre="Pool de preguntas"
+                               data-descripcion="Conjunto de preguntas de un tema, del que se sortean las de cada autoevaluación. Se abre el listado de pools del curso.">
+                            <input type="radio" name="recurso" value="pool">
+                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Pool de preguntas', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Pool de preguntas</span>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Clase con clon', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Clase con clon</span><small>Próximamente</small>
+                        </label>
+                    </div>
+                    <div class="ac-selector-detalle">
+                        <strong data-selector-titulo>Grabación</strong>
+                        <p data-selector-descripcion></p>
+                        <p class="ac-selector-aviso" data-selector-aviso hidden></p>
+                    </div>
+                </div>
+                <div class="pn-modal-pie px-3 pb-3">
+                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-selector-agregar>Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
