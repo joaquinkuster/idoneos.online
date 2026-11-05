@@ -410,6 +410,13 @@
     background: #F1F5F9;
 }
 
+/* SweetAlert enfoca el botón principal al abrirse: sin el borde (negro) del foco del navegador ni la sombra de SweetAlert */
+.swal2-popup .swal2-actions button:focus,
+.swal2-popup .swal2-actions button:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
 /* ==========================================================================
    DISTRIBUCIÓN DEL PANEL: menú lateral + contenido
    ========================================================================== */
@@ -519,18 +526,10 @@ body.pn-body {
     white-space: nowrap;
 }
 
+/* Contraído, el menú se oculta por completo */
 .pn-app.colapsado .pn-menu {
-    width: var(--pn-ancho-menu-colapsado);
-}
-
-.pn-app.colapsado .pn-menu-enlace span,
-.pn-app.colapsado .pn-menu-pie {
-    display: none;
-}
-
-.pn-app.colapsado .pn-menu-enlace {
-    justify-content: center;
-    padding: 11px 0;
+    transform: translateX(-100%);
+    visibility: hidden;
 }
 
 .pn-principal {
@@ -543,7 +542,7 @@ body.pn-body {
 }
 
 .pn-app.colapsado .pn-principal {
-    margin-left: var(--pn-ancho-menu-colapsado);
+    margin-left: 0;
 }
 
 .pn-contenido {
@@ -678,7 +677,10 @@ body.pn-body {
 }
 
 .pn-btn-contorno:hover {
-    background: var(--pn-fondo);
+    /* El fondo del hover llega hasta el borde del botón (con el borde en un gris más oscuro), sin dejar los costados sin cubrir */
+    background: #E2E8F0;
+    border-color: #94A3B8;
+    background-clip: border-box;
     color: #334155;
 }
 
@@ -2843,3 +2845,444 @@ textarea.pn-input {
         grid-template-columns: 130px 1fr;
     }
 }
+
+/* Todas las ventanas (menos las alertas) tienen el mismo ancho */
+.pn-modal:not(.pn-modal-alerta) .modal-dialog {
+    --bs-modal-width: 960px;
+    max-width: var(--bs-modal-width);
+}
+
+/* Un campo de tiempo sin la línea que repite el total */
+.pn-sin-equivalencia .pn-tiempo-eq {
+    display: none;
+}
+
+/* Diseño de curso: el paso actual se resalta y las matrices de contenido marcan lo que está y lo que falta */
+.pn-mapa-paso.actual {
+    border: 2px solid #3B82F6;
+    border-radius: 12px;
+}
+
+.pn-mapa-numero.actual {
+    background: #3B82F6;
+    color: #fff;
+}
+
+.pn-mapa-aqui {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(59, 130, 246, 0.12);
+    color: #1E40AF;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.pn-matriz th,
+.pn-matriz td {
+    text-align: center;
+}
+
+.pn-matriz th:first-child,
+.pn-matriz td:first-child {
+    text-align: left;
+}
+
+.pn-matriz-si {
+    color: #16A34A;
+    font-weight: 700;
+}
+
+.pn-matriz-no {
+    color: #DC2626;
+    font-weight: 700;
+}
+
+/* Diseño de curso: resumen con anillo de progreso y pasos en una línea de tiempo desplegable */
+.dg-mapa {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.dg-resumen {
+    --dg-fondo: #EEF1F6;
+    padding: 18px 14px;
+    border-radius: 14px;
+    background: var(--dg-fondo);
+    text-align: center;
+}
+
+.dg-anillo {
+    --p: 0;
+    position: relative;
+    width: 104px;
+    height: 104px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background: conic-gradient(#5E82BC calc(var(--p) * 1%), rgba(148, 163, 184, 0.3) 0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dg-anillo::before {
+    content: '';
+    position: absolute;
+    inset: 10px;
+    border-radius: 50%;
+    background: var(--dg-fondo);
+}
+
+.dg-anillo b {
+    position: relative;
+    font-size: 22px;
+}
+
+.dg-resumen-titulo {
+    font-weight: 600;
+}
+
+.dg-resumen-detalle {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.dg-linea {
+    position: relative;
+    padding-left: 46px;
+}
+
+/* El conector va de cada número al siguiente; el último paso no tiene */
+.dg-paso:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: -29px;
+    top: 46px;
+    height: calc(100% - 26px);
+    width: 2px;
+    background: rgba(148, 163, 184, 0.35);
+}
+
+.dg-paso {
+    position: relative;
+    margin-bottom: 10px;
+    border: 1px solid var(--pn-borde);
+    border-radius: 14px;
+    background: var(--pn-tarjeta, #fff);
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.dg-paso:hover {
+    transform: translateY(-1px);
+}
+
+.dg-paso.actual {
+    border: 2px solid #5E82BC;
+}
+
+.dg-paso.bloqueado {
+    opacity: 0.7;
+}
+
+.dg-numero {
+    position: absolute;
+    left: -46px;
+    top: 10px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 14px;
+    border: 2px solid rgba(148, 163, 184, 0.6);
+    background: var(--pn-tarjeta, #fff);
+    color: var(--pn-texto-suave);
+}
+
+.dg-paso.ok .dg-numero {
+    border-color: #22C55E;
+    background: rgba(34, 197, 94, 0.14);
+    color: #16A34A;
+}
+
+.dg-paso.actual .dg-numero {
+    border-color: #5E82BC;
+    background: #5E82BC;
+    color: #fff;
+}
+
+.dg-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.dg-titulos {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dg-titulos strong {
+    font-size: 15px;
+}
+
+.dg-titulos > span {
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.dg-aqui {
+    margin-left: 8px;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: rgba(94, 130, 188, 0.18);
+    color: #5E82BC;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.dg-flecha {
+    color: var(--pn-texto-suave);
+    transition: transform 0.15s;
+}
+
+.dg-paso.abierto .dg-flecha {
+    transform: rotate(180deg);
+}
+
+.dg-detalle {
+    display: none;
+    padding: 12px 14px 14px;
+    border-top: 1px solid var(--pn-borde);
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.dg-paso.abierto .dg-detalle {
+    display: block;
+}
+
+.dg-detalle p {
+    margin: 0 0 8px;
+    line-height: 1.6;
+}
+
+.dg-detalle strong {
+    color: var(--pn-texto);
+    font-weight: 600;
+}
+
+.dg-acciones {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+}
+
+/* El botón de cada paso del diseño: azul suave con texto claro */
+.pn-btn-paso {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 0;
+    border-radius: 10px;
+    background: #5E82BC;
+    color: #F1F5FC;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s;
+}
+
+.pn-btn-paso:hover {
+    background: #6F92CB;
+    color: #fff;
+}
+
+.pn-btn-paso i {
+    font-size: 11px;
+}
+
+@media (max-width: 767px) {
+    .dg-mapa {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Ventana de temas (paso 1): tarjetas seleccionables a la izquierda y formulario a la derecha */
+.pn-temas-encabezado {
+    margin: 4px 0 18px;
+    text-align: center;
+}
+
+.pn-temas-encabezado h4 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.pn-temas-encabezado p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-temas-doble {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.pn-temas-subtitulo {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.pn-temas-caja {
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+    padding: 12px;
+    min-height: 260px;
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.pn-temas-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pn-temas-vacio {
+    margin: 36px 0;
+    padding: 34px 12px;
+    border: 2px dashed rgba(94, 130, 188, 0.5);
+    border-radius: 10px;
+    text-align: center;
+    color: var(--pn-texto-suave);
+}
+
+.pn-temas-vacio[hidden] {
+    display: none;
+}
+
+.pn-temas-vacio p {
+    margin: 0 0 4px;
+}
+
+.pn-tema-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px 14px;
+    border: 2px solid var(--pn-borde);
+    border-radius: 10px;
+    background: var(--pn-tarjeta, transparent);
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+}
+
+.pn-tema-item:hover {
+    border-color: #5E82BC;
+    background: rgba(94, 130, 188, 0.07);
+}
+
+.pn-tema-item.activo {
+    border-color: #5E82BC;
+    background: rgba(94, 130, 188, 0.12);
+}
+
+.pn-tema-item-cuerpo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pn-tema-item-titulo {
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pn-tema-item.activo .pn-tema-item-titulo {
+    color: #5E82BC;
+}
+
+.pn-tema-item-desc {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pn-tema-item-quitar {
+    border: 0;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    padding: 2px 6px;
+    cursor: pointer;
+}
+
+.pn-tema-item-quitar:hover {
+    color: #DC2626;
+}
+
+.pn-temas-formulario-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.pn-temas-formulario-cabecera .pn-temas-subtitulo {
+    margin: 0;
+}
+
+.pn-temas-formulario-pie {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 14px;
+}
+
+.pn-btn-ancho {
+    width: 100%;
+    justify-content: center;
+}
+
+@media (max-width: 767px) {
+    .pn-temas-doble {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Selector múltiple todavía sin armar (Tom Select llega al final de la página): se reserva su lugar sin mostrar el
+   <select> crudo, para que no se vea cargarse. Si Tom Select no llega, a los 4 segundos se muestra el <select> común. */
+select.ts-multiselect:not(.tomselected) {
+    visibility: hidden;
+    height: 38px;
+    overflow: hidden;
+    animation: pnSelectMostrar 0s linear 4s forwards;
+}
+@keyframes pnSelectMostrar { to { visibility: visible; height: auto; overflow: visible; } }

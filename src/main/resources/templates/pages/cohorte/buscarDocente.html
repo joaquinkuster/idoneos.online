@@ -3,31 +3,30 @@
 <head>
     <th:block th:replace="~{fragments/head :: recursos}"></th:block>
 </head>
-<body class="wf-canvas-bg fondo-crema">
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/menus :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
 
-    <div class="cu-page-container">
-        <!-- Pantalla / Screen Frame Oficial -->
-        <div class="screen-frame">
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/panel :: barra(null)}"></th:block>
 
-            <!-- Top Navbar Oficial Dinámica -->
-            <div th:replace="~{fragments/navbar :: navbar}"></div>
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Cohortes</strong>
+            </nav>
 
-            <!-- Hero Banner Contextual Superior (Navy) -->
-            <div class="wf-hero-banner">
+            <div class="pn-encabezado">
                 <div>
-                    <div class="wf-hero-tag">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <span>PORTAL ACADÉMICO</span>
-                    </div>
-                    <h2 class="wf-hero-title">Mis cohortes</h2>
-                    <p class="wf-hero-desc">Bienvenido/a, <span th:text="${usuario != null ? usuario.nombreCompleto : 'Docente'}">Docente</span></p>
+                    <h1 class="pn-titulo">Cohortes</h1>
+                    <p class="pn-subtitulo" th:text="${'Cohortes de ' + curso.nombre}">Cohortes del curso</p>
                 </div>
             </div>
-
-            <th:block th:replace="~{fragments/breadcrumb :: migas(null, null, 'Mis cohortes')}"></th:block>
-
-            <div class="wf-body py-4">
-                <div class="container-fluid px-4 px-lg-5">
 
                     <section class="pn-tarjeta" data-tabla>
                         <div class="pn-lista-cabecera">
@@ -54,7 +53,7 @@
                                 <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
                                 <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
                                 <th data-col="Días de acceso" data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
-                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -81,7 +80,7 @@
                                 <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                             <div class="pn-acciones" th:if="${programasDelCurso.containsKey(coh.idCohorte)}">
-                                                <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-bs-toggle="modal"
+                                                <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
                                                         th:data-bs-target="'#modalAsignarPrograma' + ${coh.idCohorte}">Asignar programa</button>
                                             </div>
                                             <span th:unless="${programasDelCurso.containsKey(coh.idCohorte)}" class="pn-celda-secundaria">—</span>
@@ -107,102 +106,20 @@
                             <div class="pn-paginador" data-paginador></div>
                         </div>
                     </section>
+        </main>
 
-                </div>
-            </div>
+        <th:block th:replace="~{fragments/panel :: pie('Gestión académica')}"></th:block>
+    </div>
+</div>
 
-            <!-- Modales: asignar el programa a una cohorte pendiente (el administrador la registra sin programa y el docente
+<!-- Modales: asignar el programa a una cohorte pendiente (el administrador la registra sin programa y el docente
                  elige el suyo). Si el programa tiene el contenido completo, la cohorte pasa a activa -->
             <th:block th:each="coh : ${cohortes}" th:if="${programasDelCurso.containsKey(coh.idCohorte)}">
-                <div class="modal fade pn-modal" th:id="'modalAsignarPrograma' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="pn-modal-cabecera">
-                                <h3 class="pn-modal-titulo">Asignar programa</h3>
-                                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
-                            </div>
-                            <div class="pn-modal-cuerpo">
-                                <form th:action="@{'/cohorte/asignarPrograma/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar novalidate
-                                      data-pasos data-resumen="Cohorte" data-modo="modificacion" data-asignar-programa
-                                      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
-                                      th:attr="data-ctx-curso=${coh.curso.nombre}, data-resumen-titulo=${'(' + coh.etiqueta + ')'}">
-                                    <div class="pn-pasos pn-pasos-nombrados">
-                                        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
-                                        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>
-                                    </div>
-                                    <div class="pn-paso" data-grupo="Datos básicos">
-                                        <div class="pn-seccion-titulo">
-                                            <h4>Datos básicos</h4>
-                                            <p>El programa que se dicta en esta cohorte</p>
-                                        </div>
-                                        <div class="row g-3">
-                                            <div class="col-12 pn-campo">
-                                                <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
-                                                <select name="programaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Elegí el programa de la cohorte.">
-                                                    <option value="">Programa</option>
-                                                    <option th:each="prog : ${programasDelCurso.get(coh.idCohorte)}" th:value="${prog.idPrograma}" th:text="${prog.nombre}"
-                                                            th:selected="${coh.programa != null and coh.programa.idPrograma == prog.idPrograma}"
-                                                            th:attr="data-completo=${faltantesPorPrograma.get(prog.idPrograma).isEmpty()}">Programa</option>
-                                                </select>
-                                                <div class="pn-ayuda-error"></div>
-                                            </div>
-                                            <div class="col-12 pn-campo" data-resumen-etiqueta="Estado de la cohorte">
-                                                <div class="pn-aviso" data-estado-resultante th:attr="data-estado-actual=${coh.estado}">
-                                                    La cohorte sigue <strong>pendiente</strong> hasta que el contenido del programa esté completo.
-                                                </div>
-                                                <span class="visually-hidden" data-resumen-linea="Estado de la cohorte" data-estado-valor th:text="${coh.estado}">Pendiente</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="pn-paso">
-                                        <div class="pn-seccion-titulo">
-                                            <h4>Resumen</h4>
-                                            <p>Estos son los cambios que se van a guardar</p>
-                                        </div>
-                                        <div class="pn-arbol" data-resumen-arbol></div>
-                                    </div>
-                                    <div class="pn-modal-pie">
-                                        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
-                                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-                                        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <th:block th:replace="~{fragments/modalAsignarPrograma :: modal(${coh}, ${programasDelCurso.get(coh.idCohorte)}, ${faltantesPorPrograma})}"></th:block>
             </th:block>
 
-            <!-- Footer Oficial -->
-            <div th:replace="~{fragments/footer :: footer}"></div>
-
-        </div>
-    </div>
-
-    <!-- Scripts Globales y SweetAlert2 -->
-    <div th:replace="~{fragments/scripts :: scripts}"></div>
-    <script th:src="@{/js/formularios.js}"></script>
-    <script th:src="@{/js/panel.js}"></script>
-    <script th:src="@{/js/hojaDeRuta.js}"></script>
-    <script>
-        // Al elegir el programa se avisa en qué estado queda la cohorte: activa si el contenido del programa está completo
-        document.querySelectorAll('form[data-asignar-programa]').forEach(function (formulario) {
-            var select = formulario.querySelector('select[name="programaId"]');
-            var aviso = formulario.querySelector('[data-estado-resultante]');
-            var valor = formulario.querySelector('[data-estado-valor]');
-            var actual = aviso.dataset.estadoActual;
-            function actualizar() {
-                var opcion = select.selectedOptions[0];
-                var completo = opcion && opcion.dataset.completo === 'true';
-                valor.textContent = completo ? 'Activa' : actual;
-                aviso.innerHTML = completo
-                    ? 'El contenido del programa está completo: la cohorte queda <strong>activa</strong>.'
-                    : 'La cohorte sigue <strong>pendiente</strong> hasta que el contenido del programa esté completo.';
-            }
-            select.addEventListener('change', actualizar);
-            actualizar();
-        });
-    </script>
+    <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
+    <script th:src="@{/js/asignarPrograma.js}"></script>
+    <script th:src="@{/js/abrirModal.js}"></script>
 </body>
 </html>

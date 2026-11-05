@@ -217,6 +217,7 @@ public class RecursoServicioImpl implements RecursoServicio, CrudServicio<TemaRe
         }
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatos(tipo, datos, hayArchivo, true);
+        validarIsbnNoRepetido(tipo, datos, -1);
         if (hayArchivo) {
             ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
@@ -268,6 +269,7 @@ public class RecursoServicioImpl implements RecursoServicio, CrudServicio<TemaRe
         }
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatos(tipo, datos, hayArchivo, false);
+        validarIsbnNoRepetido(tipo, datos, recurso.getIdRecurso());
         if (hayArchivo) {
             ManejadorArchivosUtilidad.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
@@ -434,6 +436,18 @@ public class RecursoServicioImpl implements RecursoServicio, CrudServicio<TemaRe
         if (esAlta && !hayArchivo && (tipo == TipoRecurso.PRESENTACION || tipo == TipoRecurso.GRABACION)) {
             throw RespuestaFormularioUtilidad.campoInvalido("archivo", tipo == TipoRecurso.GRABACION
                     ? "Error! Debe seleccionar el archivo de video." : "Error! Debe seleccionar el archivo de la presentación.");
+        }
+    }
+
+    /** No se admiten dos bibliografías vigentes con el mismo ISBN (se ignoran guiones y espacios). */
+    private void validarIsbnNoRepetido(TipoRecurso tipo, DatosRecurso datos, int idRecursoActual) {
+        String isbn = tipo == TipoRecurso.BIBLIOGRAFIA ? vacioANulo(datos.isbn()) : null;
+        if (isbn == null) {
+            return;
+        }
+        String normalizado = isbn.replace("-", "").replace(" ", "").toUpperCase();
+        if (bibliografiaRepositorio.existeIsbn(normalizado, idRecursoActual)) {
+            throw RespuestaFormularioUtilidad.campoInvalido("isbn", "Error! Ya existe una bibliografía registrada con ese ISBN.");
         }
     }
 

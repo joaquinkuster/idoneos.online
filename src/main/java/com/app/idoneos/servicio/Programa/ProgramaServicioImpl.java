@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
+import com.app.idoneos.modelo.Cohorte;
 import com.app.idoneos.modelo.DocenteCurso;
 import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.TemaCronograma;
@@ -136,7 +137,7 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
             String descripcion, List<Integer> temaIds, List<String> dias) {
         Curso curso = cursoRepositorio.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-        obtenerParticipacion(curso, docente);
+        DocenteCurso participacion = obtenerParticipacion(curso, docente);
         Programa origen = null;
         if (programaOrigenId != null) {
             origen = programaRepositorio.findById(programaOrigenId)
@@ -161,6 +162,12 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
         }
         if (temaIds != null) {
             temaCronogramaServicio.modificarCronograma(docente, programa.getIdPrograma(), temaIds, dias);
+        }
+        // Si la cohorte de trabajo del docente es pendiente y todavía no tiene programa, el que acaba de registrar queda asignado
+        Cohorte cohorte = participacion == null ? null : participacion.getCohorteDeTrabajo();
+        if (cohorte != null && cohorte.esPendiente() && !cohorte.tienePrograma() && cohorte.getCantidadInscriptos() == 0) {
+            cohorte.setPrograma(programa);
+            cohorte.setUltimaModificacion(LocalDateTime.now());
         }
         return programa;
     }
@@ -190,6 +197,33 @@ public class ProgramaServicioImpl implements ProgramaServicio, CrudServicio<Prog
     @Override
     public Programa modificar(Programa entidad) {
         return programaRepositorio.save(entidad);
+    }
+
+    /**
+     * Guarda de una vez los programas nuevos y los modificados de un curso: o se guardan todos o ninguno.
+     */
+    @Override
+    @Transactional
+    public int guardarCambios(Docente docente, Integer cursoId, List<CambioDePrograma> cambios) {
+        if (cambios == null || cambios.isEmpty()) {
+            throw new IllegalArgumentException("Error! No hay cambios para guardar.");
+        }
+        int cantidad = 0;
+        for (CambioDePrograma cambio : cambios) {
+            try {
+                if (cambio.id() == null) {
+                    registrarPrograma(docente, cursoId, cambio.origenId(), cambio.nombre(), cambio.descripcion());
+                } else {
+                    modificarPrograma(cambio.id(), docente, cambio.nombre(), cambio.descripcion());
+                }
+                cantidad++;
+            } catch (IllegalArgumentException e) {
+                // Se indica de qué programa es el error y no se guarda ninguno (la transacción se revierte)
+                String nombre = cambio.nombre() == null || cambio.nombre().isBlank() ? "(sin nombre)" : "«" + cambio.nombre().trim() + "»";
+                throw new IllegalArgumentException("Error! Programa " + nombre + ": " + e.getMessage().replaceFirst("^Error! ", ""));
+            }
+        }
+        return cantidad;
     }
 
     /**

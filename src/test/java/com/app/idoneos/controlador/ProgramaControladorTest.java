@@ -75,6 +75,29 @@ class ProgramaControladorTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("La ventana de programas guarda de una vez los nuevos y los modificados, o ninguno si alguno falla")
+    void guardarVariosProgramas() throws Exception {
+        Curso curso = macro();
+        int existentes = curso.getProgramasActivos().size();
+        String cursoId = String.valueOf(curso.getIdCurso());
+
+        mockMvc.perform(post("/programa/guardar").param("cursoId", cursoId)
+                .param("cambios", "[{\"id\":null,\"nombre\":\"Versión A\",\"descripcion\":\"Uno\"},"
+                        + "{\"id\":null,\"nombre\":\"Versión B\",\"descripcion\":\"\"}]"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje").value("2 programas guardados correctamente."));
+        assertEquals(existentes + 2, cursoRepositorio.findById(curso.getIdCurso()).orElseThrow().getProgramasActivos().size());
+
+        // Con un nombre demasiado largo en uno de los cambios no se guarda ninguno
+        mockMvc.perform(post("/programa/guardar").param("cursoId", cursoId)
+                .param("cambios", "[{\"id\":null,\"nombre\":\"Versión C\"},{\"id\":null,\"nombre\":\"" + "x".repeat(60) + "\"}]"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/programa/guardar").param("cursoId", cursoId).param("cambios", "[]"))
+                .andExpect(status().isBadRequest());
+    }
+
     // ------------------------------------------------------------------ Listado
 
     @Test
@@ -85,21 +108,21 @@ class ProgramaControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Listado de programas")))
                 .andExpect(content().string(Matchers.containsString("Programa 2026")))
-                .andExpect(content().string(Matchers.containsString("Vigente")))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar programa")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalPrograma\"")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
-                // columnas: programa, estado, completo e inscriptos (sin objetivos, que son del curso, ni bibliografía o dedicación docente)
+                // columnas: los datos propios del programa (sin objetivos, que son del curso, ni bibliografía o dedicación docente)
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Objetivos\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Bibliografía\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Dedicación docente\""))))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Completo\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Inscriptos\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Descripción\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Última modificación\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Nombre\"")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Inscriptos\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Temas\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Con material\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Semanas\""))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("data-col=\"Cohortes\""))))
                 // baja masiva
                 .andExpect(content().string(Matchers.containsString("data-baja-masiva")))
                 .andExpect(content().string(Matchers.containsString("/programa/darDeBajaMasiva")))
@@ -109,9 +132,9 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.containsString("id=\"modalBajaPrograma")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("(Por defecto)"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("★"))))
-                // el asistente de programas: cronograma, contenido y la guía de salida
-                .andExpect(content().string(Matchers.containsString("Temas disponibles")))
-                .andExpect(content().string(Matchers.containsString("Vista por temas")))
+                // el asistente de programas: datos básicos y resumen, sin el cronograma ni el contenido
+                .andExpect(content().string(Matchers.not(Matchers.containsString("pn-matriz"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Temas disponibles"))))
                 .andExpect(content().string(Matchers.containsString("/js/programa.js")));
     }
 
@@ -297,8 +320,8 @@ class ProgramaControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("selectProgramaPorDefecto"))))
                 .andExpect(content().string(Matchers.containsString("selectCohortePorDefecto")))
                 .andExpect(content().string(Matchers.containsString("/js/contexto.js")))
-                // el programa vigente recién registrado no tiene cohortes
-                .andExpect(content().string(Matchers.containsString("Sin cohortes")));
+                // el selector lista todas las cohortes del curso, también las pendientes sin programa
+                .andExpect(content().string(Matchers.containsString("selectCohortePorDefecto")));
         // el programa 2026 tiene una cohorte: se ve con su estado y la estrella no aparece porque no es la de trabajo
         mockMvc.perform(get("/curso/acceder/" + mercado().getIdCurso()))
                 .andExpect(content().string(Matchers.containsString(" (En dictado)")))

@@ -110,6 +110,31 @@ public interface CohorteServicio {
     Cohorte asignarPrograma(Integer idCohorte, Integer idPrograma, Docente docente);
 
     /**
+     * Pasa a Activa toda cohorte pendiente cuyo programa ya tiene el contenido completo (el docente lo completó después de
+     * que la cohorte se registrara o se le asignara el programa).
+     *
+     * @return la cantidad de cohortes que se activaron
+     */
+    int activarPendientesConContenidoCompleto();
+
+    /**
+     * Activa una cohorte pendiente si el diseño de su programa ya está completo (lo mismo que hace la tarea periódica, pero
+     * al momento: el docente no tiene que esperar al próximo ciclo para ver el cambio de estado).
+     *
+     * @param idCohorte el identificador de la cohorte
+     * @return {@code true} si la cohorte pasó de Pendiente a Activa
+     */
+    boolean activarSiEstaCompleta(Integer idCohorte);
+
+    /**
+     * Cancela toda cohorte pendiente que llegó a la fecha de inicio de su inscripción sin tener el contenido de su programa
+     * completo: no se puede abrir una inscripción a un curso que todavía no está listo.
+     *
+     * @return la cantidad de cohortes que se cancelaron
+     */
+    int cancelarPendientesVencidas();
+
+    /**
      * Modifica una cohorte activa sin inscripciones activas asociadas.
      *
      * @param idCohorte el identificador de la cohorte

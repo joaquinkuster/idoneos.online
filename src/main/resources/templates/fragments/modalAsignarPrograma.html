@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Ventana para asignar (o cambiar) el programa de una cohorte pendiente: el mismo asistente de dos pasos (datos y resumen) en el
+         listado de cohortes del docente y en el inicio del curso.
+         coh: la cohorte; programas: los programas del curso que se pueden elegir; faltantes: por id de programa, lo que le falta a su
+         contenido (si el programa está completo, la cohorte pasa a activa). -->
+    <th:block th:fragment="modal(coh, programas, faltantes)">
+    <div class="modal fade pn-modal" th:id="'modalAsignarPrograma' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="pn-modal-cabecera">
+                                    <h3 class="pn-modal-titulo">Asignar programa</h3>
+                                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                                </div>
+                                <div class="pn-modal-cuerpo">
+                                    <form th:action="@{'/cohorte/asignarPrograma/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar novalidate
+                                          data-pasos data-resumen="Cohorte" data-modo="modificacion" data-asignar-programa
+                                          data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
+                                          th:attr="data-ctx-curso=${coh.curso.nombre}, data-resumen-nombre=${coh.etiqueta}">
+                                        <div class="pn-pasos pn-pasos-nombrados">
+                                            <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
+                                            <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>
+                                        </div>
+                                        <div class="pn-paso" data-grupo="Datos básicos">
+                                            <div class="pn-seccion-titulo">
+                                                <h4>Datos básicos</h4>
+                                                <p>El programa que se dicta en esta cohorte</p>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-12 pn-campo">
+                                                    <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
+                                                    <select name="programaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Elegí el programa de la cohorte.">
+                                                        <option value="">Programa</option>
+                                                        <option th:each="prog : ${programas}" th:value="${prog.idPrograma}" th:text="${prog.nombre + (faltantes.get(prog.idPrograma).isEmpty() ? '' : ' (incompleto)')}"
+                                                                th:title="${#strings.listJoin(faltantes.get(prog.idPrograma), '; ')}"
+                                                                th:selected="${coh.programa != null and coh.programa.idPrograma == prog.idPrograma}"
+                                                                th:attr="data-completo=${faltantes.get(prog.idPrograma).isEmpty()}">Programa</option>
+                                                    </select>
+                                                    <div class="pn-ayuda-error"></div>
+                                                </div>
+                                                <div class="col-12 pn-campo" data-resumen-etiqueta="Estado de la cohorte">
+                                                    <span class="visually-hidden" data-resumen-linea="Estado de la cohorte" data-estado-valor th:text="${coh.estado}">Pendiente</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pn-paso">
+                                            <div class="pn-seccion-titulo">
+                                                <h4>Resumen</h4>
+                                                <p>Estos son los cambios que se van a guardar</p>
+                                            </div>
+                                            <div class="pn-arbol" data-resumen-arbol></div>
+                                        </div>
+                                        <div class="pn-aviso" data-estado-resultante th:attr="data-estado-actual=${coh.estado}">
+                                            La cohorte sigue <strong>pendiente</strong> hasta que el contenido del programa esté completo.
+                                        </div>
+                                        <div class="pn-modal-pie">
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+                                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                                            <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+                                            <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+    </th:block>
+</body>
+
+</html>

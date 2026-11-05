@@ -65,7 +65,7 @@
                                 <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
                                 <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
                                 <th data-col="Días de acceso" data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
-                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -138,7 +138,7 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form id="formNuevaCohorte" th:action="@{/cohorte/registrar}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="alta" data-resumen-nuevo="nueva"
+                <form id="formNuevaCohorte" th:action="@{/cohorte/registrar}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-resumen-periodo="fechaInicioInscripcion|fechaFinInscripcion|Inscripción" data-modo="alta" data-resumen-nuevo="nueva"
                       th:attr="data-plazo=${plazoMinimoContenidoDias}, data-maximo-acceso=${accesoDiasMaximos}"
                       data-contexto='[{"etiqueta":"Curso","campo":"cursoId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]' novalidate>
     <div class="pn-pasos pn-pasos-nombrados">
@@ -170,14 +170,11 @@
                                 <option value="" th:attr="data-faltantes=${#strings.listJoin(faltantesSinPrograma, '|')}">Sin programa por ahora</option>
                                 <option th:each="prog : ${programas}" th:value="${prog.idPrograma}"
                                         th:text="${prog.curso.nombre + ' - ' + prog.nombre}"
-                                        th:attr="data-curso-id=${prog.curso.idCurso}, data-programa=${prog.nombre}, data-faltantes=${#strings.listJoin(faltantesPorPrograma.get(prog.idPrograma), '|')}"
+                                        th:attr="data-curso-id=${prog.curso.idCurso}, data-programa=${prog.nombre}, data-faltantes=${faltantesPorPrograma.containsKey(prog.idPrograma) ? #strings.listJoin(faltantesPorPrograma.get(prog.idPrograma), '|') : null}"
                                         th:selected="${programaSeleccionado != null and programaSeleccionado == prog.idPrograma}">Curso - Programa</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
                             <div class="small text-muted mt-1" id="cohProgramaInfo"></div>
-                        </div>
-<div class="col-12" id="cohAvisoPendiente" hidden>
-                            <div class="pn-aviso pn-aviso-dorado" id="cohAvisoPendienteTexto"></div>
                         </div>
         </div>
     </div>
@@ -188,7 +185,11 @@
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
+                            <div class="pn-etiqueta-con-ayuda">
+                                <label class="pn-etiqueta">Inicio de inscripción <span class="pn-obligatorio">*</span></label>
+                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el inicio de inscripción" title="Ayuda"
+                                        data-ayuda-destino="ayudaInicioInscripcionNueva"><i class="fa-solid fa-circle-info"></i></button>
+                            </div>
                             <input type="date" name="fechaInicioInscripcion" class="pn-input" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
@@ -197,38 +198,34 @@
                             <input type="date" name="fechaFinInscripcion" class="pn-input" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
+<div class="col-12 ayuda-desplegable" id="ayudaInicioInscripcionNueva">
+                            <div class="ayuda-desplegable-interior">
+                                <div class="cn-info">
+                                    <span>Si la cohorte queda pendiente, la inscripción debe empezar al menos <strong th:text="${plazoMinimoContenidoDias}">7</strong> días después de hoy, para que el docente alcance a completar el contenido.</span>
+                                </div>
+                            </div>
+                        </div>
 <div class="col-md-6 pn-campo grupo-dictado d-none">
                             <label class="pn-etiqueta">Inicio de dictado <span class="pn-obligatorio">*</span></label>
                             <input type="date" name="fechaInicioDictado" class="pn-input">
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-6 pn-campo grupo-dictado d-none">
-                            <div class="pn-etiqueta-con-ayuda">
-                                <label class="pn-etiqueta">Fin de dictado</label>
-                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el fin de dictado" title="Ayuda"
-                                        data-ayuda-destino="ayudaFinDictadoNueva"><i class="fa-solid fa-circle-info"></i></button>
-                            </div>
+                            <label class="pn-etiqueta">Fin de dictado</label>
                             <input type="text" id="cohFinDictado" class="pn-input pn-bloqueado" disabled placeholder="Se calcula">
-                        </div>
-                        <div class="col-12 ayuda-desplegable" id="ayudaFinDictadoNueva">
-                            <div class="ayuda-desplegable-interior">
-                                <div class="cn-info">
-                                    <span>Se calcula: el inicio de dictado más la duración del curso.</span>
-                                </div>
-                            </div>
                         </div>
         </div>
     </div>
     <div class="pn-paso" data-grupo="Acceso y cupo">
         <div class="pn-seccion-titulo">
             <h4>Acceso y cupo</h4>
-            <p>Tiempo extra de acceso y cantidad de alumnos</p>
+            <p>Tolerancia extra de acceso y cantidad de alumnos</p>
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
                             <div class="pn-etiqueta-con-ayuda">
-                                <label class="pn-etiqueta">Tiempo extra para ponerse al día</label>
-                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el tiempo extra" title="Ayuda"
+                                <label class="pn-etiqueta">Tolerancia extra para ponerse al día</label>
+                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la tolerancia extra" title="Ayuda"
                                         data-ayuda-destino="ayudaDiasNueva"><i class="fa-solid fa-circle-info"></i></button>
                             </div>
                             <th:block th:replace="~{fragments/campoDuracion :: duracion('tiempoExtra', null, false, null)}"></th:block>
@@ -243,7 +240,7 @@
                         <div class="col-12 ayuda-desplegable" id="ayudaDiasNueva">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span id="ayudaDiasTexto">El alumno accede durante la duración del curso más este tiempo extra. Es opcional.</span>
+                                    <span id="ayudaDiasTexto">El alumno accede durante la duración del curso más esta tolerancia extra. Es opcional.</span>
                                 </div>
                             </div>
                         </div>
@@ -255,6 +252,9 @@
             <p>Revisá los datos antes de guardar</p>
         </div>
         <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div id="cohAvisoPendiente" hidden>
+        <div class="pn-aviso pn-aviso-dorado" id="cohAvisoPendienteTexto"></div>
     </div>
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
@@ -269,8 +269,9 @@
 </div>
 
 <!-- Modales por cohorte: modificar (CU-13) y dar de baja (CU-14) -->
-<th:block th:each="coh : ${cohortes}" th:if="${!coh.baja and !coh.esCancelada()}">
-    <div class="modal fade pn-modal" th:id="'modalEditarCohorte' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
+<th:block th:each="coh : ${cohortes}" th:if="${!coh.baja}">
+    <!-- Las canceladas no se modifican (solo se pueden dar de baja) -->
+    <div class="modal fade pn-modal" th:id="'modalEditarCohorte' + ${coh.idCohorte}" th:unless="${coh.esCancelada()}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
@@ -282,12 +283,6 @@
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
                           th:attr="data-dias=${coh.curso.duracionDias}, data-envivo=${coh.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${coh.curso.nombre}, data-ctx-programa=${coh.programa != null ? coh.programa.nombre : ''}, data-pendiente=${coh.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-maximo-acceso=${accesoDiasMaximos}, data-resumen-titulo=${'(' + #temporals.format(coh.fechaInicioDictado != null ? coh.fechaInicioDictado : coh.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
                           th:with="bloqueada=${coh.cantidadInscriptos > 0}, enVivo=${coh.curso.incluyeModalidad('En vivo')}">
-    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
-                            La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
-                        </div>
-    <div class="pn-aviso pn-aviso-dorado" th:if="${coh.esPendiente()}">
-                            La cohorte está <strong>pendiente</strong>: se activa cuando el docente complete el contenido del programa. La inscripción debe empezar al menos <strong th:text="${plazoMinimoContenidoDias}">7</strong> días después de hoy.
-                        </div>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Fechas</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Acceso y cupo</span></span><span class="pn-pasos-linea"></span>
@@ -319,13 +314,13 @@
     <div class="pn-paso" data-grupo="Acceso y cupo">
         <div class="pn-seccion-titulo">
             <h4>Acceso y cupo</h4>
-            <p>Tiempo extra de acceso y cantidad de alumnos</p>
+            <p>Tolerancia extra de acceso y cantidad de alumnos</p>
         </div>
         <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano"><div class="row g-3">
 <div class="col-md-6 pn-campo">
                                     <div class="pn-etiqueta-con-ayuda">
-                                        <label class="pn-etiqueta">Tiempo extra para ponerse al día</label>
-                                        <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el tiempo extra" title="Ayuda"
+                                        <label class="pn-etiqueta">Tolerancia extra para ponerse al día</label>
+                                        <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre la tolerancia extra" title="Ayuda"
                                                 th:data-ayuda-destino="'ayudaDias' + ${coh.idCohorte}"><i class="fa-solid fa-circle-info"></i></button>
                                     </div>
                                     <th:block th:replace="~{fragments/campoDuracion :: duracion('tiempoExtra', ${coh.accesoDias > coh.curso.duracionDias ? coh.accesoDias - coh.curso.duracionDias : null}, ${false}, null)}"></th:block>
@@ -340,7 +335,7 @@
                         <div class="col-12 ayuda-desplegable" th:id="'ayudaDias' + ${coh.idCohorte}">
                             <div class="ayuda-desplegable-interior">
                                 <div class="cn-info">
-                                    <span>El alumno accede durante la duración del curso (<strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(coh.curso.duracionDias)}">4 semanas</strong>) más este tiempo extra. Es opcional.
+                                    <span>El alumno accede durante la duración del curso (<strong th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(coh.curso.duracionDias)}">4 semanas</strong>) más esta tolerancia extra. Es opcional.
                                         <th:block th:if="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de inicio de dictado más los días de acceso.</th:block>
                                         <th:block th:unless="${coh.curso.incluyeModalidad('En vivo')}">La fecha de vencimiento de acceso se calcula a partir de la fecha de habilitación más los días de acceso.</th:block></span>
                                 </div>
@@ -354,6 +349,12 @@
             <p>Estos son los cambios que se van a guardar</p>
         </div>
         <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
+        La cohorte tiene <strong th:text="${coh.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
+    </div>
+    <div class="pn-aviso pn-aviso-dorado" th:if="${coh.esPendiente()}">
+        La cohorte está <strong>pendiente</strong>: se activa cuando el docente complete el contenido del programa.
     </div>
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
@@ -402,6 +403,23 @@
             };
         }
 
+        // Los faltantes de contenido de cada programa no vienen en la pagina (calcularlos para todos la hacia lenta): se piden
+        // al elegir el programa y se guardan en su opcion
+        function pedirFaltantes(select) {
+            var op = select.selectedIndex >= 0 ? select.options[select.selectedIndex] : null;
+            if (!op || op.hasAttribute('data-faltantes') || op.dataset.faltantesPidiendo) { return; }
+            op.dataset.faltantesPidiendo = '1';
+            fetch('/cohorte/faltantes?programaId=' + encodeURIComponent(op.value), { headers: { 'Accept': 'application/json' } })
+                .then(function (r) { return r.ok ? r.json() : []; })
+                .then(function (lista) { op.dataset.faltantes = lista.join('|'); })
+                .catch(function () { /* el servidor valida igual al guardar */ })
+                .then(function () { delete op.dataset.faltantesPidiendo; });
+        }
+        document.querySelectorAll('select[name="programaId"]').forEach(function (select) {
+            select.addEventListener('change', function () { pedirFaltantes(select); });
+            pedirFaltantes(select);
+        });
+
         // Una cohorte queda pendiente mientras al programa le falte contenido (o no tenga programa): su inscripción necesita
         // el plazo mínimo para que el docente lo complete
         function fechaMinimaDeInscripcion(formulario) {
@@ -447,7 +465,7 @@
                 }
             }
             if (paso === pasoCupo) {
-                // El acceso total (la duración del curso más el tiempo extra) tiene un máximo
+                // El acceso total (la duración del curso más la tolerancia extra) tiene un máximo
                 var maximoDias = parseInt(formulario.dataset.maximoAcceso || '0', 10);
                 var totalAcceso = datos.dias + (parseInt(extra.value, 10) || 0);
                 if (maximoDias && totalAcceso > maximoDias) {
@@ -524,17 +542,16 @@
                         avisoTexto.appendChild(lista);
                     }
                     var cierre = document.createElement('div');
-                    cierre.textContent = (datos.tienePrograma ? '' : 'El docente debe elegir o crear uno y cargar su contenido. ')
-                        + 'Se activa sola cuando el docente complete el contenido. La inscripción debe empezar al menos '
-                        + plazo + (plazo === 1 ? ' día' : ' días') + ' después de hoy.';
+                    cierre.textContent = (datos.tienePrograma ? '' : 'El docente debe crear uno y cargar su contenido. ')
+                        + 'Se activa sola cuando el docente complete el contenido.';
                     avisoTexto.appendChild(cierre);
                 }
 
                 var ayudaDias = document.getElementById('ayudaDiasTexto');
                 if (ayudaDias) {
                     ayudaDias.textContent = selectorCurso.value
-                        ? 'El alumno accede durante la duración del curso (' + window.DuracionTexto(datos.dias) + ') más este tiempo extra. Es opcional.'
-                        : 'El alumno accede durante la duración del curso más este tiempo extra. Es opcional.';
+                        ? 'El alumno accede durante la duración del curso (' + window.DuracionTexto(datos.dias) + ') más esta tolerancia extra. Es opcional.'
+                        : 'El alumno accede durante la duración del curso más esta tolerancia extra. Es opcional.';
                 }
                 finDeDictado();
                 accesoTotal(selector.form);
@@ -546,7 +563,7 @@
             actualizar();
         }
 
-        // El acceso total del alumno: la duración del curso más el tiempo extra; lo muestra el resumen del formulario
+        // El acceso total del alumno: la duración del curso más la tolerancia extra; lo muestra el resumen del formulario
         function accesoTotal(formulario) {
             var linea = formulario.querySelector('[data-acceso-total]');
             var extra = campo(formulario, 'tiempoExtra');

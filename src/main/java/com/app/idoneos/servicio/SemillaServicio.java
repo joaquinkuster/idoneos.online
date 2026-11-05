@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,8 @@ import com.app.idoneos.modelo.Grabacion;
 import com.app.idoneos.modelo.MaterialLectura;
 import com.app.idoneos.modelo.Recurso;
 import com.app.idoneos.modelo.TemaRecurso;
+import com.app.idoneos.modelo.VideoClon;
+import com.app.idoneos.repositorio.VideoClonRepositorio;
 import com.app.idoneos.modelo.TipoNotificacion;
 import com.app.idoneos.modelo.MetodoPago;
 import com.app.idoneos.modelo.Modalidad;
@@ -241,6 +245,21 @@ public class SemillaServicio {
     private BibliografiaRepositorio bibliografiaRepositorio;
 
     @Autowired
+    private VideoClonRepositorio videoClonRepositorio;
+
+    /** Carpeta base donde se guardan los archivos de los cursos (la misma que usa la subida de materiales). */
+    @Autowired
+    @Qualifier("directorioCursos")
+    private java.nio.file.Path directorioCursos;
+
+    /** Carpeta con los PDF y los videos de ejemplo que la semilla sube al servidor. */
+    @Value("${idoneos.recursos-ejemplo:recursos-ejemplo}")
+    private String carpetaDeRecursosDeEjemplo;
+
+    private int siguientePdf = 0;
+    private int siguienteVideo = 0;
+
+    @Autowired
     private CohorteRepositorio cohorteRepositorio;
 
     @Autowired
@@ -299,6 +318,7 @@ public class SemillaServicio {
      */
     @Transactional
     public void insertarSemilla() {
+        cursosAbiertosDeLaSemilla.clear();
         String correoAdmin = "admin@idoneos.online";
         if (usuarioRepositorio.findByCorreo(correoAdmin).isPresent()) {
             return;
@@ -327,6 +347,7 @@ public class SemillaServicio {
         }
         tipoNotificacionRepositorio.save(new TipoNotificacion(TipoNotificacion.COHORTE_ACTIVADA));
         tipoNotificacionRepositorio.save(new TipoNotificacion(TipoNotificacion.COHORTE_CANCELADA));
+        tipoNotificacionRepositorio.save(new TipoNotificacion(TipoNotificacion.RECORDATORIO_COHORTE));
         TipoRecurso presentacion = TipoRecurso.PRESENTACION;
         TipoRecurso grabacion = TipoRecurso.GRABACION;
         TipoRecurso bibliografia = TipoRecurso.BIBLIOGRAFIA;
@@ -354,6 +375,8 @@ public class SemillaServicio {
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_CONFIRMACION_PAGO,
                 String.valueOf(Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.CBU_INSTITUCION, "0000003100012345678901"));
+        parametroRepositorio.save(new Parametro(admin, Parametro.COHORTE_RECORDATORIO_DIAS_ANTICIPACION,
+                String.valueOf(Parametro.COHORTE_RECORDATORIO_DIAS_ANTICIPACION_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.PLAZO_EDICION_FORO,
                 String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
         parametroRepositorio.save(new Parametro(admin, Parametro.GRACIA_ENTREGA_AUTOEVALUACION,
@@ -705,6 +728,178 @@ public class SemillaServicio {
         crearCursoAbierto("Tesorería y Capital de Trabajo",
                 "Administrá la caja de una empresa para no quedarte sin liquidez.", 92000f, flujoDeCaja, avanzado,
                 List.of(grabada), sebastian, presentacion, "Gestión de tesorería", "Ciclo de conversión del efectivo", ahora);
+
+        completarElContenidoDeLosProgramas(ahora);
+        dejarIncompletosLaMayoriaDeLosCursosAbiertos(ahora);
+    }
+
+    /** Los cursos con inscripción abierta que crea la semilla, en orden: de dos de cada tres se deja el diseño incompleto. */
+    private final List<Curso> cursosAbiertosDeLaSemilla = new java.util.ArrayList<>();
+
+    /**
+     * Para poder probar el diseño de curso, deja incompletos dos de cada tres cursos con inscripción abierta (junto con
+     * «Introducción a las Finanzas» y los cursos completos, quedan la mitad y la mitad). Cada uno se queda en una etapa
+     * distinta del diseño: sin objetivos, sin programa, con el cronograma a medio asignar o con contenido a medio cargar.
+     * Como la semilla debe ser coherente, las cohortes de esos cursos pasan a Pendiente, con la inscripción lejos en el
+     * futuro, y no a Abierta.
+     */
+    private void dejarIncompletosLaMayoriaDeLosCursosAbiertos(LocalDateTime ahora) {
+        int etapa = 0;
+        for (int i = 0; i < cursosAbiertosDeLaSemilla.size(); i++) {
+            if (i % 3 == 0) {
+                continue;
+            }
+            Curso curso = cursosAbiertosDeLaSemilla.get(i);
+            List<Programa> programas = programaRepositorio.findByCursoAndBajaFalse(curso);
+            List<Cohorte> cohortes = cohorteRepositorio.findByCursoAndBajaFalse(curso);
+            int plazo = Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO;
+            for (Cohorte cohorte : cohortes) {
+                cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.PENDIENTE).orElseThrow());
+                cohorte.setFechaInicioInscripcion(ahora.plusDays(plazo + 30L));
+                cohorte.setFechaFinInscripcion(ahora.plusDays(plazo + 75L));
+                if (cohorte.getFechaInicioDictado() != null) {
+                    cohorte.setFechaInicioDictado(ahora.plusDays(plazo + 90L));
+                    cohorte.setFechaFinDictado(ahora.plusDays(plazo + 90L + curso.getDuracionDias() - 1));
+                }
+            }
+            switch (etapa % 4) {
+                case 0 -> {
+                    curso.setObjetivos(null);
+                    cursoRepositorio.save(curso);
+                }
+                case 1 -> {
+                    for (Cohorte cohorte : cohortes) {
+                        cohorte.setPrograma(null);
+                        cohorteRepositorio.saveAndFlush(cohorte);
+                    }
+                    for (Programa programa : programas) {
+                        programa.marcarInactivo();
+                        programaRepositorio.save(programa);
+                    }
+                }
+                case 2 -> {
+                    for (Programa programa : programas) {
+                        TemaCronograma primero = temaCronogramaRepositorio.findByProgramaAndBajaFalse(programa).stream()
+                                .min(java.util.Comparator.comparingInt(TemaCronograma::getNumeroOrden)).orElseThrow();
+                        primero.setDuracionDias(Math.max(1, primero.getDuracionDias() - DuracionUtilidad.DIAS_POR_SEMANA));
+                        temaCronogramaRepositorio.save(primero);
+                    }
+                }
+                default -> {
+                    for (Programa programa : programas) {
+                        TemaCronograma ultimo = temaCronogramaRepositorio.findByProgramaAndBajaFalse(programa).stream()
+                                .max(java.util.Comparator.comparingInt(TemaCronograma::getNumeroOrden)).orElseThrow();
+                        autoevaluacionRepositorio.findByTemaAndBajaFalse(ultimo.getTema()).forEach(autoevaluacion -> {
+                            autoevaluacion.setOculto(true);
+                            autoevaluacionRepositorio.save(autoevaluacion);
+                        });
+                    }
+                }
+            }
+            for (Cohorte cohorte : cohortes) {
+                cohorteRepositorio.save(cohorte);
+            }
+            etapa++;
+        }
+    }
+
+    /**
+     * Deja el contenido de todos los programas de la semilla completo y coherente con las modalidades de su curso: cada tema
+     * tiene su material, su autoevaluación y, si el curso es grabado o con clon, su grabación o su video con clon. Así un
+     * programa de la semilla nunca figura como incompleto mientras tiene cohortes activas.
+     */
+    private void completarElContenidoDeLosProgramas(LocalDateTime ahora) {
+        for (Curso curso : cursoRepositorio.findAll()) {
+            DocenteCurso titular = docenteCursoRepositorio.findByCursoAndBajaFalse(curso).stream()
+                    .filter(DocenteCurso::getEsTitular).findFirst().orElse(null);
+            if (curso.getBaja() || titular == null) {
+                continue;
+            }
+            List<String> modalidades = cursoModalidadRepositorio.findAll().stream()
+                    .filter(cm -> cm.getCurso().getIdCurso() == curso.getIdCurso()).map(cm -> cm.getModalidad().getNombre()).toList();
+            boolean grabado = modalidades.contains(Modalidad.GRABADA);
+            boolean conClon = modalidades.contains(Modalidad.CLON_IA);
+            for (Programa programa : programaRepositorio.findByCursoAndBajaFalse(curso)) {
+                for (TemaCronograma cronograma : temaCronogramaRepositorio.findByProgramaAndBajaFalse(programa)) {
+                    Tema tema = cronograma.getTema();
+                    List<TemaRecurso> publicados = temaRecursoRepositorio.findByTemaAndBajaFalse(tema).stream()
+                            .filter(TemaRecurso::estaPublicado).toList();
+                    if (publicados.stream().noneMatch(m -> m.getModalidadAsociada() == null)) {
+                        agregarMaterial(tema, titular, TipoRecurso.PRESENTACION, "Material: " + tema.getTitulo());
+                    }
+                    if (grabado && publicados.stream().noneMatch(m -> Modalidad.GRABADA.equals(m.getModalidadAsociada()))) {
+                        agregarMaterial(tema, titular, TipoRecurso.GRABACION, "Clase grabada: " + tema.getTitulo());
+                    }
+                    if (conClon && publicados.stream().noneMatch(m -> m.getRecurso().getVideoClon() != null)) {
+                        agregarVideoClon(tema, titular, "Video con clon: " + tema.getTitulo());
+                    }
+                    if (autoevaluacionRepositorio.findByTemaAndBajaFalse(tema).stream().noneMatch(a -> !a.getOculto())) {
+                        agregarEvaluacionBasica(tema, cronograma.getNumeroOrden(), ahora);
+                    }
+                }
+            }
+        }
+    }
+
+    /** Los archivos de ejemplo de una clase ("pdf" o "mp4"), ordenados por nombre; vacío si la carpeta no existe. */
+    private List<java.nio.file.Path> archivosDeEjemplo(String extension) {
+        java.nio.file.Path carpeta = java.nio.file.Path.of(carpetaDeRecursosDeEjemplo);
+        if (!java.nio.file.Files.isDirectory(carpeta)) {
+            return List.of();
+        }
+        try (java.util.stream.Stream<java.nio.file.Path> archivos = java.nio.file.Files.list(carpeta)) {
+            return archivos.filter(a -> a.getFileName().toString().toLowerCase().endsWith("." + extension)).sorted().toList();
+        } catch (java.io.IOException e) {
+            return List.of();
+        }
+    }
+
+    /**
+     * Sube al servidor un archivo de ejemplo con la ruta que usa la subida de materiales: curso{id}/tema{id}/recurso{id}.ext
+     * (relativa a la carpeta de cursos). Si no hay archivos de ejemplo, devuelve una ruta de ejemplo sin archivo.
+     *
+     * @return la ruta relativa y el tamaño en bytes (nulo si no se subió ningún archivo)
+     */
+    private Object[] subirArchivoDeEjemplo(Tema tema, Recurso recurso, String extension) {
+        List<java.nio.file.Path> disponibles = archivosDeEjemplo(extension);
+        String relativa = "curso" + tema.getCurso().getIdCurso() + "/tema" + tema.getIdTema() + "/recurso" + recurso.getIdRecurso()
+                + "." + extension;
+        if (disponibles.isEmpty()) {
+            return new Object[] { relativa, null };
+        }
+        int indice = "pdf".equals(extension) ? siguientePdf++ : siguienteVideo++;
+        java.nio.file.Path origen = disponibles.get(indice % disponibles.size());
+        java.nio.file.Path destino = directorioCursos.resolve(relativa);
+        try {
+            java.nio.file.Files.createDirectories(destino.getParent());
+            java.nio.file.Files.deleteIfExists(destino);
+            try {
+                // Un vínculo al archivo de ejemplo: son muchos recursos y no hace falta repetir los mismos bytes en el disco
+                java.nio.file.Files.createLink(destino, origen);
+            } catch (java.io.IOException | UnsupportedOperationException e) {
+                java.nio.file.Files.copy(origen, destino);
+            }
+            return new Object[] { relativa, java.nio.file.Files.size(destino) };
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("No se pudo subir el archivo de ejemplo " + origen, e);
+        }
+    }
+
+    /** Crea un video con el clon del docente, ya generado, y lo incorpora al tema. */
+    private TemaRecurso agregarVideoClon(Tema tema, DocenteCurso autor, String titulo) {
+        Recurso recurso = recursoRepositorio.save(new Recurso(autor.getDocente(), titulo));
+        VideoClon video = new VideoClon(recurso,
+                estadoGeneracionRepositorio.findByNombre(EstadoGeneracion.GENERADO).orElseThrow(),
+                "Hola, soy " + autor.getDocente().getUsuario().getNombreCompleto() + ". En esta clase vemos " + tema.getTitulo() + ".");
+        Object[] archivo = subirArchivoDeEjemplo(tema, recurso, "mp4");
+        video.setRutaArchivo((String) archivo[0]);
+        video.setTamanioBytes((Long) archivo[1]);
+        recurso.setVideoClon(videoClonRepositorio.save(video));
+        int orden = tema.getTemasRecurso().size() + 1;
+        TemaRecurso material = temaRecursoRepositorio.save(new TemaRecurso(tema, recurso, autor, orden));
+        tema.getTemasRecurso().add(material);
+        recurso.getTemasRecurso().add(material);
+        return material;
     }
 
     /**
@@ -716,6 +911,7 @@ public class SemillaServicio {
         DocenteCurso participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
                 modalidades, titular, List.of());
         Curso curso = participacion.getCurso();
+        cursosAbiertosDeLaSemilla.add(curso);
         Programa programa = crearPrograma(curso, "Programa 2026", "Dominar los contenidos centrales del curso.");
         agregarEvaluacionBasica(agregarTema(programa, curso, 1, 2, tema1, "Conceptos centrales.", participacion,
                 tipoMaterial), 1, ahora);
@@ -817,7 +1013,8 @@ public class SemillaServicio {
         int duracion = duracionMaximaDelCurso.merge(curso.getIdCurso(), totalDelPrograma, Math::max);
         if (curso.getDuracionDias() != duracion) {
             curso.setDuracionDias(duracion);
-            cursoRepositorio.save(curso);
+            // Se guarda ya: el disparador de PostgreSQL no deja cambiar la duración cuando hay inscripciones
+            cursoRepositorio.saveAndFlush(curso);
         }
         if (autorMaterial != null) {
             agregarMaterial(tema, autorMaterial, tipoMaterial, "Material: " + titulo);
@@ -899,15 +1096,29 @@ public class SemillaServicio {
         String nombreAutor = autor.getDocente().getUsuario().getNombreCompleto();
         switch (tipo) {
             case BIBLIOGRAFIA -> {
-                Bibliografia bibliografia = bibliografiaRepositorio.save(new Bibliografia(recurso, "978-987-00-0000-0", nombreAutor));
-                recurso.setBibliografia(bibliografia);
+                Bibliografia bibliografia = new Bibliografia(recurso, "978-987-00-0000-0", nombreAutor);
+                Object[] pdf = subirArchivoDeEjemplo(tema, recurso, "pdf");
+                bibliografia.setRutaArchivo((String) pdf[0]);
+                bibliografia.setTamanioBytes((Long) pdf[1]);
+                bibliografia.setExtension("pdf");
+                recurso.setBibliografia(bibliografiaRepositorio.save(bibliografia));
             }
-            case GRABACION -> recurso.setGrabacion(grabacionRepositorio.save(new Grabacion(recurso,
-                    "semilla/grabacion" + recurso.getIdRecurso() + ".mp4")));
+            case GRABACION -> {
+                Object[] video = subirArchivoDeEjemplo(tema, recurso, "mp4");
+                Grabacion grabacion = new Grabacion(recurso, (String) video[0]);
+                grabacion.setTamanioBytes((Long) video[1]);
+                recurso.setGrabacion(grabacionRepositorio.save(grabacion));
+            }
             case ENLACE -> recurso.setEnlace(enlaceRepositorio.save(new Enlace(recurso, "https://www.argentina.gob.ar")));
-            default -> recurso.setMaterialLectura(materialLecturaRepositorio.save(new MaterialLectura(recurso,
-                    categoriaMaterialLecturaRepositorio.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
-                    "semilla/presentacion" + recurso.getIdRecurso() + ".pdf", nombreAutor)));
+            default -> {
+                Object[] pdf = subirArchivoDeEjemplo(tema, recurso, "pdf");
+                MaterialLectura lectura = new MaterialLectura(recurso,
+                        categoriaMaterialLecturaRepositorio.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
+                        (String) pdf[0], nombreAutor);
+                lectura.setTamanioBytes((Long) pdf[1]);
+                lectura.setExtension("pdf");
+                recurso.setMaterialLectura(materialLecturaRepositorio.save(lectura));
+            }
         }
         int orden = tema.getTemasRecurso().size() + 1;
         TemaRecurso material = temaRecursoRepositorio.save(new TemaRecurso(tema, recurso, autor, orden));

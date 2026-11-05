@@ -64,7 +64,9 @@ public class PoolControlador extends PanelCursoControlador {
      * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
      */
     @GetMapping("/buscar")
-    public String buscarPools(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
+    public String buscarPools(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "nuevo", required = false) String nuevo,
+            @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -86,6 +88,9 @@ public class PoolControlador extends PanelCursoControlador {
             modelo.addAttribute("datosPorPool", datosPorPool);
             modelo.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             modelo.addAttribute("puedeGestionar", !esAdministrador);
+            // Desde «Completar contenido» se llega con ?nuevo&temaId=: se abre sola la ventana para crear el pool de ese tema
+            modelo.addAttribute("abrirModal", !esAdministrador && nuevo != null ? "modalNuevoPool" : null);
+            modelo.addAttribute("temaSeleccionada", temaId);
             modelo.addAttribute("titulo", "Pools | Idóneos Online");
             return "pages/pool/buscar";
         } catch (IllegalArgumentException e) {
@@ -112,7 +117,8 @@ public class PoolControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Pool pool = poolServicio.registrarPool(usuario.getDocente(), temaId, nombre, leerPreguntas(preguntas));
-            return RespuestaFormularioUtilidad.respuestaExitosa("Pool '" + pool.getNombre() + "' creado con éxito.");
+            return exitoConContenidoPendiente("Pool '" + pool.getNombre() + "' creado con éxito.", null,
+                    pool.getTema().getCurso().getIdCurso(), usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

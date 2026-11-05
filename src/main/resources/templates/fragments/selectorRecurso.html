@@ -36,15 +36,17 @@
                         </label>
 
                         <div class="ac-selector-grupo">Actividades</div>
-                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
-                            <input type="radio" name="recurso" disabled>
+                        <label class="ac-selector-opcion" data-ruta="/autoevaluacion/buscar" data-nombre="Autoevaluación"
+                               data-descripcion="Cuestionario con el que el alumno controla lo aprendido en el tema. Se abre el listado de autoevaluaciones del curso.">
+                            <input type="radio" name="recurso" value="autoevaluacion">
                             <th:block th:replace="~{fragments/iconoMaterial :: icono('Autoevaluación', 'ac-recurso-icono-chico')}"></th:block>
-                            <span>Autoevaluación</span><small>Próximamente</small>
+                            <span>Autoevaluación</span>
                         </label>
-                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
-                            <input type="radio" name="recurso" disabled>
+                        <label class="ac-selector-opcion" data-ruta="/pool/buscar" data-nombre="Pool de preguntas"
+                               data-descripcion="Conjunto de preguntas de un tema, del que se sortean las de cada autoevaluación. Se abre el listado de pools del curso.">
+                            <input type="radio" name="recurso" value="pool">
                             <th:block th:replace="~{fragments/iconoMaterial :: icono('Pool de preguntas', 'ac-recurso-icono-chico')}"></th:block>
-                            <span>Pool de preguntas</span><small>Próximamente</small>
+                            <span>Pool de preguntas</span>
                         </label>
                         <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
                             <input type="radio" name="recurso" disabled>
@@ -55,11 +57,12 @@
                     <div class="ac-selector-detalle">
                         <strong data-selector-titulo>Grabación</strong>
                         <p data-selector-descripcion></p>
+                        <p class="ac-selector-aviso" data-selector-aviso hidden></p>
                     </div>
                 </div>
                 <div class="pn-modal-pie px-3 pb-3">
                     <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="pn-btn pn-btn-primario" data-selector-agregar>Agregar</button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-selector-agregar>Siguiente</button>
                 </div>
             </div>
         </div>

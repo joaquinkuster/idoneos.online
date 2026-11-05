@@ -45,9 +45,11 @@
                     <table class="pn-tabla">
                         <thead>
                             <tr>
-                                <th data-col="Tema" data-campo="titulo" data-filtro="texto">Tema</th>
-                                <th data-col="En programas" data-campo="programas" data-filtro="texto">En programas</th>
+                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
+                                <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
                                 <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
+                                <th data-col="Última modificación" data-campo="ultimaModificacion" data-filtro="fecha">Última modificación</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -55,13 +57,11 @@
                             <tr th:each="t : ${temas}" data-fila data-dependencias="0">
                                 <td>
                                     <span class="pn-celda-principal pn-truncar" th:text="${t.titulo}">Introducción al mercado</span>
-                                    <span class="pn-truncar pn-truncar-largo d-block small text-muted" th:if="${t.descripcion != null}" th:text="${t.descripcion}">Descripción</span>
                                 </td>
-                                <td>
-                                    <span th:if="${t.programasQueLaIncluyen.isEmpty()}" class="text-muted">Ninguno</span>
-                                    <span th:each="p : ${t.programasQueLaIncluyen}" class="pn-chip pn-chip-azul me-1" th:text="${p.nombre}">Versión 1</span>
-                                </td>
-                                <td th:text="${contenidoCompleto.get(t.idTema) ? 'Sí' : 'No'}">Sí</td>
+                                <td><span class="pn-truncar pn-truncar-largo" th:text="${t.descripcion != null ? t.descripcion : '-'}">Descripción</span></td>
+                                <td><span class="pn-truncar pn-truncar-largo" th:text="${t.contenido != null ? t.contenido : '-'}">Contenido</span></td>
+                                <td th:text="${t.ultimaModificacion != null ? #temporals.format(t.ultimaModificacion, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${#temporals.format(t.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar}"
@@ -71,7 +71,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(4, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(6, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -117,33 +117,42 @@
                     </div>
 
                     <div class="pn-paso" data-grupo="Datos básicos">
-                        <div class="pn-seccion-titulo">
-                            <h4>Datos básicos</h4>
+                        <div class="pn-temas-encabezado">
+                            <h4>Temas del curso</h4>
                             <p>Elegí un tema para modificarlo o registrá uno nuevo; los cambios se guardan todos juntos</p>
                         </div>
                         <div class="pn-temas-doble">
-                            <div class="pn-temas-lista">
-                                <div class="pn-temas-lista-cabecera">
-                                    <strong>Temas del curso</strong>
-                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-tema-nuevo><i class="fa-solid fa-plus"></i> Nuevo tema</button>
+                            <div>
+                                <h5 class="pn-temas-subtitulo">Temas agregados (<span data-temas-cantidad th:text="${#lists.size(temas)}">0</span>)</h5>
+                                <div class="pn-temas-caja">
+                                    <div class="pn-temas-items" data-temas-items>
+                                        <div class="pn-tema-item" role="button" tabindex="0" th:each="t : ${temas}"
+                                             th:attr="data-id=${t.idTema}, data-titulo=${t.titulo}, data-descripcion=${t.descripcion}, data-contenido=${t.contenido}">
+                                            <div class="pn-tema-item-cuerpo">
+                                                <span class="pn-tema-item-titulo" th:text="${t.titulo}">Tema</span>
+                                                <span class="pn-tema-item-desc" th:text="${t.descripcion != null ? t.descripcion : 'Sin descripción'}">Descripción</span>
+                                            </div>
+                                            <span class="pn-chip pn-chip-verde d-none" data-estado></span>
+                                        </div>
+                                    </div>
+                                    <div class="pn-temas-vacio" data-temas-vacio>
+                                        <p>No hay temas agregados aún</p>
+                                        <small>Agregá el primero →</small>
+                                    </div>
                                 </div>
-                                <div class="pn-temas-items" data-temas-items>
-                                    <button type="button" class="pn-tema-item" th:each="t : ${temas}" th:attr="data-id=${t.idTema}, data-titulo=${t.titulo}, data-descripcion=${t.descripcion}, data-contenido=${t.contenido}">
-                                        <span class="pn-tema-item-titulo" th:text="${t.titulo}">Tema</span>
-                                        <span class="pn-chip pn-chip-naranja d-none" data-estado>Modificado</span>
-                                    </button>
-                                </div>
-                                <p class="small text-muted mb-0" data-temas-vacio>Todavía no hay temas: registrá el primero.</p>
                             </div>
-                            <div class="pn-temas-formulario">
-                                <div class="pn-temas-formulario-titulo" data-tema-titulo-formulario>Nuevo tema</div>
+                            <div>
+                                <div class="pn-temas-formulario-cabecera">
+                                    <h5 class="pn-temas-subtitulo" data-tema-titulo-formulario>Agregar nuevo tema</h5>
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-tema-nuevo hidden><i class="fa-solid fa-plus"></i> Nuevo tema</button>
+                                </div>
                                 <div class="row g-3">
                                     <div class="col-12 pn-campo">
                                         <div class="pn-etiqueta-fila">
                                             <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
                                             <span class="pn-contador">0 / 50</span>
                                         </div>
-                                        <input type="text" class="pn-input" maxlength="50" placeholder="Título" data-contador data-tema-campo="titulo">
+                                        <input type="text" class="pn-input" maxlength="50" placeholder="Ej: Inflación y precios" data-contador data-tema-campo="titulo">
                                         <div class="pn-ayuda-error"></div>
                                     </div>
                                     <div class="col-12 pn-campo">
@@ -151,18 +160,18 @@
                                             <label class="pn-etiqueta">Descripción (opcional)</label>
                                             <span class="pn-contador">0 / 150</span>
                                         </div>
-                                        <textarea class="pn-input" rows="2" maxlength="150" placeholder="Descripción" data-contador data-tema-campo="descripcion"></textarea>
+                                        <textarea class="pn-input" rows="2" maxlength="150" placeholder="Breve descripción del tema..." data-contador data-tema-campo="descripcion"></textarea>
                                         <div class="pn-ayuda-error"></div>
                                     </div>
                                     <div class="col-12 pn-campo">
                                         <label class="pn-etiqueta">Contenido (opcional)</label>
-                                        <textarea class="pn-input" rows="5" placeholder="Qué se ve en el tema" data-tema-campo="contenido"></textarea>
+                                        <textarea class="pn-input" rows="4" placeholder="Qué se ve en el tema" data-tema-campo="contenido"></textarea>
                                         <div class="pn-ayuda-error"></div>
                                     </div>
                                 </div>
                                 <div class="pn-temas-formulario-pie">
-                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-tema-quitar hidden>Quitar de la lista</button>
-                                    <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-tema-aplicar>Agregar a la lista</button>
+                                    <button type="button" class="pn-btn pn-btn-primario pn-btn-ancho" data-tema-aplicar>Agregar</button>
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-ancho" data-tema-quitar hidden>Descartar cambios</button>
                                 </div>
                             </div>
                         </div>

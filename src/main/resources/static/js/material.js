@@ -38,6 +38,9 @@
         opciones().forEach(function (o) { o.classList.toggle('elegida', o === elegida); });
         selector.querySelector('[data-selector-titulo]').textContent = elegida ? elegida.dataset.nombre : '';
         selector.querySelector('[data-selector-descripcion]').textContent = elegida ? elegida.dataset.descripcion : '';
+        // El aviso (por ejemplo, registrar un pool primero) acompaña solo a la opción para la que se dio
+        var aviso = selector.querySelector('[data-selector-aviso]');
+        if (aviso) { aviso.hidden = !aviso.dataset.opcion || !elegida || aviso.dataset.opcion !== elegida.querySelector('input').value; }
     }
 
     if (selector) {
@@ -53,7 +56,13 @@
             var elegida = opcionElegida();
             if (!elegida) { return; }
             var destino = selector.dataset.destino;
-            if (elegida.dataset.glosario && destino) {
+            if (elegida.dataset.ruta && destino) {
+                var cursoDeDestino = new URLSearchParams(destino.substring(destino.indexOf('?') + 1)).get('cursoId');
+                // Pool y autoevaluación: se abre el listado con la ventana de alta ya abierta y el tema elegido
+                var temaDelDestino = new URLSearchParams(destino.substring(destino.indexOf('?') + 1)).get('temaId');
+                window.location.href = elegida.dataset.ruta + '?cursoId=' + cursoDeDestino + '&nuevo'
+                    + (temaDelDestino ? '&temaId=' + temaDelDestino : '');
+            } else if (elegida.dataset.glosario && destino) {
                 // El glosario es uno por tema: se abre el del tema elegido con el formulario de alta abierto
                 var consulta = new URLSearchParams(destino.substring(destino.indexOf('?') + 1));
                 window.location.href = consulta.get('temaId')
@@ -72,6 +81,8 @@
         var base = selector.dataset.destinoBase || selector.dataset.destino;
         selector.dataset.destinoBase = base;
         selector.dataset.destino = base + (base.indexOf('?') >= 0 ? '&' : '?') + 'temaId=' + boton.dataset.temaId;
+        var aviso = selector.querySelector('[data-selector-aviso]');
+        if (aviso) { aviso.dataset.opcion = ''; aviso.textContent = ''; }
         modal(selector).show();
     });
 
@@ -168,6 +179,71 @@
         }
         return true;
     };
+
+    // Cuenta las páginas de un PDF con PDF.js (se carga la primera vez que hace falta): leer el texto del archivo no alcanza porque los
+    // PDF modernos guardan sus páginas dentro de objetos comprimidos. Si PDF.js no se puede cargar, se cuenta como antes.
+    var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+    var cargaPdfjs = null;
+    function cargarPdfjs() {
+        if (window.pdfjsLib) { return Promise.resolve(window.pdfjsLib); }
+        if (!cargaPdfjs) {
+            cargaPdfjs = new Promise(function (resolver, rechazar) {
+                var script = document.createElement('script');
+                script.src = PDFJS + 'pdf.min.js';
+                script.onload = function () {
+                    window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js';
+                    resolver(window.pdfjsLib);
+                };
+                script.onerror = rechazar;
+                document.head.appendChild(script);
+            });
+        }
+        return cargaPdfjs;
+    }
+
+    function contarPaginasAlMenos(archivo) {
+        return new Promise(function (resolver) {
+            var lector = new FileReader();
+            lector.onload = function () { resolver((String(lector.result).match(/\/Type\s*\/Page[^s]/g) || []).length); };
+            lector.onerror = function () { resolver(0); };
+            lector.readAsBinaryString(archivo);
+        });
+    }
+
+    function contarPaginas(archivo) {
+        return cargarPdfjs().then(function (pdfjs) {
+            return archivo.arrayBuffer().then(function (datos) { return pdfjs.getDocument({ data: datos }).promise; });
+        }).then(function (pdf) { return pdf.numPages; }).catch(function () { return contarPaginasAlMenos(archivo); });
+    }
+
+    // Páginas y duración: los calcula el navegador al elegir el archivo (un PDF cuenta sus páginas; un video lee su duración)
+    document.addEventListener('change', function (e) {
+        var entrada = e.target;
+        if (!entrada.matches || !entrada.matches('input[type="file"][name="archivo"]') || !entrada.files || !entrada.files[0]) { return; }
+        var formulario = entrada.form;
+        var archivo = entrada.files[0];
+        var paginas = formulario.elements['paginas'];
+        var duracion = formulario.elements['duracionMinutos'];
+        var duracionMin = formulario.querySelector('[data-duracion-minutos]');
+        var duracionSeg = formulario.querySelector('[data-duracion-segundos]');
+        var duracionLinea = formulario.querySelector('[data-duracion-linea]');
+        if (/\.pdf$/i.test(archivo.name) && paginas) {
+            contarPaginas(archivo).then(function (cuenta) { paginas.value = cuenta > 0 ? cuenta : ''; });
+        } else if (/\.(mp4|webm)$/i.test(archivo.name) && duracion) {
+            var video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = function () {
+                URL.revokeObjectURL(video.src);
+                // El servidor guarda los minutos (redondeados hacia arriba); los segundos se muestran para que se vea lo que dura el video
+                var total = isFinite(video.duration) ? Math.max(1, Math.round(video.duration)) : 0;
+                duracion.value = total ? Math.ceil(total / 60) : '';
+                if (duracionMin) { duracionMin.value = total ? Math.floor(total / 60) : ''; }
+                if (duracionSeg) { duracionSeg.value = total ? total % 60 : ''; }
+                if (duracionLinea) { duracionLinea.textContent = total ? Math.floor(total / 60) + ' min ' + (total % 60) + ' s' : ''; }
+            };
+            video.src = URL.createObjectURL(archivo);
+        }
+    });
 
     document.addEventListener('submit', function (e) {
         var formulario = e.target;

@@ -45,7 +45,6 @@
     var grilla = raiz.querySelector('[data-grilla]');
     var disponibles = raiz.querySelector('[data-disponibles]');
     var buscar = raiz.querySelector('[data-buscar]');
-    var resumen = raiz.querySelector('[data-resumen]');
     var selectorEscala = raiz.querySelector('[data-escala]');
 
     // Escala inicial: la que corresponde a la duración total del cronograma (la calcula el servidor, igual que en el cajón
@@ -116,6 +115,17 @@
         selectorEscala.value = nueva;
     }
 
+    // Duración de un tema en la vista por temas: meses, semanas y días por separado (el formato Mixto de los formularios)
+    function campoDuracion(c, i) {
+        var tope = DIAS_MAXIMOS - (totalDias() - c.dias);
+        var p = partes(c.dias);
+        return '<div class="pn-duracion-fila cn-duracion-fila" data-i="' + i + '"><div class="pn-duracion-mixto">'
+            + '<label class="pn-tiempo-parte"><span>Meses</span><input type="number" min="0" max="' + Math.floor(tope / DIAS_POR_MES) + '" class="pn-input" data-duracion-parte data-factor="30" value="' + p[0] + '"></label>'
+            + '<label class="pn-tiempo-parte"><span>Semanas</span><input type="number" min="0" max="' + Math.floor(tope / DIAS_POR_SEMANA) + '" class="pn-input" data-duracion-parte data-factor="7" value="' + p[1] + '"></label>'
+            + '<label class="pn-tiempo-parte"><span>Días</span><input type="number" min="0" max="' + tope + '" class="pn-input" data-duracion-parte data-factor="1" value="' + p[2] + '"></label>'
+            + '</div></div>';
+    }
+
     // ------------------------------------------------------------------ dibujo
     function dibujar() {
         var total = totalDias();
@@ -129,7 +139,8 @@
 
         var html = '<div class="cn-fila cn-cabecera-fila" style="grid-template-columns:' + plantilla + '"><div class="cn-celda-temas">Temas</div>';
         for (var s = 1; s <= unidades; s++) {
-            html += '<div' + (s === unidadHoy ? ' class="cn-numero-actual"' : '') + ' style="grid-column:' + ((s - 1) * paso + 2) + ' / span ' + paso + '">' + s + '</div>';
+            var clases = (s === unidadHoy ? 'cn-numero-actual' : '') + ((s - 1) * paso + 1 > DIAS_MAXIMOS ? ' cn-fuera' : '');
+            html += '<div' + (clases.trim() ? ' class="' + clases.trim() + '"' : '') + ' style="grid-column:' + ((s - 1) * paso + 2) + ' / span ' + paso + '">' + s + '</div>';
         }
         html += '</div>';
         // Línea roja del día actual: una por fila, para que se vea continua
@@ -143,7 +154,7 @@
                 + '<div class="cn-tema" style="grid-row:1;grid-column:1"><span class="cn-numero">' + (i + 1) + '</span>'
                 + '<div class="cn-tarjeta"><b>' + escapar(u.titulo) + '</b><small>' + formatear(c.dias) + '</small></div>'
                 + (editable ? '<span class="cn-asa-fila" title="Arrastrar para reordenar"><i class="fa-solid fa-grip-vertical"></i></span>' : '') + '</div>';
-            for (var k = 1; k <= unidades; k++) { html += '<div class="cn-unidad" style="grid-row:1;grid-column:' + ((k - 1) * paso + 2) + ' / span ' + paso + '"></div>'; }
+            for (var k = 1; k <= unidades; k++) { html += '<div class="cn-unidad' + ((k - 1) * paso + 1 > DIAS_MAXIMOS ? ' cn-fuera' : '') + '" style="grid-row:1;grid-column:' + ((k - 1) * paso + 2) + ' / span ' + paso + '"></div>'; }
             var hasta = desde + c.dias - 1;
             var tip = 'Tema ' + (i + 1) + ' · ' + u.titulo + ' · ' + periodo(desde, hasta) + (c.estado ? ' · ' + c.estado : '');
             html += lineaActual;
@@ -155,11 +166,6 @@
 
         var textoTotal = formatear(total);
         raiz.ownerDocument.querySelectorAll('[data-total]').forEach(function (e) { e.textContent = textoTotal; });
-        raiz.querySelector('[data-total-resumen]').textContent = 'Total: ' + textoTotal;
-        resumen.innerHTML = colocadas.map(function (c) {
-            var u = temaDe(c.id);
-            return '<span class="cn-pastilla" style="--c:' + u.color + '">' + escapar(nombreCorto(u.titulo)) + ' · ' + formatear(c.dias) + '</span>';
-        }).join('');
 
         // Vista por temas: al modificar, la duración se escribe con un número y su unidad
         var diaActual = 0;
@@ -168,17 +174,11 @@
             var primero = diaActual + 1;
             diaActual += c.dias;
             var duracion = formatear(c.dias);
-            if (editable) {
-                var p = partes(c.dias);
-                duracion = '<span class="cn-duracion-campo" data-i="' + i + '">'
-                    + '<input type="number" min="0" class="pn-input" data-duracion-parte aria-label="Meses" value="' + p[0] + '">mes '
-                    + '<input type="number" min="0" class="pn-input" data-duracion-parte aria-label="Semanas" value="' + p[1] + '">sem '
-                    + '<input type="number" min="0" class="pn-input" data-duracion-parte aria-label="Días" value="' + p[2] + '">días</span>';
-            }
-            return '<tr><td>' + (i + 1) + '</td><td class="text-start"><span class="pn-celda-principal pn-truncar pn-truncar-largo" title="' + escapar(u.titulo).replace(/"/g, '&quot;') + '">' + escapar(u.titulo) + '</span></td>'
-                + '<td>' + u.material + (u.material === 1 ? ' material' : ' materiales') + '</td><td>' + duracion + '</td>'
+            if (editable) { duracion = campoDuracion(c, i); }
+            return '<tr><td>' + (i + 1) + '</td><td><span class="pn-celda-principal pn-truncar pn-truncar-largo" title="' + escapar(u.titulo).replace(/"/g, '&quot;') + '">' + escapar(u.titulo) + '</span></td>'
+                + '<td>' + duracion + '</td>'
                 + '<td>' + (primero === diaActual ? 'Día ' + primero : 'Días ' + primero + ' a ' + diaActual) + '</td></tr>';
-        }).join('') : '<tr><td colspan="5" class="pn-vacio-grande"><i class="fa-solid fa-calendar pn-vacio-icono"></i><h3>El cronograma está vacío</h3><p>Arrastrá temas desde el panel izquierdo para armarlo.</p></td></tr>';
+        }).join('') : '<tr><td colspan="4" class="pn-vacio-grande"><i class="fa-solid fa-calendar pn-vacio-icono"></i><h3>El cronograma está vacío</h3><p>Arrastrá temas desde el panel izquierdo para armarlo.</p></td></tr>';
 
         if (editable) { dibujarDisponibles(); }
     }
@@ -320,24 +320,20 @@
 
     buscar.addEventListener('input', dibujarDisponibles);
 
-    // Duración escrita en meses, semanas y días (vista por temas)
+    // Duración escrita en meses, semanas y días (vista por temas). Nunca baja de un día (simplemente no se deja disminuir más)
+    // y lo que pasa del máximo del curso se recorta, sin alertas
     raiz.addEventListener('change', function (e) {
         var campo = e.target.closest('[data-duracion-parte]');
         if (!campo) { return; }
-        var celda = campo.closest('.cn-duracion-campo');
-        var i = parseInt(celda.dataset.i, 10);
-        var factores = [DIAS_POR_MES, DIAS_POR_SEMANA, 1];
+        var fila = campo.closest('.cn-duracion-fila');
+        var c = colocadas[parseInt(fila.dataset.i, 10)];
+        var tope = DIAS_MAXIMOS - (totalDias() - c.dias);
         var dias = 0;
-        Array.prototype.forEach.call(celda.querySelectorAll('[data-duracion-parte]'), function (parte, k) {
-            dias += Math.max(0, parseInt(parte.value, 10) || 0) * factores[k];
+        Array.prototype.forEach.call(fila.querySelectorAll('[data-duracion-parte]'), function (parte) {
+            dias += Math.max(0, parseInt(parte.value, 10) || 0) * parseInt(parte.dataset.factor, 10);
         });
-        if (dias <= 0) {
-            window.mostrarError('Error! La duración de cada tema no es válida. Formato válido: número entero mayor a cero.');
-        } else if (totalDias() - colocadas[i].dias + dias > DIAS_MAXIMOS) {
-            window.mostrarError('Error! El cronograma es demasiado largo. Máximo: ' + DIAS_MAXIMOS + ' días.');
-        } else {
-            colocadas[i].dias = dias;
-        }
+        if (dias <= 0) { dias = c.dias; }
+        c.dias = Math.max(1, Math.min(dias, tope));
         dibujar();
     });
 
@@ -378,6 +374,12 @@
             var resultado = await respuesta.json();
             if (respuesta.ok && resultado.mensaje) {
                 await window.mostrarExito(resultado.mensaje);
+                // Alerta guía del paso siguiente (por ejemplo, completar el contenido de los temas pendientes)
+                if (resultado.siguienteUrl && window.preguntarSiguientePaso
+                        && await window.preguntarSiguientePaso(resultado.siguienteTitulo, resultado.siguienteTexto, resultado.siguienteConfirmar)) {
+                    window.location.href = resultado.siguienteUrl;
+                    return;
+                }
                 window.location.reload();
                 return;
             }

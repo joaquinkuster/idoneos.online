@@ -118,6 +118,7 @@ public class AutenticacionConfiguracion {
                         .requestMatchers("/pago/**").hasRole("Alumno")
                         // CU-02, CU-27 y CU-45: Ver mis cursos, Acceder curso e Inscribirse (Alumno)
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
+                        .requestMatchers("/recordatorio/**").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
@@ -125,7 +126,6 @@ public class AutenticacionConfiguracion {
                                 "/cohorte/asignarPrograma/*")
                         .hasRole("Docente")
                         // Diseño de curso: el docente lo completa (datos del curso) y el administrador lo consulta
-                        .requestMatchers(HttpMethod.GET, "/diseno/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/curso/completarDatos/*").hasRole("Docente")
                         // CU-15 a CU-18: ABM de programas (el docente gestiona; el administrador busca y da de baja)
                         .requestMatchers(HttpMethod.GET, "/programa/buscar").hasAnyRole("Docente", "Administrador")
@@ -148,7 +148,7 @@ public class AutenticacionConfiguracion {
                         .requestMatchers("/glosario/**").hasRole("Docente")
                         // CU-19 a CU-22: ABM de temas (el docente agrega y modifica; el administrador busca y da de baja)
                         .requestMatchers(HttpMethod.GET, "/tema/buscar").hasAnyRole("Docente", "Administrador")
-                        .requestMatchers(HttpMethod.POST, "/tema/darDeBaja/*", "/tema/darDeBajaMasiva")
+                        .requestMatchers(HttpMethod.POST, "/tema/darDeBaja/*")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/tema/**").hasRole("Docente")
                         // CU-60 a CU-63: ABM de pools (docente y administrador los buscan y los dan de baja; el docente los

@@ -72,7 +72,7 @@ class AccederCursoDocenteControladorTest {
                 .andExpect(content().string(Matchers.containsString("Introducción al mercado de capitales")))
                 .andExpect(content().string(Matchers.containsString("Renta variable y opciones")))
                 .andExpect(content().string(Matchers.containsString("Autoevaluación Tema 1: Marco regulatorio")))
-                .andExpect(content().string(Matchers.containsString("Este curso")))
+                .andExpect(content().string(Matchers.containsString("Programas")))
                 // sin bloqueos, sin avance del alumno ni intentos propios
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Completá el tema anterior"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Bloqueada"))))
@@ -86,7 +86,7 @@ class AccederCursoDocenteControladorTest {
     void docenteVeElCronogramaSinAtraso() throws Exception {
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Día actual de la cohorte: 21 de 63")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Día actual de la cohorte"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas al día"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas por detrás"))));
     }
@@ -101,7 +101,6 @@ class AccederCursoDocenteControladorTest {
                 .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")))
                 .andExpect(content().string(Matchers.containsString("Portada de Mercado de Capitales Argentino")))
                 // el botón "Curso" vuelve a ser un botón del menú, sin tarjeta
-                .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))));
         mockMvc.perform(get("/curso/acceder/" + id).param("seccion", "clases")).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-portada"))));

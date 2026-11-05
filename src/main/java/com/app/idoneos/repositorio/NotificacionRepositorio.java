@@ -11,4 +11,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface NotificacionRepositorio extends JpaRepository<Notificacion, Integer> {
+
+    /** Indica si ya existe una notificación de ese tipo para el usuario y la cohorte (para no avisar dos veces). */
+    boolean existsByUsuarioAndCohorteAndTipoNotificacion(com.app.idoneos.modelo.Usuario usuario,
+            com.app.idoneos.modelo.Cohorte cohorte, com.app.idoneos.modelo.TipoNotificacion tipoNotificacion);
 }

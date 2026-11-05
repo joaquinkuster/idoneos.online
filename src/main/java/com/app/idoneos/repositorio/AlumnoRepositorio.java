@@ -33,7 +33,7 @@ public interface AlumnoRepositorio extends JpaRepository<Alumno, Integer> {
      * @return los alumnos inscriptos al curso
      */
     @Query("SELECT DISTINCT a FROM Alumno a JOIN a.inscripciones i WHERE i.baja = false AND i.cohorte.baja = false "
-            + "AND i.cohorte.programa.baja = false AND i.cohorte.programa.curso = :curso")
+            + "AND i.cohorte.curso = :curso")
     List<Alumno> buscarActivosPorCurso(@Param("curso") Curso curso);
 
     /**

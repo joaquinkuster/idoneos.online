@@ -61,10 +61,9 @@ public class ParticipanteControlador extends PanelCursoControlador {
             modelo.addAttribute("docentes", docenteCursoServicio.buscarEquipoPorCurso(curso));
             modelo.addAttribute("alumnos", alumnoServicio.buscarPorCurso(curso));
             modelo.addAttribute("cohortes", cohorteServicio.buscarPorCurso(curso));
-            // El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas
-            modelo.addAttribute("cohorteSeleccionada", contexto.participacion() == null ? null
-                    : contexto.participacion().getCohorteDeTrabajo() == null ? null
-                            : contexto.participacion().getCohorteDeTrabajo().getIdCohorte());
+            // Se entra viendo a todos los participantes del curso (de cualquier cohorte); se filtra a mano por cohorte. Preseleccionar la
+            // cohorte de trabajo ocultaba a los alumnos de las demás
+            modelo.addAttribute("cohorteSeleccionada", null);
             modelo.addAttribute("soloCohorte", false);
             modelo.addAttribute("titulo", "Participantes | Idóneos Online");
             return "pages/participante/buscar";

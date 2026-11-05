@@ -79,7 +79,7 @@ class MaterialVerControladorTest {
                 .andExpect(content().string(Matchers.containsString("/material/archivo/" + material.getIdTemaRecurso())))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Volver al curso"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Descargar"))))
-                .andExpect(content().string(Matchers.containsString("Contenido de los temas")));
+                .andExpect(content().string(Matchers.containsString("Recursos")));
     }
 
     @Test
@@ -135,8 +135,13 @@ class MaterialVerControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("Un material sin archivo muestra el aviso y su descripción")
     void sinArchivo() throws Exception {
-        TemaRecurso material = materialRepositorio.findAll().stream()
-                .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
+        Docente fausto = docenteRepositorio.findAll().stream()
+                .filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online")).findFirst().orElseThrow();
+        // una bibliografía sin archivo (la de la semilla ya tiene el suyo)
+        TemaRecurso material = materialServicio.subirMaterial(fausto, tema("Renta fija y bonos").getIdTema(), "BIBLIOGRAFIA",
+                new RecursoServicio.DatosRecurso("Libro sin archivo", null, false, "Autor", null, "978-0-00-000000-0", null, null,
+                        null, null),
+                null, true);
 
         mockMvc.perform(get("/material/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("todavía no tiene archivo")));

@@ -1721,3 +1721,38 @@ button.cc-boton {
     color: #3B6D11;
     font-weight: 600;
 }
+
+/* «Recordarme» de la ficha: contorno navy, para que el dorado quede solo para «Inscribirme» */
+.fx-boton-recordar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--boton-alto);
+    padding: 0 18px;
+    border: 1px solid var(--boton-navy, #0F233D);
+    border-radius: var(--boton-radio);
+    background: #FFFFFF;
+    color: var(--boton-navy, #0F233D);
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.fx-boton-recordar:hover {
+    background: #F1F5F9;
+    color: var(--boton-navy, #0F233D);
+}
+
+/* Separado de la línea «La inscripción abre el…» de arriba */
+[data-bloque="proxima"] > .fx-boton-recordar {
+    margin-top: 14px;
+}
+
+[data-bloque][hidden] {
+    display: none;
+}

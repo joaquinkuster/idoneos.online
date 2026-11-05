@@ -340,6 +340,7 @@ class CursoServicioTest {
         Curso curso = curso("Fondos Comunes de Inversión");
         var tema = curso.getTemas().stream().filter(u -> !u.getBaja()).findFirst().orElseThrow();
         var participacion = curso.getParticipacionesDocente().stream().findFirst().orElseThrow();
+        int grabaciones = curso.getMaterialesPublicadosDeModalidad(Modalidad.GRABADA).size() + 1;
         Recurso recurso = recursoRepositorio.save(new Recurso(participacion.getDocente(), "Grabación de prueba"));
         recurso.setGrabacion(grabacionRepositorio.save(new Grabacion(recurso, "curso/tema/grabacion.mp4")));
         TemaRecurso material = temaRecursoRepositorio.save(new TemaRecurso(tema, recurso, participacion, 1));
@@ -348,11 +349,11 @@ class CursoServicioTest {
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> modificarModalidades(curso, List.of(idModalidad(Modalidad.CLON_IA))));
-        assertEquals("Error! No puede quitarse la modalidad 'Grabada': el curso tiene 1 grabación publicada. "
-                + "Dé de baja u ocultá ese material antes.", error.getMessage());
+        assertEquals("Error! No puede quitarse la modalidad 'Grabada': el curso tiene " + grabaciones
+                + " grabaciones publicadas. Dé de baja u ocultá esos materiales antes.", error.getMessage());
 
-        // Oculta, ya no impide quitar la modalidad
-        material.setOculto(true);
+        // Ocultas (la de la prueba y las de la semilla), ya no impiden quitar la modalidad
+        curso.getMaterialesPublicadosDeModalidad(Modalidad.GRABADA).forEach(m -> m.setOculto(true));
         assertEquals(1, modificarModalidades(curso, List.of(idModalidad(Modalidad.CLON_IA))).getModalidades().size());
     }
 
@@ -400,14 +401,14 @@ class CursoServicioTest {
     }
 
     @Test
-    @DisplayName("CU-06: el catálogo solo incluye cursos activos con cohortes con inscripción abierta")
+    @DisplayName("CU-06: el catálogo incluye cursos activos con cohortes con inscripción abierta o próxima")
     void catalogoSoloConCohortesAbiertas() {
         List<String> nombres = cursoServicio.buscarEnCatalogo(null, null, null, null, null).stream()
                 .map(Curso::getNombre).toList();
 
         assertTrue(nombres.contains("Mercado de Capitales Argentino"));
         assertTrue(nombres.contains("Macroeconomía de Coyuntura"));
-        assertFalse(nombres.contains("Análisis Técnico Bursátil"), "su cohorte todavía no abrió la inscripción");
+        assertTrue(nombres.contains("Análisis Técnico Bursátil"), "su cohorte es próxima: se ofrece con «Recordarme»");
         assertFalse(nombres.contains("Introducción a las Finanzas"), "no tiene cohortes");
         assertFalse(nombres.contains("Economía Argentina 2024"), "está dado de baja");
     }

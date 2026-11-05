@@ -42,6 +42,9 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     private ParametroRepositorio parametroRepositorio;
 
     @Autowired
+    private com.app.idoneos.servicio.Curso.DisenoCursoServicio disenoCursoServicio;
+
+    @Autowired
     private EstadoCohorteRepositorio estadoCohorteRepositorio;
 
     @Autowired
@@ -220,7 +223,18 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
         if (programa == null) {
             return List.of("Todavía no tiene un programa: el docente debe elegir o crear uno y cargar su contenido");
         }
-        return programa.getFaltantesDeContenido(minimoTemasConMaterial());
+        List<String> faltantes = new java.util.ArrayList<>(programa.getFaltantesDeContenido(minimoTemasConMaterial()));
+        programa.getCurso().getFaltantesDeDatosAcademicos().forEach(dato -> faltantes.add("Al curso le falta: " + dato));
+        if (!programa.estaDuracionAsignadaCompleta()) {
+            faltantes.add("La duración del curso no está asignada por completo a los temas del cronograma");
+        }
+        programa.getCronogramaOrdenado().forEach(cronograma -> {
+            List<String> partes = disenoCursoServicio.contenidoDe(programa.getCurso(), cronograma.getTema()).getFaltantes();
+            if (!partes.isEmpty()) {
+                faltantes.add("El tema «" + cronograma.getTema().getTitulo() + "» no tiene: " + String.join(", ", partes));
+            }
+        });
+        return faltantes;
     }
 
     /**
@@ -288,7 +302,7 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     }
 
     /**
-     * Asigna el programa a una cohorte pendiente. Si el contenido del programa ya está completo, la cohorte pasa a Activa.
+     * Asigna el programa a una cohorte pendiente. El programa se asigna aunque su contenido esté incompleto: la cohorte sigue pendiente hasta completarlo y, si ya está completo, pasa a Activa.
      *
      * @param idCohorte el identificador de la cohorte
      * @param idPrograma el identificador del programa (debe ser del curso de la cohorte)
@@ -320,6 +334,77 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     }
 
     /**
+     * Activa las cohortes pendientes cuyo programa ya tiene el contenido completo.
+     */
+    @Override
+    @Transactional
+    public int activarPendientesConContenidoCompleto() {
+        int activadas = 0;
+        for (Cohorte cohorte : cohorteRepositorio.findByBajaFalse()) {
+            if (cohorte.esPendiente() && tieneContenidoCompleto(cohorte.getPrograma())) {
+                cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
+                cohorte.setUltimaModificacion(LocalDateTime.now());
+                cohorteRepositorio.save(cohorte);
+                activadas++;
+            }
+        }
+        return activadas;
+    }
+
+    @Override
+    @Transactional
+    public boolean activarSiEstaCompleta(Integer idCohorte) {
+        Cohorte cohorte = cohorteRepositorio.findById(idCohorte).filter(c -> !c.esInactivo()).orElse(null);
+        if (cohorte == null || !cohorte.esPendiente() || !tieneContenidoCompleto(cohorte.getPrograma())) {
+            return false;
+        }
+        cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
+        cohorte.setUltimaModificacion(LocalDateTime.now());
+        cohorteRepositorio.save(cohorte);
+        return true;
+    }
+
+    /**
+     * Cancela las cohortes pendientes que llegaron a su inicio de inscripción sin el contenido completo.
+     */
+    @Override
+    @Transactional
+    public int cancelarPendientesVencidas() {
+        LocalDateTime ahora = LocalDateTime.now();
+        int canceladas = 0;
+        for (Cohorte cohorte : cohorteRepositorio.findByBajaFalse()) {
+            if (cohorte.esPendiente() && !cohorte.getFechaInicioInscripcion().isAfter(ahora)
+                    && !tieneContenidoCompleto(cohorte.getPrograma())) {
+                cohorte.setEstadoCohorte(estadoCohorteRepositorio.findByNombre(EstadoCohorte.CANCELADA).orElseThrow());
+                cohorte.setUltimaModificacion(ahora);
+                cohorteRepositorio.save(cohorte);
+                canceladas++;
+            }
+        }
+        return canceladas;
+    }
+
+    /**
+     * Tarea periódica del ciclo de vida de las cohortes pendientes (cada minuto): primero activa las que el docente ya dejó
+     * completas y después cancela las que llegaron a su fecha sin estarlo.
+     */
+    @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60_000, initialDelay = 30_000)
+    @org.springframework.transaction.annotation.Transactional
+    public void actualizarCohortesPendientes() {
+        try {
+            int activadas = activarPendientesConContenidoCompleto();
+            int canceladas = cancelarPendientesVencidas();
+            if (activadas > 0 || canceladas > 0) {
+                org.slf4j.LoggerFactory.getLogger(CohorteServicioImpl.class)
+                        .info("Cohortes pendientes: {} activadas y {} canceladas", activadas, canceladas);
+            }
+        } catch (RuntimeException e) {
+            org.slf4j.LoggerFactory.getLogger(CohorteServicioImpl.class)
+                    .warn("No se pudieron actualizar las cohortes pendientes", e);
+        }
+    }
+
+    /**
      * Cambia el contexto de trabajo de un docente: establece la cohorte (y su programa) como la de trabajo
      * por defecto en el curso al que pertenece.
      *
@@ -330,8 +415,8 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
     @Override
     @Transactional
     public void cambiarContextoDeTrabajo(Cohorte cohorte, Docente docente) {
-        if (!cohorte.tienePrograma()) {
-            throw new IllegalArgumentException("Error! La cohorte todavía no tiene un programa para trabajar.");
+        if (cohorte.esCancelada()) {
+            throw new IllegalArgumentException("Error! La cohorte está cancelada.");
         }
         DocenteCurso participacion = docenteCursoRepositorio
                 .findByCursoAndBajaFalse(cohorte.getCurso()).stream()
@@ -427,8 +512,11 @@ public class CohorteServicioImpl implements CohorteServicio, CrudServicio<Cohort
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
     }
 
+    /** Un programa está completo si cumple el mínimo de temas con material y, además, su diseño está completo. */
     private boolean tieneContenidoCompleto(Programa programa) {
-        return programa != null && programa.tieneContenidoCompleto(minimoTemasConMaterial());
+        return programa != null && programa.tieneContenidoCompleto(minimoTemasConMaterial())
+                && programa.getCurso().getFaltantesDeDatosAcademicos().isEmpty()
+                && disenoCursoServicio.estaCompleto(programa.getCurso(), programa);
     }
 
     private Programa programaDelCurso(Curso curso, Integer idPrograma) {

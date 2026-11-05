@@ -255,7 +255,15 @@ public class MaterialControlador extends PanelCursoControlador {
                     new RecursoServicio.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos),
                     archivo, terminos);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Material '" + material.getTitulo() + "' subido con éxito.");
+            // Se muestra cómo quedó dentro del curso: el panel del curso con el tema del material expandido
+            Programa vigente = material.getTema().getCurso().getProgramaVigente();
+            String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
+                    .filter(u -> u.getTema().getIdTema() == material.getTema().getIdTema())
+                    .map(u -> "?expandir=" + u.getNumeroOrden()).findFirst().orElse("");
+            // Alerta guía: si todavía falta contenido, propone seguir completándolo
+            return exitoConContenidoPendiente("Material '" + material.getTitulo() + "' subido con éxito.",
+                    "/curso/acceder/" + material.getTema().getCurso().getIdCurso() + expandir,
+                    material.getTema().getCurso().getIdCurso(), usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

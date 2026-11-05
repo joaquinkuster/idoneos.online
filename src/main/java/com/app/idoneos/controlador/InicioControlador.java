@@ -83,6 +83,11 @@ public class InicioControlador implements ErrorController {
                     programas.isEmpty() ? 0 : programas.get(0).getCantidadTemas());
         }
 
+        // Los destacados que solo tienen cohortes próximas llevan la etiqueta «Próximamente»
+        java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();
+        cursosDestacados.stream().filter(curso -> cursoServicio.buscarCohortesAbiertas(curso).isEmpty())
+                .forEach(curso -> cursosProximamente.add(curso.getIdCurso()));
+        modelo.addAttribute("cursosProximamente", cursosProximamente);
         modelo.addAttribute("categorias", categorias);
         modelo.addAttribute("cursosPorCategoria", cursosPorCategoria);
         // Descuentos vigentes: las cartas de los cursos con costo avisan que hay descuentos

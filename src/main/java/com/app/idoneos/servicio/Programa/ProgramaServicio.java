@@ -65,6 +65,28 @@ public interface ProgramaServicio {
     Programa registrarPrograma(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
             String descripcion, List<Integer> temaIds, List<String> dias);
 
+    /**
+     * Un programa nuevo o modificado que llega de la ventana de programas.
+     *
+     * @param id          el identificador del programa ({@code null} si es nuevo)
+     * @param origenId    el programa del que parte uno nuevo (opcional)
+     * @param nombre      el nombre
+     * @param descripcion la descripción (opcional)
+     */
+    record CambioDePrograma(Integer id, Integer origenId, String nombre, String descripcion) {
+    }
+
+    /**
+     * Guarda de una vez los programas nuevos y los modificados de un curso: o se guardan todos o no se guarda ninguno.
+     *
+     * @param docente el docente que guarda (debe participar en el curso)
+     * @param cursoId el identificador del curso
+     * @param cambios los programas nuevos (sin identificador) y los modificados (con identificador)
+     * @return la cantidad de programas registrados y modificados
+     * @throws IllegalArgumentException si algún cambio no es válido; el mensaje nombra el programa
+     */
+    int guardarCambios(Docente docente, Integer cursoId, List<CambioDePrograma> cambios);
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**

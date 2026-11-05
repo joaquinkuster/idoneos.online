@@ -58,13 +58,39 @@
     display: none;
 }
 
-/* Con el menú contraído (solo íconos) se ven todos los enlaces, estén o no cerrados sus grupos */
-.pn-app.colapsado .pn-menu-grupo-flecha {
-    display: none;
+/* El cuerpo de un grupo abierto va en un contenedor más claro que el menú, separado del título */
+.pn-menu-grupo-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin: 12px 4px 6px;
+    padding: 6px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.07);
 }
 
-.pn-app.colapsado .pn-menu-grupo-cuerpo.cerrado {
-    display: block;
+/* Con el menú contraído los grupos se mantienen: el título queda como una flecha y el contenedor con solo los íconos */
+.pn-app.colapsado .pn-menu-grupo {
+    justify-content: center;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+
+/* Contraído, el contenedor ocupa casi todo el ancho del menú para que los íconos no queden apretados */
+.pn-app.colapsado .pn-menu-nav {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.pn-app.colapsado .pn-menu-grupo-cuerpo {
+    margin: 10px 0 6px;
+    padding: 6px 0;
+    gap: 4px;
+}
+
+.pn-app.colapsado .pn-menu-grupo-cuerpo .pn-menu-enlace {
+    width: 100%;
+    padding: 12px 0;
 }
 
 /* ---------- Barra superior: enlaces del módulo (arrancan donde termina la barra lateral) ---------- */
@@ -1319,28 +1345,19 @@ a.ac-actividad-titulo:hover {
 /* ==========================================================================
    CRONOGRAMA (MOD-F-02): paneles, grilla por días, semanas o meses, barras y resumen
    ========================================================================== */
-.cn-tarjetas {
+/* Duración total y mínimo requerido: a la derecha de la cabecera del panel del cronograma */
+.cn-datos {
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.cn-dato {
-    min-width: 150px;
-    padding: 10px 14px;
-    background: #FFFFFF;
-    border: 1px solid var(--pn-borde);
-    border-radius: 12px;
-}
-
-.cn-dato span {
-    display: block;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    margin-left: auto;
     font-size: 12px;
     color: var(--pn-texto-suave);
 }
 
-.cn-dato strong {
-    font-size: 16px;
+.cn-datos strong {
+    font-size: 13px;
     font-weight: 700;
     color: var(--pn-texto);
 }
@@ -1441,10 +1458,11 @@ a.ac-actividad-titulo:hover {
 
 .cn-cabecera {
     display: flex;
-    justify-content: space-between;
+    /* Los elementos quedan a la izquierda: al ocultarse la escala (vista por temas) las pestañas no se corren */
+    justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 10px 24px;
 }
 
 .cn-pestanias {
@@ -1456,8 +1474,9 @@ a.ac-actividad-titulo:hover {
 .cn-escala {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
     gap: 8px;
-    margin: 0 0 0 auto;
+    margin: 12px 0 0;
     font-size: 13px;
     font-weight: 600;
     color: var(--pn-texto-suave);
@@ -1468,18 +1487,20 @@ a.ac-actividad-titulo:hover {
     padding: 5px 8px;
 }
 
-/* Duración de un tema en la vista por temas: meses, semanas y días */
-.cn-duracion-campo {
-    display: inline-flex;
+/* Duración de un tema en la vista por temas: el mismo campo de los formularios (cantidad + unidad), más compacto */
+.cn-duracion-fila {
+    justify-content: center;
     align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: var(--pn-texto-suave);
+    gap: 8px;
 }
 
-.cn-duracion-campo input {
-    width: 52px;
-    text-align: center;
+.cn-duracion-fila .pn-duracion-mixto {
+    flex: 0 0 auto;
+    gap: 6px;
+}
+
+.cn-duracion-fila .pn-tiempo-parte {
+    width: 64px;
 }
 
 .cn-pestania {
@@ -1493,10 +1514,11 @@ a.ac-actividad-titulo:hover {
     cursor: pointer;
 }
 
+/* Pestaña activa: un azul suave con borde y texto azul, para que no pese más que el cronograma */
 .cn-pestania.activa {
-    color: #FFFFFF;
-    background: var(--pn-navy);
-    border-color: var(--pn-navy);
+    color: #244A72;
+    background: #E8EFF8;
+    border-color: #5E82BC;
 }
 
 .cn-grilla {
@@ -3057,4 +3079,169 @@ a.in-resumen-num:hover {
 .ca-sobre {
     color: var(--pn-texto-suave);
     font-size: 0.85rem;
+}
+
+/* ==========================================================================
+   INICIO DEL CURSO: carta "Estado de la cohorte"
+   ========================================================================== */
+.ec-carta {
+    border: 1px solid var(--pn-borde);
+    border-radius: 12px;
+    background: #fff;
+    padding: 14px 18px;
+    margin: 16px 0;
+}
+.ec-fila { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; }
+.ec-titulo { font-size: 15px; color: var(--pn-texto); }
+.ec-nota { font-size: 13px; color: var(--pn-texto-suave); margin: 4px 0 0; }
+.ec-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.ec-chip {
+    display: inline-block;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--pn-borde);
+    background: var(--pn-fondo);
+    color: var(--pn-texto-suave);
+    text-decoration: none;
+}
+.ec-chip.ok { background: #DCFCE7; color: #15803D; border-color: #BBF7D0; }
+.ec-chip.pe { background: var(--pn-gold-soft); color: #92400E; border-color: #FDE68A; }
+a.ec-chip:hover { filter: brightness(.96); }
+.ec-barra { height: 6px; background: var(--pn-fondo); border-radius: 3px; overflow: hidden; }
+.ec-barra i { display: block; height: 100%; background: var(--pn-exito); }
+.ec-pie { margin-top: 10px; }
+.ec-pie .ec-nota { margin: 0; flex: 1; min-width: 220px; }
+
+/* Lo que queda después de la duración máxima del curso: gris suave con rayas, como las zonas inalcanzables de un cronograma */
+.cn-unidad.cn-fuera,
+.cn-cabecera-fila .cn-fuera {
+    background: repeating-linear-gradient(135deg, rgba(148, 163, 184, .22) 0, rgba(148, 163, 184, .22) 6px, rgba(241, 245, 249, .7) 6px, rgba(241, 245, 249, .7) 12px);
+}
+
+/* Grupo del menú cuyo título es un enlace al ABM de la sección */
+.pn-menu-grupo-enlace {
+    color: inherit;
+    text-decoration: none;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pn-menu-grupo.activo {
+    color: #FFFFFF;
+}
+
+.pn-menu-grupo.sin-hijos .pn-menu-grupo-flecha {
+    display: none;
+}
+
+/* Carta Diseño del curso: pasos en una fila y el detalle del paso elegido */
+.ec-pasos { display: flex; align-items: flex-start; margin: 14px 0 6px; }
+.ec-paso {
+    flex: 1;
+    position: relative;
+    background: transparent;
+    border: 0;
+    padding: 0 4px;
+    font: inherit;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    text-align: center;
+    cursor: pointer;
+}
+.ec-paso:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 13px;
+    left: calc(50% + 16px);
+    right: calc(-50% + 16px);
+    height: 2px;
+    background: var(--pn-borde-input);
+}
+.ec-paso.ok:not(:last-child)::after { background: var(--pn-exito); }
+.ec-punto {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 6px;
+    border-radius: 50%;
+    border: 1.5px solid var(--pn-borde-input);
+    background: #fff;
+    font-size: 12px;
+}
+.ec-paso.ok .ec-punto { background: var(--pn-exito); border-color: var(--pn-exito); color: #fff; }
+.ec-paso.cur .ec-punto { border-color: #5E82BC; color: #5E82BC; box-shadow: 0 0 0 4px rgba(94, 130, 188, .18); }
+.ec-paso.cur .ec-paso-nombre { color: #5E82BC; font-weight: 600; }
+.ec-paso.sel .ec-punto { background: #5E82BC; border-color: #5E82BC; color: #fff; box-shadow: none; }
+.ec-paso.sel .ec-paso-nombre { color: var(--pn-navy); font-weight: 600; }
+.ec-paso-nombre { display: block; }
+.ec-paso small { display: block; font-size: 11px; color: var(--pn-texto-suave); }
+.ec-detalle {
+    margin-top: 10px;
+    padding: 14px 16px;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    background: #FFFFFF;
+    box-shadow: 0 1px 2px rgba(15, 35, 61, 0.06);
+}
+.ec-detalle[hidden] { display: none; }
+.ec-detalle h4 { margin: 0 0 2px; font-size: 14px; font-weight: 600; }
+.ec-cab { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.ec-detalle .ec-nota { margin: 0 0 8px; }
+.ec-acciones { display: flex; gap: 8px; flex-wrap: wrap; }
+.ec-tema {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid var(--pn-borde);
+    font-size: 13px;
+}
+.ec-tema > span:first-child { flex: 1; min-width: 0; }
+.ec-falta { display: block; font-size: 12px; color: var(--pn-texto-suave); }
+
+/* Nota del selector de recursos (por ejemplo, registrar un pool antes de crear una autoevaluación) */
+.ac-selector-aviso {
+    margin: 10px 0 0;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--pn-gold-soft);
+    font-size: 13px;
+}
+.ec-enlace {
+    background: none;
+    border: 0;
+    padding: 0;
+    font: inherit;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+/* Cronogramas: selector del programa que se mira */
+.cn-selector-programa {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cn-selector-programa .pn-input {
+    min-width: 240px;
+}
+
+/* Menú del curso (docente): la entidad de cada grupo va en negrita */
+.pn-menu-enlace[data-entidad] > span {
+    font-weight: 700;
+}
+
+/* El selector de cohorte por defecto: el <select> original queda oculto del todo (su borde y su flecha asomaban en la esquina superior izquierda) */
+.ac-contexto .sb-oculto {
+    display: none;
 }

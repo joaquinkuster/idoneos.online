@@ -90,10 +90,11 @@ class TemaControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Listado de temas")))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">" + tema.getTitulo() + "<")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"Tema\"")))
-                .andExpect(content().string(Matchers.containsString("data-col=\"En programas\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Título\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Descripción\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Fecha de creación\"")))
+                .andExpect(content().string(Matchers.containsString("data-col=\"Título\"")))
                 .andExpect(content().string(Matchers.containsString("data-col=\"Contenido\"")))
-                .andExpect(content().string(Matchers.containsString(programaDe(macro()).getNombre())))
                 .andExpect(content().string(Matchers.containsString("fa-plus\"></i> Registrar tema")))
                 .andExpect(content().string(Matchers.containsString("data-editar-tema")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
@@ -171,8 +172,8 @@ class TemaControladorTest {
         mockMvc.perform(post("/tema/guardar").param("cursoId", cursoId(macro())).param("cambios", cambios))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("2 temas guardados correctamente."))
-                // el programa vigente no asigna toda la duración del curso: se guía al docente
-                .andExpect(jsonPath("$.siguienteUrl").value(Matchers.containsString("/programa/buscar?cursoId=" + cursoId(macro()))));
+                // el programa vigente no tiene asignada la duración del curso: la alerta guía lleva a armar el cronograma
+                .andExpect(jsonPath("$.siguienteUrl").value(Matchers.containsString("/cronograma/buscar?cursoId=" + cursoId(macro()))));
 
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
                 .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Política monetaria<")))
@@ -215,80 +216,10 @@ class TemaControladorTest {
     @DisplayName("El alumno no accede al ABM de temas")
     void noEsParaAlumnos() throws Exception {
         mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(mercado()))).andExpect(status().isForbidden());
-        mockMvc.perform(post("/tema/registrar")).andExpect(status().isForbidden());
-        mockMvc.perform(post("/tema/modificar/1")).andExpect(status().isForbidden());
         mockMvc.perform(post("/tema/darDeBaja/1")).andExpect(status().isForbidden());
     }
 
     // ------------------------------------------------------------------ Formularios
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-20: con el cronograma lleno el error se marca en el campo de la duración")
-    void agregarTemaConElCronogramaLleno() throws Exception {
-        String programaId = programaId(macro());
-        Programa programa = programaDe(macro());
-        // el curso no tiene lugar: la duración es justo la del cronograma
-        programa.getCurso().setDuracionDias(programa.getDuracionTotalDias());
-
-        mockMvc.perform(post("/tema/registrar").param("programaId", programaId).param("titulo", "Sin lugar")
-                .param("contenido", "Contenido"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("La duración del cronograma ya alcanzó")))
-                .andExpect(jsonPath("$.campo").value("duracion"));
-    }
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-20: agregar un tema responde en JSON y el error de validación en 400")
-    void agregarTema() throws Exception {
-        mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "Política monetaria")
-                .param("contenido", "Tasas y agregados monetarios"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith("application/json"))
-                .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("registrada con éxito")));
-        mockMvc.perform(get("/tema/buscar").param("cursoId", cursoId(macro())))
-                .andExpect(content().string(Matchers.containsString("pn-celda-principal pn-truncar\">Política monetaria<")));
-
-        mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "")
-                .param("contenido", ""))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el título del tema.")));
-        mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro())).param("titulo", "política monetaria")
-                .param("contenido", "x"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("Ya existe un tema con ese título")));
-    }
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-20: incorporar un tema existente de otro programa responde que fue incorporada")
-    void incorporarTema() throws Exception {
-        Tema tema = primeraDe(macro());
-        mockMvc.perform(post("/programa/registrar").param("cursoId", cursoId(macro())).param("nombre", "Programa 2027")
-                .param("objetivos", "Obj").param("bibliografia", "Bib")).andExpect(status().isOk());
-
-        mockMvc.perform(post("/tema/registrar").param("programaId", programaId(macro()))
-                .param("temaExistenteId", String.valueOf(tema.getIdTema())))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("incorporada con éxito")));
-    }
-
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-21: modificar un tema responde en JSON y se rechaza si tiene inscripciones activas")
-    void modificarTema() throws Exception {
-        Tema sinInscripciones = primeraDe(macro());
-        Tema conInscripciones = primeraDe(mercado());
-
-        mockMvc.perform(post("/tema/modificar/" + sinInscripciones.getIdTema()).param("titulo", "Otro título")
-                .param("contenido", "Otro contenido"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Tema modificado correctamente."));
-        mockMvc.perform(post("/tema/modificar/" + conInscripciones.getIdTema()).param("titulo", "Otro")
-                .param("contenido", "Otro contenido"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene inscripciones activas asociadas")));
-    }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
@@ -305,25 +236,6 @@ class TemaControladorTest {
     }
 
     @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("CU-22: la baja masiva es de todas o ninguna")
-    void bajaMasiva() throws Exception {
-        Tema uno = primeraDe(macro());
-        Tema deMercado = primeraDe(mercado());
-
-        mockMvc.perform(post("/tema/darDeBajaMasiva").param("programaId", programaId(macro()))
-                .param("ids", String.valueOf(uno.getIdTema()), String.valueOf(deMercado.getIdTema())))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("no pertenece al cronograma")));
-        mockMvc.perform(post("/tema/darDeBajaMasiva").param("programaId", programaId(macro())))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe seleccionar al menos un tema")));
-        mockMvc.perform(post("/tema/darDeBajaMasiva").param("programaId", programaId(macro()))
-                .param("ids", String.valueOf(uno.getIdTema())))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.mensaje").value("Temas dadas de baja con éxito."));
-    }
-
-    @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("El administrador da de baja pero no agrega ni modifica")
     void administrador() throws Exception {
@@ -331,8 +243,6 @@ class TemaControladorTest {
 
         mockMvc.perform(post("/tema/darDeBaja/" + tema.getIdTema()).param("programaId", programaId(macro())))
                 .andExpect(status().isOk());
-        mockMvc.perform(post("/tema/registrar")).andExpect(status().isForbidden());
-        mockMvc.perform(post("/tema/modificar/1")).andExpect(status().isForbidden());
     }
 
     // ------------------------------------------------------------------ Menú lateral y vista del curso
@@ -353,7 +263,6 @@ class TemaControladorTest {
                 .andExpect(content().string(Matchers.containsString("ac-tema-contenido")))
                 .andExpect(content().string(Matchers.containsString(tema.getContenido().trim().split("\\s+")[0])))
                 // el menú lateral: Curso arriba, y Temas como sección aparte
-                .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.containsString("/tema/buscar?cursoId=" + mercado().getIdCurso())));
     }
 
@@ -370,7 +279,6 @@ class TemaControladorTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("ac-tema-contenido")))
                 .andExpect(content().string(Matchers.containsString(tema.getContenido().trim().split("\\s+")[0])))
-                .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar tema"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-menu-tema"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/tema/buscar"))));

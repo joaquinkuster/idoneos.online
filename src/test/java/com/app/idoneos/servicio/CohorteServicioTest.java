@@ -49,6 +49,13 @@ class CohorteServicioTest {
         return programaServicio.buscarPorCurso(cursoServicio.buscarPorNombre(curso).orElseThrow()).get(0);
     }
 
+    /** Un programa recién registrado, sin temas ni contenido. */
+    private Programa programaSinContenido() {
+        Programa existente = programaDe("Macroeconomía de Coyuntura");
+        return programaServicio.registrarPrograma(existente.getCurso().getDocenteTitular(), existente.getCurso().getIdCurso(),
+                null, "Versión sin contenido", null);
+    }
+
     private Cohorte cohorte(String curso, String estado) {
         return cohorteServicio.buscarConFiltros(programaDe(curso).getIdPrograma(), null, estado, null, null, "recientes", null).get(0);
     }
@@ -203,11 +210,11 @@ class CohorteServicioTest {
     @Test
     @DisplayName("CU-12: con el contenido del programa incompleto la cohorte se registra como pendiente")
     void registrarCohorteConContenidoIncompleto() {
-        Programa programa = programaDe("Planificación Fiscal Corporativa");
-        assertEquals(0, programa.getCantidadTemasConMaterialPublicado()); // su único tema con material no tiene autoevaluación
+        Programa programa = programaSinContenido();
+        assertEquals(0, programa.getCantidadTemasConMaterialPublicado());
 
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), INICIO, INICIO.plusDays(30), null,
-                programa.getDuracionTotalDias(), null);
+                programa.getCurso().getDuracionDias(), null);
 
         assertTrue(cohorte.esPendiente());
         assertEquals("Pendiente", cohorte.getEstado());
@@ -228,19 +235,57 @@ class CohorteServicioTest {
     @Test
     @DisplayName("CU-12: una cohorte pendiente necesita el plazo mínimo para completar el contenido")
     void registrarCohortePendienteConPlazoInsuficiente() {
-        Programa programa = programaDe("Planificación Fiscal Corporativa");
+        Programa programa = programaSinContenido();
         int plazo = cohorteServicio.plazoMinimoParaCompletarContenidoDias();
         LocalDate corto = LocalDate.now().plusDays(plazo - 1);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cohorteServicio.registrarCohorte(programa.getIdPrograma(), corto, corto.plusDays(30), null,
-                        programa.getDuracionTotalDias(), null));
+                        programa.getCurso().getDuracionDias(), null));
         assertTrue(error.getMessage().startsWith("Error! La fecha de inicio de inscripción debe ser al menos"), error.getMessage());
 
         LocalDate justo = LocalDate.now().plusDays(plazo);
         Cohorte cohorte = cohorteServicio.registrarCohorte(programa.getIdPrograma(), justo, justo.plusDays(30), null,
-                programa.getDuracionTotalDias(), null);
+                programa.getCurso().getDuracionDias(), null);
         assertTrue(cohorte.esPendiente());
+    }
+
+    @Test
+    @DisplayName("Una cohorte pendiente se activa sola cuando el contenido de su programa queda completo")
+    void activaLasPendientesConContenidoCompleto() {
+        Programa incompleto = programaDe("Macroeconomía de Coyuntura");
+        Cohorte cohorte = cohorteServicio.registrarCohorte(incompleto.getCurso().getIdCurso(), null, INICIO,
+                INICIO.plusDays(30), null, incompleto.getDuracionTotalDias(), null);
+        Programa completo = programaDe("Mercado de Capitales Argentino");
+        org.junit.jupiter.api.Assumptions.assumeTrue(cohorteServicio.faltantesDeContenido(completo).isEmpty());
+
+        // sin programa no se activa; con uno completo, sí
+        assertEquals(0, cohorteServicio.activarPendientesConContenidoCompleto());
+        assertTrue(cohorte.esPendiente());
+        cohorte.setPrograma(completo);
+        assertTrue(cohorteServicio.activarPendientesConContenidoCompleto() >= 1);
+        assertFalse(cohorte.esPendiente());
+        assertFalse(cohorte.esCancelada());
+    }
+
+    @Test
+    @DisplayName("Una cohorte pendiente que llega a su inicio de inscripción sin contenido completo se cancela")
+    void cancelaLasPendientesVencidas() {
+        Programa programa = programaDe("Macroeconomía de Coyuntura");
+        Cohorte vencida = cohorteServicio.registrarCohorte(programa.getCurso().getIdCurso(), null, INICIO,
+                INICIO.plusDays(30), null, programa.getDuracionTotalDias(), null);
+        Cohorte futura = cohorteServicio.registrarCohorte(programa.getCurso().getIdCurso(), null, INICIO,
+                INICIO.plusDays(30), null, programa.getDuracionTotalDias(), null);
+        vencida.setFechaInicioInscripcion(java.time.LocalDateTime.now().minusHours(1));
+
+        int canceladas = cohorteServicio.cancelarPendientesVencidas();
+
+        assertTrue(canceladas >= 1);
+        assertTrue(vencida.esCancelada());
+        assertTrue(futura.esPendiente());
+        // una cohorte cancelada ya no se modifica
+        assertThrows(IllegalArgumentException.class, () -> cohorteServicio.modificarCohorte(vencida.getIdCohorte(), INICIO,
+                INICIO.plusDays(30), null, programa.getDuracionTotalDias(), null));
     }
 
     @Test
@@ -257,9 +302,8 @@ class CohorteServicioTest {
         assertEquals(curso.getIdCurso(), cohorte.getCurso().getIdCurso());
         assertFalse(cohorteServicio.faltantesDeContenido(null).isEmpty());
 
-        // Sin programa no hay contexto de trabajo posible
-        assertThrows(IllegalArgumentException.class, () -> cohorteServicio.cambiarContextoDeTrabajo(cohorte,
-                curso.getDocenteTitular()));
+        // Una cohorte pendiente sin programa se puede elegir como cohorte de trabajo: desde ahí se le asigna el programa
+        cohorteServicio.cambiarContextoDeTrabajo(cohorte, curso.getDocenteTitular());
 
         // El docente elige el programa: como su contenido está completo, la cohorte pasa a activa
         Docente docente = curso.getDocenteTitular();

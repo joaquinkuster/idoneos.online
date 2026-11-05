@@ -20,44 +20,39 @@
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <strong>Cronograma</strong>
+                <strong>Cronogramas</strong>
             </nav>
 
             <div class="pn-encabezado">
                 <div>
-                    <h1 class="pn-titulo">Cronograma</h1>
-                    <p class="pn-subtitulo" th:text="${'Programa: ' + programa.nombre}">Programa: 2026</p>
-                </div>
-                <div class="cn-tarjetas">
-                    <div class="cn-dato">
-                        <span>Duración total</span>
-                        <strong data-total th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(programa.duracionTotalDias)}">9 semanas</strong>
-                    </div>
-                    <div class="cn-dato">
-                        <span>Mínimo requerido</span>
-                        <strong th:text="${minimoTemasConMaterial + (minimoTemasConMaterial == 1 ? ' tema' : ' temas')}">2 temas con material</strong>
-                    </div>
-                    <div class="cn-dato">
-                        <span>Cohortes activas</span>
-                        <strong th:text="${programa.cantidadCohortesActivas}">3</strong>
-                    </div>
+                    <h1 class="pn-titulo">Cronogramas</h1>
+                    <!-- Programa que se mira: por defecto el de la cohorte por defecto; se puede buscar cualquier otro del curso -->
+                    <form method="get" th:action="@{/cronograma/buscar}" class="cn-selector-programa" th:if="${!#lists.isEmpty(programasDelCurso)}">
+                        <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                        <label class="pn-etiqueta" for="programaIdCronograma">Programa</label>
+                        <select id="programaIdCronograma" name="programaId" class="pn-input" data-buscable data-cambia-envia>
+                            <option value="" th:if="${programa == null}" selected>Sin programa</option>
+                            <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}" th:text="${p.nombre}"
+                                    th:selected="${programa != null and programa.idPrograma == p.idPrograma}">Versión 1</option>
+                        </select>
+                    </form>
+                    <p class="pn-subtitulo" th:if="${programa == null}">La cohorte todavía no tiene programa: asignale uno desde el inicio del curso.</p>
                 </div>
             </div>
 
             <!-- Con inscripciones activas el cronograma es lo que el alumno vio y pagó: solo se puede consultar -->
-            <div class="ac-aviso ac-aviso-atraso" th:if="${soloLecturaPorInscripciones}">
+            <div class="ac-aviso ac-aviso-atraso" th:if="${programa != null and soloLecturaPorInscripciones}">
                 <div>
                     <strong>Cronograma en solo lectura</strong>
                     <span>El programa tiene inscripciones activas: el cronograma no puede modificarse porque es lo que el alumno vio y pagó al inscribirse.</span>
                 </div>
             </div>
 
-            <!-- Docente: en qué día va su cohorte de trabajo -->
-            <p class="ac-nota" th:if="${esDocente and cohorte != null}"
-                th:text="${'Día actual de la cohorte: ' + cohorte.diaActual + ' de ' + programa.duracionTotalDias + ' (contado desde el inicio ' + (cohorte.fechaInicioDictado != null ? 'del dictado' : 'de la inscripción') + ', ' + #temporals.format(cohorte.fechaBaseCronograma, 'dd/MM/yyyy') + ').'}">Día actual</p>
-
-            <th:block th:with="cronoCohorte=${esDocente ? cohorte : null}">
+            <th:block th:if="${programa != null}" th:with="cronoCohorte=${esDocente ? cohorte : null}">
                 <th:block th:replace="~{fragments/cronogramaTablero :: tablero(${curso}, ${programa}, ${cronograma}, ${temasDelCurso}, ${puedeEditar}, false)}"></th:block>
+            </th:block>
+            <th:block th:if="${programa == null}">
+                <th:block th:replace="~{fragments/vacio :: bloque('fa-calendar', 'No hay cronograma para mostrar', 'La cohorte de trabajo todavía no tiene programa. Elegí uno desde el inicio del curso para armar su cronograma.', null, null)}"></th:block>
             </th:block>
         </main>
 
@@ -68,6 +63,12 @@
 <th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/academica.js}"></script>
 <script th:src="@{/js/tooltipCronograma.js}"></script>
-<script th:src="@{/js/cronograma.js}"></script>
+<script th:src="@{/js/cronograma.js}" th:if="${programa != null}"></script>
+<script>
+    // Cambiar el programa del selector recarga el cronograma de ese programa
+    document.querySelectorAll('[data-cambia-envia]').forEach(function (s) {
+        s.addEventListener('change', function () { if (s.value) { s.form.submit(); } });
+    });
+</script>
 </body>
 </html>

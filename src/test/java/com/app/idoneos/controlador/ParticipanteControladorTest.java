@@ -57,8 +57,8 @@ class ParticipanteControladorTest {
                 .andExpect(view().name("pages/participante/buscar"))
                 .andExpect(model().attributeExists("docentes", "alumnos"))
                 .andExpect(model().attribute("soloCohorte", false))
-                // el docente entra con el filtro en su cohorte de trabajo
-                .andExpect(model().attribute("cohorteSeleccionada", Matchers.notNullValue()))
+                // entra viendo a todos los participantes del curso, de cualquier cohorte
+                .andExpect(model().attribute("cohorteSeleccionada", Matchers.nullValue()))
                 .andExpect(content().string(Matchers.allOf(
                         Matchers.containsString("Participantes"),
                         Matchers.containsString("Docente titular"),

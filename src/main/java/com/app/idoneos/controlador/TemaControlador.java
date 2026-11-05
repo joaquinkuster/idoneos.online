@@ -18,7 +18,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.app.idoneos.servicio.Curso.ContextoCurso;
 import com.app.idoneos.modelo.Curso;
 import com.app.idoneos.modelo.Docente;
-import com.app.idoneos.modelo.Programa;
 import com.app.idoneos.modelo.Tema;
 import com.app.idoneos.modelo.TemaCronograma;
 import com.app.idoneos.modelo.Usuario;
@@ -27,13 +26,13 @@ import com.app.idoneos.utilidades.DuracionUtilidad;
 import com.app.idoneos.utilidades.RespuestaFormularioUtilidad;
 
 /**
- * Controlador del ABM de temas (MOD-F-02): CU-19 Buscar tema (GET /tema/buscar), CU-20 Agregar tema
- * (POST /tema/registrar), CU-21 Modificar tema (POST /tema/modificar/{id}) y CU-22 Dar de baja tema (quitarla del
- * cronograma de un programa: POST /tema/darDeBaja/{id} y /tema/darDeBajaMasiva).
+ * Controlador del ABM de temas (MOD-F-02): CU-19 Buscar tema (GET /tema/buscar), CU-20 y CU-21 Registrar y modificar temas
+ * (POST /tema/guardar, que guarda de una vez los temas nuevos y los modificados de un curso) y CU-22 Dar de baja tema
+ * (POST /tema/darDeBaja/{id}: del curso, o solo del cronograma de un programa si se indica).
  *
- * El listado muestra el cronograma del programa por defecto del docente (o el vigente, si lo ve el administrador). El
- * docente (titular o ayudante) agrega y modifica temas de los cursos en los que participa; el administrador puede
- * buscar y dar de baja las de cualquier curso.
+ * Los temas son del curso, no de un programa: el listado muestra todos los del curso con los programas que los incluyen. El
+ * docente (titular o ayudante) registra y modifica los temas de los cursos en los que participa; el administrador puede
+ * buscar y dar de baja los de cualquier curso.
  */
 @Controller
 @RequestMapping("/tema")
@@ -113,12 +112,9 @@ public class TemaControlador extends PanelCursoControlador {
             int cantidad = temaServicio.guardarCambios(usuario.getDocente(), cursoId, lista);
             String mensaje = cantidad == 1 ? "Tema guardado correctamente." : cantidad + " temas guardados correctamente.";
             boolean hayNuevos = lista.stream().anyMatch(c -> c.id() == null);
-            Programa vigente = hayNuevos ? cursoServicio.buscarActivoPorId(cursoId).getProgramaVigente() : null;
-            if (hayNuevos && (vigente == null || !vigente.estaDuracionAsignadaCompleta())) {
-                // Alerta guía: con temas registrados, el paso siguiente es repartirles la duración del curso en un programa
-                return RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje, "¿Armás el programa?",
-                        "Ya tenés temas: podés asignarles la duración del curso en el programa.", "Armar el programa",
-                        "/programa/buscar?cursoId=" + cursoId + (vigente == null ? "&nuevo=" : ""));
+            if (hayNuevos) {
+                // Alerta guía: con el mínimo de temas, el paso siguiente es armar el cronograma (o el que corresponda)
+                return exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente());
             }
             return RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
         } catch (Exception e) {
@@ -128,105 +124,6 @@ public class TemaControlador extends PanelCursoControlador {
 
     private static String texto(Object valor) {
         return valor == null ? null : valor.toString();
-    }
-
-    /**
-     * CU-20: Agrega un tema (nueva o ya existente en otro programa del curso) al final del cronograma de un programa.
-     * Responde en JSON.
-     *
-     * @param programaId        Identificador del programa.
-     * @param temaExistenteId Tema de otro programa que se incorpora (opcional).
-     * @param titulo            El título del tema nueva.
-     * @param descripcion       La descripción del tema nueva (opcional).
-     * @param contenido         El contenido del tema nueva (opcional).
-     * @param duracion          La duración en el cronograma, en la unidad indicada (opcional: la del parámetro del sistema).
-     * @param duracionUnidad    La unidad de la duración: "dias", "semanas" o "meses" (por defecto, días).
-     * @param auth              La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/registrar")
-    public ResponseEntity<Map<String, String>> agregarTema(
-            @RequestParam(value = "programaId", required = false) Integer programaId,
-            @RequestParam(value = "temaExistenteId", required = false) Integer temaExistenteId,
-            @RequestParam(value = "titulo", required = false) String titulo,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "contenido", required = false) String contenido,
-            @RequestParam(value = "duracion", required = false) Integer duracion,
-            @RequestParam(value = "duracionUnidad", defaultValue = "dias") String duracionUnidad,
-            Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            Tema tema = temaServicio.agregarTema(usuario.getDocente(), programaId, temaExistenteId, titulo,
-                    descripcion, contenido, dias(duracion, duracionUnidad));
-            String accion = temaExistenteId != null ? "incorporada" : "registrada";
-            return RespuestaFormularioUtilidad.respuestaExitosa("Tema '" + tema.getTitulo() + "' " + accion + " con éxito.");
-        } catch (Exception e) {
-            return RespuestaFormularioUtilidad.respuestaConError(e);
-        }
-    }
-
-    // ---------------------------------------------------------------- Modificaciones
-
-    /**
-     * CU-21: Modifica un tema sin inscripciones activas asociadas. Responde en JSON.
-     *
-     * @param id          Identificador del tema.
-     * @param titulo      El título.
-     * @param descripcion La descripción (opcional).
-     * @param contenido   El contenido.
-     * @param programaId  Programa cuyo cronograma contiene el tema (opcional; necesario para cambiar la duración).
-     * @param duracion    La duración en el cronograma de ese programa, en la unidad indicada (opcional).
-     * @param duracionUnidad La unidad de la duración: "dias", "semanas" o "meses" (por defecto, días).
-     * @param auth        La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificarTema(@PathVariable("id") Integer id,
-            @RequestParam(value = "titulo", required = false) String titulo,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "contenido", required = false) String contenido,
-            @RequestParam(value = "programaId", required = false) Integer programaId,
-            @RequestParam(value = "duracion", required = false) Integer duracion,
-            @RequestParam(value = "duracionUnidad", defaultValue = "dias") String duracionUnidad,
-            Authentication auth) {
-        try {
-            Usuario usuario = (Usuario) auth.getPrincipal();
-            if (programaId != null) {
-                temaServicio.modificarTema(id, programaId, usuario.getDocente(), titulo, descripcion, contenido,
-                        dias(duracion, duracionUnidad));
-            } else {
-                temaServicio.modificarTema(id, usuario.getDocente(), titulo, descripcion, contenido);
-            }
-            return RespuestaFormularioUtilidad.respuestaExitosa("Tema modificado correctamente.");
-        } catch (Exception e) {
-            return RespuestaFormularioUtilidad.respuestaConError(e);
-        }
-    }
-
-    // ---------------------------------------------------------------- Unidades de duración
-
-    /** Convierte la dedicación docente recibida (en minutos u horas) a minutos; {@code null} si no se envió. */
-    private static Integer minutos(Integer cantidad, String unidad) {
-        if (cantidad == null) {
-            return null;
-        }
-        try {
-            return DuracionUtilidad.aMinutos(cantidad, unidad);
-        } catch (ArithmeticException e) {
-            return Integer.MAX_VALUE; // desborda: el servicio lo rechaza por superar el máximo
-        }
-    }
-
-    /** Convierte la duración recibida (en días, semanas o meses) a días; {@code null} si no se envió. */
-    private static Integer dias(Integer cantidad, String unidad) {
-        if (cantidad == null) {
-            return null;
-        }
-        try {
-            return DuracionUtilidad.aDias(cantidad, unidad);
-        } catch (ArithmeticException e) {
-            return Integer.MAX_VALUE; // desborda: el servicio lo rechaza por superar el máximo
-        }
     }
 
     // ---------------------------------------------------------------- Bajas
@@ -249,26 +146,6 @@ public class TemaControlador extends PanelCursoControlador {
                 temaServicio.darDeBajaTema(id, programaId, docenteQueGestiona(auth));
             }
             return RespuestaFormularioUtilidad.respuestaExitosa("Tema dada de baja con éxito.");
-        } catch (Exception e) {
-            return RespuestaFormularioUtilidad.respuestaConError(e);
-        }
-    }
-
-    /**
-     * CU-22: Da de baja varios temas del cronograma de un programa, todas o ninguna. Responde en JSON.
-     *
-     * @param ids        Identificadores de los temas seleccionados.
-     * @param programaId Identificador del programa.
-     * @param auth       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
-    @PostMapping("/darDeBajaMasiva")
-    public ResponseEntity<Map<String, String>> darDeBajaVarias(
-            @RequestParam(value = "ids", required = false) List<Integer> ids,
-            @RequestParam(value = "programaId", required = false) Integer programaId, Authentication auth) {
-        try {
-            temaServicio.darDeBajaVarias(ids, programaId, docenteQueGestiona(auth));
-            return RespuestaFormularioUtilidad.respuestaExitosa("Temas dadas de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

@@ -44,7 +44,7 @@
                                 <th data-col="Nombre" data-orden-inicial="asc" data-campo="nombre" data-filtro="texto">Nombre</th>
                                 <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
-                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -153,9 +153,6 @@
                     </div>
                     <form th:action="@{'/categoria/modificar/' + ${cat.idCategoria}}" method="post" class="form-ajax" data-validar novalidate
                           th:with="bloqueada=${inscripcionesPorCategoria != null and inscripcionesPorCategoria.containsKey(cat.idCategoria) and inscripcionesPorCategoria.get(cat.idCategoria) > 0}">
-                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
-                            La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
-                        </div>
                         <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano">
                             <div class="pn-campo mb-3">
                                 <div class="pn-etiqueta-fila">
@@ -174,6 +171,9 @@
                                 <div class="pn-ayuda-error"></div>
                             </div>
                         </fieldset>
+                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
+                            La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
+                        </div>
                         <div class="pn-modal-pie">
                             <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
                             <button type="submit" class="pn-btn pn-btn-primario" th:disabled="${bloqueada}">Actualizar</button>

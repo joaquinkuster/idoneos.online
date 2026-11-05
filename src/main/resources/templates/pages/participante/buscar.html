@@ -53,7 +53,7 @@
                         <thead>
                             <tr>
                                 <th data-col="Nombre y apellido" data-campo="nombreYApellido" data-filtro="texto">Nombre y apellido</th>
-                                <th data-col="Rol" data-campo="rol" data-filtro="lista">Rol</th>
+                                <th data-col="Rol" data-campo="rol" data-filtro="lista" data-sin-busqueda>Rol</th>
                                 <th data-col="Programa" data-campo="programa" data-filtro="lista">Programa</th>
                                 <th th:unless="${soloCohorte}" data-col="Cohorte" data-campo="cohorte" data-filtro="estatico">Cohorte</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
@@ -83,7 +83,7 @@
                                     </span>
                                 </td>
                                 <td><span class="pn-insignia pn-insignia-verde">Alumno</span></td>
-                                <td th:text="${i.cohorte.programa.nombre}">Programa 2026</td>
+                                <td th:text="${i.cohorte.programa != null ? i.cohorte.programa.nombre : '—'}">Programa 2026</td>
                                 <td th:unless="${soloCohorte}" th:text="${i.cohorte.etiqueta}">Septiembre 2026</td>
                                 <td th:text="${#temporals.format(a.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                             </tr>

@@ -316,6 +316,17 @@ public class Curso {
     }
 
     /**
+     * Obtiene las cohortes del curso que no están dadas de baja ni canceladas (tengan o no programa), de la más reciente
+     * a la más antigua: las que el docente puede elegir como cohorte por defecto.
+     *
+     * @return Las cohortes con las que se puede trabajar.
+     */
+    public List<Cohorte> getCohortesDeTrabajo() {
+        return cohortes.stream().filter(cohorte -> !cohorte.getBaja() && !cohorte.esCancelada())
+                .sorted(java.util.Comparator.comparingInt(Cohorte::getIdCohorte).reversed()).toList();
+    }
+
+    /**
      * Obtiene las cohortes vigentes del curso que tienen fechas de dictado (las de los cursos en vivo).
      *
      * @return Las cohortes vigentes con fechas de dictado.

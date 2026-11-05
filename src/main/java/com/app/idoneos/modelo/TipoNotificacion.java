@@ -54,4 +54,7 @@ public class TipoNotificacion {
 
     /** Aviso de que una cohorte pendiente se canceló. */
     public static final String COHORTE_CANCELADA = "Cohorte cancelada";
+
+    /** Aviso que recibe el alumno que marcó «Recordarme» en una cohorte próxima, unos días antes de que abra su inscripción. */
+    public static final String RECORDATORIO_COHORTE = "Recordatorio de cohorte";
 }

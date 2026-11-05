@@ -65,7 +65,7 @@ public class Alumno {
      */
     public Inscripcion getInscripcionActivaEn(Curso curso) {
         return inscripciones.stream()
-                .filter(i -> !i.esInactivo() && i.getCohorte().getPrograma().getCurso().getIdCurso() == curso.getIdCurso())
+                .filter(i -> !i.esInactivo() && i.getCohorte().getCurso().getIdCurso() == curso.getIdCurso())
                 .findFirst().orElse(null);
     }
 }

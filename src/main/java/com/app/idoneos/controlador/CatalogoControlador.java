@@ -39,6 +39,12 @@ import com.app.idoneos.servicio.Programa.ProgramaServicioImpl;
 public class CatalogoControlador {
 
     @Autowired
+    private com.app.idoneos.servicio.RecordatorioCohorte.RecordatorioCohorteServicio recordatorioServicio;
+
+    @Autowired
+    private com.app.idoneos.servicio.Parametro.ParametroServicio parametroServicio;
+
+    @Autowired
     private PagoServicio pagoServicio;
 
     @Autowired
@@ -83,6 +89,12 @@ public class CatalogoControlador {
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
             @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo, Authentication auth) {
         List<Curso> cursos = cursoServicio.buscarEnCatalogo(null, null, null, null, null); // todos: los filtros (también los de la URL) se aplican en la pantalla
+
+        // Los cursos que todavía no tienen una cohorte con la inscripción abierta, solo próximas: la tarjeta dice «Próximamente»
+        java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();
+        cursos.stream().filter(curso -> cursoServicio.buscarCohortesAbiertas(curso).isEmpty())
+                .forEach(curso -> cursosProximamente.add(curso.getIdCurso()));
+        modelo.addAttribute("cursosProximamente", cursosProximamente);
 
         // Cantidad de temas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadTemasPorCurso = new HashMap<>();
@@ -131,7 +143,17 @@ public class CatalogoControlador {
         modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
         modelo.addAttribute("descuentosVigentes", descuentoServicio.buscarVigentes());
         modelo.addAttribute("cursoSeleccionado", curso);
-        modelo.addAttribute("cohortesAbiertas", cursoServicio.buscarCohortesAbiertas(curso));
+        List<com.app.idoneos.modelo.Cohorte> abiertas = cursoServicio.buscarCohortesAbiertas(curso);
+        List<com.app.idoneos.modelo.Cohorte> proximas = cursoServicio.buscarCohortesProximas(curso);
+        modelo.addAttribute("cohortesAbiertas", abiertas);
+        // El select de la ficha ofrece las abiertas primero y las próximas después, cada una con su estado
+        List<com.app.idoneos.modelo.Cohorte> elegibles = new java.util.ArrayList<>(abiertas);
+        elegibles.addAll(proximas);
+        modelo.addAttribute("cohortesElegibles", elegibles);
+        modelo.addAttribute("cohortesRecordadas", recordatorioServicio.idsDeCohortesRecordadas(alumnoDe(auth)));
+        modelo.addAttribute("diasRecordatorio", Math.max(0, parametroServicio.obtenerEntero(
+                com.app.idoneos.modelo.Parametro.COHORTE_RECORDATORIO_DIAS_ANTICIPACION,
+                com.app.idoneos.modelo.Parametro.COHORTE_RECORDATORIO_DIAS_ANTICIPACION_POR_DEFECTO)));
         List<Programa> programas = programaServicio.buscarPorCurso(curso);
         if (!programas.isEmpty()) {
             Programa programa = programas.get(0);

@@ -22,6 +22,8 @@
     var entradas = {};
     CAMPOS.forEach(function (campo) { entradas[campo] = formulario.querySelector('[data-tema-campo="' + campo + '"]'); });
     var tituloFormulario = formulario.querySelector('[data-tema-titulo-formulario]');
+    var botonNuevo = formulario.querySelector('[data-tema-nuevo]');
+    var cantidad = formulario.querySelector('[data-temas-cantidad]');
     var botonAplicar = formulario.querySelector('[data-tema-aplicar]');
     var botonQuitar = formulario.querySelector('[data-tema-quitar]');
     var campoCambios = formulario.querySelector('[data-temas-cambios]');
@@ -75,28 +77,32 @@
             var estado = tema.nuevo ? 'Nuevo' : (cambiado(tema) ? 'Modificado' : '');
             chip.textContent = estado;
             chip.classList.toggle('d-none', !estado);
-            chip.classList.toggle('pn-chip-verde', tema.nuevo);
-            chip.classList.toggle('pn-chip-naranja', !tema.nuevo);
+            chip.classList.toggle('pn-chip-verde', !!estado);
             tema.boton.querySelector('.pn-tema-item-titulo').textContent = tema.titulo || '(sin título)';
+            tema.boton.querySelector('.pn-tema-item-desc').textContent = tema.descripcion || 'Sin descripción';
         });
         vacio.hidden = temas.length > 0;
+        cantidad.textContent = temas.length;
     }
 
     function elegir(tema) {
         seleccionado = tema;
         CAMPOS.forEach(function (campo) { escribir(campo, tema ? tema[campo] : ''); });
-        tituloFormulario.textContent = tema ? 'Editar tema' + (tema.nuevo ? ' (nuevo)' : '') : 'Nuevo tema';
-        botonAplicar.textContent = tema ? 'Aplicar cambios' : 'Agregar a la lista';
+        tituloFormulario.textContent = tema ? 'Editar tema' : 'Agregar nuevo tema';
+        botonNuevo.hidden = !tema;
+        botonAplicar.textContent = tema ? 'Editar' : 'Agregar';
         botonQuitar.hidden = !tema || (!tema.nuevo && !cambiado(tema));
         botonQuitar.textContent = tema && tema.nuevo ? 'Quitar de la lista' : 'Descartar cambios';
         dibujarLista();
     }
 
     function crearBoton(tema) {
-        var boton = document.createElement('button');
-        boton.type = 'button';
+        var boton = document.createElement('div');
         boton.className = 'pn-tema-item';
-        boton.innerHTML = '<span class="pn-tema-item-titulo"></span><span class="pn-chip d-none" data-estado></span>';
+        boton.setAttribute('role', 'button');
+        boton.tabIndex = 0;
+        boton.innerHTML = '<div class="pn-tema-item-cuerpo"><span class="pn-tema-item-titulo"></span><span class="pn-tema-item-desc"></span></div>'
+            + '<span class="pn-chip d-none" data-estado></span>';
         boton.addEventListener('click', function () { intentarElegir(tema); });
         tema.boton = boton;
         contenedorItems.appendChild(boton);
@@ -141,6 +147,7 @@
         CAMPOS.forEach(function (campo) { tema[campo] = boton.dataset[campo] || ''; });
         tema.original = valoresDe(tema);
         boton.addEventListener('click', function () { intentarElegir(tema); });
+        boton.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); intentarElegir(tema); } });
         temas.push(tema);
     });
 

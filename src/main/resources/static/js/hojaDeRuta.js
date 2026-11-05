@@ -205,7 +205,17 @@
             var sufijo = formulario.getAttribute('data-resumen-titulo');
             var campoNombre = formulario.querySelector('[name="nombre"], [name="titulo"]');
             var titulo;
-            if (campoNombre && !campoNombre.disabled && campoNombre.value.trim()) {
+            var periodo = formulario.getAttribute('data-resumen-periodo');
+            var partes = periodo ? periodo.split('|') : [];
+            var desde = periodo ? formulario.querySelector('[name="' + partes[0] + '"]') : null;
+            var hasta = periodo ? formulario.querySelector('[name="' + partes[1] + '"]') : null;
+            function fecha(c) { return c && c.value ? c.value.split('-').reverse().join('/') : ''; }
+            if (desde && desde.value) {
+                // Un dato representativo de la cohorte: "Inscripción 01/11/2026 al 15/11/2026"
+                titulo = esc(partes[2] + ' ' + fecha(desde) + (hasta && hasta.value ? ' al ' + fecha(hasta) : ''));
+            } else if (formulario.hasAttribute('data-resumen-nombre')) {
+                titulo = esc(formulario.getAttribute('data-resumen-nombre'));
+            } else if (campoNombre && !campoNombre.disabled && campoNombre.value.trim()) {
                 titulo = esc(campoNombre.value.trim());
             } else if (sufijo) {
                 titulo = esc(nombre + ' ' + sufijo.replace(/^\(|\)$/g, ''));

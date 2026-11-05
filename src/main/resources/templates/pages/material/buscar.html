@@ -56,13 +56,12 @@
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
                                 <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
-                                <th data-col="Tipo" data-campo="tipo" data-filtro="lista">Tipo</th>
+                                <th data-col="Tipo" data-campo="tipo" data-filtro="lista" data-sin-busqueda>Tipo</th>
                                 <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
-                                <th data-col="Archivo" data-campo="archivo" data-filtro="lista">Archivo</th>
-                                <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista">Visibilidad</th>
-                                <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista">Generado por IA</th>
+                                <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visibilidad</th>
+                                <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
-                                <th data-col="Estado" data-campo="estado" data-filtro="lista">Estado</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -83,11 +82,6 @@
                                 </td>
                                 <td><span class="pn-truncar pn-truncar-corto" th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</span></td>
                                 <td>
-                                    <span th:if="${m.tieneArchivo()}">Archivo adjunto</span>
-                                    <span th:if="${m.esEnlaceExterno()}">Enlace externo</span>
-                                    <span th:if="${m.rutaArchivo == null}">—</span>
-                                </td>
-                                <td>
                                     <span class="pn-insignia" th:classappend="${m.oculto} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"
                                           th:text="${m.oculto} ? 'Oculto' : 'Publicado'">Publicado</span>
                                 </td>
@@ -106,7 +100,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/vacio :: fila(11, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/vacio :: fila(10, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -247,26 +241,35 @@
                             <input type="text" name="editorial" class="pn-input" maxlength="100" placeholder="Editorial" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-3 pn-campo" data-bloque="paginas" hidden>
-                            <label class="pn-etiqueta">Páginas (opcional)</label>
-                            <input type="number" name="paginas" class="pn-input" min="1" step="1">
-                            <div class="pn-ayuda-error"></div>
-                        </div>
-<div class="col-md-3 pn-campo" data-bloque="fechaPublicacion" hidden>
+<div class="col-md-6 pn-campo" data-bloque="fechaPublicacion" hidden>
                             <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
                             <input type="date" name="fechaPublicacion" class="pn-input">
                             <div class="pn-ayuda-error"></div>
                         </div>
+<div class="col-md-6 pn-campo" data-bloque="paginas" hidden>
+                            <label class="pn-etiqueta">Páginas</label>
+                            <input type="number" name="paginas" class="pn-input pn-bloqueado" readonly placeholder="Se calcula">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
 <div class="col-md-6 pn-campo" data-bloque="duracionMinutos" hidden>
-                            <label class="pn-etiqueta">Duración en minutos (opcional)</label>
-                            <input type="number" name="duracionMinutos" class="pn-input" min="1" step="1">
+                            <label class="pn-etiqueta">Duración</label>
+                            <input type="hidden" name="duracionMinutos">
+                            <div class="pn-tiempo-fila">
+                                <label class="pn-tiempo-parte"><span>Minutos</span>
+                                    <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-minutos>
+                                </label>
+                                <label class="pn-tiempo-parte"><span>Segundos</span>
+                                    <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-segundos>
+                                </label>
+                            </div>
+                            <span class="visually-hidden" data-resumen-linea="Duración" data-duracion-linea></span>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-12 pn-campo" data-bloque="terminos" data-resumen-omitir>
                             <label class="pn-casilla">
                                 <input type="checkbox" name="terminos" value="true" required
-                                       data-mensaje-obligatorio="Debe aceptar los términos y condiciones.">
-                                <span>Declaro tener los derechos sobre el contenido de este material y acepto los términos y condiciones.</span>
+                                       data-mensaje-obligatorio="Debe aceptar ser responsable del contenido.">
+                                <span><b>Términos y condiciones.</b> Acepto ser responsable del contenido que subo a la plataforma.</span>
                             </label>
                             <div class="pn-ayuda-error"></div>
                         </div>
@@ -389,20 +392,29 @@
                                 <input type="text" name="editorial" class="pn-input" maxlength="100" th:value="${bibliografia.editorial}" data-contador>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-3 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
-                                <label class="pn-etiqueta">Páginas (opcional)</label>
-                                <input type="number" name="paginas" class="pn-input" min="1" step="1"
-                                       th:value="${tipo == 'Bibliografía' ? bibliografia.paginas : m.recurso.materialLectura.paginas}">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-md-3 pn-campo" th:if="${tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
                                 <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
                                 <input type="date" name="fechaPublicacion" class="pn-input" th:value="${bibliografia.fechaPublicacion}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Grabación'}">
-                                <label class="pn-etiqueta">Duración en minutos (opcional)</label>
-                                <input type="number" name="duracionMinutos" class="pn-input" min="1" step="1" th:value="${m.recurso.grabacion.duracionMinutos}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
+                                <label class="pn-etiqueta">Páginas</label>
+                                <input type="number" name="paginas" class="pn-input pn-bloqueado" readonly placeholder="Se calcula"
+                                       th:value="${tipo == 'Bibliografía' ? bibliografia.paginas : m.recurso.materialLectura.paginas}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Grabación'}" th:with="minutosGrabados=${m.recurso.grabacion.duracionMinutos}">
+                                <label class="pn-etiqueta">Duración</label>
+                                <input type="hidden" name="duracionMinutos" th:value="${minutosGrabados}">
+                                <div class="pn-tiempo-fila">
+                                    <label class="pn-tiempo-parte"><span>Minutos</span>
+                                        <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-minutos th:value="${minutosGrabados}">
+                                    </label>
+                                    <label class="pn-tiempo-parte"><span>Segundos</span>
+                                        <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-segundos th:value="${minutosGrabados != null ? 0 : ''}">
+                                    </label>
+                                </div>
+                                <span class="visually-hidden" data-resumen-linea="Duración" data-duracion-linea th:text="${minutosGrabados != null ? minutosGrabados + ' min' : ''}"></span>
                                 <div class="pn-ayuda-error"></div>
                             </div>
         </div>

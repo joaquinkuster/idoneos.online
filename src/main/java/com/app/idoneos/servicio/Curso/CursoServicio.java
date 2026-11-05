@@ -98,6 +98,15 @@ public interface CursoServicio {
     List<Cohorte> buscarCohortesAbiertas(Curso curso);
 
     /**
+     * Busca las cohortes próximas de un curso: activas, cuya inscripción todavía no abrió. Los alumnos pueden pedir que el sistema
+     * les avise antes de que abra.
+     *
+     * @param curso el curso a consultar
+     * @return una lista de cohortes próximas, de la que abre antes a la que abre después
+     */
+    List<Cohorte> buscarCohortesProximas(Curso curso);
+
+    /**
      * Verifica si un curso tiene inscripciones activas asociadas.
      *
      * @param curso el curso a consultar

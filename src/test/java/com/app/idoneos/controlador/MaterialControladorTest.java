@@ -97,8 +97,8 @@ class MaterialControladorTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Recomendamos PDF"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Agregar un recurso o actividad"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalSelectorRecurso"))))
-                // la sidebar de gestión académica con "Materiales" activo y funcionando
-                .andExpect(content().string(Matchers.containsString("Contenido de los temas")))
+                // la sidebar de gestión académica con "Recursos" activo y funcionando
+                .andExpect(content().string(Matchers.containsString("Recursos")))
                 .andExpect(content().string(Matchers.containsString("/material/buscar?cursoId=")));
     }
 

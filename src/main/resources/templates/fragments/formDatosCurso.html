@@ -1,7 +1,7 @@
 <!-- Formulario por pasos "Editar curso" del docente: los datos académicos del curso (nivel, carga horaria, descripción,
      objetivos e imagen). Parámetro: curso (el curso que se completa). -->
 <form th:fragment="formulario(curso)" th:action="@{'/curso/completarDatos/' + ${curso.idCurso}}" method="post" enctype="multipart/form-data"
-      class="form-ajax" data-validar data-pasos data-resumen="Curso" data-modo="modificacion" novalidate>
+      class="form-ajax" data-validar data-pasos data-resumen="Curso" data-modo="modificacion" th:attr="data-resumen-nombre=${curso.nombre}" novalidate>
 
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
@@ -13,7 +13,7 @@
             <h4>Datos básicos</h4>
             <p>Los datos académicos del curso</p>
         </div>
-        <div class="row g-3">
+        <div class="row g-3 align-items-end pn-sin-equivalencia">
             <div class="col-md-6 pn-campo">
                 <div class="pn-etiqueta-con-ayuda">
                     <label class="pn-etiqueta">Nivel <span class="pn-obligatorio">*</span></label>
@@ -35,6 +35,20 @@
                 </div>
                 <th:block th:replace="~{fragments/campoTiempo :: minutos('cargaHoraria', ${curso.cargaHorariaMinutos}, ${false}, ${curso.emiteCertificado ? 'Ingresá la carga horaria: va impresa en el certificado.' : null}, ${false})}"></th:block>
                 <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 ayuda-desplegable" id="ayudaNivelCurso">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span><strong>Básico:</strong> no pide conocimientos previos. <strong>Intermedio:</strong> pide manejar los fundamentos del tema. <strong>Avanzado:</strong> es para quien ya lo aplica en su trabajo.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 ayuda-desplegable" id="ayudaCargaHorariaCurso">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>La <strong>carga horaria</strong> es el total de horas que se imprime en el certificado. No afecta la duración del curso ni la asignación de los temas.</span>
+                    </div>
+                </div>
             </div>
             <div class="col-12 pn-campo">
                 <div class="pn-etiqueta-fila">
@@ -59,20 +73,6 @@
                      th:classappend="${curso.imagen == null} ? 'd-none'"
                      th:src="${curso.imagen != null} ? @{${curso.urlImagen}} : '#'"
                      th:attr="data-original=${curso.imagen != null ? curso.urlImagen : ''}">
-            </div>
-            <div class="col-12 ayuda-desplegable" id="ayudaNivelCurso">
-                <div class="ayuda-desplegable-interior">
-                    <div class="cn-info">
-                        <span><strong>Básico:</strong> no pide conocimientos previos. <strong>Intermedio:</strong> pide manejar los fundamentos del tema. <strong>Avanzado:</strong> es para quien ya lo aplica en su trabajo.</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 ayuda-desplegable" id="ayudaCargaHorariaCurso">
-                <div class="ayuda-desplegable-interior">
-                    <div class="cn-info">
-                        <span>La <strong>carga horaria</strong> es el total de horas que se imprime en el certificado. No afecta la duración del curso ni la asignación de los temas.</span>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

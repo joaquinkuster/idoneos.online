@@ -31,7 +31,9 @@ import com.app.idoneos.repositorio.TemaRepositorio;
 @Transactional
 class MenuActivoControladorTest {
 
-    private static final Pattern ENLACE_ACTIVO = Pattern.compile("<a [^>]*class=\"pn-menu-enlace activo\"[^>]*>\\s*<i[^>]*></i>\\s*<span>([^<]*)</span>");
+    // Un enlace del menú activo, o el título de un grupo que es enlace (Programas, Temas, Cohortes) activo
+    private static final Pattern ENLACE_ACTIVO = Pattern.compile(
+            "<a [^>]*class=\"pn-menu-enlace activo\"[^>]*>\\s*<span>([^<]*)</span>|<div class=\"pn-menu-grupo activo\"[^>]*>\\s*<a [^>]*>([^<]*)</a>");
 
     @Autowired
     private MockMvc mockMvc;
@@ -62,7 +64,7 @@ class MenuActivoControladorTest {
         int cantidad = 0;
         while (m.find()) {
             cantidad++;
-            activas.append('[').append(m.group(1)).append(']');
+            activas.append('[').append(m.group(1) != null ? m.group(1) : m.group(2)).append(']');
         }
         assertEquals(1, cantidad, url + " debe marcar una sola opción, marca: " + activas);
         assertEquals("[" + opcion + "]", activas.toString(), url);
@@ -76,9 +78,8 @@ class MenuActivoControladorTest {
         marca("/curso/acceder/" + cursoId + "?seccion=clases", "Clases en vivo");
         marca("/tema/buscar?cursoId=" + cursoId, "Temas");
         marca("/programa/buscar?cursoId=" + cursoId, "Programas");
-        marca("/diseno/buscar?cursoId=" + cursoId, "Diseño de curso");
         marca("/participante/buscar?cursoId=" + cursoId, "Participantes");
-        marca("/material/buscar?cursoId=" + cursoId, "Materiales");
+        marca("/material/buscar?cursoId=" + cursoId, "Recursos");
         marca("/glosario/buscar?cursoId=" + cursoId, "Glosario");
         marca("/glosario/ver/" + temaId, "Glosario");
         marca("/foro/buscar?cursoId=" + cursoId, "Foros");
@@ -86,7 +87,7 @@ class MenuActivoControladorTest {
         materialRepositorio.findAll().stream().filter(m -> m.getCurso().getIdCurso() == cursoId).findFirst()
                 .ifPresent(m -> {
                     try {
-                        marca("/material/ver/" + m.getIdTemaRecurso(), "Materiales");
+                        marca("/material/ver/" + m.getIdTemaRecurso(), "Recursos");
                     } catch (Exception e) {
                         throw new IllegalStateException(e);
                     }

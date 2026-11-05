@@ -28,8 +28,6 @@
     // ------------------------------------------------------------------
     var app = document.getElementById('pnApp');
     if (app) {
-        // El menú siempre se carga contraído (sidebar.html lo aplica antes de dibujar)
-        app.classList.add('colapsado');
         document.addEventListener('click', function (e) {
             if (e.target.closest('[data-cerrar-menu]')) {
                 app.classList.remove('menu-abierto');
@@ -37,39 +35,7 @@
         });
     }
 
-    // Grupos desplegables del menú lateral: los enlaces que siguen a un título, hasta el próximo, se ocultan o se muestran al
-    // hacerle clic. El grupo del enlace activo siempre arranca abierto; el resto recuerda cómo lo dejó la persona.
-    document.querySelectorAll('.pn-menu-nav').forEach(function (menu) {
-        Array.prototype.slice.call(menu.querySelectorAll(':scope > .pn-menu-grupo')).forEach(function (titulo) {
-            var cuerpo = document.createElement('div');
-            cuerpo.className = 'pn-menu-grupo-cuerpo';
-            var siguiente = titulo.nextElementSibling;
-            while (siguiente && !siguiente.classList.contains('pn-menu-grupo')) {
-                var proximo = siguiente.nextElementSibling;
-                cuerpo.appendChild(siguiente);
-                siguiente = proximo;
-            }
-            titulo.parentNode.insertBefore(cuerpo, titulo.nextSibling);
-
-            var clave = 'idoneos.menu.grupo.' + (titulo.getAttribute('title') || titulo.textContent.trim());
-            var cerrado = leer(clave) === 'cerrado' && !cuerpo.querySelector('.pn-menu-enlace.activo');
-            function aplicar() {
-                titulo.classList.toggle('cerrado', cerrado);
-                cuerpo.classList.toggle('cerrado', cerrado);
-                titulo.setAttribute('aria-expanded', cerrado ? 'false' : 'true');
-            }
-            function alternar() {
-                cerrado = !cerrado;
-                guardar(clave, cerrado ? 'cerrado' : 'abierto');
-                aplicar();
-            }
-            titulo.addEventListener('click', alternar);
-            titulo.addEventListener('keydown', function (e) {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); alternar(); }
-            });
-            aplicar();
-        });
-    });
+    // Los grupos desplegables del menú lateral los arma menuLateral.js, que se carga junto al menú
 
     // Textos truncados con "...": el texto completo queda disponible al pasar el mouse
     document.querySelectorAll('.pn-truncar').forEach(function (e) {
@@ -198,26 +164,18 @@
                 });
                 valores.sort(function (a, b) { return a.localeCompare(b, 'es', { sensitivity: 'base' }); });
                 var l = crearCampo(nombre);
-                if (valores.length > 8) {
-                    var id = 'sugerencias-' + campo + '-' + (sufijo++);
-                    var texto = entrada('text', campo, nombre, { placeholder: 'Escribí para buscar', list: id });
-                    var lista = document.createElement('datalist');
-                    lista.id = id;
-                    valores.forEach(function (v) { var o = document.createElement('option'); o.value = v; lista.appendChild(o); });
-                    l.appendChild(texto);
-                    l.appendChild(lista);
-                } else {
-                    var sel = document.createElement('select');
-                    sel.name = campo;
-                    sel.className = 'pn-input';
-                    sel.title = nombre;
-                    var todos = document.createElement('option');
-                    todos.value = '';
-                    todos.textContent = 'Todos';
-                    sel.appendChild(todos);
-                    valores.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
-                    l.appendChild(sel);
-                }
+                var sel = document.createElement('select');
+                sel.name = campo;
+                sel.className = 'pn-input';
+                sel.title = nombre;
+                // Todos los filtros de lista se pueden buscar, salvo los de opciones fijas (estado, nivel...)
+                if (!th.hasAttribute('data-sin-busqueda')) { sel.setAttribute('data-buscable', ''); }
+                var todos = document.createElement('option');
+                todos.value = '';
+                todos.textContent = 'Todos';
+                sel.appendChild(todos);
+                valores.forEach(function (v) { var o = document.createElement('option'); o.value = v; o.textContent = v; sel.appendChild(o); });
+                l.appendChild(sel);
             }
         });
     }
@@ -448,6 +406,7 @@
         if (formularioFiltros) {
             var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
             construirFiltros(formularioFiltros, raiz);
+            setTimeout(function () { if (window.SelectBuscable) { window.SelectBuscable.iniciarTodos(formularioFiltros); } }, 0);
             var campos = Array.prototype.filter.call(formularioFiltros.elements, function (c) {
                 return c.name && c.type !== 'hidden' && c.type !== 'button' && c.type !== 'submit' && c.name !== 'orden';
             });
@@ -559,6 +518,13 @@
             });
 
             reaplicar = filtrar;
+            // Un filtro que llega por la dirección (por ejemplo ?estado=Pendiente) se aplica al abrir la página
+            new URLSearchParams(window.location.search).forEach(function (valor, nombre) {
+                var campo = campos.filter(function (c) { return c.name === nombre; })[0];
+                if (campo && valor && campo.tagName === 'SELECT' && Array.prototype.some.call(campo.options, function (o) { return o.value === valor; })) {
+                    campo.value = valor;
+                }
+            });
             // Los campos que llegan completos (por la URL) se aplican apenas carga la página
             filtrar();
         }
@@ -903,10 +869,13 @@
             });
         });
     }
-    if ('requestIdleCallback' in window) {
-        requestIdleCallback(function () { iniciarMultiselect(document); }, { timeout: 1500 });
+    window.iniciarMultiselect = iniciarMultiselect;
+    // Tom Select se carga después de este script (al final de la página): se arma apenas termina de leerse el documento, no en
+    // un momento ocioso, para que los selectores no se vean cargarse tarde
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { iniciarMultiselect(document); });
     } else {
-        setTimeout(function () { iniciarMultiselect(document); }, 300);
+        iniciarMultiselect(document);
     }
     document.querySelectorAll('.modal').forEach(function (modal) {
         modal.addEventListener('show.bs.modal', function () { iniciarMultiselect(modal); });

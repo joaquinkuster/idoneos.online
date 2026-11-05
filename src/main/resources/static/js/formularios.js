@@ -17,12 +17,18 @@
     var MENSAJE_INESPERADO = 'Error! Ocurrió un error inesperado. Intente nuevamente.';
 
     function alertaDe(formulario) {
-        var alerta = formulario.previousElementSibling;
+        // Las alertas van debajo del formulario, justo antes de los botones; sin botones, justo antes del formulario
+        var pie = formulario.querySelector(':scope > .pn-modal-pie');
+        var alerta = pie ? formulario.querySelector(':scope > .alert-formulario') : formulario.previousElementSibling;
         if (!alerta || !alerta.classList.contains('alert-formulario')) {
             alerta = document.createElement('div');
             alerta.className = 'alert alert-danger alert-formulario py-2 px-3 small mb-3 d-none';
             alerta.setAttribute('role', 'alert');
-            formulario.parentNode.insertBefore(alerta, formulario);
+            if (pie) {
+                formulario.insertBefore(alerta, pie);
+            } else {
+                formulario.parentNode.insertBefore(alerta, formulario);
+            }
         }
         return alerta;
     }

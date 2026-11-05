@@ -53,38 +53,37 @@
                                 <button type="button" class="cn-pestania activa" data-vista="calendario">Vista de calendario</button>
                                 <button type="button" class="cn-pestania" data-vista="temas">Vista por temas</button>
                             </div>
-                            <!-- Escala de la grilla: solo cambia cómo se dibuja; la duración siempre se guarda en días -->
-                            <label class="cn-escala" data-escala-etiqueta>Escala
-                                <select class="pn-input" data-escala aria-label="Escala del calendario">
-                                    <option value="dias">Días</option>
-                                    <option value="semanas">Semanas</option>
-                                    <option value="meses">Meses</option>
-                                </select>
-                            </label>
+                            <!-- Duración total del programa y mínimo de temas que exige el sistema -->
+                            <div class="cn-datos">
+                                <span>Duración total: <strong data-total th:text="${T(com.app.idoneos.utilidades.DuracionUtilidad).formatear(programa.duracionTotalDias)}">9 semanas</strong></span>
+                                <span th:if="${minimoTemasConMaterial != null}">Mínimo requerido: <strong th:text="${minimoTemasConMaterial + (minimoTemasConMaterial == 1 ? ' tema' : ' temas')}">2 temas</strong></span>
+                            </div>
                         </div>
 
                         <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
-                            <span>Podés arrastrar los temas para reordenarlos o modificar su duración (borde derecho de la barra). En la vista por temas también podés escribir la duración en días, semanas o meses. Se guarda siempre en días. Los cambios se guardan al finalizar. Para quitar un tema, arrastrala al panel izquierdo: si no forma parte de otro programa, quedará dada de baja.</span>
+                            <span>Podés arrastrar los temas para reordenarlos o modificar su duración. Para quitar un tema, arrastralo al panel izquierdo.</span>
                         </div>
 
+                        <!-- Escala de la grilla: solo cambia cómo se dibuja; la duración siempre se guarda en días -->
+                        <label class="cn-escala" data-escala-etiqueta>Escala
+                            <select class="pn-input" data-escala aria-label="Escala del calendario">
+                                <option value="dias">Días</option>
+                                <option value="semanas">Semanas</option>
+                                <option value="meses">Meses</option>
+                            </select>
+                        </label>
                         <div class="cn-grilla" data-grilla></div>
                         <div class="cn-zona" data-zona th:if="${puedeEditar}">
-                            <i class="fa-solid fa-circle-plus"></i> Arrastrá un tema desde la izquierda o hacé clic en + Nuevo tema
+                            Arrastrá un tema desde la izquierda o hacé clic en + Nuevo tema
                         </div>
 
                         <div class="cn-vista-temas" data-vista-temas hidden>
                             <table class="pn-tabla">
                                 <thead>
-                                    <tr><th>Orden</th><th>Tema</th><th>Material</th><th>Duración</th><th>Período</th></tr>
+                                    <tr><th>Orden</th><th>Tema</th><th>Duración</th><th>Período</th></tr>
                                 </thead>
                                 <tbody data-tabla></tbody>
                             </table>
-                        </div>
-
-                        <div class="cn-resumen">
-                            <strong>Resumen del cronograma</strong>
-                            <span class="cn-resumen-pastillas" data-resumen></span>
-                            <span class="cn-resumen-total" data-total-resumen>Total: 0 días</span>
                         </div>
 
                         <!-- Qué es la línea roja de la grilla -->

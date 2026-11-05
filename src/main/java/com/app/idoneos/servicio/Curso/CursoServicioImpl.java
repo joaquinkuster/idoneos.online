@@ -192,7 +192,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
     }
 
     /**
-     * Busca los cursos del catálogo público: cursos activos con al menos una cohorte con inscripción abierta.
+     * Busca los cursos del catálogo público: cursos activos con al menos una cohorte con inscripción abierta o próxima.
      *
      * @param texto parte del nombre o la descripción del curso (opcional)
      * @param idCategoria identificador de la categoría (opcional)
@@ -206,7 +206,7 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
             Integer idModalidad) {
         return buscarConFiltros(texto, idCategoria, idNivel, idDocente, idModalidad, "recientes", null).stream()
                 .filter(curso -> !curso.esInactivo())
-                .filter(curso -> !buscarCohortesAbiertas(curso).isEmpty())
+                .filter(curso -> !buscarCohortesAbiertas(curso).isEmpty() || !buscarCohortesProximas(curso).isEmpty())
                 .toList();
     }
 
@@ -237,6 +237,16 @@ public class CursoServicioImpl implements CursoServicio, CrudServicio<Curso> {
                 .filter(programa -> !programa.esInactivo())
                 .flatMap(programa -> programa.getCohortes().stream())
                 .filter(cohorte -> !cohorte.esInactivo() && cohorte.estaAbierta())
+                .sorted(Comparator.comparing(Cohorte::getFechaInicioInscripcion))
+                .toList();
+    }
+
+    @Override
+    public List<Cohorte> buscarCohortesProximas(Curso curso) {
+        return curso.getProgramas().stream()
+                .filter(programa -> !programa.esInactivo())
+                .flatMap(programa -> programa.getCohortes().stream())
+                .filter(cohorte -> !cohorte.esInactivo() && "Próxima".equals(cohorte.getEstado()))
                 .sorted(Comparator.comparing(Cohorte::getFechaInicioInscripcion))
                 .toList();
     }

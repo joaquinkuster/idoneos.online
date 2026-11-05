@@ -81,7 +81,9 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
     @GetMapping("/buscar")
     public String buscarAutoevaluaciones(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "accion", required = false) String accion,
-            @RequestParam(value = "autoevaluacionId", required = false) Integer autoevaluacionId, Model modelo,
+            @RequestParam(value = "autoevaluacionId", required = false) Integer autoevaluacionId,
+            @RequestParam(value = "nuevo", required = false) String nuevo,
+            @RequestParam(value = "temaId", required = false) Integer temaId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
@@ -120,7 +122,12 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
                 abrirModal = "modalEditarAutoevaluacion" + autoevaluacionId;
             }
 
+            // Desde «Completar contenido» se llega con ?nuevo&temaId=: se abre sola la ventana para registrar la autoevaluación de ese tema
+            if (abrirModal == null && !esAdministrador && nuevo != null) {
+                abrirModal = "modalNuevaAutoevaluacion";
+            }
             cargarContexto(modelo, contexto, "autoevaluaciones");
+            modelo.addAttribute("temaSeleccionada", temaId);
             modelo.addAttribute("abrirModal", abrirModal);
             modelo.addAttribute("gruposDePools", gruposDePools);
             modelo.addAttribute("autoevaluaciones", autoevaluaciones);
@@ -221,8 +228,8 @@ public class AutoevaluacionControlador extends PanelCursoControlador {
             Autoevaluacion autoevaluacion = autoevaluacionServicio.registrarAutoevaluacion(usuario.getDocente(), temaId,
                     new SolicitudAutoevaluacion(nombre, tiempoLimite, cantidadPreguntas, notaMinima, intentosPermitidos,
                             fechaApertura, fechaCierre, descuentoPorError, navegacionLibre, permiteSalir, oculto, idsPools));
-            return RespuestaFormularioUtilidad
-                    .respuestaExitosa("Autoevaluación '" + autoevaluacion.getNombre() + "' registrada con éxito.");
+            return exitoConContenidoPendiente("Autoevaluación '" + autoevaluacion.getNombre() + "' registrada con éxito.", null,
+                    autoevaluacion.getTema().getCurso().getIdCurso(), usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

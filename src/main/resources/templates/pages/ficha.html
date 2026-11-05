@@ -8,8 +8,8 @@
 <body class="wf-canvas-bg fx-ficha"
       th:with="curso=${cursoSeleccionado},
                cantidadTemas=${cronogramas != null ? #lists.size(cronogramas) : 0},
-               hayCohortes=${cohortesAbiertas != null and !#lists.isEmpty(cohortesAbiertas)},
-               primeraCohorte=${cohortesAbiertas != null and !#lists.isEmpty(cohortesAbiertas) ? cohortesAbiertas.get(0) : null}">
+               hayCohortes=${cohortesElegibles != null and !#lists.isEmpty(cohortesElegibles)},
+               primeraCohorte=${cohortesElegibles != null and !#lists.isEmpty(cohortesElegibles) ? cohortesElegibles.get(0) : null}">
 
   <div class="cu-page-container">
     <div class="screen-frame">
@@ -80,19 +80,24 @@
             <p class="fx-apoyo fx-descuento" th:if="${descuentosVigentes != null and !#lists.isEmpty(descuentosVigentes) and curso.precio != null and curso.precio > 0}"
                th:text="${descuentoAplicable != null ? descuentoAplicable.porcentajeTexto + '% de descuento: ' + descuentoAplicable.nombre : 'Hasta ' + descuentosVigentes.get(0).porcentajeTexto + '% de descuento según tus cursos comprados'}">10% de descuento: Descuento de bienvenida</p>
 
-            <th:block th:if="${hayCohortes}">
+            <th:block th:if="${hayCohortes}" th:with="primeraAbierta=${primeraCohorte.estado == 'Abierta'}, alumno=${usuario != null ? usuario.alumno : null}">
               <label class="fx-etiqueta-campo" for="fxCohorte">Cohorte</label>
+              <!-- Un solo select con las cohortes abiertas y las próximas; el estado de cada una va entre paréntesis -->
               <select id="fxCohorte" class="pn-input" data-cohortes>
-                <option th:each="cohorte : ${cohortesAbiertas}" th:value="${cohorte.idCohorte}"
-                        th:text="${cohorte.programa.nombre + (cohorte.fechaInicioDictado != null ? ' · desde ' + #temporals.format(cohorte.fechaInicioDictado, 'dd/MM/yyyy') : '')}"
-                        th:attr="data-hasta=${#temporals.format(cohorte.fechaFinInscripcion, 'dd/MM/yyyy')}, data-cupos=${cohorte.cupoDisponible != null ? cohorte.cupoDisponible + (cohorte.cupoDisponible == 1 ? ' cupo disponible' : ' cupos disponibles') : 'Sin límite de cupo'}">Programa 2026</option>
+                <option th:each="cohorte : ${cohortesElegibles}" th:value="${cohorte.idCohorte}"
+                        th:text="${cohorte.programa.nombre + (cohorte.fechaInicioDictado != null ? ' · desde ' + #temporals.format(cohorte.fechaInicioDictado, 'dd/MM/yyyy') : '') + ' (' + cohorte.estado + ')'}"
+                        th:attr="data-estado=${cohorte.estado}, data-hasta=${#temporals.format(cohorte.fechaFinInscripcion, 'dd/MM/yyyy')},
+                                 data-abre=${#temporals.format(cohorte.fechaInicioInscripcion, 'dd/MM/yyyy')},
+                                 data-aviso=${#temporals.format(cohorte.fechaInicioInscripcion.minusDays(diasRecordatorio), 'dd/MM/yyyy')},
+                                 data-recordada=${cohortesRecordadas != null and cohortesRecordadas.contains(cohorte.idCohorte)},
+                                 data-cupos=${cohorte.cupoDisponible != null ? cohorte.cupoDisponible + (cohorte.cupoDisponible == 1 ? ' cupo disponible' : ' cupos disponibles') : 'Sin límite de cupo'}">Programa</option>
               </select>
               <div class="fx-apoyo-fila">
                 <p class="fx-apoyo" data-apoyo
-                   th:text="${'Inscripción hasta el ' + #temporals.format(primeraCohorte.fechaFinInscripcion, 'dd/MM/yyyy') + ' · ' + (primeraCohorte.cupoDisponible != null ? primeraCohorte.cupoDisponible + (primeraCohorte.cupoDisponible == 1 ? ' cupo disponible' : ' cupos disponibles') : 'Sin límite de cupo')}">Inscripción hasta el 31/03/2026 · 12 cupos disponibles</p>
-                <!-- Cómo se paga: el botón de información muestra u oculta el aviso de abajo (mismo estilo que la ayuda del cronograma) -->
-                <button type="button" class="cn-ayuda" data-ayuda aria-expanded="false" aria-label="Cómo se paga el curso" title="Ayuda"
-                        th:if="${curso.precio != null and curso.precio > 0}"><i class="fa-solid fa-circle-info"></i></button>
+                   th:text="${primeraAbierta ? 'Inscripción hasta el ' + #temporals.format(primeraCohorte.fechaFinInscripcion, 'dd/MM/yyyy') + ' · ' + (primeraCohorte.cupoDisponible != null ? primeraCohorte.cupoDisponible + (primeraCohorte.cupoDisponible == 1 ? ' cupo disponible' : ' cupos disponibles') : 'Sin límite de cupo') : 'La inscripción abre el ' + #temporals.format(primeraCohorte.fechaInicioInscripcion, 'dd/MM/yyyy')}">Inscripción hasta el 05/11/2026</p>
+                <!-- Cómo se paga: el botón de información muestra u oculta el aviso de abajo (solo en las cohortes abiertas) -->
+                <button type="button" class="cn-ayuda" data-ayuda data-solo-abierta aria-expanded="false" aria-label="Cómo se paga el curso" title="Ayuda"
+                        th:if="${curso.precio != null and curso.precio > 0}" th:hidden="${!primeraAbierta}"><i class="fa-solid fa-circle-info"></i></button>
               </div>
               <div class="ayuda-desplegable" data-ayuda-texto th:if="${curso.precio != null and curso.precio > 0}">
                 <div class="ayuda-desplegable-interior">
@@ -101,29 +106,40 @@
                   </div>
                 </div>
               </div>
-            </th:block>
-            <p class="fx-apoyo" th:unless="${hayCohortes}">Por ahora el curso no tiene cohortes con inscripción abierta.</p>
 
-            <th:block th:if="${hayCohortes}">
-              <a th:if="${usuario == null}" th:href="@{/login}" class="fx-boton-inscribir">Ingresá para inscribirte</a>
-              <!-- Alumno: se aceptan los términos y condiciones acá mismo y se confirma la inscripción (CU-45) -->
-              <form th:if="${usuario != null and usuario.alumno != null}" id="formInscripcion" th:action="@{/inscripcion/inscribir}"
-                    method="post" class="form-ajax fx-form-inscripcion" data-validar novalidate>
-                <input type="hidden" name="cohorteId" data-cohorte-id th:value="${primeraCohorte.idCohorte}">
-                <div class="pn-campo">
-                  <label class="fx-terminos">
-                    <input type="checkbox" name="terminos" value="true" required
-                           data-mensaje-obligatorio="Debe aceptar los términos y condiciones.">
-                    <span><b>Términos y condiciones.</b> Acepto las políticas de privacidad: ante la baja del curso, mis certificados e
-                      intentos de autoevaluación se darán de baja, mi progreso dejará de ser accesible y mis intervenciones en los foros
-                      públicos del curso se conservarán de forma anónima. La baja no genera reembolso.</span>
-                  </label>
-                  <div class="pn-ayuda-error"></div>
-                </div>
-                <button type="submit" class="fx-boton-inscribir">Inscribirme</button>
-              </form>
-              <p class="fx-apoyo" th:if="${usuario != null and usuario.alumno == null}">Solo los alumnos pueden inscribirse a un curso.</p>
+              <!-- Cohorte abierta: la inscripción de siempre -->
+              <div data-bloque="abierta" th:hidden="${!primeraAbierta}">
+                <a th:if="${usuario == null}" th:href="@{/login}" class="fx-boton-inscribir">Ingresá para inscribirte</a>
+                <!-- Alumno: se aceptan los términos y condiciones acá mismo y se confirma la inscripción (CU-45) -->
+                <form th:if="${usuario != null and usuario.alumno != null}" id="formInscripcion" th:action="@{/inscripcion/inscribir}"
+                      method="post" class="form-ajax fx-form-inscripcion" data-validar novalidate>
+                  <input type="hidden" name="cohorteId" data-cohorte-id th:value="${primeraCohorte.idCohorte}">
+                  <div class="pn-campo">
+                    <label class="fx-terminos">
+                      <input type="checkbox" name="terminos" value="true" required
+                             data-mensaje-obligatorio="Debe aceptar los términos y condiciones.">
+                      <span><b>Términos y condiciones.</b> Acepto las políticas de privacidad: ante la baja del curso, mis certificados e
+                        intentos de autoevaluación se darán de baja, mi progreso dejará de ser accesible y mis intervenciones en los foros
+                        públicos del curso se conservarán de forma anónima. La baja no genera reembolso.</span>
+                    </label>
+                    <div class="pn-ayuda-error"></div>
+                  </div>
+                  <button type="submit" class="fx-boton-inscribir">Inscribirme</button>
+                </form>
+                <p class="fx-apoyo" th:if="${usuario != null and usuario.alumno == null}">Solo los alumnos pueden inscribirse a un curso.</p>
+              </div>
+
+              <!-- Cohorte próxima: «Recordarme» en lugar de «Inscribirme» -->
+              <div data-bloque="proxima" th:hidden="${primeraAbierta}">
+                <a th:if="${usuario == null}" th:href="@{/login}" class="fx-boton-recordar">Ingresá para que te recordemos</a>
+                <th:block th:if="${usuario != null and usuario.alumno != null}">
+                  <button type="button" class="fx-boton-recordar" data-recordar><i class="fa-regular fa-bell" data-recordar-icono></i> <span data-recordar-texto>Recordarme</span></button>
+                  <p class="fx-apoyo" data-recordar-nota th:text="${'Te avisamos ' + diasRecordatorio + (diasRecordatorio == 1 ? ' día' : ' días') + ' antes de que abra la inscripción.'}">Te avisamos 7 días antes de que abra la inscripción.</p>
+                </th:block>
+                <p class="fx-apoyo" th:if="${usuario != null and usuario.alumno == null}">Solo los alumnos pueden pedir un recordatorio.</p>
+              </div>
             </th:block>
+            <p class="fx-apoyo" th:unless="${hayCohortes}">Por ahora el curso no tiene cohortes con inscripción abierta ni próximas.</p>
             <button th:unless="${hayCohortes}" type="button" class="fx-boton-inscribir" disabled>Inscribirme</button>
           </aside>
 

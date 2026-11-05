@@ -133,10 +133,54 @@ public class ProgramaControlador extends PanelCursoControlador {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Programa programa = programaServicio.registrarPrograma(usuario.getDocente(), cursoId, programaOrigenId,
                     nombre, descripcion, cronogramaRecibido(conCronograma, ids), dias);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Programa '" + programa.getNombre() + "' registrado con éxito.");
+            String mensaje = "Programa '" + programa.getNombre() + "' registrado con éxito.";
+            // Alerta guía: registrar los temas, si todavía no llegan al mínimo, o armar el cronograma
+            return exitoConPasoSiguiente(mensaje, programa.getCurso().getIdCurso(), usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
+    }
+
+    /**
+     * CU-16 y CU-17: Guarda de una vez los programas nuevos y los modificados de la ventana de programas. Responde en JSON.
+     *
+     * @param cursoId Identificador del curso.
+     * @param cambios Los programas nuevos y modificados, como una lista JSON de {id, origenId, nombre, descripcion}.
+     * @param auth    La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito (y, si falta asignar la duración, la alerta que lo propone) o el error.
+     */
+    @PostMapping("/guardar")
+    public ResponseEntity<Map<String, String>> guardarProgramas(
+            @RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "cambios", required = false) String cambios, Authentication auth) {
+        try {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            List<ProgramaServicio.CambioDePrograma> lista = new java.util.ArrayList<>();
+            if (cambios != null && !cambios.isBlank()) {
+                List<Map<String, Object>> filas = new com.fasterxml.jackson.databind.ObjectMapper().readValue(cambios,
+                        new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() { });
+                for (Map<String, Object> fila : filas) {
+                    Object id = fila.get("id");
+                    Object origen = fila.get("origenId");
+                    lista.add(new ProgramaServicio.CambioDePrograma(id instanceof Number n ? n.intValue() : null,
+                            origen instanceof Number n ? n.intValue() : null, texto(fila.get("nombre")),
+                            texto(fila.get("descripcion"))));
+                }
+            }
+            int cantidad = programaServicio.guardarCambios(usuario.getDocente(), cursoId, lista);
+            String mensaje = cantidad == 1 ? "Programa guardado correctamente." : cantidad + " programas guardados correctamente.";
+            if (lista.stream().anyMatch(c -> c.id() == null)) {
+                // Alerta guía: registrar los temas, si todavía no llegan al mínimo, o armar el cronograma
+                return exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente());
+            }
+            return RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
+        } catch (Exception e) {
+            return RespuestaFormularioUtilidad.respuestaConError(e);
+        }
+    }
+
+    private static String texto(Object valor) {
+        return valor == null ? null : valor.toString();
     }
 
     // ---------------------------------------------------------------- Modificaciones

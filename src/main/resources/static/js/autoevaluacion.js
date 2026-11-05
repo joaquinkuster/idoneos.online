@@ -52,11 +52,10 @@
         aplicar();
     }
 
-    document.querySelectorAll('.modal').forEach(function (modal) {
-        modal.addEventListener('shown.bs.modal', function () {
-            modal.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
-        });
-    });
+    // Se inicia todo al cargar la pagina (con las ventanas aun cerradas): asi el selector ya esta armado y filtrado
+    // cuando se abre la ventana y no se ve cargarse despues
+    if (window.iniciarMultiselect) { window.iniciarMultiselect(document); }
+    document.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
 
     // Apertura automatica de la ventana de una autoevaluacion (?accion=editar|baja&autoevaluacionId=...), desde la vista del curso
     var principal = document.querySelector('[data-abrir-modal]');

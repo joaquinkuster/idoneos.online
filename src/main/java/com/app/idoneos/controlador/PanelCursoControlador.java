@@ -37,6 +37,9 @@ public abstract class PanelCursoControlador {
     @Autowired
     protected DisenoCursoServicio disenoCursoServicio;
 
+    @Autowired
+    protected com.app.idoneos.servicio.Cohorte.CohorteServicio cohorteServicio;
+
     /**
      * Resuelve el contexto de las pantallas que se abren desde el panel con {@code cursoId}: el administrador trabaja con
      * el programa vigente del curso y el docente, con el que tiene elegido.
@@ -80,10 +83,151 @@ public abstract class PanelCursoControlador {
         modelo.addAttribute("urlBase", contexto.urlBase());
         modelo.addAttribute("urlMisCursos", contexto.urlMisCursos());
         modelo.addAttribute("menuActivo", menuActivo);
-        // Los indicadores del menú lateral (datos del curso, temas y programa completos) son para quien gestiona el curso
+        // El estado del diseño es para quien gestiona el curso. Al docente el menú se le habilita de a poco, según el paso del
+        // diseño en que está su cohorte de trabajo; el administrador ve todo
         if (contexto.esDocente() || contexto.esAdministrador()) {
-            modelo.addAttribute("estadoDiseno", disenoCursoServicio.estadoDe(contexto.curso()));
+            com.app.idoneos.modelo.Cohorte cohorte = contexto.participacion() == null ? null
+                    : contexto.participacion().getCohorteDeTrabajo();
+            // Si el docente acaba de completar el diseño, la cohorte pasa de Pendiente a Activa ya, sin esperar a la tarea periódica
+            if (cohorte != null && cohorte.esPendiente()) {
+                cohorteServicio.activarSiEstaCompleta(cohorte.getIdCohorte());
+            }
+            DisenoCursoServicio.EstadoDiseno estado = disenoCursoServicio.estadoDe(contexto.curso(), cohorte);
+            modelo.addAttribute("estadoDiseno", estado);
+            if (contexto.esDocente()) {
+                recordarDisenoCompleto(contexto.curso().getIdCurso(), estado.getPasoActual() >= 6);
+            }
+            modelo.addAttribute("nivelMenu", contexto.esDocente() ? estado.getNivelDeMenu() : 5);
+            // "Esta cohorte" (participantes, progreso, intentos y calificaciones) se habilita cuando deja de estar pendiente
+            modelo.addAttribute("cohortePendiente", contexto.esDocente() && (cohorte == null || cohorte.esPendiente()));
         }
+    }
+
+    /**
+     * Arma la respuesta de una operación exitosa del diseño del curso (datos, programa, temas, cronograma) con la alerta guía que
+     * propone el paso que sigue, según el estado del diseño de la cohorte de trabajo del docente: registrar o asignar el programa,
+     * registrar los temas que faltan hasta el mínimo, armar el cronograma o completar el contenido de los temas pendientes. Con el
+     * diseño completo (o si faltan los datos del curso) responde solo con el mensaje.
+     *
+     * @param mensaje El mensaje de éxito.
+     * @param cursoId El curso en que se trabaja.
+     * @param docente El docente que hizo la operación.
+     * @return La respuesta JSON, con la alerta del paso siguiente si corresponde.
+     */
+    protected org.springframework.http.ResponseEntity<java.util.Map<String, String>> exitoConPasoSiguiente(String mensaje,
+            Integer cursoId, com.app.idoneos.modelo.Docente docente) {
+        com.app.idoneos.modelo.Curso curso;
+        com.app.idoneos.modelo.Cohorte cohorte;
+        try {
+            curso = cursoServicio.buscarActivoPorId(cursoId);
+            cohorte = cursoServicio.validarAccesoDocente(cursoId, docente).getCohorteDeTrabajo();
+        } catch (RuntimeException e) {
+            // La operación ya se hizo: si no se puede calcular el paso siguiente, se responde solo con el mensaje
+            return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
+        }
+        DisenoCursoServicio.EstadoDiseno estado = disenoCursoServicio.estadoDe(curso, cohorte);
+        String id = "?cursoId=" + cursoId;
+        switch (estado.getPasoActual()) {
+            case 2: {
+                boolean puedeAsignar = cohorte != null && cohorte.esPendiente() && cohorte.getCantidadInscriptos() == 0;
+                if (!curso.getProgramasActivos().isEmpty() && puedeAsignar) {
+                    return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                            "¿Asignás un programa?", "Ahora la cohorte necesita su programa: elegí uno de los que ya tiene el curso.",
+                            "Asignar programa", "/cohorte/buscar" + id + "&asignar=" + cohorte.getIdCohorte());
+                }
+                return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                        "¿Registrás el programa?", "Ahora la cohorte necesita su programa: registrá el primero.",
+                        "Registrar programa", "/programa/buscar" + id + "&nuevo=");
+            }
+            case 3: {
+                int faltan = Math.max(1, estado.minimoTemas() - estado.cantidadTemas());
+                return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                        "¿Registrás los temas?", "El curso necesita al menos " + estado.minimoTemas()
+                                + (estado.minimoTemas() == 1 ? " tema" : " temas") + ": " + (faltan == 1 ? "falta 1." : "faltan " + faltan + "."),
+                        "Registrar temas", "/tema/buscar" + id + "&nuevo=");
+            }
+            case 4:
+                return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                        "¿Armás el cronograma?", "Asigná la duración del curso a los temas del programa.",
+                        "Armar el cronograma", "/cronograma/buscar" + id);
+            case 5:
+                return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                        "¿Completás el contenido?", "Todavía hay temas a los que les falta contenido: " + estado.getTemasIncompletos().size()
+                                + (estado.getTemasIncompletos().size() == 1 ? " pendiente." : " pendientes."),
+                        "Completar contenido", "/curso/acceder/" + cursoId + "?completar=contenido");
+            default:
+                return disenoRecienCompleto(cursoId)
+                        ? com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                                TITULO_DISENO_COMPLETO, TEXTO_DISENO_COMPLETO, "Ver el curso", "/curso/acceder/" + cursoId)
+                        : com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
+        }
+    }
+
+    private static final String TITULO_DISENO_COMPLETO = "¡Completaste el diseño del curso!";
+    private static final String TEXTO_DISENO_COMPLETO = "El curso ya tiene todo lo necesario para que la cohorte pase a estar activa.";
+
+    private static String claveDisenoCompleto(Integer cursoId) {
+        return "disenoCompleto." + cursoId;
+    }
+
+    /** Recuerda en la sesión si el diseño del curso estaba completo cuando se mostró la pantalla (para detectar el momento en que se completa). */
+    private void recordarDisenoCompleto(Integer cursoId, boolean completo) {
+        var atributos = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+        if (atributos != null) {
+            atributos.setAttribute(claveDisenoCompleto(cursoId), completo,
+                    org.springframework.web.context.request.RequestAttributes.SCOPE_SESSION);
+        }
+    }
+
+    /** Indica si el diseño pasó a estar completo con esta operación (y deja registrado que ya lo está, para no repetir el aviso). */
+    private boolean disenoRecienCompleto(Integer cursoId) {
+        var atributos = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
+        if (atributos == null) {
+            return false;
+        }
+        Object antes = atributos.getAttribute(claveDisenoCompleto(cursoId),
+                org.springframework.web.context.request.RequestAttributes.SCOPE_SESSION);
+        recordarDisenoCompleto(cursoId, true);
+        return Boolean.FALSE.equals(antes);
+    }
+
+    /**
+     * Arma la respuesta de un recurso o actividad registrado (material, pool, autoevaluación): si al curso todavía le falta contenido
+     * por completar, agrega la alerta guía para seguir con el que sigue; si no, responde solo con el mensaje (y el destino, si hay).
+     *
+     * @param mensaje El mensaje de éxito.
+     * @param destino A dónde se va después, o {@code null} para recargar la pantalla.
+     * @param cursoId El curso en que se trabaja.
+     * @param docente El docente que registró el recurso.
+     * @return La respuesta JSON.
+     */
+    protected org.springframework.http.ResponseEntity<java.util.Map<String, String>> exitoConContenidoPendiente(String mensaje,
+            String destino, Integer cursoId, com.app.idoneos.modelo.Docente docente) {
+        java.util.Map<String, String> cuerpo = new java.util.LinkedHashMap<>();
+        cuerpo.put("mensaje", mensaje);
+        if (destino != null) {
+            cuerpo.put("destino", destino);
+        }
+        try {
+            com.app.idoneos.modelo.Curso curso = cursoServicio.buscarActivoPorId(cursoId);
+            com.app.idoneos.modelo.Cohorte cohorte = cursoServicio.validarAccesoDocente(cursoId, docente).getCohorteDeTrabajo();
+            DisenoCursoServicio.EstadoDiseno estado = disenoCursoServicio.estadoDe(curso, cohorte);
+            if (estado.getPasoActual() == 5) {
+                int pendientes = estado.getTemasIncompletos().size();
+                cuerpo.put("siguienteTitulo", "¿Seguís completando el contenido?");
+                cuerpo.put("siguienteTexto", "Todavía hay " + pendientes + (pendientes == 1 ? " tema" : " temas") + " con contenido pendiente.");
+                cuerpo.put("siguienteConfirmar", "Completar contenido");
+                cuerpo.put("siguienteUrl", "/curso/acceder/" + cursoId + "?completar=contenido");
+            } else if (estado.getPasoActual() >= 6 && disenoRecienCompleto(cursoId)) {
+                cuerpo.put("siguienteTitulo", TITULO_DISENO_COMPLETO);
+                cuerpo.put("siguienteTexto", TEXTO_DISENO_COMPLETO);
+                cuerpo.put("siguienteConfirmar", "Ver el curso");
+                cuerpo.put("siguienteUrl", "/curso/acceder/" + cursoId);
+            }
+        } catch (RuntimeException e) {
+            // El recurso ya se registró: sin alerta guía, solo el mensaje
+        }
+        return org.springframework.http.ResponseEntity.ok(cuerpo);
     }
 
     /**

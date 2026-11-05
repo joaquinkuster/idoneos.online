@@ -123,11 +123,11 @@ class MinimoDeContenidoTest {
     @DisplayName("El material de un tema que no cuenta para el mínimo se puede dar de baja")
     void elMaterialDeUnaTemaQueNoCuentaSePuedeDarDeBaja() {
         Programa programa = programa();
+        // Un tema con material pero sin autoevaluación visible no cuenta para el mínimo
         TemaCronograma noCuenta = programa.getCronogramaOrdenado().stream()
-                .filter(c -> c.getTema().getAutoevaluacionesPublicadas().isEmpty()
-                        && c.getTema().getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
-                .findFirst().orElse(null);
-        org.junit.jupiter.api.Assumptions.assumeTrue(noCuenta != null, "la semilla tiene un tema con material y sin autoevaluación");
+                .filter(c -> c.getTema().getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
+                .reduce((primero, ultimo) -> ultimo).orElseThrow();
+        noCuenta.getTema().getAutoevaluaciones().forEach(autoevaluacion -> autoevaluacion.setOculto(true));
 
         int antes = programa.getCantidadTemasConMaterialPublicado();
         List<Integer> ids = noCuenta.getTema().getMateriales().stream().filter(m -> !m.getBaja() && !m.getOculto())

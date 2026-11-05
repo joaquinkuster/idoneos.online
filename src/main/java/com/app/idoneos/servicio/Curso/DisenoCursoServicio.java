@@ -77,9 +77,67 @@ public class DisenoCursoServicio {
             return contenido.stream().filter(c -> !c.getFaltantes().isEmpty()).toList();
         }
 
+        /** Los números de orden (en el cronograma del programa vigente) de los temas a los que les falta contenido, separados por coma. */
+        public String getOrdenesIncompletos() {
+            if (programaVigente == null) {
+                return "";
+            }
+            java.util.Set<Integer> ids = getTemasIncompletos().stream().map(c -> c.tema().getIdTema())
+                    .collect(java.util.stream.Collectors.toSet());
+            return programaVigente.getCronogramaOrdenado().stream().filter(u -> ids.contains(u.getTema().getIdTema()))
+                    .map(u -> String.valueOf(u.getNumeroOrden())).collect(java.util.stream.Collectors.joining(","));
+        }
+
         /** Si el programa vigente está completo: asigna toda la duración y todos sus temas tienen contenido. */
         public boolean isProgramaCompleto() {
             return programaVigente != null && duracionAsignada && getTemasIncompletos().isEmpty();
+        }
+
+        /**
+         * El paso del diseño en el que está la cohorte: 1 datos del curso, 2 programa de la cohorte, 3 temas, 4 cronograma
+         * y 5 contenido; 6 si el diseño está completo.
+         */
+        public int getPasoActual() {
+            if (!isDatosCompletos()) {
+                return 1;
+            }
+            if (programaVigente == null) {
+                return 2;
+            }
+            if (!isTemasCompletos()) {
+                return 3;
+            }
+            if (!duracionAsignada) {
+                return 4;
+            }
+            return getTemasIncompletos().isEmpty() ? 6 : 5;
+        }
+
+        /**
+         * Hasta qué parte del menú se habilita: el número del paso en que está la cohorte (el diseño completo habilita
+         * todo, como el paso 5). Programas se habilita en el paso 2, Temas en el 3, Cronogramas en el 4 y todo el contenido
+         * de los temas en el 5.
+         */
+        public int getNivelDeMenu() {
+            // Cada paso se mira por sí solo, igual que las marcas de la línea de tiempo: si el programa ya está asignado y los temas
+            // cargados, el menú se habilita hasta ahí aunque otro paso anterior (por ejemplo los datos) siga pendiente
+            boolean programa = programaVigente != null;
+            boolean temas = isTemasCompletos();
+            boolean cronograma = programa && duracionAsignada;
+            int nivel = 1;
+            if (isDatosCompletos()) {
+                nivel = 2;
+            }
+            if (programa) {
+                nivel = 3;
+            }
+            if (programa && temas) {
+                nivel = 4;
+            }
+            if (cronograma && temas) {
+                nivel = 5;
+            }
+            return nivel;
         }
 
         /** Si el diseño del curso está completo. */
@@ -95,9 +153,33 @@ public class DisenoCursoServicio {
      * @return El estado de su diseño.
      */
     public EstadoDiseno estadoDe(Curso curso) {
+        return estadoDe(curso, curso.getProgramaVigente());
+    }
+
+    /**
+     * Calcula el estado del diseño de un curso para una cohorte: el programa es el de la cohorte (ninguno si todavía no
+     * se le asignó). Sin cohorte, el del programa vigente del curso.
+     *
+     * @param curso   El curso.
+     * @param cohorte La cohorte de trabajo, o {@code null}.
+     * @return El estado de su diseño.
+     */
+    public EstadoDiseno estadoDe(Curso curso, Cohorte cohorte) {
+        return estadoDe(curso, cohorte == null ? curso.getProgramaVigente() : cohorte.getPrograma());
+    }
+
+    /**
+     * Calcula el estado del diseño de un curso tomando como programa el de una cohorte (el campo
+     * {@code programaVigente} del resultado es ese programa).
+     *
+     * @param curso    El curso.
+     * @param programa El programa cuyo cronograma y contenido se miran, o {@code null} si todavía no hay.
+     * @return El estado de su diseño.
+     */
+    public EstadoDiseno estadoDe(Curso curso, Programa programa) {
         int minimo = parametroServicio.obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO);
         int temas = (int) curso.getTemas().stream().filter(tema -> !tema.getBaja()).count();
-        Programa vigente = curso.getProgramaVigente();
+        Programa vigente = programa;
         List<ContenidoDeTema> contenido = new ArrayList<>();
         if (vigente != null) {
             vigente.getCronogramaOrdenado().forEach(cronograma -> contenido.add(contenidoDe(curso, cronograma.getTema())));
@@ -119,6 +201,62 @@ public class DisenoCursoServicio {
     public boolean estaCompleto(Curso curso, Programa programa) {
         return programa.estaDuracionAsignadaCompleta() && programa.getCronogramaOrdenado().stream()
                 .allMatch(cronograma -> contenidoDe(curso, cronograma.getTema()).getFaltantes().isEmpty());
+    }
+
+    /**
+     * El próximo recurso que el docente debe agregar a un tema para completar su contenido.
+     *
+     * @param opcion Qué opción del selector de recursos corresponde: {@code BIBLIOGRAFIA}, {@code AUTOEVALUACION}, {@code POOL},
+     *               {@code GRABACION}, o {@code null} si no hay nada que se pueda agregar a mano (por ejemplo, el video clon).
+     * @param aviso  Una nota para el docente (por ejemplo, que primero tiene que registrar un pool), o {@code null}.
+     */
+    public record SiguienteRecurso(String opcion, String aviso) {
+    }
+
+    /**
+     * Calcula el siguiente recurso que le falta a un tema: primero el material (se propone una bibliografía), después la
+     * autoevaluación (si no hay pools que se puedan usar, se propone registrar uno) y por último lo que pide la modalidad del
+     * curso (por ejemplo, la grabación).
+     *
+     * @param curso    El curso.
+     * @param programa El programa en que está el tema (de él salen los temas anteriores, cuyos pools también sirven).
+     * @param tema     El tema.
+     * @return El próximo recurso, o uno sin opción si el tema está completo o lo que falta no se agrega a mano.
+     */
+    public SiguienteRecurso siguienteRecurso(Curso curso, Programa programa, Tema tema) {
+        Map<String, Boolean> celdas = contenidoDe(curso, tema).celdas();
+        if (!celdas.getOrDefault("Material", true)) {
+            return new SiguienteRecurso("BIBLIOGRAFIA", null);
+        }
+        if (!celdas.getOrDefault("Autoevaluación", true)) {
+            if (hayPoolsParaElTema(programa, tema)) {
+                return new SiguienteRecurso("AUTOEVALUACION", null);
+            }
+            return new SiguienteRecurso("POOL", "Para crear una autoevaluación tenés que registrar al menos un pool de preguntas, del mismo tema o de uno anterior.");
+        }
+        if (!celdas.getOrDefault("Clase grabada", true)) {
+            return new SiguienteRecurso("GRABACION", null);
+        }
+        return new SiguienteRecurso(null, null);
+    }
+
+    /** Si hay algún pool vigente del tema o de un tema anterior del programa, que se pueda usar para su autoevaluación. */
+    private boolean hayPoolsParaElTema(Programa programa, Tema tema) {
+        if (tema.getPooles().stream().anyMatch(pool -> !pool.getBaja())) {
+            return true;
+        }
+        if (programa == null) {
+            return false;
+        }
+        for (var cronograma : programa.getCronogramaOrdenado()) {
+            if (cronograma.getTema().getIdTema() == tema.getIdTema()) {
+                return false;
+            }
+            if (cronograma.getTema().getPooles().stream().anyMatch(pool -> !pool.getBaja())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

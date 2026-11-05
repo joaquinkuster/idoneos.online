@@ -68,10 +68,9 @@ class NavbarControladorTest {
                 .andExpect(content().string(Matchers.containsString("um-rol\">Docente<")))
                 .andExpect(content().string(Matchers.containsString("pn-menu-nav")))
                 // el botón "Curso" arriba del menú (sin tarjeta)
-                .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))))
-                // el menú lateral se carga siempre contraído
-                .andExpect(content().string(Matchers.containsString("classList.add('colapsado')")))
+                // el menú lateral se carga abierto
+                .andExpect(content().string(Matchers.not(Matchers.containsString("classList.add('colapsado')"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-cabecera"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-marca"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-colapsar-menu"))))

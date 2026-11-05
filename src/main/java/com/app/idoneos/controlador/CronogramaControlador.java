@@ -46,6 +46,9 @@ public class CronogramaControlador extends PanelCursoControlador {
     @Autowired
     private TemaServicio temaServicio;
 
+    @Autowired
+    private com.app.idoneos.repositorio.ProgramaRepositorio programaRepositorio;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -59,28 +62,31 @@ public class CronogramaControlador extends PanelCursoControlador {
      * @return La vista del cronograma, o una redirección a "Mis cursos" si no se puede acceder.
      */
     @GetMapping("/buscar")
-    public String buscarCronograma(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model modelo,
+    public String buscarCronograma(@RequestParam(value = "cursoId", required = false) Integer cursoId,
+            @RequestParam(value = "programaId", required = false) Integer programaId, Model modelo,
             Authentication auth, RedirectAttributes redirectAttributes) {
         try {
             ContextoCurso contexto = contextoDelPanel(cursoId, (Usuario) auth.getPrincipal());
             boolean esAdministrador = contexto.esAdministrador();
             Curso curso = contexto.curso();
-            Programa programa = contexto.programa();
+            // Por defecto, el programa de la cohorte de trabajo; con el selector se mira el de cualquier otro programa del curso.
+            // Si la cohorte no tiene programa, el cronograma se muestra vacío
+            List<Programa> programasDelCurso = curso.getProgramasActivos();
+            Programa programa = programasDelCurso.stream().filter(p -> p.getIdPrograma() == (programaId == null ? -1 : programaId))
+                    .findFirst().orElse(contexto.programa());
             Cohorte cohorte = esAdministrador ? null : contexto.participacion().getCohorteDeTrabajo();
-            if (programa == null) {
-                return avisarCursoSinProgramas(contexto, redirectAttributes);
-            }
-            boolean conInscripciones = programa.getCantidadInscripcionesActivas() > 0;
-            // Los temas activos del curso que algún programa incluye: las que se pueden poner en este cronograma
-            List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso).stream()
-                    .filter(u -> !u.getProgramasQueLaIncluyen().isEmpty()).toList();
+            boolean conInscripciones = programa != null && programa.getCantidadInscripcionesActivas() > 0;
+            // Todos los temas activos del curso: se pueden poner en este cronograma, estén o no en otro programa
+            List<Tema> temasDelCurso = temaServicio.buscarPorCurso(curso);
 
             cargarContexto(modelo, contexto, "cronograma");
             cargarDiasMaximosDelCronograma(modelo, curso);
+            modelo.addAttribute("programa", programa);
+            modelo.addAttribute("programasDelCurso", programasDelCurso);
             modelo.addAttribute("cohorte", cohorte);
-            modelo.addAttribute("cronograma", programa.getCronogramaOrdenado());
+            modelo.addAttribute("cronograma", programa == null ? List.of() : programa.getCronogramaOrdenado());
             modelo.addAttribute("temasDelCurso", temasDelCurso);
-            modelo.addAttribute("puedeEditar", !esAdministrador && !conInscripciones);
+            modelo.addAttribute("puedeEditar", !esAdministrador && programa != null && !conInscripciones);
             modelo.addAttribute("soloLecturaPorInscripciones", !esAdministrador && conInscripciones);
             modelo.addAttribute("minimoTemasConMaterial", parametroServicio
                     .obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO));
@@ -111,7 +117,10 @@ public class CronogramaControlador extends PanelCursoControlador {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             cronogramaServicio.modificarCronograma(usuario.getDocente(), programaId, ids, dias);
-            return RespuestaFormularioUtilidad.respuestaExitosa("Cronograma modificado correctamente.");
+            // Alerta guía: con el cronograma completo, lo que sigue es completar el contenido de los temas pendientes
+            Integer cursoId = programaRepositorio.findById(programaId == null ? -1 : programaId).map(p -> p.getCurso().getIdCurso()).orElse(null);
+            return cursoId == null ? RespuestaFormularioUtilidad.respuestaExitosa("Cronograma modificado correctamente.")
+                    : exitoConPasoSiguiente("Cronograma modificado correctamente.", cursoId, usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }

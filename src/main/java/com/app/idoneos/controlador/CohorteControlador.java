@@ -60,6 +60,23 @@ public class CohorteControlador extends PanelCursoControlador {
     // ---------------------------------------------------------------- Lecturas
 
     /**
+     * Qué le falta al contenido de un programa para que una cohorte pueda estar Activa (el formulario de alta lo pide al elegir
+     * el programa, en lugar de calcularlo para todos al cargar el listado).
+     *
+     * @param programaId El programa; vacío para una cohorte sin programa.
+     * @return Los faltantes, vacío si el contenido está completo.
+     */
+    @GetMapping("/faltantes")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public List<String> faltantesDelPrograma(@RequestParam(value = "programaId", required = false) Integer programaId) {
+        if (programaId == null) {
+            return cohorteServicio.faltantesDeContenido(null);
+        }
+        return programaServicio.buscarPorId(programaId).filter(p -> !p.getBaja())
+                .map(cohorteServicio::faltantesDeContenido).orElse(List.of());
+    }
+
+    /**
      * CU-11: Busca cohortes de un programa según su estado (Abierta, En dictado, Finalizada) y un rango
      * de fechas de inscripción. Si el usuario es docente (y no administrador), se restringe a los cursos
      * en los que participa como titular o ayudante.
@@ -80,6 +97,7 @@ public class CohorteControlador extends PanelCursoControlador {
     public String buscarCohortes(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
+            @RequestParam(value = "asignar", required = false) Integer asignar,
             @RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
@@ -89,10 +107,14 @@ public class CohorteControlador extends PanelCursoControlador {
         Usuario usuario = (Usuario) auth.getPrincipal();
         boolean esAdministrador = usuario.esAdministradorActivo();
         Docente soloDeDocente = esAdministrador ? null : usuario.getDocente();
+        if (!esAdministrador && cursoId == null) {
+            // Las cohortes del docente están dentro del panel de cada uno de sus cursos
+            return "redirect:/curso/buscar";
+        }
 
         // El administrador ve las cohortes de todos los cursos, o las de un curso si entra desde su panel
         Curso curso = null;
-        if (esAdministrador && cursoId != null) {
+        if (cursoId != null) {
             try {
                 curso = contextoDelPanel(cursoId, usuario).curso();
             } catch (IllegalArgumentException e) {
@@ -128,15 +150,22 @@ public class CohorteControlador extends PanelCursoControlador {
         modelo.addAttribute("inscripcionesPorCohorte", inscripcionesPorCohorte);
         modelo.addAttribute("clasesPorCohorte", clasesPorCohorte);
         modelo.addAttribute("cohortesDeTrabajo", cohortesDeTrabajo);
-        modelo.addAttribute("programas", curso == null ? programaServicio.obtenerTodo() : curso.getProgramasActivos());
+        List<com.app.idoneos.modelo.Programa> programasOfrecidos = curso == null
+                ? programaServicio.obtenerTodo().stream().filter(p -> !p.getBaja()).toList()
+                : curso.getProgramasActivos();
+        modelo.addAttribute("programas", programasOfrecidos);
         modelo.addAttribute("programaSeleccionado", programaId);
         modelo.addAttribute("cursoSeleccionado", curso == null ? null : curso.getIdCurso());
         modelo.addAttribute("abrirAlta", nuevo != null);
         modelo.addAttribute("plazoMinimoContenidoDias", cohorteServicio.plazoMinimoParaCompletarContenidoDias());
         // Qué le falta al contenido de cada programa para poder abrir la inscripción (el formulario avisa si la cohorte queda pendiente)
         Map<Integer, List<String>> faltantesPorPrograma = new HashMap<>();
-        for (var programa : programaServicio.obtenerTodo()) {
-            faltantesPorPrograma.put(programa.getIdPrograma(), cohorteServicio.faltantesDeContenido(programa));
+        // Solo con un curso del panel: calcularlo para todos los programas de todos los cursos hacía lento el listado del
+        // administrador. Sin curso, el formulario pide los faltantes del programa elegido a /cohorte/faltantes.
+        if (curso != null) {
+            for (var programa : programasOfrecidos) {
+                faltantesPorPrograma.put(programa.getIdPrograma(), cohorteServicio.faltantesDeContenido(programa));
+            }
         }
         modelo.addAttribute("faltantesPorPrograma", faltantesPorPrograma);
         modelo.addAttribute("faltantesSinPrograma", cohorteServicio.faltantesDeContenido(null));
@@ -158,9 +187,16 @@ public class CohorteControlador extends PanelCursoControlador {
             return "pages/cohorte/buscarAdministrador";
         }
         // Las cohortes a las que el docente todavía puede asignar (o cambiar) el programa: pendientes y sin inscriptos
+        if (curso != null) {
+            // El docente ve las cohortes dentro del panel de su curso, como el administrador
+            cargarContexto(modelo, contextoDelPanel(cursoId, usuario), "cohortes");
+        }
         modelo.addAttribute("programasDelCurso", cohortes.stream().filter(c -> c.esPendiente() && !c.getBaja() && c.getCantidadInscriptos() == 0)
                 .collect(java.util.stream.Collectors.toMap(Cohorte::getIdCohorte,
                         c -> c.getCurso().getProgramasActivos())));
+        // Desde el diseño del curso se llega con ?asignar=<cohorte>: se abre la ventana de asignar programa de esa cohorte
+        modelo.addAttribute("abrirModal", asignar != null && ((java.util.Map<?, ?>) modelo.getAttribute("programasDelCurso")).containsKey(asignar)
+                ? "modalAsignarPrograma" + asignar : null);
         return "pages/cohorte/buscarDocente";
     }
 

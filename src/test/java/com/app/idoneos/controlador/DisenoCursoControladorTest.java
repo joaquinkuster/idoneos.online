@@ -83,43 +83,53 @@ class DisenoCursoControladorTest {
         assertFalse(estado.faltantesDeDatos().isEmpty());
     }
 
-    // ------------------------------------------------------------------ Vista
+    // ------------------------------------------------------------------ Inicio del curso
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El docente ve el mapa del diseño con Editar curso y el menú lateral con los indicadores")
-    void vistaDelDocente() throws Exception {
-        mockMvc.perform(get("/diseno/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
+    @DisplayName("El inicio del curso muestra la carta con el estado de la cohorte, Datos del curso como ventana y el menú nuevo")
+    void inicioDelDocente() throws Exception {
+        mockMvc.perform(get("/curso/acceder/" + macro().getIdCurso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Datos del curso")))
-                .andExpect(content().string(Matchers.containsString("Programa vigente")))
-                .andExpect(content().string(Matchers.containsString("Editar curso")))
+                .andExpect(content().string(Matchers.containsString("ec-carta")))
+                .andExpect(content().string(Matchers.containsString("Diseño del curso")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalEditarCurso\"")))
                 .andExpect(content().string(Matchers.containsString("/curso/completarDatos/" + macro().getIdCurso())))
-                // el menú: Diseño de curso (con Temas y Programas) y Dictado (con Cohortes)
-                .andExpect(content().string(Matchers.containsString("pn-menu-estado")))
-                .andExpect(content().string(Matchers.containsString("Dictado")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Cronograma"))));
+                // el menú: Programas, Temas y Cohortes, habilitados según el paso del diseño; sin la página Diseño
+                .andExpect(content().string(Matchers.containsString("Programas")))
+                .andExpect(content().string(Matchers.containsString("Cohortes")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Diseño de curso"))));
+        mockMvc.perform(get("/diseno/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
+                .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
+    @DisplayName("Con los datos del curso incompletos el paso actual es el 1, pero el menú se habilita por lo ya hecho (programa y temas)")
+    void menuSeHabilitaPorLoYaHecho() throws Exception {
+        Curso curso = macro();
+        curso.setObjetivos(null);
+        assertEquals(1, disenoCursoServicio.estadoDe(curso, (com.app.idoneos.modelo.Cohorte) null).getPasoActual());
+        // la línea de tiempo marca el programa y los temas como hechos: el menú los habilita aunque los datos sigan pendientes
+        assertTrue(disenoCursoServicio.estadoDe(curso, (com.app.idoneos.modelo.Cohorte) null).getNivelDeMenu() >= 3);
+
+        mockMvc.perform(get("/curso/acceder/" + curso.getIdCurso()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("title=\"Cohortes\"")))
+                .andExpect(content().string(Matchers.containsString("title=\"Programas\"")))
+                .andExpect(content().string(Matchers.containsString("title=\"Temas\"")));
     }
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El administrador consulta el diseño pero no lo edita")
-    void vistaDelAdministrador() throws Exception {
-        mockMvc.perform(get("/diseno/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
+    @DisplayName("El administrador ve el estado de la cohorte pero no edita los datos del curso")
+    void inicioDelAdministrador() throws Exception {
+        mockMvc.perform(get("/curso/acceder/" + macro().getIdCurso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Datos del curso")))
+                .andExpect(content().string(Matchers.containsString("ec-carta")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-bs-target=\"#modalEditarCurso\""))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("id=\"modalEditarCurso\""))));
         mockMvc.perform(post("/curso/completarDatos/" + macro().getIdCurso())).andExpect(status().isForbidden());
-    }
-
-    @Test
-    @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El alumno no accede al diseño del curso")
-    void noEsParaAlumnos() throws Exception {
-        mockMvc.perform(get("/diseno/buscar").param("cursoId", String.valueOf(macro().getIdCurso())))
-                .andExpect(status().isForbidden());
     }
 
     // ------------------------------------------------------------------ Editar curso

@@ -31,6 +31,12 @@ public class Parametro {
     /** Días de plazo mínimo para completar el contenido cuando el parámetro no está cargado (una semana). */
     public static final int COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO = 7;
 
+    /** Clave de los días de anticipación con que se avisa al alumno que marcó «Recordarme» en una cohorte próxima. */
+    public static final String COHORTE_RECORDATORIO_DIAS_ANTICIPACION = "cohorte.recordatorio_dias_anticipacion";
+
+    /** Días de anticipación del recordatorio cuando el parámetro no está cargado (una semana). */
+    public static final int COHORTE_RECORDATORIO_DIAS_ANTICIPACION_POR_DEFECTO = 7;
+
     /** Clave de los días que ocupa en el cronograma un tema nuevo, mientras no se indique otra duración. */
     public static final String CRONOGRAMA_DIAS_POR_TEMA_NUEVO = "cronograma.dias_por_tema_nuevo";
 

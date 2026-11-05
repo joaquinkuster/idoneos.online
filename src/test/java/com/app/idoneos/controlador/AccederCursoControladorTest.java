@@ -73,7 +73,6 @@ class AccederCursoControladorTest {
                 .andExpect(content().string(Matchers.containsString("Este programa")))
                 .andExpect(content().string(Matchers.containsString("Esta cohorte")))
                 .andExpect(content().string(Matchers.containsString("Contenido de los temas")))
-                .andExpect(content().string(Matchers.containsString("fa-house")))
                 .andExpect(content().string(Matchers.containsString("Participantes")))
                 .andExpect(content().string(Matchers.containsString("Calificaciones")))
                 .andExpect(content().string(Matchers.containsString("Cronograma")))

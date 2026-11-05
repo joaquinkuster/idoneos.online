@@ -25,6 +25,7 @@
                 <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
                 <select name="temaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Debe seleccionar el tema.">
                     <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}"
+                            th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}"
                             th:text="${uc.numeroOrden + '. ' + uc.tema.titulo}">1. Introducción</option>
                 </select>
                 <div class="pn-ayuda-error"></div>

@@ -129,18 +129,19 @@ public class DocenteCurso {
     }
 
     /**
-     * Indica si la cohorte de su contexto de trabajo sigue sirviendo: no está dada de baja, es del curso y tiene programa.
+     * Indica si la cohorte de su contexto de trabajo sigue sirviendo: no está dada de baja ni cancelada y es del curso.
+     * Puede ser una cohorte pendiente que todavía no tiene programa: el docente la elige justamente para asignárselo.
      */
     private boolean tieneCohorteDeTrabajoVigente() {
-        return cohortePorDefecto != null && !cohortePorDefecto.getBaja() && cohortePorDefecto.tienePrograma()
+        return cohortePorDefecto != null && !cohortePorDefecto.getBaja() && !cohortePorDefecto.esCancelada()
                 && cohortePorDefecto.getCurso().getIdCurso() == curso.getIdCurso();
     }
 
     /**
-     * Obtiene el programa sobre el que trabaja el docente: el de su cohorte de trabajo o, si no tiene, el programa
-     * vigente del curso.
+     * Obtiene el programa sobre el que trabaja el docente: el de su cohorte de trabajo (ninguno si todavía no se le
+     * asignó) o, si no tiene cohorte de trabajo, el programa vigente del curso.
      *
-     * @return El programa de trabajo, o {@code null} si el curso no tiene programas vigentes.
+     * @return El programa de trabajo, o {@code null} si no hay.
      */
     public Programa getProgramaDeTrabajo() {
         return tieneCohorteDeTrabajoVigente() ? cohortePorDefecto.getPrograma() : curso.getProgramaVigente();
@@ -157,6 +158,11 @@ public class DocenteCurso {
             return cohortePorDefecto;
         }
         Programa programa = curso.getProgramaVigente();
-        return programa == null ? null : programa.getCohorteDestacada();
+        Cohorte destacada = programa == null ? null : programa.getCohorteDestacada();
+        if (destacada != null) {
+            return destacada;
+        }
+        // Sin una cohorte vigente del programa, la más reciente del curso (por ejemplo una pendiente sin programa)
+        return curso.getCohortesDeTrabajo().stream().findFirst().orElse(null);
     }
 }

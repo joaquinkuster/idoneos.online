@@ -124,9 +124,15 @@ class RecursoServicioTest {
         assertEquals("pdf", presentacion.getExtension());
 
         TemaRecurso bibliografia = recursoServicio.subirMaterial(fausto(), tema, "BIBLIOGRAFIA",
-                datos("Manual de bonos", "Luis Gómez", null, "978-987-00-0000-0"), null, true);
+                datos("Manual de bonos", "Luis Gómez", null, "978-987-00-0000-7"), null, true);
         assertEquals("Bibliografía", bibliografia.getTipo());
-        assertEquals("978-987-00-0000-0", bibliografia.getRecurso().getBibliografia().getIsbn());
+        assertEquals("978-987-00-0000-7", bibliografia.getRecurso().getBibliografia().getIsbn());
+
+        // no se admiten dos bibliografías con el mismo ISBN (aunque cambien los guiones o los espacios)
+        assertTrue(mensaje(() -> recursoServicio.subirMaterial(fausto(), tema, "BIBLIOGRAFIA",
+                datos("Otro manual", "Otra persona", null, "9789870000007"), null, true)).contains("ISBN"));
+        assertTrue(mensaje(() -> recursoServicio.subirMaterial(fausto(), tema, "BIBLIOGRAFIA",
+                datos("Otro manual", "Otra persona", null, "978 987 00 0000 7"), null, true)).contains("ISBN"));
         assertFalse(bibliografia.tieneArchivo());
 
         TemaRecurso enlace = recursoServicio.subirMaterial(fausto(), tema, "ENLACE",

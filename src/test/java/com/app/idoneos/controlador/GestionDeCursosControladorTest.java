@@ -88,7 +88,7 @@ class GestionDeCursosControladorTest {
         mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1")).andExpect(status().isOk())
                 .andExpect(view().name("pages/cohorte/buscarAdministrador"))
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
-                        .string(org.hamcrest.Matchers.containsString("Diseño de curso")));
+                        .string(org.hamcrest.Matchers.containsString("Programas")));
         // sin curso, el administrador ve las cohortes de todos los cursos
         mockMvc.perform(get("/cohorte/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/cohorte/buscarAdministrador"));
@@ -143,7 +143,7 @@ class GestionDeCursosControladorTest {
     @DisplayName("El docente ve las vistas de tarjetas de cursos y cohortes, y no puede dar de baja")
     void docenteNoAccedeAlPanel() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(view().name("pages/curso/buscar"));
-        mockMvc.perform(get("/cohorte/buscar")).andExpect(view().name("pages/cohorte/buscarDocente"));
+        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1")).andExpect(view().name("pages/cohorte/buscarDocente"));
         mockMvc.perform(post("/curso/darDeBajaMasiva").param("ids", "1")).andExpect(status().isForbidden());
     }
 
@@ -151,7 +151,7 @@ class GestionDeCursosControladorTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
     @DisplayName("CU-11: \"Mis cohortes\" del docente trae todas sus cohortes y las filtra en la pantalla, aunque llegue un filtro por la URL")
     void docenteFiltraSusCohortesEnLaPantalla() throws Exception {
-        mockMvc.perform(get("/cohorte/buscar").param("estado", "Finalizada"))
+        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1").param("estado", "Finalizada"))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/cohorte/buscarDocente"))
                 .andExpect(content().string(org.hamcrest.Matchers.allOf(
@@ -176,7 +176,7 @@ class GestionDeCursosControladorTest {
     @DisplayName("CU-01 y CU-11: el docente busca cursos y cohortes, pero no gestiona categorías")
     void docenteBuscaCursosYCohortes() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk());
-        mockMvc.perform(get("/cohorte/buscar")).andExpect(status().isOk());
+        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1")).andExpect(status().isOk());
         mockMvc.perform(get("/categoria/buscar")).andExpect(status().isForbidden());
     }
 

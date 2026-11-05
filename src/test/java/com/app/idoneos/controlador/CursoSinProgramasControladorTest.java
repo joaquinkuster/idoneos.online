@@ -38,11 +38,12 @@ class CursoSinProgramasControladorTest {
     @Autowired
     private CursoRepositorio cursoRepositorio;
 
-    /** Deja al curso sin programas activos. */
+    /** Deja al curso sin programas ni cohortes activos. */
     private Curso cursoSinProgramas() {
         Curso curso = cursoRepositorio.findAll().stream().filter(c -> c.getNombre().equals("Macroeconomía de Coyuntura"))
                 .findFirst().orElseThrow();
         curso.getProgramas().forEach(programa -> programa.marcarInactivo());
+        curso.getCohortes().forEach(cohorte -> cohorte.setBaja(true));
         return curso;
     }
 
@@ -54,7 +55,7 @@ class CursoSinProgramasControladorTest {
 
         mockMvc.perform(get("/curso/acceder/" + curso.getIdCurso()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("Este curso todavía no tiene programas")))
+                .andExpect(content().string(Matchers.containsString("Este curso todavía no tiene cohortes")))
                 .andExpect(content().string(Matchers.containsString("/programa/buscar?cursoId=" + curso.getIdCurso() + "&amp;nuevo=")))
                 // sin programa no hay temas ni botón para registrarlas
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar tema"))))
@@ -94,30 +95,30 @@ class CursoSinProgramasControladorTest {
 
         // con el primer programa, el curso se ve con sus selectores y sin el aviso
         mockMvc.perform(get("/curso/acceder/" + id)).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Este curso todavía no tiene programas"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString(">Registrar programa</a>"))))
                 .andExpect(content().string(Matchers.containsString("Registrar tema")));
     }
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("Los temas se abren sin programas (son del curso); el cronograma manda al docente a registrar uno")
-    void temasYCronogramaRedirigen() throws Exception {
+    @DisplayName("Los temas se abren sin programas (son del curso) y el cronograma se ve vacío")
+    void temasYCronogramaVacio() throws Exception {
         Curso curso = cursoSinProgramas();
         String id = String.valueOf(curso.getIdCurso());
-        String destino = "/programa/buscar?cursoId=" + id + "&nuevo";
 
         mockMvc.perform(get("/tema/buscar").param("cursoId", id)).andExpect(status().isOk());
-        mockMvc.perform(get("/cronograma/buscar").param("cursoId", id)).andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(destino));
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", id)).andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("No hay cronograma para mostrar")));
     }
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesServicio")
-    @DisplayName("El administrador, sin programas, vuelve al listado de cursos")
+    @DisplayName("El administrador, sin programas, ve el cronograma vacío")
     void administradorSinProgramas() throws Exception {
         Curso curso = cursoSinProgramas();
         String id = String.valueOf(curso.getIdCurso());
 
-        mockMvc.perform(get("/cronograma/buscar").param("cursoId", id)).andExpect(redirectedUrl("/curso/buscar"));
+        mockMvc.perform(get("/cronograma/buscar").param("cursoId", id)).andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("No hay cronograma para mostrar")));
     }
 }

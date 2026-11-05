@@ -90,9 +90,10 @@ class CronogramaControladorTest {
 
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(macro())))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("<h1 class=\"pn-titulo\">Cronograma</h1>")))
+                .andExpect(content().string(Matchers.containsString("<h1 class=\"pn-titulo\">Cronogramas</h1>")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Modificar cronograma"))))
-                .andExpect(content().string(Matchers.containsString("Programa: " + programa.getNombre())))
+                .andExpect(content().string(Matchers.containsString("id=\"programaIdCronograma\"")))
+                .andExpect(content().string(Matchers.containsString(">" + programa.getNombre() + "</option>")))
                 // tarjetas sin íconos de información; la ayuda es un botón junto al título que muestra el texto
                 .andExpect(content().string(Matchers.containsString("data-ayuda-texto")))
                 .andExpect(content().string(Matchers.containsString("data-ayuda ")))
@@ -105,7 +106,7 @@ class CronogramaControladorTest {
                 // tarjetas: duración total, mínimo requerido y cohortes activas
                 .andExpect(content().string(Matchers.containsString("Duración total")))
                 .andExpect(content().string(Matchers.containsString("Mínimo requerido")))
-                .andExpect(content().string(Matchers.containsString("Cohortes activas")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Cohortes activas"))))
                 // los dos paneles, las dos vistas y los botones (el de guardar se llama "Modificar")
                 .andExpect(content().string(Matchers.containsString("Temas disponibles")))
                 .andExpect(content().string(Matchers.containsString("data-nueva-tema")))
@@ -140,7 +141,7 @@ class CronogramaControladorTest {
                 // sin edición no hay botón de ayuda ni su texto
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-ayuda"))))
                 // la semana actual de la cohorte de trabajo sigue informada, sin el atraso del alumno
-                .andExpect(content().string(Matchers.containsString("Día actual de la cohorte: 21 de 63")))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Día actual de la cohorte"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Vas al día"))));
     }
 

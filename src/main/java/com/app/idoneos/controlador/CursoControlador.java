@@ -229,6 +229,9 @@ public class CursoControlador extends PanelCursoControlador {
                 curso = participacion.getCurso();
                 programa = participacion.getProgramaDeTrabajo();
                 cohorte = participacion.getCohorteDeTrabajo();
+                if (cohorte != null && !cohorte.tienePrograma()) {
+                    programa = null;   // la cohorte de trabajo todavía no tiene programa: se le asigna desde el inicio
+                }
             }
             if ("cronograma".equals(seccion)) {
                 // El cronograma del docente tiene su propia página, donde también se modifica
@@ -244,7 +247,44 @@ public class CursoControlador extends PanelCursoControlador {
             modelo.addAttribute("cohorte", cohorte);
             // Selectores de programa y cohorte por defecto: solo los activos, el más reciente primero
             modelo.addAttribute("programasDelCurso", curso.getProgramasActivos());
-            modelo.addAttribute("cohortesDelPrograma", programa == null ? List.of() : programa.getCohortesActivas());
+            // La cohorte por defecto puede ser cualquiera del curso, también una pendiente que todavía no tiene programa
+            modelo.addAttribute("cohortesDelPrograma", curso.getCohortesDeTrabajo());
+            modelo.addAttribute("estadoDiseno", disenoCursoServicio.estadoDe(curso, cohorte));
+            // Lo que le falta al contenido de cada programa: la ventana de asignar programa avisa en qué estado queda la cohorte
+            Map<Integer, List<String>> faltantesPorPrograma = new java.util.HashMap<>();
+            if (!esAdministrador) {
+                curso.getProgramasActivos().forEach(p -> faltantesPorPrograma.put(p.getIdPrograma(),
+                        cohorteServicio.faltantesDeContenido(p)));
+            }
+            modelo.addAttribute("faltantesPorPrograma", faltantesPorPrograma);
+            modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
+            // El programa de una cohorte se elige (o se cambia) mientras esté pendiente y sin inscriptos
+            modelo.addAttribute("puedeAsignarPrograma", !esAdministrador && cohorte != null && cohorte.esPendiente()
+                    && cohorte.getCantidadInscriptos() == 0);
+            // Qué temas ya tienen todo su contenido (el docente ve los pendientes expandidos y con su insignia)
+            Map<Integer, Boolean> contenidoCompleto = new java.util.HashMap<>();
+            if (programa != null) {
+                programa.getCronogramaOrdenado().forEach(uc -> contenidoCompleto.put(uc.getTema().getIdTema(),
+                        disenoCursoServicio.contenidoDe(curso, uc.getTema()).getFaltantes().isEmpty()));
+            }
+            modelo.addAttribute("contenidoCompleto", contenidoCompleto);
+            // Qué le falta a cada tema y, para «Completar contenido», cuál es el primero pendiente y el recurso que sigue
+            Map<Integer, List<String>> faltantesPorTema = new java.util.HashMap<>();
+            com.app.idoneos.modelo.Tema temaPendiente = null;
+            if (programa != null) {
+                for (var uc : programa.getCronogramaOrdenado()) {
+                    List<String> faltantes = disenoCursoServicio.contenidoDe(curso, uc.getTema()).getFaltantes();
+                    faltantesPorTema.put(uc.getTema().getIdTema(), faltantes);
+                    if (temaPendiente == null && !faltantes.isEmpty()) {
+                        temaPendiente = uc.getTema();
+                    }
+                }
+            }
+            modelo.addAttribute("faltantesPorTema", faltantesPorTema);
+            if (temaPendiente != null && !esAdministrador) {
+                modelo.addAttribute("temaPendiente", temaPendiente);
+                modelo.addAttribute("siguienteRecurso", disenoCursoServicio.siguienteRecurso(curso, programa, temaPendiente));
+            }
             if (!esAdministrador) {
                 modelo.addAttribute("tiposDeSubida", TipoRecurso.deSubidaManual());
             }
@@ -442,7 +482,8 @@ public class CursoControlador extends PanelCursoControlador {
             if (hayImagen) {
                 guardarImagen(curso, imagenArchivo);
             }
-            return RespuestaFormularioUtilidad.respuestaExitosa("Datos del curso guardados correctamente.");
+            // Alerta guía: lo que sigue es registrar el programa (o asignar uno, si el curso ya tiene)
+            return exitoConPasoSiguiente("Datos del curso guardados correctamente.", id, usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtilidad.respuestaConError(e);
         }
