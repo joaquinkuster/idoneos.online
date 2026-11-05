@@ -135,7 +135,17 @@ public class CursoControlador extends PanelCursoControlador {
             }
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
-            ResumenCursos resumen = cursoServicio.resumir(cursos);
+            ResumenCursos resumen = esAdministrador ? cursoServicio.resumir(cursos) : null;
+            if (!esAdministrador) {
+                // "Mis cursos" del docente: tarjetas, 8 por página; las filtra y pagina el servidor
+                List<Curso> filtrados = FILTROS_TARJETAS.filtrar(cursos, solicitud.getParameterMap());
+                FILTROS_TARJETAS.ordenar(filtrados, solicitud.getParameterMap());
+                PaginacionUtilidad.Pagina<Curso> paginaTarjetas = PaginacionUtilidad.paginar(filtrados, solicitud.getParameterMap(),
+                        java.util.Map.of(), 8);
+                PaginacionUtilidad.aModelo(modelo, paginaTarjetas);
+                cursos = paginaTarjetas.filas();
+                resumen = cursoServicio.resumir(cursos);
+            }
             if (esAdministrador) {
                 // El administrador ve una página por vez: el motor común filtra, ordena y pagina en el servidor
                 List<Curso> paginaFiltradas = tablaDeCursos(resumen).filtrar(cursos, solicitud.getParameterMap());
@@ -149,8 +159,8 @@ public class CursoControlador extends PanelCursoControlador {
             modelo.addAttribute("inscripcionesPorCurso", resumen.inscripcionesPorCurso());
             modelo.addAttribute("programasPorCurso", resumen.programasPorCurso());
             modelo.addAttribute("cursosConInscripcionAbierta", resumen.cursosConInscripcionAbierta());
-            if (esAdministrador && PaginacionUtilidad.pideSoloFilas(solicitud)) {
-                return "pages/curso/buscarAdministrador :: filas"; // solo las filas de la página pedida
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return esAdministrador ? "pages/curso/buscarAdministrador :: filas" : "pages/curso/buscar :: filas"; // solo la página pedida
             }
             modelo.addAttribute("totalCursos", cursos.size());
             modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
@@ -197,18 +207,29 @@ public class CursoControlador extends PanelCursoControlador {
      * @return La vista de "Mis cursos" del administrador, o una redirección si el usuario no es administrador.
      */
     @GetMapping("/misCursos")
-    public String misCursosAdministrador(Model modelo, Authentication auth, RedirectAttributes redirectAttributes) {
+    public String misCursosAdministrador(Model modelo, Authentication auth, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         Usuario usuario = (Usuario) auth.getPrincipal();
         if (!usuario.esAdministradorActivo()) {
             return "redirect:/curso/buscar";
         }
         List<Curso> cursos = cursoServicio.buscarConFiltros(null, null, null, null, null, "nombre", null).stream()
                 .filter(curso -> !curso.esInactivo()).toList();
+        int totalCursos = cursos.size();
+        // Tarjetas, 8 por página; las filtra y pagina el servidor
+        List<Curso> filtrados = FILTROS_TARJETAS.filtrar(cursos, solicitud.getParameterMap());
+        FILTROS_TARJETAS.ordenar(filtrados, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Curso> pagina = PaginacionUtilidad.paginar(filtrados, solicitud.getParameterMap(), java.util.Map.of(), 8);
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        cursos = pagina.filas();
         ResumenCursos resumen = cursoServicio.resumir(cursos);
         modelo.addAttribute("cursos", cursos);
-        modelo.addAttribute("totalCursos", cursos.size());
+        modelo.addAttribute("totalCursos", totalCursos);
         modelo.addAttribute("programasPorCurso", resumen.programasPorCurso());
         modelo.addAttribute("cursosConInscripcionAbierta", resumen.cursosConInscripcionAbierta());
+        modelo.addAttribute("esAdministrador", true);
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/curso/buscar :: filas"; // solo las tarjetas de la página pedida
+        }
         modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
         modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
         modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());
@@ -575,6 +596,24 @@ public class CursoControlador extends PanelCursoControlador {
         }
         cursoServicio.actualizarImagen(curso.getIdCurso(), nombre);
     }
+
+    // ---------------------------------------------------------------- Tarjetas de cursos (motor común)
+
+    /** Las columnas de las vistas de tarjetas de cursos (catálogo y "Mis cursos"): lo que se filtra en el servidor. */
+    public static final FiltroUtilidad<Curso> FILTROS_TARJETAS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Curso>("busqueda", FiltroUtilidad.Tipo.TEXTO,
+                    c -> c.getNombre() + " " + (c.getDescripcion() == null ? "" : c.getDescripcion())),
+            new FiltroUtilidad.Columna<Curso>("categoriaId", FiltroUtilidad.Tipo.LISTA, c -> String.valueOf(c.getCategoria().getIdCategoria())),
+            new FiltroUtilidad.Columna<Curso>("nivelId", FiltroUtilidad.Tipo.LISTA,
+                    c -> c.getNivel() == null ? "" : String.valueOf(c.getNivel().getIdNivel())),
+            new FiltroUtilidad.Columna<Curso>("docenteId", FiltroUtilidad.Tipo.LISTA,
+                    c -> c.getEquipoDocente().stream().map(p -> String.valueOf(p.getDocente().getIdDocente()))
+                            .collect(java.util.stream.Collectors.joining("|"))),
+            new FiltroUtilidad.Columna<Curso>("modalidadId", FiltroUtilidad.Tipo.LISTA,
+                    c -> c.getModalidades().stream().map(m -> String.valueOf(m.getIdModalidad()))
+                            .collect(java.util.stream.Collectors.joining("|"))),
+            new FiltroUtilidad.Columna<Curso>("precio", FiltroUtilidad.Tipo.LISTA, c -> c.getPrecio() <= 0 ? "gratis" : "pago")),
+            c -> false);
 
     // ---------------------------------------------------------------- Listado del administrador (motor común)
 

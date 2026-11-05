@@ -30,7 +30,7 @@
                 <div class="container-fluid px-4 px-lg-5">
 
                     <!-- Filtros: mismo diseño que el catálogo (nombre y estado de la inscripción) -->
-                    <div data-tabla>
+                    <div data-tabla data-tabla-servidor="/inscripcion/misCursos">
                         <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo">Mis inscripciones</h2>
@@ -80,7 +80,7 @@
                     <div data-vacio hidden th:if="${totalInscripciones > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
 
                     <!-- Grilla de cursos del alumno -->
-                    <div class="wf-cards-grid" data-tarjetas>
+                    <div class="wf-cards-grid" data-tarjetas th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                         <th:block th:each="insc : ${inscripciones}">
                             <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${insc.curso}, ${insc.cohorte.programa.cantidadTemas},
                                 ${insc.estadoAcceso == 'Vigente' ? insc.estado : insc.estadoAcceso},
@@ -115,10 +115,8 @@
         </div>
     </div>
 
-    <!-- Baja de la inscripción (CU-49) -->
-    <th:block th:each="insc : ${inscripciones}">
-        <th:block th:replace="~{fragments/modalBajaInscripcion :: bloque('modalBajaInscripcion' + ${insc.idInscripcion}, '¿Confirmas darte de baja de «' + ${insc.curso.nombre} + '»?', ${insc.idInscripcion})}"></th:block>
-    </th:block>
+    <!-- Baja de la inscripción (CU-49): una sola ventana para todas las tarjetas; el botón de cada una le pasa la acción y la pregunta (bajaCompartida.js) -->
+    <th:block th:replace="~{fragments/modalBajaInscripcion :: bloque('modalBajaInscripcion', '¿Confirmas darte de baja?', 0)}"></th:block>
 
     <!-- Scripts Globales y SweetAlert2 -->
     <div th:replace="~{fragments/scripts :: scripts}"></div>

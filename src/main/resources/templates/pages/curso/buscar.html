@@ -30,7 +30,7 @@
                 <div class="container-fluid px-4 px-lg-5">
 
                     <!-- Filtros: mismo diseño que "Mis cursos" del alumno y el catálogo -->
-                    <div data-tabla>
+                    <div data-tabla th:attr="data-tabla-servidor=${esAdministrador == true ? '/curso/misCursos' : '/curso/buscar'}">
                         <section class="pn-tarjeta mb-4">
                         <div class="pn-lista-cabecera">
                             <h2 class="pn-lista-titulo" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos como docente'}">Mis cursos como docente</h2>
@@ -104,7 +104,7 @@
                     <div data-vacio hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
 
                     <!-- Grilla de cursos del docente -->
-                    <div class="wf-cards-grid" data-tarjetas>
+                    <div class="wf-cards-grid" data-tarjetas th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                         <th:block th:each="curso : ${cursos}">
                             <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${curso},
                                 ${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? programasPorCurso.get(curso.idCurso).get(0).cantidadTemas : 0},

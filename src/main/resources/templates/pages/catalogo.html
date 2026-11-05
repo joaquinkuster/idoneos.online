@@ -32,7 +32,7 @@
         <div class="container-fluid px-4 px-lg-5">
 
           <!-- Filtros: mismo diseño que los listados del panel, con su label -->
-          <div data-tabla>
+          <div data-tabla data-tabla-servidor="/catalogo">
               <section class="pn-tarjeta mb-4">
             <div class="pn-lista-cabecera">
               <h2 class="pn-lista-titulo">Cursos disponibles</h2>
@@ -94,7 +94,7 @@
           <div data-vacio hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/vacio :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
 
           <!-- Grilla de tarjetas -->
-          <div class="wf-cards-grid" data-tarjetas>
+          <div class="wf-cards-grid" data-tarjetas th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
             <th:block th:each="c : ${cursos}">
   <th:block th:replace="~{fragments/tarjetaCurso :: tarjeta(${c}, ${cantTemasPorCurso != null ? cantTemasPorCurso.get(c.idCurso) : null}, ${cursosProximamente != null and cursosProximamente.contains(c.idCurso) ? 'Próximamente' : 'Inscripción abierta'}, '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
 </th:block>

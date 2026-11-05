@@ -225,6 +225,7 @@
             params.set('pagina', pagina);
             params.set('tamanio', porPagina);
             if (ordenServidor) { params.set('ordenCampo', ordenServidor.campo); params.set('ordenDir', ordenServidor.dir); }
+            if (typeof selectorOrden !== 'undefined' && selectorOrden && selectorOrden.value) { params.set('orden', selectorOrden.value); }
             raiz.classList.add('pn-cargando');
             var urlTabla = raiz.getAttribute('data-tabla-servidor');
             fetch(urlTabla + (urlTabla.indexOf('?') >= 0 ? '&' : '?') + params.toString(), {
@@ -235,13 +236,15 @@
             }).then(function (html) {
                 if (n !== peticion) { return; } // llegó una respuesta más nueva
                 var plantilla = document.createElement('template');
-                plantilla.innerHTML = '<table>' + html + '</table>';
-                var nuevo = plantilla.content.querySelector('tbody');
-                var actual = raiz.querySelector('tbody');
+                // Tabla (<tbody>) o grilla de tarjetas ([data-tarjetas])
+                var actual = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
+                var esTabla = !!raiz.querySelector('tbody');
+                plantilla.innerHTML = esTabla ? '<table>' + html + '</table>' : html;
+                var nuevo = esTabla ? plantilla.content.querySelector('tbody') : plantilla.content.querySelector('[data-tarjetas]');
                 if (!nuevo || !actual) { return; }
                 actual.replaceWith(nuevo);
                 vacio = raiz.querySelector('[data-vacio]');
-                todas = Array.prototype.slice.call(nuevo.querySelectorAll('tr[data-fila]'));
+                todas = Array.prototype.slice.call(nuevo.querySelectorAll('tr[data-fila], [data-tarjeta]'));
                 filas = todas.slice();
                 leerMeta(nuevo);
                 reaplicarColumnas();
@@ -253,7 +256,7 @@
             }).then(function () { if (n === peticion) { raiz.classList.remove('pn-cargando'); } });
         }
         if (servidor) {
-            var cuerpoInicial = raiz.querySelector('tbody');
+            var cuerpoInicial = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
             if (cuerpoInicial) { leerMeta(cuerpoInicial); }
         }
 
@@ -527,7 +530,7 @@
             }
 
             function ordenar() {
-                if (!selectorOrden || !selectorOrden.selectedOptions.length) { return; }
+                if (servidor || !selectorOrden || !selectorOrden.selectedOptions.length) { return; }
                 var opcion = selectorOrden.selectedOptions[0];
                 var ordenadas = todas.slice().sort(function (a, b) {
                     var bajaA = a.classList.contains('pn-fila-baja') ? 1 : 0;

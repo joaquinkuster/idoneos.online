@@ -67,17 +67,26 @@ public class InscripcionControlador extends PanelCursoControlador {
     @GetMapping("/misCursos")
     public String verMisCursos(@RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado, Model modelo, Authentication auth,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest solicitud) {
         try {
             Usuario usuario = (Usuario) auth.getPrincipal();
             Alumno alumno = usuario.getAlumno();
             if (alumno == null) {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
-            List<Inscripcion> inscripciones = inscripcionServicio.buscarMisCursos(alumno, busqueda, estado);
+            List<Inscripcion> todas = inscripcionServicio.buscarMisCursos(alumno, null, null);
+            // El filtro (también el de la URL) y la página los resuelve el servidor: tarjetas, 8 por página
+            List<Inscripcion> filtradas = FILTROS_MIS_CURSOS.filtrar(todas, solicitud.getParameterMap());
+            FILTROS_MIS_CURSOS.ordenar(filtradas, solicitud.getParameterMap());
+            PaginacionUtilidad.Pagina<Inscripcion> pagina = PaginacionUtilidad.paginar(filtradas, solicitud.getParameterMap(),
+                    java.util.Map.of(), 8);
+            PaginacionUtilidad.aModelo(modelo, pagina);
 
-            modelo.addAttribute("inscripciones", inscripciones);
-            modelo.addAttribute("totalInscripciones", inscripciones.size());
+            modelo.addAttribute("inscripciones", pagina.filas());
+            modelo.addAttribute("totalInscripciones", todas.size());
+            if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+                return "pages/inscripcion/misCursos :: filas"; // solo las tarjetas de la página pedida
+            }
             modelo.addAttribute("busqueda", busqueda);
             modelo.addAttribute("estadoSeleccionado", estado);
             modelo.addAttribute("titulo", "Mis cursos | Idóneos Online");
@@ -342,4 +351,12 @@ public class InscripcionControlador extends PanelCursoControlador {
             new FiltroUtilidad.Columna<Inscripcion>("fechaCreacion", FiltroUtilidad.Tipo.FECHA,
                     i -> i.getFechaCreacion() == null ? "" : i.getFechaCreacion().toString().replace('T', ' '))),
             Inscripcion::esInactivo);
+
+    /** Las columnas de "Mis cursos" del alumno: lo que se filtra en el servidor. */
+    private static final FiltroUtilidad<Inscripcion> FILTROS_MIS_CURSOS = new FiltroUtilidad<>(List.of(
+            new FiltroUtilidad.Columna<Inscripcion>("busqueda", FiltroUtilidad.Tipo.TEXTO,
+                    i -> i.getCurso().getNombre() + " " + (i.getCurso().getDescripcion() == null ? "" : i.getCurso().getDescripcion())),
+            new FiltroUtilidad.Columna<Inscripcion>("estado", FiltroUtilidad.Tipo.LISTA, Inscripcion::getEstado),
+            new FiltroUtilidad.Columna<Inscripcion>("acceso", FiltroUtilidad.Tipo.LISTA, Inscripcion::getEstadoAcceso)),
+            i -> false);
 }

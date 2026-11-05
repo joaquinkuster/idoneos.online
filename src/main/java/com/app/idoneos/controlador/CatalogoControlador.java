@@ -1,5 +1,8 @@
 package com.app.idoneos.controlador;
 
+import com.app.idoneos.utilidades.FiltroUtilidad;
+import com.app.idoneos.utilidades.PaginacionUtilidad;
+
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -87,8 +90,15 @@ public class CatalogoControlador {
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
             @RequestParam(value = "docenteId", required = false) Integer docenteId,
-            @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo, Authentication auth) {
-        List<Curso> cursos = cursoServicio.buscarEnCatalogo(null, null, null, null, null); // todos: los filtros (también los de la URL) se aplican en la pantalla
+            @RequestParam(value = "modalidadId", required = false) Integer modalidadId, Model modelo, Authentication auth,
+            jakarta.servlet.http.HttpServletRequest solicitud) {
+        List<Curso> todos = cursoServicio.buscarEnCatalogo(null, null, null, null, null);
+        // El filtro (también el de la URL) y la página los resuelve el servidor: tarjetas, 8 por página
+        List<Curso> filtrados = CursoControlador.FILTROS_TARJETAS.filtrar(todos, solicitud.getParameterMap());
+        CursoControlador.FILTROS_TARJETAS.ordenar(filtrados, solicitud.getParameterMap());
+        PaginacionUtilidad.Pagina<Curso> pagina = PaginacionUtilidad.paginar(filtrados, solicitud.getParameterMap(), java.util.Map.of(), 8);
+        PaginacionUtilidad.aModelo(modelo, pagina);
+        List<Curso> cursos = pagina.filas();
 
         // Los cursos que todavía no tienen una cohorte con la inscripción abierta, solo próximas: la tarjeta dice «Próximamente»
         java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();
@@ -109,7 +119,10 @@ public class CatalogoControlador {
         modelo.addAttribute("descuentoAplicable", pagoServicio.calcularDescuentoPara(alumnoDe(auth)).orElse(null));
         modelo.addAttribute("cursos", cursos);
         modelo.addAttribute("cantTemasPorCurso", cantidadTemasPorCurso);
-        modelo.addAttribute("totalCursos", cursos.size());
+        modelo.addAttribute("totalCursos", todos.size());
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/catalogo :: filas"; // solo las tarjetas de la página pedida
+        }
         modelo.addAttribute("categorias", categoriaServicio.obtenerTodo());
         modelo.addAttribute("niveles", nivelServicio.obtenerTodo());
         modelo.addAttribute("modalidades", modalidadServicio.obtenerTodo());

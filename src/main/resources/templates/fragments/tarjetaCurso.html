@@ -87,8 +87,9 @@
         </ul>
         <!-- Alumno: abre la confirmación de la baja -->
         <ul class="dropdown-menu dropdown-menu-end" th:if="${menu == 'inscripcion'}">
-          <li><button type="button" class="dropdown-item text-danger" data-bs-toggle="modal"
-                      th:data-bs-target="'#modalBajaInscripcion' + ${inscripcion.idInscripcion}">Darme de baja</button></li>
+          <li><button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modalBajaInscripcion"
+                      th:data-baja-accion="@{'/inscripcion/darDeBaja/' + ${inscripcion.idInscripcion}}"
+                      th:data-baja-pregunta="${'¿Confirmas darte de baja de «' + c.nombre + '»?'}">Darme de baja</button></li>
         </ul>
       </div>
     </div>

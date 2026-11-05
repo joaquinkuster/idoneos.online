@@ -43,13 +43,24 @@ public final class PaginacionUtilidad {
      * @return la página pedida, acotada a las páginas que existen.
      */
     public static <T> Pagina<T> paginar(List<T> filtradas, Map<String, String[]> params, Map<String, List<String>> opciones) {
-        int tamanio = TAMANIO_POR_DEFECTO;
+        return paginar(filtradas, params, opciones, TAMANIO_POR_DEFECTO);
+    }
+
+    /**
+     * Igual que {@link #paginar(List, Map, Map)} pero con otro tamaño de página por defecto (las vistas de tarjetas
+     * muestran 8).
+     *
+     * @param tamanioPorDefecto las filas por página cuando la solicitud no indica otro tamaño.
+     */
+    public static <T> Pagina<T> paginar(List<T> filtradas, Map<String, String[]> params, Map<String, List<String>> opciones,
+            int tamanioPorDefecto) {
+        int tamanio = tamanioPorDefecto;
         String pedido = texto(params, "tamanio");
         if (!pedido.isEmpty()) {
             try {
                 tamanio = Math.max(0, Integer.parseInt(pedido));
             } catch (NumberFormatException e) {
-                tamanio = TAMANIO_POR_DEFECTO;
+                tamanio = tamanioPorDefecto;
             }
         }
         int total = filtradas.size();
