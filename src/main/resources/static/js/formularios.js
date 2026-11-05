@@ -72,7 +72,7 @@
             if (respuesta.ok && datos.mensaje) {
                 await window.mostrarExito(datos.mensaje);
                 if (datos.siguienteUrl && window.preguntarSiguientePaso
-                        && await window.preguntarSiguientePaso(datos.siguienteTitulo, datos.siguienteTexto, datos.siguienteConfirmar)) {
+                        && await window.preguntarSiguientePaso(datos.siguienteTitulo, datos.siguienteTexto, datos.siguienteConfirmar, datos.siguienteTipo)) {
                     window.location.href = datos.siguienteUrl;
                     return;
                 }

@@ -126,7 +126,7 @@ public class TemaControlador extends PanelCursoControlador {
             boolean hayNuevos = lista.stream().anyMatch(c -> c.id() == null);
             if (hayNuevos) {
                 // Alerta guía: con el mínimo de temas, el paso siguiente es armar el cronograma (o el que corresponda)
-                return exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente());
+                return exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente(), true);
             }
             return RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
         } catch (Exception e) {

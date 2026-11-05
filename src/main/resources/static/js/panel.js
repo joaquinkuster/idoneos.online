@@ -227,6 +227,7 @@
             if (ordenServidor) { params.set('ordenCampo', ordenServidor.campo); params.set('ordenDir', ordenServidor.dir); }
             if (typeof selectorOrden !== 'undefined' && selectorOrden && selectorOrden.value) { params.set('orden', selectorOrden.value); }
             raiz.classList.add('pn-cargando');
+            var desde = Date.now();
             var urlTabla = raiz.getAttribute('data-tabla-servidor');
             fetch(urlTabla + (urlTabla.indexOf('?') >= 0 ? '&' : '?') + params.toString(), {
                 headers: { 'X-Tabla': 'filas', 'Accept': 'text/html' }, credentials: 'same-origin'
@@ -253,7 +254,10 @@
                 document.dispatchEvent(new CustomEvent('tabla-actualizada', { detail: { tabla: raiz } }));
             }).catch(function () {
                 if (window.mostrarError) { window.mostrarError('Error! No se pudo cargar el listado. Intente nuevamente.'); }
-            }).then(function () { if (n === peticion) { raiz.classList.remove('pn-cargando'); } });
+            }).then(function () {
+                // El efecto de carga dura al menos un instante, para que se note aunque el servidor responda enseguida
+                setTimeout(function () { if (n === peticion) { raiz.classList.remove('pn-cargando'); } }, Math.max(0, 220 - (Date.now() - desde)));
+            });
         }
         if (servidor) {
             var cuerpoInicial = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
@@ -478,6 +482,7 @@
         if (formularioFiltros) {
             var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-tarjetas]');
             construirFiltros(formularioFiltros, raiz);
+            iniciarMultiselect(formularioFiltros); // los selectores múltiples de los filtros se arman ya, sin esperar a la carga completa
             setTimeout(function () { if (window.SelectBuscable) { window.SelectBuscable.iniciarTodos(formularioFiltros); } }, 0);
             var campos = Array.prototype.filter.call(formularioFiltros.elements, function (c) {
                 return c.name && c.type !== 'hidden' && c.type !== 'button' && c.type !== 'submit' && c.name !== 'orden';
@@ -956,8 +961,9 @@
         if (!window.TomSelect) { return; }
         contenedor.querySelectorAll('select.ts-multiselect:not(.tomselected)').forEach(function (el) {
             new TomSelect(el, {
-                // El menú se dibuja sobre la página y no dentro de la ventana: así el modal no lo recorta
-                dropdownParent: 'body',
+                // En una ventana el menú se dibuja sobre la página y no dentro de ella (así el modal no lo recorta); en los filtros
+                // queda pegado al campo
+                dropdownParent: el.closest('.pn-modal') ? 'body' : null,
                 plugins: ['remove_button', 'checkbox_options'],
                 placeholder: el.getAttribute('placeholder'),
                 closeAfterSelect: false,

@@ -140,9 +140,9 @@
 <!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (bajaCompartida.js) -->
 <th:block th:replace="~{fragments/modalBaja :: bloque('modalBajaCurso', 'curso', '¿Confirmas dar de baja?', '', '/curso/darDeBaja/0', null, null)}"></th:block>
 
-<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
-<!-- Tom Select: selectores múltiples -->
+<!-- Tom Select (selectores múltiples): antes de panel.js, que arma los filtros -->
 <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<th:block th:replace="~{fragments/panel :: scripts}"></th:block>
 <script th:src="@{/js/modalesBajoDemanda.js}"></script>
 <script th:src="@{/js/abrirModal.js}"></script>
 <script>

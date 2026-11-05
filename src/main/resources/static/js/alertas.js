@@ -59,8 +59,8 @@
      * Alerta guía del flujo: después de crear algo, propone el paso siguiente. Devuelve una promesa con true si la persona
      * acepta seguir (el que llama navega al paso siguiente) y false si prefiere quedarse.
      */
-    window.preguntarSiguientePaso = function (titulo, texto, confirmar) {
-        return window.mostrarAviso({ tipo: 'info', titulo: titulo, texto: texto, confirmar: confirmar, cancelar: 'Ahora no' })
+    window.preguntarSiguientePaso = function (titulo, texto, confirmar, tipo) {
+        return window.mostrarAviso({ tipo: tipo || 'info', titulo: titulo, texto: texto, confirmar: confirmar, cancelar: 'Ahora no' })
             .then(function (r) { return r.isConfirmed; });
     };
 

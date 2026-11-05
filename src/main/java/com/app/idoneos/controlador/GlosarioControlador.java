@@ -116,7 +116,8 @@ public class GlosarioControlador extends PanelCursoControlador {
             @RequestParam(value = "letra", required = false) String letra,
             @RequestParam(value = "pagina", defaultValue = "1") int pagina,
             @RequestParam(value = "terminoId", required = false) Integer terminoId,
-            @RequestParam(value = "nuevo", required = false) String nuevo, Model modelo, Authentication auth) {
+            @RequestParam(value = "nuevo", required = false) String nuevo, Model modelo, Authentication auth,
+            jakarta.servlet.http.HttpServletRequest solicitud) {
         Tema tema = temaServicio.buscarPorId(temaId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Usuario usuario = (Usuario) auth.getPrincipal();
@@ -131,23 +132,47 @@ public class GlosarioControlador extends PanelCursoControlador {
                 .filter(cronograma -> cronograma.getTema().getIdTema() == tema.getIdTema())
                 .mapToInt(TemaCronograma::getNumeroOrden).findFirst().orElse(0);
 
-        // Los filtros (texto, letra y páginas) se aplican en el navegador (glosarioFiltros.js): acá se entregan todos
-        // los términos del tema, salvo el enlace permanente a un término
+        // El texto, la letra y la página los resuelve el servidor (glosarioFiltros.js los pide por fetch)
         List<TerminoGlosario> encontrados = terminoGlosarioServicio.buscarConFiltros(tema, null, true);
         boolean unSoloTermino = terminoId != null;
         if (unSoloTermino) {
             encontrados = encontrados.stream().filter(termino -> termino.getIdTermino() == terminoId).toList();
         }
+        String buscado = texto == null ? "" : texto.trim();
+        if (!buscado.isEmpty()) {
+            // Sin tildes ni mayúsculas; por defecto se busca también en las definiciones
+            String clave = sinTildes(buscado);
+            boolean enDefinicionesTambien = buscar == null || Boolean.TRUE.equals(enDefiniciones);
+            encontrados = encontrados.stream().filter(t -> sinTildes(t.getTermino()).contains(clave)
+                    || (enDefinicionesTambien && sinTildes(t.getDefinicion()).contains(clave))).toList();
+        }
+        Map<String, List<TerminoGlosario>> porLetra = terminoGlosarioServicio.agruparPorLetra(encontrados);
+        String letraActiva = letra == null || !porLetra.containsKey(letra) ? "" : letra;
+        List<TerminoGlosario> deLaLetra = letraActiva.isEmpty() ? encontrados : porLetra.get(letraActiva);
+        int totalPaginas = Math.max(1, (int) Math.ceil(deLaLetra.size() / (double) TERMINOS_POR_PAGINA));
+        int paginaActual = pagina == 0 ? 0 : Math.min(Math.max(pagina, 1), totalPaginas);
+        List<TerminoGlosario> visibles = paginaActual == 0 ? deLaLetra : deLaLetra.subList(
+                (paginaActual - 1) * TERMINOS_POR_PAGINA, Math.min(paginaActual * TERMINOS_POR_PAGINA, deLaLetra.size()));
 
         cargarContexto(modelo, contexto, "glosario");
         modelo.addAttribute("tema", tema);
         modelo.addAttribute("numeroOrden", numeroOrden);
         modelo.addAttribute("totalTerminos", tema.getTerminosGlosarioOrdenados().size());
         modelo.addAttribute("unSoloTermino", unSoloTermino);
-        modelo.addAttribute("grupos", terminoGlosarioServicio.agruparPorLetra(encontrados)); // por letra inicial
+        modelo.addAttribute("grupos", terminoGlosarioServicio.agruparPorLetra(visibles)); // por letra inicial
+        modelo.addAttribute("indiceLetras", INDICE_DE_LETRAS);
+        modelo.addAttribute("letrasConTerminos", porLetra.keySet());
+        modelo.addAttribute("letraActiva", letraActiva);
+        modelo.addAttribute("paginaActual", paginaActual);
+        modelo.addAttribute("totalPaginas", totalPaginas);
+        modelo.addAttribute("textoBuscado", buscado);
+        modelo.addAttribute("cantidadEncontrados", encontrados.size());
         modelo.addAttribute("puedeGestionar", esDocente);
         modelo.addAttribute("puedeDarDeBaja", esDocente || esAdministrador);
         modelo.addAttribute("abrirNuevo", esDocente && nuevo != null);
+        if (PaginacionUtilidad.pideSoloFilas(solicitud)) {
+            return "pages/glosario/ver :: contenido"; // solo los términos, el índice y las páginas
+        }
         modelo.addAttribute("titulo", "Glosario " + numeroOrden + " | Idóneos Online");
         return "pages/glosario/ver";
     }
@@ -258,4 +283,18 @@ public class GlosarioControlador extends PanelCursoControlador {
             new FiltroUtilidad.Columna<TemaCronograma>("ultimaActualizacion", FiltroUtilidad.Tipo.FECHA,
                     u -> u.getTema().getUltimaActualizacionGlosario() == null ? "" : u.getTema().getUltimaActualizacionGlosario().toString().replace('T', ' '))),
             u -> false);
+
+    // ---------------------------------------------------------------- Búsqueda del glosario (en el servidor)
+
+    /** Términos por página. */
+    private static final int TERMINOS_POR_PAGINA = 10;
+
+    /** Las letras del índice: los especiales y de la A a la Z. */
+    private static final List<String> INDICE_DE_LETRAS = java.util.stream.Stream.concat(java.util.stream.Stream.of("#"),
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars().mapToObj(c -> String.valueOf((char) c))).toList();
+
+    private static String sinTildes(String texto) {
+        return java.text.Normalizer.normalize(texto == null ? "" : texto, java.text.Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "").toLowerCase(java.util.Locale.ROOT).trim();
+    }
 }

@@ -1266,18 +1266,49 @@ textarea.pn-input {
 }
 
 /* Los selectores múltiples (Tom Select) se ven como el resto de los campos */
-.pn-modal .ts-wrapper {
+.pn-modal .ts-wrapper,
+.pn-filtros .ts-wrapper {
     width: 100%;
+    position: relative;
 }
 
-.pn-modal .ts-wrapper .ts-control {
+/* La flecha a la derecha, como en los demás selectores */
+.pn-modal .ts-wrapper::after,
+.pn-filtros .ts-wrapper::after {
+    content: "\f078";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    right: 13px;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+    pointer-events: none;
+    z-index: 3;
+}
+
+.pn-modal .ts-wrapper.dropdown-active::after,
+.pn-filtros .ts-wrapper.dropdown-active::after {
+    transform: translateY(-50%) rotate(180deg);
+}
+
+.pn-modal .ts-wrapper.multi .ts-control,
+.pn-filtros .ts-wrapper.multi .ts-control {
+    padding-right: 34px;
+}
+
+.pn-modal .ts-wrapper .ts-control,
+.pn-filtros .ts-wrapper .ts-control {
     min-height: 42px;
     border: 1px solid var(--pn-borde-input);
     border-radius: 8px;
     box-shadow: none;
+    color: var(--pn-texto, #0F172A);
 }
 
-.pn-modal .ts-wrapper.focus .ts-control {
+.pn-modal .ts-wrapper.focus .ts-control,
+.pn-filtros .ts-wrapper.focus .ts-control {
     border-color: var(--pn-gold);
     box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
 }
@@ -3281,7 +3312,7 @@ textarea.pn-input {
    <select> crudo, para que no se vea cargarse. Si Tom Select no llega, a los 4 segundos se muestra el <select> común. */
 select.ts-multiselect:not(.tomselected) {
     visibility: hidden;
-    height: 38px;
+    height: 42px;
     overflow: hidden;
     animation: pnSelectMostrar 0s linear 4s forwards;
 }
@@ -3289,3 +3320,9 @@ select.ts-multiselect:not(.tomselected) {
 
 /* Listado que se está pidiendo al servidor: se atenúa mientras llegan las filas */
 [data-tabla].pn-cargando tbody { opacity: .45; transition: opacity .15s; pointer-events: none; }
+
+/* Lo mismo en las vistas de tarjetas */
+[data-tabla].pn-cargando [data-tarjetas] { opacity: .45; transition: opacity .15s; pointer-events: none; }
+
+/* Lo mismo en el glosario */
+[data-glosario].pn-cargando [data-glosario-contenido] { opacity: .45; transition: opacity .15s; pointer-events: none; }

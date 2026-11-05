@@ -116,6 +116,22 @@ public abstract class PanelCursoControlador {
      */
     protected org.springframework.http.ResponseEntity<java.util.Map<String, String>> exitoConPasoSiguiente(String mensaje,
             Integer cursoId, com.app.idoneos.modelo.Docente docente) {
+        return exitoConPasoSiguiente(mensaje, cursoId, docente, false);
+    }
+
+    /**
+     * Igual que {@link #exitoConPasoSiguiente(String, Integer, com.app.idoneos.modelo.Docente)}, y además, si
+     * {@code avisarTemasSinCronograma}, propone armar el cronograma cuando el curso tiene temas que el programa de la cohorte todavía no
+     * incluye (por ejemplo, un tema nuevo registrado con el diseño ya completo: no entra solo al cronograma).
+     *
+     * @param mensaje                  El mensaje de éxito.
+     * @param cursoId                  El curso en que se trabaja.
+     * @param docente                  El docente que hizo la operación.
+     * @param avisarTemasSinCronograma Si se avisa de los temas del curso que no están en el cronograma del programa.
+     * @return La respuesta JSON, con la alerta del paso siguiente si corresponde.
+     */
+    protected org.springframework.http.ResponseEntity<java.util.Map<String, String>> exitoConPasoSiguiente(String mensaje,
+            Integer cursoId, com.app.idoneos.modelo.Docente docente, boolean avisarTemasSinCronograma) {
         com.app.idoneos.modelo.Curso curso;
         com.app.idoneos.modelo.Cohorte cohorte;
         try {
@@ -127,6 +143,21 @@ public abstract class PanelCursoControlador {
         }
         DisenoCursoServicio.EstadoDiseno estado = disenoCursoServicio.estadoDe(curso, cohorte);
         String id = "?cursoId=" + cursoId;
+        if (avisarTemasSinCronograma && estado.getPasoActual() >= 5 && estado.programaVigente() != null) {
+            // Con el diseño en marcha (programa con toda la duración asignada), un tema nuevo no está en el cronograma
+            java.util.Set<Integer> enCronograma = estado.programaVigente().getCronogramaOrdenado().stream()
+                    .map(u -> u.getTema().getIdTema()).collect(java.util.stream.Collectors.toSet());
+            long sinCronograma = curso.getTemas().stream()
+                    .filter(t -> !t.getBaja() && !enCronograma.contains(t.getIdTema())).count();
+            if (sinCronograma > 0) {
+                return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
+                        sinCronograma == 1 ? "¿Sumás el tema al cronograma?" : "¿Sumás los temas al cronograma?",
+                        sinCronograma == 1
+                                ? "El curso tiene 1 tema que todavía no está en el cronograma: asignale su duración."
+                                : "El curso tiene " + sinCronograma + " temas que todavía no están en el cronograma: asignales su duración.",
+                        "Armar el cronograma", "/cronograma/buscar" + id);
+            }
+        }
         switch (estado.getPasoActual()) {
             case 2: {
                 boolean puedeAsignar = cohorte != null && cohorte.esPendiente() && cohorte.getCantidadInscriptos() == 0;
@@ -156,10 +187,18 @@ public abstract class PanelCursoControlador {
                                 + (estado.getTemasIncompletos().size() == 1 ? " pendiente." : " pendientes."),
                         "Completar contenido", "/curso/acceder/" + cursoId + "?completar=contenido");
             default:
-                return disenoRecienCompleto(cursoId)
-                        ? com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosaConSiguiente(mensaje,
-                                TITULO_DISENO_COMPLETO, TEXTO_DISENO_COMPLETO, "Ver el curso", "/curso/acceder/" + cursoId)
-                        : com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
+                if (!disenoRecienCompleto(cursoId)) {
+                    return com.app.idoneos.utilidades.RespuestaFormularioUtilidad.respuestaExitosa(mensaje);
+                }
+                // El diseño completo se avisa como un éxito (no como una pregunta informativa)
+                java.util.Map<String, String> completo = new java.util.LinkedHashMap<>();
+                completo.put("mensaje", mensaje);
+                completo.put("siguienteTipo", "exito");
+                completo.put("siguienteTitulo", TITULO_DISENO_COMPLETO);
+                completo.put("siguienteTexto", TEXTO_DISENO_COMPLETO);
+                completo.put("siguienteConfirmar", "Ver el curso");
+                completo.put("siguienteUrl", "/curso/acceder/" + cursoId);
+                return org.springframework.http.ResponseEntity.ok(completo);
         }
     }
 
@@ -219,6 +258,7 @@ public abstract class PanelCursoControlador {
                 cuerpo.put("siguienteConfirmar", "Completar contenido");
                 cuerpo.put("siguienteUrl", "/curso/acceder/" + cursoId + "?completar=contenido");
             } else if (estado.getPasoActual() >= 6 && disenoRecienCompleto(cursoId)) {
+                cuerpo.put("siguienteTipo", "exito");
                 cuerpo.put("siguienteTitulo", TITULO_DISENO_COMPLETO);
                 cuerpo.put("siguienteTexto", TEXTO_DISENO_COMPLETO);
                 cuerpo.put("siguienteConfirmar", "Ver el curso");
