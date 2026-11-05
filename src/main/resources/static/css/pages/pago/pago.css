@@ -1,0 +1,44 @@
+/* Botón mientras se prepara el pago (pago.js): el mismo anillo dorado */
+@keyframes pago-giro {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.cargando {
+    cursor: progress;
+}
+
+.cargando .pago-giro {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    vertical-align: -2px;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #D4A03D;
+    border-radius: 50%;
+    animation: pago-giro 0.9s linear infinite;
+}
+
+/* Resultado del pago (retorno del sitio de MODO) */
+.retorno-icono {
+    font-size: 44px;
+    margin-bottom: 12px;
+}
+
+.retorno-icono.aprobado { color: var(--pn-exito, #16A34A); }
+.retorno-icono.rechazado { color: var(--pn-peligro, #DC2626); }
+.retorno-icono.pendiente { color: #D4A03D; }
+
+.retorno-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cargando .pago-giro { animation-duration: 2.4s; }
+}

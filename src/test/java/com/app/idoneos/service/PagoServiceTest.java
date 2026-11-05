@@ -206,7 +206,7 @@ class PagoServiceTest {
         assertEquals(64000f, pago.getMonto());
         assertTrue(pago.getIdIntencionExterna().startsWith("IDN-"));
         assertTrue(solicitud.idSolicitud().startsWith("SOL-"));
-        assertNotNull(solicitud.qr());
+        assertNotNull(solicitud.idSolicitud());
         assertEquals(0, descuento("Alumno frecuente").getCantidadUsada()); // el uso se cuenta al aprobarse el pago
         assertFalse(nueva.estaHabilitada()); // el acceso sigue sin habilitar hasta que se apruebe
     }
@@ -294,7 +294,7 @@ class PagoServiceTest {
 
         assertEquals(primera.idPago(), segunda.idPago());
         assertEquals(primera.idSolicitud(), segunda.idSolicitud());
-        assertNotNull(segunda.qr());
+        assertNotNull(segunda.idSolicitud());
         assertEquals(1, lucia.getPagos().size());
     }
 
@@ -480,7 +480,7 @@ class PagoServiceTest {
                 () -> pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno(), actual + 8000f));
         assertTrue(error.getMessage().contains("cambió"));
         // con el monto que corresponde, se inicia normalmente
-        assertTrue(pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno(), actual).qr() != null);
+        assertTrue(pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno(), actual).idSolicitud() != null);
     }
 
     @Test

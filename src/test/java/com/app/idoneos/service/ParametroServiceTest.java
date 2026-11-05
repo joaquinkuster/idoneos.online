@@ -43,7 +43,7 @@ class ParametroServiceTest {
     @DisplayName("La semilla carga los parámetros de MODO y su contraseña queda cifrada en la base")
     void laSemillaCargaLosParametrosDeModo() {
         for (String clave : new String[] { Parametro.MODO_USUARIO, Parametro.MODO_CLAVE, Parametro.MODO_URL_API,
-                Parametro.MODO_URL_SCRIPT_MODAL, Parametro.MODO_NOMBRE_COMERCIO, Parametro.MODO_PROCESSOR_CODE,
+                Parametro.MODO_URL_CHECKOUT, Parametro.MODO_NOMBRE_COMERCIO, Parametro.MODO_PROCESSOR_CODE,
                 Parametro.MODO_CC_CODE, Parametro.MODO_MONTO_MINIMO }) {
             assertTrue(parametroService.obtenerTexto(clave).filter(valor -> !valor.isBlank()).isPresent(), clave);
         }

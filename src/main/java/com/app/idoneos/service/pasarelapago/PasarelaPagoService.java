@@ -38,11 +38,15 @@ public interface PasarelaPagoService {
     float montoMinimo();
 
     /**
-     * Dirección del script que muestra el modal de pago de MODO en el navegador.
+     * Arma la dirección del sitio de pagos de MODO a la que se redirige al comprador para pagar una solicitud. MODO lo
+     * devuelve a una de las dos direcciones de retorno cuando termina.
      *
-     * @return La URL del script.
+     * @param idSolicitud Identificador de la solicitud de pago (de un solo uso: cada intento necesita una nueva).
+     * @param urlExito    Dirección de la tienda a la que vuelve el comprador si el pago se aprueba.
+     * @param urlError    Dirección de la tienda a la que vuelve si el pago se rechaza, falla o lo abandona.
+     * @return La dirección del sitio de pagos, con los tres parámetros.
      */
-    String scriptModal();
+    String urlCheckout(String idSolicitud, String urlExito, String urlError);
 
     // ---------------------------------------------------------------- Creaciones
 
@@ -66,11 +70,9 @@ public interface PasarelaPagoService {
     /**
      * Solicitud de pago creada en la plataforma.
      *
-     * @param id       Identificador de la solicitud en la plataforma.
-     * @param qr       Código QR (texto) que el alumno escanea con la app de MODO o de su banco.
-     * @param deeplink Enlace que abre la app de pago desde un celular.
+     * @param id Identificador de la solicitud en la plataforma.
      */
-    record Solicitud(String id, String qr, String deeplink) {
+    record Solicitud(String id) {
     }
 
     /**

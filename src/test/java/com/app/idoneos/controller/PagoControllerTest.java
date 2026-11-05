@@ -121,9 +121,10 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el alumno no accede al listado de todos los pagos")
+    @DisplayName("CU-50: el alumno ve en /pago/buscar solo sus pagos, no el listado del administrador")
     void alumnoNoVeElListadoDelAdministrador() throws Exception {
-        mockMvc.perform(get("/pago/buscar")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
+                .andExpect(content().string(not(containsString("Registrar pago"))));
     }
 
     @Test
@@ -136,9 +137,10 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el administrador no usa la pantalla de pagos del alumno")
+    @DisplayName("CU-50: el administrador ve en /pago/buscar el listado de todos los pagos, no la pantalla del alumno")
     void administradorNoUsaMisPagos() throws Exception {
-        mockMvc.perform(get("/pago/buscar")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
+                .andExpect(content().string(containsString("Registrar pago")));
     }
 
     @Test
@@ -199,16 +201,17 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: el alumno inicia el pago y recibe lo necesario para mostrar el pago")
+    @DisplayName("CU-51: el alumno inicia el pago y recibe la dirección del sitio de pagos de MODO")
     void pagar() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
         mockMvc.perform(post("/pago/pagar/" + lucia.getIdInscripcion())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.idPago").isNumber())
                 .andExpect(jsonPath("$.idSolicitud").value(org.hamcrest.Matchers.startsWith("SOL-")))
-                .andExpect(jsonPath("$.qr").isNotEmpty())
-                .andExpect(jsonPath("$.aprobado").value(false))
-                .andExpect(jsonPath("$.plazoMinutos").value(10));
+                .andExpect(jsonPath("$.urlCheckout").value(org.hamcrest.Matchers.startsWith("https://site.modo.test/checkout?id=SOL-")))
+                .andExpect(jsonPath("$.urlCheckout").value(org.hamcrest.Matchers.containsString("/pago/exito/")))
+                .andExpect(jsonPath("$.urlCheckout").value(org.hamcrest.Matchers.containsString("/pago/error/")))
+                .andExpect(jsonPath("$.aprobado").value(false));
     }
 
     @Test

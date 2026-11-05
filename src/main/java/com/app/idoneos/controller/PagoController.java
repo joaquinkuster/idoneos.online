@@ -38,6 +38,7 @@ import com.app.idoneos.service.comprobante.ComprobanteService;
 import com.app.idoneos.service.inscripcion.InscripcionService;
 import com.app.idoneos.service.pago.PagoService;
 import com.app.idoneos.service.parametro.ParametroService;
+import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
 /**
@@ -61,6 +62,9 @@ public class PagoController {
 
     @Autowired
     private ParametroService parametroService;
+
+    @Autowired
+    private PasarelaPagoService pasarelaPagoService;
 
     @Autowired
     private ComprobanteService comprobanteService;
@@ -193,6 +197,61 @@ public class PagoController {
     }
 
     /**
+     * Retorno del sitio de pagos de MODO cuando el pago se aprobó. El aviso de MODO (webhook) puede tardar unos segundos,
+     * así que si el pago todavía figura pendiente la página lo consulta hasta que se resuelva.
+     *
+     * @param idPago Identificador del pago.
+     * @param model  El modelo de la vista.
+     * @param authentication La autenticación actual.
+     * @return La página del resultado, o la del error si el pago resultó rechazado.
+     */
+    @GetMapping("/exito/{idPago}")
+    public String exito(@PathVariable("idPago") Integer idPago, Model model, Authentication authentication) {
+        Pago pago = buscarPagoDelRetorno(idPago, authentication);
+        if (pago.estaRechazado()) {
+            return "redirect:/pago/error/" + idPago;
+        }
+        cargarRetorno(model, pago, pago.estaAprobado() ? "aprobado" : "pendiente");
+        return "pages/pago/retorno";
+    }
+
+    /**
+     * Retorno del sitio de pagos de MODO cuando el pago se rechazó, falló o el alumno lo abandonó. Ofrece reintentarlo.
+     *
+     * @param idPago Identificador del pago.
+     * @param model  El modelo de la vista.
+     * @param authentication La autenticación actual.
+     * @return La página del resultado, o la de éxito si en realidad el pago se aprobó.
+     */
+    @GetMapping("/error/{idPago}")
+    public String error(@PathVariable("idPago") Integer idPago, Model model, Authentication authentication) {
+        Pago pago = buscarPagoDelRetorno(idPago, authentication);
+        if (pago.estaAprobado()) {
+            return "redirect:/pago/exito/" + idPago;
+        }
+        cargarRetorno(model, pago, "rechazado");
+        return "pages/pago/retorno";
+    }
+
+    /** El pago al que vuelve el alumno, conciliado con MODO; si no es suyo o no existe, no se encuentra. */
+    private Pago buscarPagoDelRetorno(Integer idPago, Authentication authentication) {
+        try {
+            return pagoService.consultarEstado(idPago, solicitante((Usuario) authentication.getPrincipal()));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    private void cargarRetorno(Model model, Pago pago, String resultado) {
+        model.addAttribute("pago", pago);
+        model.addAttribute("resultado", resultado);
+        model.addAttribute("inscripcion", pago.getInscripcion());
+        model.addAttribute("motivo", pago.getDetalleErrorOperacion());
+        model.addAttribute("plazoMinutos", pagoService.plazoConfirmacionMinutos());
+        model.addAttribute("titulo", "Resultado del pago | Idóneos Online");
+    }
+
+    /**
      * CU-50: Descarga el comprobante (PDF) de un pago aprobado: el alumno el de sus pagos y el administrador cualquiera.
      *
      * @param idPago Identificador del pago.
@@ -220,19 +279,21 @@ public class PagoController {
 
     /**
      * CU-51: El alumno paga una inscripción pendiente de pago. Registra el pago pendiente y crea la solicitud en MODO;
-     * responde con los datos que necesita el navegador para mostrar el QR. Responde en JSON.
+     * responde con la dirección del sitio de pagos de MODO a la que el navegador redirige al alumno. Responde en JSON.
      *
      * @param idInscripcion Identificador de la inscripción.
      * @param monto         El monto que el alumno vio en la caja (opcional): si cambió, no se cobra y se avisa.
      * @param authentication          La autenticación actual.
+     * @param request                 La petición (de ahí sale la dirección de retorno si el sistema no tiene una pública).
      * @return Los datos de la solicitud de pago o el mensaje de error.
      */
     @PostMapping("/pagar/{idInscripcion}")
     public ResponseEntity<Map<String, Object>> pagar(@PathVariable("idInscripcion") Integer idInscripcion,
-            @RequestParam(value = "monto", required = false) Float monto, Authentication authentication) {
+            @RequestParam(value = "monto", required = false) Float monto, Authentication authentication,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             return RespuestaFormularioUtil.armarRespuestaConDatos(armarRespuesta(pagoService.iniciar(idInscripcion,
-                    ((Usuario) authentication.getPrincipal()).getAlumno(), monto)));
+                    ((Usuario) authentication.getPrincipal()).getAlumno(), monto), request));
         } catch (PagoService.MontoCambiadoException e) {
             // La caja tiene que recargarse para mostrar el monto actual
             return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage(), "recargar", true));
@@ -315,10 +376,11 @@ public class PagoController {
      * @return Los datos de la nueva solicitud de pago o el mensaje de error.
      */
     @PostMapping("/reintentar/{idPago}")
-    public ResponseEntity<Map<String, Object>> reintentar(@PathVariable("idPago") Integer idPago, Authentication authentication) {
+    public ResponseEntity<Map<String, Object>> reintentar(@PathVariable("idPago") Integer idPago, Authentication authentication,
+            jakarta.servlet.http.HttpServletRequest request) {
         try {
             return RespuestaFormularioUtil.armarRespuestaConDatos(armarRespuesta(pagoService.reintentar(idPago,
-                    ((Usuario) authentication.getPrincipal()).getAlumno())));
+                    ((Usuario) authentication.getPrincipal()).getAlumno()), request));
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConErrorEnDatos(e);
         }
@@ -361,15 +423,20 @@ public class PagoController {
         return usuario.getAlumno();
     }
 
-    private Map<String, Object> armarRespuesta(PagoService.SolicitudPago request) {
+    private Map<String, Object> armarRespuesta(PagoService.SolicitudPago solicitud, jakarta.servlet.http.HttpServletRequest request) {
         Map<String, Object> cuerpo = new LinkedHashMap<>();
-        cuerpo.put("idPago", request.idPago());
-        cuerpo.put("idSolicitud", request.idSolicitud());
-        cuerpo.put("qr", request.qr());
-        cuerpo.put("deeplink", request.deeplink());
-        cuerpo.put("scriptModal", request.scriptModal());
-        cuerpo.put("aprobado", request.aprobado());
-        cuerpo.put("plazoMinutos", pagoService.plazoConfirmacionMinutos());
+        cuerpo.put("idPago", solicitud.idPago());
+        cuerpo.put("idSolicitud", solicitud.idSolicitud());
+        cuerpo.put("aprobado", solicitud.aprobado());
+        // Con el pago ya aprobado (o sin nada que cobrar) no hay a dónde redirigir
+        if (!solicitud.aprobado()) {
+            String base = parametroService.obtenerTexto(Parametro.MODO_URL_PUBLICA).map(String::trim).filter(v -> !v.isEmpty())
+                    .map(v -> v.replaceAll("/+$", ""))
+                    .orElseGet(() -> org.springframework.web.servlet.support.ServletUriComponentsBuilder.fromContextPath(request)
+                            .build().toUriString());
+            cuerpo.put("urlCheckout", pasarelaPagoService.urlCheckout(solicitud.idSolicitud(),
+                    base + "/pago/exito/" + solicitud.idPago(), base + "/pago/error/" + solicitud.idPago()));
+        }
         return cuerpo;
     }
 

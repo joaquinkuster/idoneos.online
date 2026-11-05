@@ -393,8 +393,7 @@ public class SemillaService {
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
         parametroService.registrarTexto(admin, Parametro.MODO_CLAVE, "318979-P75V/QLKfVKX");
         parametroService.registrarTexto(admin, Parametro.MODO_URL_API, "https://merchants.preprod.playdigital.com.ar");
-        parametroService.registrarTexto(admin, Parametro.MODO_URL_SCRIPT_MODAL,
-                "https://ecommerce-modal.preprod.modo.com.ar/bundle.js");
+        parametroService.registrarTexto(admin, Parametro.MODO_URL_CHECKOUT, "https://site.preprod.modo.com.ar/checkout");
         parametroService.registrarTexto(admin, Parametro.MODO_NOMBRE_COMERCIO, "Idoneos Online");
         // Gateway Decidir 2.0/Tradicional y Decidir+ (las tarjetas de prueba de Payway) y una cuota sin interés
         parametroService.registrarTexto(admin, Parametro.MODO_PROCESSOR_CODE, "P1019");

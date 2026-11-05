@@ -257,18 +257,14 @@ public interface PagoService extends CrudService<Pago> {
 
     /**
      * Datos que necesita el navegador para que el alumno complete un pago online: el pago que se registró y la solicitud
-     * creada en la plataforma (el QR y el enlace no se guardan; si hace falta se vuelven a pedir a la plataforma).
+     * creada en la plataforma. Con ella el controlador arma la dirección del sitio de pagos a la que se redirige al comprador.
      *
      * @param idPago      El pago registrado, pendiente de confirmación (nulo si el descuento cubre todo el precio: en ese
      *                    caso no se registra ningún pago).
      * @param idSolicitud El identificador de la solicitud en la plataforma.
-     * @param qr          El código QR que se escanea desde la app de MODO o de un banco.
-     * @param deeplink    El enlace que abre la app de pago desde un celular.
-     * @param scriptModal La dirección del script que muestra el modal de MODO.
      * @param aprobado    Si el pago ya quedó aprobado (o, si no hay pago, si el descuento cubre todo el precio y se
      *                    habilitó el acceso).
      */
-    record SolicitudPago(Integer idPago, String idSolicitud, String qr, String deeplink, String scriptModal,
-            boolean aprobado) {
+    record SolicitudPago(Integer idPago, String idSolicitud, boolean aprobado) {
     }
 }

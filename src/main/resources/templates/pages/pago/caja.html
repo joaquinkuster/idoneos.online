@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
-    <link rel="stylesheet" th:href="@{/css/pages/pago/modo.css}">
+    <link rel="stylesheet" th:href="@{/css/pages/pago/pago.css}">
 </head>
 <body class="wf-canvas-bg fondo-crema">
 
@@ -69,7 +69,7 @@
                                         th:data-inscripcion="${inscripcion.idInscripcion}"
                                         th:data-monto="${#numbers.formatDecimal(total, 1, 'NONE', 2, 'POINT')}"
                                         th:text="${total <= 0 ? 'Habilitar acceso' : 'Pagar con MODO'}">Pagar con MODO</button>
-                                <p class="caja-nota" th:if="${!parcial and total > 0}">Pagás con la app de tu banco escaneando un QR.</p>
+                                <p class="caja-nota" th:if="${!parcial and total > 0}">Vas a completar el pago en el sitio de MODO, con la app de tu banco o tu tarjeta.</p>
 
                                 <div class="pn-aviso pn-aviso-dorado mt-3" th:if="${parcial}">
                                                                         Ya se registró un pago de

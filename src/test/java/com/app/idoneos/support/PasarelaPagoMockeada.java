@@ -22,7 +22,7 @@ import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
  */
 public class PasarelaPagoMockeada {
 
-    private static final String SCRIPT_MODAL = "https://modo.test/bundle.js";
+    private static final String URL_CHECKOUT = "https://site.modo.test/checkout";
     private static final float MONTO_MINIMO = 30f;
 
     private final Map<String, PasarelaPagoService.Solicitud> solicitudes = new ConcurrentHashMap<>();
@@ -37,10 +37,10 @@ public class PasarelaPagoMockeada {
      */
     public PasarelaPagoMockeada(PasarelaPagoService pasarela) {
         when(pasarela.montoMinimo()).thenReturn(MONTO_MINIMO);
-        when(pasarela.scriptModal()).thenReturn(SCRIPT_MODAL);
+        when(pasarela.urlCheckout(anyString(), anyString(), anyString())).thenAnswer(invocacion -> URL_CHECKOUT + "?id="
+                + invocacion.getArgument(0) + "&callbackSuccess=" + invocacion.getArgument(1) + "&callback=" + invocacion.getArgument(2));
         when(pasarela.crearSolicitud(anyString(), anyFloat(), any(), any(), any(), any())).thenAnswer(invocacion -> {
-            PasarelaPagoService.Solicitud solicitud = new PasarelaPagoService.Solicitud("SOL-" + UUID.randomUUID(),
-                    "QR-" + invocacion.getArgument(0), "https://modo.test/pagar/");
+            PasarelaPagoService.Solicitud solicitud = new PasarelaPagoService.Solicitud("SOL-" + UUID.randomUUID());
             solicitudes.put(solicitud.id(), solicitud);
             return solicitud;
         });

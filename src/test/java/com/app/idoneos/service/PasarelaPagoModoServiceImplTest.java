@@ -61,7 +61,7 @@ class PasarelaPagoModoServiceImplTest {
         valores.put(Parametro.MODO_NOMBRE_COMERCIO, "Idoneos Online");
         valores.put(Parametro.MODO_PROCESSOR_CODE, "P1019");
         valores.put(Parametro.MODO_CC_CODE, "1CSI");
-        valores.put(Parametro.MODO_URL_SCRIPT_MODAL, "https://modo.test/bundle.js");
+        valores.put(Parametro.MODO_URL_CHECKOUT, "https://site.modo.test/checkout");
         valores.put(Parametro.MODO_URL_PUBLICA, urlPublica);
         ParametroService parametros = mock(ParametroService.class);
         when(parametros.obtenerTexto(anyString())).thenAnswer(invocacion -> Optional.ofNullable(valores.get(invocacion.<String>getArgument(0))));
@@ -105,8 +105,6 @@ class PasarelaPagoModoServiceImplTest {
                 "lucia@correo.com", "40123456");
 
         assertEquals("b3c97b14", solicitud.id());
-        assertEquals("000201QR", solicitud.qr());
-        assertEquals("https://modo.test/pagar/", solicitud.deeplink());
         servidor.verify();
     }
 
@@ -191,7 +189,7 @@ class PasarelaPagoModoServiceImplTest {
         PasarelaPagoService.Resultado resultado = modo.consultarPago("b3c97b14");
 
         assertEquals(PasarelaPagoService.Estado.PENDIENTE, resultado.estado());
-        assertEquals("000201QR", resultado.solicitud().qr());
+        assertEquals("b3c97b14", resultado.solicitud().id());
     }
 
     @Test
@@ -266,12 +264,13 @@ class PasarelaPagoModoServiceImplTest {
     }
 
     @Test
-    @DisplayName("Expone el monto mínimo y el script del modal")
+    @DisplayName("Expone el monto mínimo y arma la dirección del sitio de pagos con los tres parámetros")
     void datosDeLaPlataforma() {
         PasarelaPagoModoServiceImpl modo = pasarela("usuario", "clave", "");
 
         assertEquals(30f, modo.montoMinimo());
-        assertEquals("https://modo.test/bundle.js", modo.scriptModal());
+        assertEquals("https://site.modo.test/checkout?id=b3c97b14&callbackSuccess=https://tienda.test/pago/exito/7&callback=https://tienda.test/pago/error/7",
+                modo.urlCheckout("b3c97b14", "https://tienda.test/pago/exito/7", "https://tienda.test/pago/error/7"));
     }
 
     @Test

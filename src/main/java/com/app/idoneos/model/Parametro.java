@@ -88,8 +88,8 @@ public class Parametro {
     /** Dirección de la API de MODO: preproducción o producción. */
     public static final String MODO_URL_API = "modo.url_api";
 
-    /** Dirección del script que muestra el modal de pago de MODO (cambia entre preproducción y producción). */
-    public static final String MODO_URL_SCRIPT_MODAL = "modo.url_script_modal";
+    /** Dirección del sitio de pagos de MODO al que se redirige al comprador (cambia entre preproducción y producción). */
+    public static final String MODO_URL_CHECKOUT = "modo.url_checkout";
 
     /** Nombre del comercio, que MODO exige en cada pedido. */
     public static final String MODO_NOMBRE_COMERCIO = "modo.nombre_comercio";

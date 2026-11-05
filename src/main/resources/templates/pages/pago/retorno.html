@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/pago/pago.css}">
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+            <th:block th:replace="~{fragments/layout/breadcrumb :: migas('Mis cursos', '/inscripcion/buscar', 'Resultado del pago')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6">
+                            <!-- Resultado del pago: el comprador vuelve acá desde el sitio de pagos de MODO -->
+                            <section class="pn-card caja-card text-center">
+                                <th:block th:if="${resultado == 'aprobado'}">
+                                    <i class="fa-solid fa-circle-check retorno-icono aprobado" aria-hidden="true"></i>
+                                    <h2 class="pn-lista-titulo">¡Pago aprobado!</h2>
+                                    <p class="caja-detalle" th:text="${'Se habilitó el acceso a «' + inscripcion.curso.nombre + '» y se emitió tu comprobante.'}">Se habilitó el acceso al curso.</p>
+                                    <div class="retorno-acciones justify-content-center">
+                                        <a class="pn-btn pn-btn-primario" th:href="@{/inscripcion/buscar}">Ir a mis cursos</a>
+                                        <a class="pn-btn pn-btn-contorno" th:if="${pago.comprobanteVigente != null}"
+                                           th:href="@{'/pago/comprobante/' + ${pago.idPago}}" target="_blank" rel="noopener">Ver comprobante</a>
+                                    </div>
+                                </th:block>
+
+                                <th:block th:if="${resultado == 'pendiente'}">
+                                    <div data-pago-pendiente th:attr="data-pago-pendiente=${pago.idPago}, data-plazo-minutos=${plazoMinutos}">
+                                        <i class="fa-solid fa-hourglass-half retorno-icono pendiente" aria-hidden="true"></i>
+                                        <h2 class="pn-lista-titulo">Estamos confirmando tu pago</h2>
+                                        <p class="caja-detalle">MODO nos avisa el resultado en unos segundos. No cierres esta página: se actualiza sola.</p>
+                                    </div>
+                                </th:block>
+
+                                <th:block th:if="${resultado == 'rechazado'}">
+                                    <i class="fa-solid fa-circle-xmark retorno-icono rechazado" aria-hidden="true"></i>
+                                    <h2 class="pn-lista-titulo">El pago no se completó</h2>
+                                    <p class="caja-detalle" th:text="${motivo != null ? motivo : 'No se pudo completar el pago o lo cancelaste antes de terminar.'}">Motivo</p>
+                                    <p class="caja-detalle">No se te cobró nada si el pago no figura como aprobado. Podés intentarlo de nuevo.</p>
+                                    <div class="retorno-acciones justify-content-center">
+                                        <button type="button" class="pn-btn pn-btn-primario" data-pagar
+                                                th:data-url="@{'/pago/pagar/' + ${inscripcion.idInscripcion}}">Pagar con MODO</button>
+                                        <a class="pn-btn pn-btn-contorno" th:href="@{/inscripcion/buscar}">Volver a mis cursos</a>
+                                    </div>
+                                </th:block>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:replace="~{fragments/layout/footer :: footer}"></div>
+
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
+    <script th:src="@{/js/pages/pago/pago.js}"></script>
+</body>
+</html>

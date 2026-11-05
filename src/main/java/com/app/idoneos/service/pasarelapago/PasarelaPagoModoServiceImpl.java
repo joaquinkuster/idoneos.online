@@ -22,7 +22,8 @@ import org.springframework.web.client.RestClientResponseException;
 
 /**
  * Conexión con la API de MODO (https://merchants.modo.com.ar/docs): autenticación con token, creación de solicitudes de
- * pago (payment requests) y consulta de su resultado.
+ * pago (payment requests) y consulta de su resultado. El comprador paga en el sitio de pagos de MODO, adonde se lo redirige
+ * ({@link #urlCheckout}); no hay QR ni modal embebido.
  *
  * Todo lo que depende de la cuenta de MODO del cliente (credenciales, dirección de la API, códigos del gateway, etc.)
  * es un parámetro del sistema ({@code modo.*} en {@link Parametro}) y se lee en cada pedido: cuando el cliente
@@ -49,7 +50,8 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
 
     /** Parámetros sin los cuales no se puede hablar con MODO. */
     private static final List<String> PARAMETROS_OBLIGATORIOS = List.of(Parametro.MODO_USUARIO, Parametro.MODO_CLAVE,
-            Parametro.MODO_URL_API, Parametro.MODO_NOMBRE_COMERCIO, Parametro.MODO_PROCESSOR_CODE, Parametro.MODO_CC_CODE);
+            Parametro.MODO_URL_API, Parametro.MODO_URL_CHECKOUT, Parametro.MODO_NOMBRE_COMERCIO, Parametro.MODO_PROCESSOR_CODE,
+            Parametro.MODO_CC_CODE);
 
     private final RestClient cliente;
     private final ParametroService parametros;
@@ -90,7 +92,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         JsonNode transaccion = respuesta.path("transaction_data");
         String estado = texto(respuesta, "status");
         String estadoDelPago = texto(transaccion, "status");
-        Solicitud solicitud = new Solicitud(texto(respuesta, "id"), texto(respuesta, "qr"), texto(respuesta, "deeplink"));
+        Solicitud solicitud = new Solicitud(texto(respuesta, "id"));
         boolean aprobado = "ACCEPTED".equals(estado) || "APPROVED".equals(estadoDelPago);
         boolean rechazado = "REJECTED".equals(estado) || "REJECTED".equals(estadoDelPago);
         if (!aprobado && !rechazado) {
@@ -114,8 +116,10 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
     }
 
     @Override
-    public String scriptModal() {
-        return parametros.obtenerTexto(Parametro.MODO_URL_SCRIPT_MODAL).filter(v -> !v.isBlank()).orElse(null);
+    public String urlCheckout(String idSolicitud, String urlExito, String urlError) {
+        return org.springframework.web.util.UriComponentsBuilder.fromUriString(requerido(Parametro.MODO_URL_CHECKOUT))
+                .queryParam("id", idSolicitud).queryParam("callbackSuccess", urlExito).queryParam("callback", urlError)
+                .build().encode().toUriString();
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -152,7 +156,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
             if (id == null) {
                 throw new IllegalStateException("MODO no devolvió el identificador de la solicitud");
             }
-            return new Solicitud(id, texto(respuesta, "qr"), texto(respuesta, "deeplink"));
+            return new Solicitud(id);
         } catch (RestClientException | IllegalStateException e) {
             REGISTRO.error("No se pudo crear la solicitud de pago en MODO", e);
             throw new IllegalArgumentException("Error! No se pudo iniciar el pago con MODO. Intentá nuevamente en unos minutos.");

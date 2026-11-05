@@ -498,16 +498,14 @@ public class PagoServiceImpl implements PagoService {
         if (existente != null && existente.estaPendiente()) {
             conciliar(existente);
             if (existente.estaAprobado()) {
-                return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(), null, null,
-                        pasarela.scriptModal(), true);
+                return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(), true);
             }
             if (existente.estaPendiente()) {
-                // Hay un pago en curso: se retoma su solicitud (MODO devuelve su QR) en lugar de crear otra
+                // Hay un pago en curso: se retoma su solicitud en lugar de crear otra
                 PasarelaPagoService.Resultado enCurso = pasarela.consultarPago(existente.getIdSolicitudPago());
                 if (enCurso.estado() == PasarelaPagoService.Estado.PENDIENTE && enCurso.solicitud() != null) {
                     validarMontoEsperado(montoEsperado, existente.getMonto());
-                    return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(),
-                            enCurso.solicitud().qr(), enCurso.solicitud().deeplink(), pasarela.scriptModal(), false);
+                    return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(), false);
                 }
             }
         }
@@ -547,8 +545,7 @@ public class PagoServiceImpl implements PagoService {
                 usuario.getDni());
         pago.setIdSolicitudPago(solicitud.id());
         pagoRepository.save(pago);
-        return new SolicitudPago(pago.getIdPago(), solicitud.id(), solicitud.qr(), solicitud.deeplink(),
-                pasarela.scriptModal(), false);
+        return new SolicitudPago(pago.getIdPago(), solicitud.id(), false);
     }
 
     /**
@@ -566,7 +563,7 @@ public class PagoServiceImpl implements PagoService {
             descuento.setCantidadUsada(descuento.getCantidadUsada() + 1);
             descuentoRepository.save(descuento);
         }
-        return new SolicitudPago(null, null, null, null, pasarela.scriptModal(), true);
+        return new SolicitudPago(null, null, true);
     }
 
     /**
