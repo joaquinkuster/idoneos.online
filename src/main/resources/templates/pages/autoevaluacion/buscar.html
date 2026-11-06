@@ -82,7 +82,7 @@
                                 <td th:text="${#numbers.formatInteger(a.notaMinima, 1)}">6</td>
                                 <td th:text="${a.intentosPermitidos != null ? a.intentosPermitidos : 'Sin límite'}">3</td>
                                 <td>
-                                    <span class="pn-insignia" th:classappend="${a.oculto} ? 'pn-insignia-dorada' : ''" th:text="${a.oculto ? 'Oculta' : 'Visible'}">Visible</span>
+                                    <span class="pn-insignia" th:classappend="${a.oculto} ? 'pn-insignia-dorada' : 'pn-insignia-verde'" th:text="${a.oculto ? 'Oculta' : 'Visible'}">Visible</span>
                                 </td>
                                 <td th:text="${#temporals.format(a.fechaApertura, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td th:text="${a.fechaCierre != null ? #temporals.format(a.fechaCierre, 'dd/MM/yyyy HH:mm') : '-'}">-</td>

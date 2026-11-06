@@ -33,8 +33,12 @@
 
                 <!-- Filtros (CU-01) -->
                 <form th:action="@{/curso/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <!-- La categoría se elige con los chips de debajo: este campo solo la lleva -->
+                    <input type="text" name="categoria" hidden tabindex="-1" aria-hidden="true">
                     <a th:href="@{/curso/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
+                <!-- Chips de categoría (los dibuja core/tabla.js con los datos de la tabla) -->
+                <div class="pn-chips" data-chips-categorias></div>
 
                 <!-- Tabla -->
                 <div class="pn-tabla-contenedor">
@@ -43,11 +47,11 @@
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Nombre" data-orden-inicial="asc" data-campo="nombre" data-filtro="texto">Nombre</th>
-                                <th data-col="Categoría" data-campo="categoria" data-filtro="lista">Categoría</th>
+                                <th data-col="Categoría" data-campo="categoria">Categoría</th>
                                 <th data-col="Nivel" data-campo="nivel" data-filtro="lista" data-sin-busqueda>Nivel</th>
                                 <th data-col="Precio" data-campo="precio" data-filtro="numero">Precio</th>
-                                <th data-col="Carga horaria" data-campo="cargaHoraria" data-filtro="numero">Carga horaria</th>
-                                <th data-col="Duración" data-campo="duracion" data-filtro="numero">Duración</th>
+                                <th data-col="Carga horaria" data-oculta data-campo="cargaHoraria" data-filtro="numero">Carga horaria</th>
+                                <th data-col="Duración" data-oculta data-campo="duracion" data-filtro="numero">Duración</th>
                                 <th data-col="Modalidades" data-campo="modalidades" data-filtro="lista" data-sin-busqueda>Modalidades</th>
                                 <th data-col="Docente titular" data-campo="docenteTitular" data-filtro="lista">Docente titular</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
@@ -55,8 +59,12 @@
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="curso : ${cursos}" data-fila th:classappend="${curso.baja} ? 'pn-fila-baja'"
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}, data-chips=${chipsCategorias}">
+                            <th:block th:each="curso, it : ${cursos}">
+                            <th:block th:if="${agrupar == true and (it.first or cursos[it.index - 1].categoria.idCategoria != curso.categoria.idCategoria)}">
+                                <tr th:replace="~{fragments/components/groupHeader :: fila(${curso.categoria}, ${cursosPorCategoria.getOrDefault(curso.categoria.idCategoria, 0L)}, ${bajasPorCategoria.getOrDefault(curso.categoria.idCategoria, 0L)})}"></tr>
+                            </th:block>
+                            <tr data-fila th:classappend="${curso.baja} ? 'pn-fila-baja'"
                                 th:data-o-nombre="${curso.nombre}"
                                 th:data-o-recientes="${(curso.fechaCreacion != null ? #temporals.format(curso.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(curso.idCurso, 8, 'NONE')}"
                                 th:attr="data-dependencias=${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) ? programasPorCurso.get(curso.idCurso).size() : 0}">
@@ -95,6 +103,7 @@
                                     <span th:if="${curso.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(10, 'fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>

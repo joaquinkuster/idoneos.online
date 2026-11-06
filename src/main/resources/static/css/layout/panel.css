@@ -128,7 +128,7 @@ body.pn-body {
 
 .pn-contenido {
     flex: 1;
-    padding: 28px 24px;
+    padding: 28px var(--nb-relleno, 40px); /* el mismo relleno lateral que el navbar y el resto del sitio */
     width: 100%; /* ocupa todo el ancho disponible, en cualquier pantalla */
 }
 
@@ -137,7 +137,7 @@ body.pn-body {
 }
 
 .pn-pie {
-    padding: 14px 28px;
+    padding: 14px var(--nb-relleno, 40px);
     border-top: 1px solid var(--pn-borde);
     background: #FFFFFF;
     font-size: 12px;

@@ -61,7 +61,6 @@
                                 <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visibilidad</th>
                                 <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
-                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -88,10 +87,6 @@
                                 <td th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</td>
                                 <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
-                                    <span class="pn-insignia" th:classappend="${m.baja} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
-                                          th:text="${m.baja} ? 'Dado de baja' : 'Activo'">Activo</span>
-                                </td>
-                                <td>
                                     <div class="pn-acciones">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
                                                 th:data-bs-target="'#modalModificarMaterial' + ${m.idTemaRecurso}"
@@ -104,7 +99,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/components/empty :: fila(10, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

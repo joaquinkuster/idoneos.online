@@ -155,14 +155,21 @@ public class CursoController {
             ResumenCursos resumen = esAdministrador ? cursoService.resumir(cursos) : null;
             if (!esAdministrador) {
                 // "Mis cursos" del docente: cards, 8 por página; las filtra y pagina el servidor
-                PaginacionUtil.Pagina<Curso> paginaCards = Filtros.cards.paginar(cursos, request.getParameterMap(), 8);
+                PaginacionUtil.Pagina<Curso> paginaCards = Filtros.cards.paginar(cursos, request.getParameterMap(), 8, POR_CATEGORIA);
+                cargarGrupos(model, Filtros.cards, cursos, request.getParameterMap(), true, "categoriaId");
                 PaginacionUtil.cargarEnModelo(model, paginaCards);
                 cursos = paginaCards.filas();
+                model.addAttribute("grupos", com.app.idoneos.util.AgrupacionUtil.agrupar(cursos, Curso::getCategoria));
                 resumen = cursoService.resumir(cursos);
             }
             if (esAdministrador) {
                 // El administrador ve una página por vez: el motor común filtra, ordena y pagina en el servidor
-                PaginacionUtil.Pagina<Curso> pagina = Filtros.tabla(resumen).paginar(cursos, request.getParameterMap());
+                // Agrupado por categoría salvo que se ordene por otra columna (por "categoria" ya viene agrupado)
+                String campoOrden = request.getParameter("ordenCampo");
+                boolean agrupar = campoOrden == null || campoOrden.isBlank() || "nombre".equals(campoOrden) || "categoria".equals(campoOrden);
+                PaginacionUtil.Pagina<Curso> pagina = Filtros.tabla(resumen).paginar(cursos, request.getParameterMap(),
+                        agrupar && !"categoria".equals(campoOrden) ? POR_CATEGORIA : null);
+                cargarGrupos(model, Filtros.tabla(resumen), cursos, request.getParameterMap(), agrupar, "categoria");
                 PaginacionUtil.cargarEnModelo(model, pagina);
                 cursos = pagina.filas();
             }
@@ -227,9 +234,11 @@ public class CursoController {
                 .filter(curso -> !curso.esInactivo()).toList();
         int totalCursos = cursos.size();
         // Tarjetas, 8 por página; las filtra y pagina el servidor
-        PaginacionUtil.Pagina<Curso> pagina = Filtros.cards.paginar(cursos, request.getParameterMap(), 8);
+        PaginacionUtil.Pagina<Curso> pagina = Filtros.cards.paginar(cursos, request.getParameterMap(), 8, POR_CATEGORIA);
+        cargarGrupos(model, Filtros.cards, cursos, request.getParameterMap(), true, "categoriaId");
         PaginacionUtil.cargarEnModelo(model, pagina);
         cursos = pagina.filas();
+        model.addAttribute("grupos", com.app.idoneos.util.AgrupacionUtil.agrupar(cursos, Curso::getCategoria));
         ResumenCursos resumen = cursoService.resumir(cursos);
         model.addAttribute("cursos", cursos);
         model.addAttribute("totalCursos", totalCursos);
@@ -606,6 +615,29 @@ public class CursoController {
         cursoService.actualizarImagen(curso.getIdCurso(), nombre);
     }
 
+
+    /** Agrupa los cursos por categoría (ordenada por nombre); dentro de cada una se conserva el orden del listado. */
+    public static final java.util.Comparator<Curso> POR_CATEGORIA = java.util.Comparator
+            .comparing(curso -> curso.getCategoria().getNombre(), String.CASE_INSENSITIVE_ORDER);
+
+    /**
+     * Carga en el modelo lo que necesita la vista agrupada por categoría: si se agrupa y cuántos cursos, y cuántos dados de baja,
+     * tiene cada categoría en todo el listado filtrado (no solo en la página que se muestra).
+     */
+    public static void cargarGrupos(Model model, FiltroUtil<Curso> filtros, List<Curso> cursos, java.util.Map<String, String[]> params,
+            boolean agrupar, String campoCategoria) {
+        model.addAttribute("agrupar", agrupar);
+        // Chips de categoría bajo los filtros: eligen la categoría con el mismo campo del filtro (por identificador o por nombre)
+        boolean porNombre = "categoria".equals(campoCategoria);
+        model.addAttribute("chipsCategorias", filtros.armarChips(cursos, params, campoCategoria,
+                curso -> porNombre ? curso.getCategoria().getNombre() : String.valueOf(curso.getCategoria().getIdCategoria()),
+                curso -> curso.getCategoria().getNombre()));
+        if (agrupar) {
+            model.addAttribute("cursosPorCategoria", filtros.contar(cursos, params, curso -> curso.getCategoria().getIdCategoria()));
+            model.addAttribute("bajasPorCategoria", filtros.contar(cursos.stream().filter(Curso::esInactivo).toList(), params,
+                    curso -> curso.getCategoria().getIdCategoria()));
+        }
+    }
 
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {

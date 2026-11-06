@@ -26,7 +26,7 @@
                 </nav>
 
                 <!-- Portada del curso: solo en la página principal (la imagen del curso o un degradé azul) -->
-                <div class="ac-portada" th:if="${seccion == 'temas'}">
+                <div class="ac-portada ac-entra-portada" th:if="${seccion == 'temas'}">
                     <img th:if="${curso.urlImagen != null}" th:src="@{${curso.urlImagen}}" th:alt="${'Portada de ' + curso.nombre}">
                 </div>
 
@@ -34,7 +34,7 @@
                 <div class="ac-con-drawer"
                     th:with="mostrarDrawer=${seccion == 'temas' and programa != null and !#lists.isEmpty(programa.cronogramaOrdenado)}"
                     th:classappend="${mostrarDrawer} ? 'ac-tiene-drawer'">
-                <div class="ac-principal">
+                <div class="ac-principal" th:classappend="${seccion == 'temas'} ? 'ac-entra'">
                 <!-- Cabecera del curso -->
                 <th:block th:replace="~{pages/curso/cabecera :: cabecera(${seccion == 'temas'}, false)}"></th:block>
 

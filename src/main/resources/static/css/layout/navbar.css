@@ -69,17 +69,7 @@
     display: inline-flex;
 }
 
-/* Con menú lateral, el botón ocupa el ancho del menú contraído y su ícono queda centrado sobre los íconos del menú */
-.nb.con-menu-lateral {
-    padding-left: 0;
-}
-
-.nb.con-menu-lateral .nb-menu {
-    width: var(--pn-ancho-menu-colapsado);
-    height: var(--nb-alto);
-    border-radius: 0;
-}
-
+/* Con menú lateral, el navbar mantiene el mismo relleno lateral que el resto del sitio (--nb-relleno): el botón arranca en ese borde */
 .nb.con-menu-lateral .nb-izq {
     gap: 6px;
 }
@@ -392,18 +382,6 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
     .nb .um-select {
         width: calc(100% - 24px);
         margin: 4px 12px 14px;
-    }
-
-    /* Con menú lateral, el botón del menú es más angosto */
-    .nb.con-menu-lateral .nb-menu {
-        width: 48px;
-        border-radius: 8px;
-        margin-left: 8px;
-    }
-
-    .nb.con-menu-lateral .nb-menu::before {
-        width: 38px;
-        height: 38px;
     }
 
     /* Con menú lateral, sus propios botones ocupan la izquierda y el cajón queda para los enlaces */

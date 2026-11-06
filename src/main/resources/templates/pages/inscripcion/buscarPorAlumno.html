@@ -38,6 +38,8 @@
                         </div>
 
                         <form id="formFiltrosMisCursos" th:action="@{/inscripcion/buscar}" method="get" class="pn-filtros mb-3" data-filtro-front>
+                            <!-- Lo completan los chips de categoría -->
+                            <input type="text" name="categoriaId" hidden tabindex="-1" aria-hidden="true">
                             <div class="pn-filtros-campo pn-filtros-campo-grande">
                                 <label class="pn-etiqueta">Nombre</label>
                                 <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
@@ -63,6 +65,7 @@
                             <a th:href="@{/inscripcion/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
                         </form>
                     </section>
+                    <div class="pn-chips" data-chips-categorias></div>
 
                     <!-- Sin cursos: si hay filtros se avisa que no hay coincidencias; si no, se invita a explorar el catálogo -->
                     <div th:if="${inscripciones == null or #lists.isEmpty(inscripciones)}" class="pn-card pn-empty-grande"
@@ -80,12 +83,17 @@
                     <div data-empty hidden th:if="${totalInscripciones > 0}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
 
                     <!-- Grilla de cursos del alumno -->
-                    <div class="wf-cards-grid" data-cards th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                        <th:block th:each="insc : ${inscripciones}">
-                            <th:block th:replace="~{fragments/components/cardCurso :: card(${insc.curso}, ${insc.cohorte.programa.cantidadTemas},
+                    <div class="pn-grupos" data-cards th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}, data-chips=${chipsCategorias}">
+                        <section class="pn-grupo-carta" th:each="grupo : ${grupos}">
+                            <th:block th:replace="~{fragments/components/groupHeader :: carta(${grupo.categoria}, ${cursosPorCategoria.getOrDefault(grupo.categoria.idCategoria, 0L)})}"></th:block>
+                            <div class="pn-grupo-cuerpo wf-cards-grid">
+                                <th:block th:each="insc : ${grupo.filas}">
+                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${insc.curso}, ${insc.cohorte.programa.cantidadTemas},
                                 ${insc.estadoAcceso == 'Vigente' ? insc.estado : insc.estadoAcceso},
                                 '/inscripcion/acceder/' + ${insc.idInscripcion}, 'Acceder al curso', 'inscripcion', ${insc})}"></th:block>
-                        </th:block>
+                                </th:block>
+                            </div>
+                        </section>
                     </div>
 
                     <!-- Pie: cursos por página y paginador (mismo estilo que el catálogo) -->

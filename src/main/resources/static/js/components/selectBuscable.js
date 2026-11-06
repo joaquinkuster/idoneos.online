@@ -166,6 +166,8 @@
             campo.blur();
         }
 
+        // Quien cambia el valor del <select> desde afuera (por ejemplo los chips de categoría) avisa para que el campo lo muestre
+        select.addEventListener('sb-sincronizar', mostrarSeleccion);
         campo.addEventListener('focus', abrir);
         campo.addEventListener('click', abrir);
         flecha.addEventListener('mousedown', function (e) {

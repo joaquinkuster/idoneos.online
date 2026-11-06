@@ -210,6 +210,19 @@
                 return r.text();
             }).then(function (html) {
                 if (n !== peticion) { return; } // llegó una respuesta más nueva
+                // Lo que había sale con un fundido corto (después del tiempo mínimo del skeleton) y lo nuevo entra escalonado
+                var anterior = raiz.querySelector('tbody') || raiz.querySelector('[data-cards]');
+                var espera = Math.max(0, 220 - (Date.now() - desde));
+                return new Promise(function (resolver) {
+                    setTimeout(function () {
+                        if (anterior) { anterior.classList.add('pn-saliendo'); }
+                        setTimeout(function () { resolver(html); }, anterior ? 130 : 0);
+                    }, espera);
+                });
+            }).then(function (html) {
+                if (n !== peticion) { return; }
+                raiz.classList.remove('pn-cargando');
+                raiz.removeAttribute('aria-busy');
                 var plantilla = document.createElement('template');
                 // Tabla (<tbody>) o grilla de cards ([data-cards])
                 var actual = raiz.querySelector('tbody') || raiz.querySelector('[data-cards]');
@@ -218,6 +231,7 @@
                 var nuevo = esTabla ? plantilla.content.querySelector('tbody') : plantilla.content.querySelector('[data-cards]');
                 if (!nuevo || !actual) { return; }
                 actual.replaceWith(nuevo);
+                entrar(nuevo);
                 empty = raiz.querySelector('[data-empty]');
                 todas = Array.prototype.slice.call(nuevo.querySelectorAll('tr[data-fila], [data-card]'));
                 filas = todas.slice();
@@ -314,7 +328,13 @@
             b.disabled = datos[2];
             b.title = datos[3];
             b.setAttribute('aria-label', datos[3]);
-            b.addEventListener('click', function () { pagina = datos[1]; refrescar(); });
+            b.addEventListener('click', function () {
+                pagina = datos[1];
+                refrescar();
+                // Al cambiar de página se vuelve al principio del listado con un desplazamiento suave
+                var arriba = raiz.getBoundingClientRect().top + window.pageYOffset - 90;
+                window.scrollTo({ top: Math.max(0, arriba), behavior: SIN_MOVIMIENTO ? 'auto' : 'smooth' });
+            });
             return b;
         }
 
@@ -384,7 +404,8 @@
         }
 
         // Columnas visibles: un ícono en el encabezado de la última columna abre el menú. La elección se recuerda por listado.
-        var cabeceras = Array.prototype.slice.call(raiz.querySelectorAll('thead th'));
+        // Solo las columnas de la tabla del listado, no las de una tabla de detalle anidada dentro de una fila
+        var cabeceras = Array.prototype.slice.call(raiz.querySelectorAll('table.pn-tabla:not(.pn-tabla-anidada) > thead > tr > th'));
         var cabeceraAcciones = cabeceras[cabeceras.length - 1];
         var menuColumnas = raiz.querySelector('[data-columnas-menu]');
         if (!menuColumnas && cabeceraAcciones && !cabeceraAcciones.hasAttribute('data-col')
@@ -401,8 +422,11 @@
         }
         if (menuColumnas) {
             var claveColumnas = 'idoneos.columnas.' + window.location.pathname;
-            var ocultas = [];
-            try { ocultas = JSON.parse(leer(claveColumnas) || '[]'); } catch (e) { ocultas = []; }
+            // Columnas ocultas de entrada (th con data-oculta); si el usuario ya eligió las suyas, vale su elección
+            var porDefecto = [];
+            cabeceras.forEach(function (th) { if (th.hasAttribute('data-oculta')) { porDefecto.push(th.getAttribute('data-col')); } });
+            var ocultas = porDefecto;
+            try { var guardadas = leer(claveColumnas); if (guardadas !== null) { ocultas = JSON.parse(guardadas); } } catch (e) { ocultas = porDefecto; }
             var casillas = [];
             reaplicarColumnas = function () { casillas.forEach(function (c) { aplicarColumna(c.th, c.indice, c.casilla.checked); }); };
             var aplicarColumna = function (th, indice, visible) {
@@ -435,8 +459,11 @@
             restablecer.className = 'pn-columnas-restablecer';
             restablecer.textContent = 'Restablecer';
             restablecer.addEventListener('click', function () {
-                casillas.forEach(function (c) { c.casilla.checked = true; aplicarColumna(c.th, c.indice, true); });
-                guardar(claveColumnas, '[]');
+                casillas.forEach(function (c) {
+                    c.casilla.checked = porDefecto.indexOf(c.nombre) < 0;
+                    aplicarColumna(c.th, c.indice, c.casilla.checked);
+                });
+                guardar(claveColumnas, JSON.stringify(porDefecto));
             });
             menuColumnas.appendChild(restablecer);
         }
@@ -739,5 +766,119 @@
                 }
             }
         }
+    });
+
+    // ------------------------------------------------------------------
+    // Movimiento: lo que llega entra con un fundido hacia arriba, escalonado (movimiento.css). Con "reducir movimiento" no se anima.
+    // ------------------------------------------------------------------
+    var SIN_MOVIMIENTO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function entrar(elementos) {
+        if (SIN_MOVIMIENTO) { return; }
+        var lista = elementos.nodeType ? elementos.querySelectorAll('tr[data-fila], .pn-grupo-fila, .pn-grupo-carta, .cc-card') : elementos;
+        var i = 0;
+        Array.prototype.forEach.call(lista, function (el) {
+            el.style.setProperty('--i', Math.min(i++, 10));
+            el.classList.add('pn-entra');
+            setTimeout(function () { el.classList.remove('pn-entra'); el.style.removeProperty('--i'); }, 900 + Math.min(i, 10) * 45);
+        });
+    }
+    document.querySelectorAll('[data-tabla]').forEach(function (raiz) {
+        var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-cards]');
+        if (cuerpo) { entrar(cuerpo); }
+    });
+
+    // ------------------------------------------------------------------
+    // Chips de categoría bajo los filtros: eligen la categoría con el mismo campo del filtro y muestran cuántos cursos hay en cada una.
+    // Los datos (campo, categoría elegida y chips) vienen del servidor en data-chips del cuerpo de la tabla o de las cards.
+    // ------------------------------------------------------------------
+    function dibujarChips(raiz) {
+        var contenedor = raiz.querySelector('[data-chips-categorias]');
+        var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-cards]');
+        if (!contenedor || !cuerpo) { return; }
+        var datos = null;
+        try { datos = JSON.parse(cuerpo.getAttribute('data-chips') || 'null'); } catch (e) { datos = null; }
+        contenedor.innerHTML = '';
+        if (!datos || !datos.items || (datos.items.length < 2 && !datos.activa)) { contenedor.hidden = true; return; }
+        contenedor.hidden = false;
+        contenedor.dataset.campo = datos.campo;
+        function chip(valor, texto, total) {
+            var b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'pn-chip' + ((datos.activa || '') === valor ? ' on' : '');
+            b.setAttribute('data-chip-valor', valor);
+            b.setAttribute('aria-pressed', (datos.activa || '') === valor ? 'true' : 'false');
+            b.textContent = texto + ' (' + total + ')';
+            contenedor.appendChild(b);
+        }
+        chip('', 'Todas', datos.total);
+        datos.items.forEach(function (item) { chip(item.valor, item.nombre, item.total); });
+    }
+    document.addEventListener('click', function (e) {
+        var boton = e.target.closest ? e.target.closest('[data-chip-valor]') : null;
+        if (!boton) { return; }
+        var contenedor = boton.closest('[data-chips-categorias]');
+        var raiz = contenedor && contenedor.closest('[data-tabla]');
+        var campo = raiz && raiz.querySelector('form [name="' + contenedor.dataset.campo + '"]');
+        if (!campo) { return; }
+        // El chip elegido se marca ya, sin esperar la respuesta del servidor
+        Array.prototype.forEach.call(contenedor.querySelectorAll('.pn-chip'), function (c) {
+            var activo = c === boton;
+            c.classList.toggle('on', activo);
+            c.setAttribute('aria-pressed', activo ? 'true' : 'false');
+        });
+        campo.value = boton.getAttribute('data-chip-valor');
+        campo.dispatchEvent(new Event('sb-sincronizar'));
+        // Un campo de texto avisa con 'input' y un desplegable con 'change': es lo que escucha el formulario de filtros
+        campo.dispatchEvent(new Event(campo.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+    });
+    document.querySelectorAll('[data-tabla]').forEach(dibujarChips);
+    document.addEventListener('tabla-actualizada', function (e) { if (e.detail && e.detail.tabla) { dibujarChips(e.detail.tabla); } });
+
+    // ------------------------------------------------------------------
+    // Grupos por categoría (ABM de cursos, Mis cursos): al hacer clic en la cabecera se colapsa o expande el grupo. Las filas o cards
+    // de un grupo son las que siguen a su cabecera hasta la próxima.
+    // ------------------------------------------------------------------
+    function alternarGrupo(cabecera) {
+        var cerrar = !cabecera.classList.contains('cerrado');
+        cabecera.classList.toggle('cerrado', cerrar);
+        cabecera.setAttribute('aria-expanded', cerrar ? 'false' : 'true');
+        // En las cards el grupo es una carta: se contrae su cuerpo, que sigue a la cabecera
+        if (cabecera.classList.contains('pn-grupo-cabecera')) {
+            var cuerpo = cabecera.nextElementSibling;
+            if (!cuerpo) { return; }
+            if (SIN_MOVIMIENTO) { cuerpo.hidden = cerrar; return; }
+            // Al ocultar: primero el contenido se desvanece y recién entonces la carta se pliega (así no se ven las cards recortadas
+            // mientras se achican). Al mostrar: la carta se abre vacía y el contenido aparece con un fundido.
+            if (cuerpo.animacionGrupo) { cuerpo.animacionGrupo.cancel(); }
+            if (!cerrar) { cuerpo.hidden = false; }
+            var alto = cuerpo.offsetHeight;
+            var estilos = getComputedStyle(cuerpo);
+            var plegado = { height: '0px', paddingTop: '0px', paddingBottom: '0px', opacity: 0 };
+            var abierto = { height: alto + 'px', paddingTop: estilos.paddingTop, paddingBottom: estilos.paddingBottom, opacity: 1 };
+            var invisible = { height: alto + 'px', paddingTop: estilos.paddingTop, paddingBottom: estilos.paddingBottom, opacity: 0 };
+            cuerpo.style.overflow = 'hidden';
+            var pasos = cerrar ? [abierto, invisible, plegado] : [plegado, invisible, abierto];
+            pasos[0].offset = 0; pasos[1].offset = cerrar ? 0.4 : 0.6; pasos[2].offset = 1;
+            var animacion = cuerpo.animate(pasos, { duration: 380, easing: 'ease' });
+            cuerpo.animacionGrupo = animacion;
+            animacion.onfinish = function () { cuerpo.style.overflow = ''; cuerpo.animacionGrupo = null; if (cerrar) { cuerpo.hidden = true; } };
+            return;
+        }
+        var siguiente = cabecera.nextElementSibling;
+        var filasDelGrupo = [];
+        while (siguiente && !siguiente.classList.contains('pn-grupo')) {
+            // El aviso de "sin resultados" no es de ningún grupo: lo maneja el filtro, no el colapso
+            if (!siguiente.hasAttribute('data-empty')) { siguiente.hidden = cerrar; if (!cerrar) { filasDelGrupo.push(siguiente); } }
+            siguiente = siguiente.nextElementSibling;
+        }
+        if (!cerrar) { entrar(filasDelGrupo); }
+    }
+    document.addEventListener('click', function (e) {
+        var cabecera = e.target.closest ? e.target.closest('.pn-grupo') : null;
+        if (cabecera) { alternarGrupo(cabecera); }
+    });
+    document.addEventListener('keydown', function (e) {
+        var cabecera = e.target.classList && e.target.classList.contains('pn-grupo') ? e.target : null;
+        if (cabecera && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); alternarGrupo(cabecera); }
     });
 })();

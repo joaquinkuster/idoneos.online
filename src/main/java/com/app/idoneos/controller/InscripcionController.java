@@ -89,10 +89,17 @@ public class InscripcionController {
             }
             List<Inscripcion> todas = inscripcionService.buscarMisCursos(alumno, null, null);
             // El filtro (también el de la URL) y la página los resuelve el servidor: cards, 8 por página
-            PaginacionUtil.Pagina<Inscripcion> pagina = Filtros.cards.paginar(todas, request.getParameterMap(), 8);
+            PaginacionUtil.Pagina<Inscripcion> pagina = Filtros.cards.paginar(todas, request.getParameterMap(), 8,
+                    java.util.Comparator.comparing(i -> i.getCurso().getCategoria().getNombre(), String.CASE_INSENSITIVE_ORDER));
+            model.addAttribute("agrupar", true);
+            model.addAttribute("chipsCategorias", Filtros.cards.armarChips(todas, request.getParameterMap(), "categoriaId",
+                    i -> String.valueOf(i.getCurso().getCategoria().getIdCategoria()), i -> i.getCurso().getCategoria().getNombre()));
+            model.addAttribute("cursosPorCategoria", Filtros.cards.contar(todas, request.getParameterMap(),
+                    i -> i.getCurso().getCategoria().getIdCategoria()));
             PaginacionUtil.cargarEnModelo(model, pagina);
 
             model.addAttribute("inscripciones", pagina.filas());
+            model.addAttribute("grupos", com.app.idoneos.util.AgrupacionUtil.agrupar(pagina.filas(), i -> i.getCurso().getCategoria()));
             model.addAttribute("totalInscripciones", todas.size());
             if (PaginacionUtil.pideSoloFilas(request)) {
                 return "pages/inscripcion/buscarPorAlumno :: filas"; // solo las cards de la página pedida
@@ -376,6 +383,8 @@ public class InscripcionController {
         public static final FiltroUtil<Inscripcion> cards = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Inscripcion>("busqueda", FiltroUtil.Tipo.TEXTO,
                         i -> i.getCurso().getNombre() + " " + (i.getCurso().getDescripcion() == null ? "" : i.getCurso().getDescripcion())),
+                new FiltroUtil.Columna<Inscripcion>("categoriaId", FiltroUtil.Tipo.LISTA,
+                        i -> String.valueOf(i.getCurso().getCategoria().getIdCategoria())),
                 new FiltroUtil.Columna<Inscripcion>("estado", FiltroUtil.Tipo.LISTA, Inscripcion::getEstado),
                 new FiltroUtil.Columna<Inscripcion>("acceso", FiltroUtil.Tipo.LISTA, Inscripcion::getEstadoAcceso)),
                 i -> false);

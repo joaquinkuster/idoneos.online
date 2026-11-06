@@ -106,9 +106,10 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el alumno no accede al listado de todas las inscripciones")
+    @DisplayName("CU-44: el alumno ve en /inscripcion/buscar solo sus cursos, no el listado de todas las inscripciones")
     void alumnoNoVeElListadoDelAdministrador() throws Exception {
-        mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isForbidden());
+        mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.view().name("pages/inscripcion/buscarPorAlumno"));
     }
 
     @Test

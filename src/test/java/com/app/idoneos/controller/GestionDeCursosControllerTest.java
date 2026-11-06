@@ -106,7 +106,7 @@ class GestionDeCursosControllerTest {
                                 org.hamcrest.Matchers.containsString("accion=baja"),
                                 // con cursos, "Registrar curso" solo está en el ABM (no hay botón en esta vista)
                                 org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("accion=nuevo")),
-                                org.hamcrest.Matchers.containsString("data-tarjeta"),
+                                org.hamcrest.Matchers.containsString("data-card"),
                                 org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Dado de baja")))));
     }
 

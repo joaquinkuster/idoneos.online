@@ -1,0 +1,90 @@
+/* Movimiento de los listados (tabla, cards y grupos): lo que llega entra con un fundido hacia arriba, escalonado, y lo que se
+   va sale con un fundido corto. Lo dispara core/tabla.js; con "reducir movimiento" no hay animación. */
+@keyframes pnEntra {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+}
+
+.pn-entra {
+    animation: pnEntra 0.34s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 45ms);
+}
+
+.pn-saliendo {
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.13s ease, transform 0.13s ease;
+}
+
+/* Menú lateral: cada enlace y título entra con un fundido corto hacia la derecha, escalonado (lo agrega layout/sidebar.js) */
+@keyframes pnEntraMenu {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: none; }
+}
+
+.pn-entra-menu {
+    animation: pnEntraMenu 0.3s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 30ms);
+}
+
+/* Inicio del curso (al acceder): la portada, la cabecera, el diseño, el aviso de clase en vivo, el título "Temas" y cada tema entran en
+   cascada con el mismo fundido hacia arriba del hero. Solo en la página principal del curso (ac-entra / ac-entra-portada). */
+.ac-entra-portada,
+.ac-entra > *,
+.ac-entra .ac-acordeon > .ac-tema {
+    animation: pnEntraHero 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--hd, 0s) both;
+}
+
+.ac-entra-portada { --hd: 0.05s; }
+.ac-entra > :nth-child(1) { --hd: 0.12s; }
+.ac-entra > :nth-child(2) { --hd: 0.2s; }
+.ac-entra > :nth-child(3) { --hd: 0.28s; }
+.ac-entra > :nth-child(n+4) { --hd: 0.36s; }
+.ac-entra .ac-acordeon > .ac-tema:nth-child(1) { --hd: 0.4s; }
+.ac-entra .ac-acordeon > .ac-tema:nth-child(2) { --hd: 0.46s; }
+.ac-entra .ac-acordeon > .ac-tema:nth-child(3) { --hd: 0.52s; }
+.ac-entra .ac-acordeon > .ac-tema:nth-child(4) { --hd: 0.58s; }
+.ac-entra .ac-acordeon > .ac-tema:nth-child(n+5) { --hd: 0.64s; }
+
+/* Hero (el principal del inicio y los banners de las páginas internas): la etiqueta, el título, el texto y los botones entran en
+   cascada con un fundido hacia arriba; la imagen del inicio entra desde la derecha. Solo CSS: usa la propiedad "translate", que no
+   pisa el transform de las formas del hero. */
+@keyframes pnEntraHero {
+    from { opacity: 0; translate: 0 16px; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+@keyframes pnEntraHeroLado {
+    from { opacity: 0; translate: 28px 0; }
+    to { opacity: 1; translate: 0 0; }
+}
+
+.wf-hero-banner .wf-hero-tag,
+.wf-hero-section .wf-hero-tag,
+.wf-hero-banner .wf-hero-title,
+.wf-hero-banner .wf-hero-desc,
+.wf-hero-banner .fx-hero-texto > *,
+.ix-hero-titulo,
+.ix-hero-texto,
+.ix-hero-boton,
+.ix-hero-boton-contorno {
+    animation: pnEntraHero 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--hd, 0s) both;
+}
+
+.wf-hero-tag { --hd: 0.05s; }
+.wf-hero-title, .ix-hero-titulo { --hd: 0.14s; }
+.wf-hero-desc, .ix-hero-texto { --hd: 0.23s; }
+.ix-hero-boton { --hd: 0.32s; }
+.ix-hero-boton-contorno { --hd: 0.38s; }
+
+.wf-hero-section .wf-hero-imagen {
+    animation: pnEntraHeroLado 0.65s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .wf-hero-banner *, .wf-hero-section *, .ix-hero-titulo, .ix-hero-texto, .ix-hero-boton, .ix-hero-boton-contorno { animation: none !important; }
+    .ac-entra-portada, .ac-entra > *, .ac-entra .ac-acordeon > .ac-tema { animation: none !important; }
+    .pn-entra-menu { animation: none; }
+    .pn-entra { animation: none; }
+    .pn-saliendo { transition: none; }
+}

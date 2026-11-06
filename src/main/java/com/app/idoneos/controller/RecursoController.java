@@ -114,7 +114,8 @@ public class RecursoController {
             boolean nuevoValido = nuevoTipo != null && tiposDeSubida.contains(nuevoTipo);
 
             List<TemaRecurso> materiales = materialService.buscarConFiltros(cursoId, null, null, null,
-                    null, null, docente); // listado completo: los filtros se aplican en la pantalla
+                    null, null, docente).stream() // listado completo: los filtros se aplican en la pantalla
+                    .filter(m -> !m.getBaja()).toList(); // los materiales dados de baja no se muestran
 
             String abrirModal = null;
             boolean hayAccion = accion != null && materialId != null
@@ -422,8 +423,7 @@ public class RecursoController {
                 new FiltroUtil.Columna<TemaRecurso>("generadoPorIa", FiltroUtil.Tipo.LISTA,
                         m -> m.getRecurso().getGeneradoPorIa() ? "Sí" : "No"),
                 new FiltroUtil.Columna<TemaRecurso>("fechaCreacion", FiltroUtil.Tipo.FECHA,
-                        m -> FiltroUtil.formatearFechaHora(m.getFechaCreacion())),
-                new FiltroUtil.Columna<TemaRecurso>("estado", FiltroUtil.Tipo.LISTA, m -> m.getBaja() ? "Dado de baja" : "Activo")),
+                        m -> FiltroUtil.formatearFechaHora(m.getFechaCreacion()))),
                 TemaRecurso::getBaja);
     }
 }

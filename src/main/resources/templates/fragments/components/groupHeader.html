@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Cabecera de un grupo de categoría en un listado agrupado (tabla o cards). Se dibuja cuando cambia la categoría respecto de la
+         fila o card anterior. Al hacerle clic se colapsa o se expande el grupo (core/tabla.js).
+         categoria: la categoría; total: cuántos cursos tiene en todo el listado filtrado; bajas: cuántos están dados de baja. -->
+    <tr th:fragment="fila(categoria, total, bajas)" class="pn-grupo pn-grupo-fila" data-grupo role="button" tabindex="0" aria-expanded="true">
+        <td colspan="99">
+            <i class="fa-solid fa-chevron-down pn-grupo-flecha" aria-hidden="true"></i>
+            <span class="pn-grupo-nombre" th:text="${categoria.nombre}">Categoría</span>
+            <span class="pn-grupo-conteo" th:text="${total + (total == 1 ? ' curso' : ' cursos') + (bajas > 0 ? ' · ' + bajas + (bajas == 1 ? ' dado de baja' : ' dados de baja') : '')}">6 cursos</span>
+        </td>
+    </tr>
+
+    <!-- Encabezado de la carta de una categoría (cards): la etiqueta dorada, el nombre con la cantidad de cursos al lado y, a la derecha,
+         el label que colapsa o expande la carta (core/tabla.js cambia "Ocultar cursos" por "Mostrar cursos"). -->
+    <div th:fragment="carta(categoria, total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
+        <div>
+            <span class="pn-grupo-etiqueta">Categoría</span>
+            <div class="pn-grupo-nombre-fila">
+                <h2 class="pn-grupo-titulo" th:text="${categoria.nombre}">Categoría</h2>
+                <span class="pn-grupo-conteo" th:text="${total + (total == 1 ? ' curso' : ' cursos')}">6 cursos</span>
+            </div>
+        </div>
+        <span class="pn-grupo-accion">
+            <span class="pn-grupo-ocultar">Ocultar cursos</span><span class="pn-grupo-mostrar">Mostrar cursos</span>
+            <i class="fa-solid fa-chevron-up pn-grupo-flecha" aria-hidden="true"></i>
+        </span>
+    </div>
+</body>
+
+</html>

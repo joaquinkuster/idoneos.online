@@ -269,6 +269,95 @@ public final class FiltroUtil<T> {
         return PaginacionUtil.paginar(filtradas, params, Map.of(), tamanio);
     }
 
+    /**
+     * Igual que {@link #paginar(List, Map)}, pero después de ordenar agrupa las filas con el comparador dado (por ejemplo, por
+     * categoría). El orden previo se conserva dentro de cada grupo, porque la ordenación es estable.
+     *
+     * @param items      Todas las filas del listado.
+     * @param params     Los parámetros de la petición.
+     * @param agrupacion Cómo se agrupan las filas, o {@code null} para no reagrupar.
+     * @return La página pedida.
+     */
+    public PaginacionUtil.Pagina<T> paginar(List<T> items, Map<String, String[]> params, java.util.Comparator<? super T> agrupacion) {
+        List<T> filtradas = filtrar(items, params);
+        ordenar(filtradas, params);
+        if (agrupacion != null) {
+            filtradas.sort(agrupacion);
+        }
+        return PaginacionUtil.paginar(filtradas, params, opciones(items));
+    }
+
+    /**
+     * Igual que {@link #paginar(List, Map, int)} (cards), pero agrupando como {@link #paginar(List, Map, java.util.Comparator)}.
+     *
+     * @param items      Todas las filas del listado.
+     * @param params     Los parámetros de la petición.
+     * @param tamanio    Cuántas cards van en cada página.
+     * @param agrupacion Cómo se agrupan las filas, o {@code null} para no reagrupar.
+     * @return La página pedida.
+     */
+    public PaginacionUtil.Pagina<T> paginar(List<T> items, Map<String, String[]> params, int tamanio, java.util.Comparator<? super T> agrupacion) {
+        List<T> filtradas = filtrar(items, params);
+        ordenar(filtradas, params);
+        if (agrupacion != null) {
+            filtradas.sort(agrupacion);
+        }
+        return PaginacionUtil.paginar(filtradas, params, Map.of(), tamanio);
+    }
+
+    /**
+     * Cuenta las filas que cumplen los filtros, por grupo (en todo el listado, no solo en la página pedida).
+     *
+     * @param items  Todas las filas del listado.
+     * @param params Los parámetros de la petición.
+     * @param clave  El grupo de cada fila.
+     * @param <K>    El tipo de la clave del grupo.
+     * @return La cantidad de filas filtradas de cada grupo.
+     */
+    public <K> Map<K, Long> contar(List<T> items, Map<String, String[]> params, java.util.function.Function<T, K> clave) {
+        return filtrar(items, params).stream().collect(java.util.stream.Collectors.groupingBy(clave, java.util.LinkedHashMap::new,
+                java.util.stream.Collectors.counting()));
+    }
+
+    /**
+     * Arma los chips de categoría de un listado, en JSON: para cada valor del campo, cuántas filas hay con los demás filtros
+     * aplicados (sin el del propio campo, para que cada chip muestre lo que daría elegirlo) y cuál está elegido.
+     *
+     * @param items  Todas las filas del listado.
+     * @param params Los parámetros de la petición.
+     * @param campo  El parámetro de filtro que elige el chip (por ejemplo {@code categoriaId}).
+     * @param valor  El valor de la fila para ese campo (lo que se envía al elegir el chip).
+     * @param nombre El texto del chip para esa fila.
+     * @return El JSON {@code {campo, activa, total, items:[{valor, nombre, total}]}}.
+     */
+    public String armarChips(List<T> items, Map<String, String[]> params, String campo, java.util.function.Function<T, String> valor,
+            java.util.function.Function<T, String> nombre) {
+        Map<String, String[]> sinCampo = new java.util.HashMap<>(params);
+        sinCampo.remove(campo);
+        List<T> filtradas = filtrar(items, sinCampo);
+        Map<String, Long> cuentas = new LinkedHashMap<>();
+        Map<String, String> nombres = new LinkedHashMap<>();
+        for (T fila : filtradas) {
+            String v = valor.apply(fila);
+            cuentas.merge(v, 1L, Long::sum);
+            nombres.putIfAbsent(v, nombre.apply(fila));
+        }
+        java.text.Collator colador = java.text.Collator.getInstance(Locale.forLanguageTag("es"));
+        List<Map<String, Object>> chips = cuentas.keySet().stream()
+                .sorted((a, b) -> colador.compare(nombres.get(a), nombres.get(b)))
+                .map(v -> Map.<String, Object>of("valor", v, "nombre", nombres.get(v), "total", cuentas.get(v))).toList();
+        Map<String, Object> cuerpo = new LinkedHashMap<>();
+        cuerpo.put("campo", campo);
+        cuerpo.put("activa", texto(params, campo));
+        cuerpo.put("total", (long) filtradas.size());
+        cuerpo.put("items", chips);
+        try {
+            return new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(cuerpo);
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+            return "{}";
+        }
+    }
+
     // ---------------------------------------------------------------- Fechas para las columnas
 
     /**

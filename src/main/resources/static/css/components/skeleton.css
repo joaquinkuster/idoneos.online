@@ -36,7 +36,7 @@
 /* ---------------------------------------------------------------- Cards y listas: cada hoja de la card es un bloque */
 [data-tabla].pn-cargando [data-cards],
 [data-glosario].pn-cargando [data-glosario-contenido] { pointer-events: none; }
-[data-tabla].pn-cargando [data-cards] :not(:has(*)):not(img),
+[data-tabla].pn-cargando [data-cards] :not(:has(*)):not(img):not(.pn-grupo):not(.pn-grupo *),
 [data-glosario].pn-cargando [data-glosario-contenido] :not(:has(*)):not(img) {
     color: transparent !important;
     background: var(--sk-bloque) !important;
@@ -114,3 +114,8 @@
 @media (prefers-reduced-motion: reduce) {
     .pn-sk, .mv-estado-skeleton::before, .cc-imagen:has(> img)::before { animation: none !important; }
 }
+
+/* Las cabeceras de grupo (categorías) se mantienen visibles mientras llegan las filas */
+[data-tabla].pn-cargando tbody tr.pn-grupo-fila td::after { display: none; }
+[data-tabla].pn-cargando tbody tr.pn-grupo-fila td > * { visibility: visible; }
+[data-tabla].pn-cargando tbody tr.pn-grupo-fila td { color: inherit; }

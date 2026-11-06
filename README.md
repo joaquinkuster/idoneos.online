@@ -1,6 +1,6 @@
 # Idóneos Online
 
-Plataforma web de cursos de finanzas, economía y mercado de capitales para Idóneos Online S.A.S. (Argentina). Reemplaza a la plataforma estática preliminar desarrollada en Wix por un sistema propio que da soporte a la operación académica, comercial y administrativa.
+Plataforma web de cursos de finanzas, economía y mercado de capitales para Idóneos Online S.A.S. (Argentina).
 
 ## Datos
 

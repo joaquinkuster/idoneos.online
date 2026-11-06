@@ -1,0 +1,196 @@
+/* Listados agrupados por categoría (ABM de cursos, Mis cursos, catálogo): cabecera de cada grupo y chips de categoría. */
+.pn-grupo {
+    cursor: pointer;
+    user-select: none;
+}
+
+.pn-grupo:focus-visible {
+    outline: 2px solid #D4A03D;
+    outline-offset: -2px;
+}
+
+.pn-grupo-flecha {
+    width: 14px;
+    font-size: 12px;
+    color: var(--pn-texto-suave, #64748B);
+    transition: transform 0.15s;
+}
+
+.pn-grupo-fila.cerrado .pn-grupo-flecha {
+    transform: rotate(-90deg);
+}
+
+/* En la tabla: una banda con el nombre y la cantidad */
+.pn-tabla tbody tr.pn-grupo-fila td {
+    padding: 10px 14px;
+    background: #E8EEF5 !important;
+    border-top: 1px solid #CBD5E1;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    color: var(--pn-texto, #0F172A);
+}
+
+.pn-grupo-conteo {
+    margin-left: 6px;
+    font-weight: 400;
+    font-size: 13px;
+    color: var(--pn-texto-suave, #64748B);
+}
+
+/* En las cards: una carta blanca por categoría. Arriba el encabezado (etiqueta dorada, nombre con la cantidad y el label que colapsa);
+   debajo, una línea y las cards. Mismos estilos que las secciones del index. */
+.pn-grupos {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pn-grupo-carta {
+    background: #fff;
+    border: 1px solid var(--pn-borde, #E2E8F0);
+    border-radius: 14px;
+}
+
+.pn-grupo-cabecera {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 28px;
+}
+
+.pn-grupo-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.pn-grupo-etiqueta::after {
+    content: '';
+    width: 48px;
+    height: 1px;
+    background: #D4A03D;
+}
+
+.pn-grupo-nombre-fila {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    margin: 6px 0 0;
+}
+
+.pn-grupo-titulo {
+    margin: 0;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--pn-navy, #0F233D);
+    line-height: 1.2;
+}
+
+.pn-grupo-nombre-fila .pn-grupo-conteo {
+    margin: 0;
+}
+
+.pn-grupo-accion {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pn-navy, #0F233D);
+    white-space: nowrap;
+}
+
+.pn-grupo-accion .pn-grupo-flecha {
+    width: auto;
+    font-size: 14px;
+    color: var(--pn-navy, #0F233D);
+    transition: transform 0.2s;
+}
+
+.pn-grupo-mostrar {
+    display: none;
+}
+
+.pn-grupo-cabecera.cerrado .pn-grupo-ocultar {
+    display: none;
+}
+
+.pn-grupo-cabecera.cerrado .pn-grupo-mostrar {
+    display: inline;
+}
+
+.pn-grupo-cabecera.cerrado .pn-grupo-flecha {
+    transform: rotate(180deg);
+}
+
+.pn-grupo-cuerpo {
+    padding: 24px 28px 28px;
+    border-top: 1px solid #EEF1F5;
+}
+
+.pn-grupo-cuerpo[hidden] {
+    display: none;
+}
+
+@media (max-width: 575.98px) {
+    .pn-grupo-cabecera { flex-wrap: wrap; }
+    .pn-grupo-titulo { font-size: 24px; }
+}
+
+/* Chips de categoría bajo los filtros */
+.pn-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 24px; /* igual que la separación de la carta de filtros */
+}
+
+.pn-chips[hidden] {
+    display: none;
+}
+
+.pn-chip {
+    padding: 5px 14px;
+    border: 1px solid #CBD5E1;
+    border-radius: 999px;
+    background: #fff;
+    font: inherit;
+    font-size: 13px;
+    color: var(--pn-texto, #0F172A);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.pn-chip:hover {
+    border-color: #0F233D;
+}
+
+.pn-chip.on {
+    background: #0F233D;
+    border-color: #0F233D;
+    color: #fff;
+}
+
+.pn-chip:focus-visible {
+    outline: 2px solid #D4A03D;
+    outline-offset: 2px;
+}
+
+.pn-chips + [data-tabla] {
+    margin-top: 0;
+}
+
+/* Dentro de una card del panel (ABM): con el mismo margen lateral que los filtros y la tabla */
+.pn-card > .pn-chips {
+    margin: 16px 22px 0;
+}

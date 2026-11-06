@@ -93,9 +93,12 @@ public class CatalogoController {
             jakarta.servlet.http.HttpServletRequest request) {
         List<Curso> todos = cursoService.buscarEnCatalogo(null, null, null, null, null);
         // El filtro (también el de la URL) y la página los resuelve el servidor: cards, 8 por página
-        PaginacionUtil.Pagina<Curso> pagina = CursoController.Filtros.cards.paginar(todos, request.getParameterMap(), 8);
+        PaginacionUtil.Pagina<Curso> pagina = CursoController.Filtros.cards.paginar(todos, request.getParameterMap(), 8,
+                CursoController.POR_CATEGORIA);
+        CursoController.cargarGrupos(model, CursoController.Filtros.cards, todos, request.getParameterMap(), true, "categoriaId");
         PaginacionUtil.cargarEnModelo(model, pagina);
         List<Curso> cursos = pagina.filas();
+        model.addAttribute("grupos", com.app.idoneos.util.AgrupacionUtil.agrupar(cursos, Curso::getCategoria));
 
         // Los cursos que todavía no tienen una cohorte con la inscripción abierta, solo próximas: la card dice «Próximamente»
         java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();

@@ -46,13 +46,13 @@
                                 <thead>
                             <tr>
                                 <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
-                                <th data-col="Programa" data-campo="programa" data-filtro="lista">Programa</th>
+                                <th data-col="Programa" data-oculta data-campo="programa" data-filtro="lista">Programa</th>
                                 <th data-col="Inicio de inscripción" data-orden-inicial="desc" data-campo="fechaInicioInscripcion" data-filtro="fecha">Inicio de inscripción</th>
                                 <th data-col="Fin de inscripción" data-campo="fechaFinInscripcion" data-filtro="fecha">Fin de inscripción</th>
                                 <th data-col="Inicio de dictado" data-campo="fechaInicioDictado" data-filtro="fecha">Inicio de dictado</th>
                                 <th data-col="Fin de dictado" data-campo="fechaFinDictado" data-filtro="fecha">Fin de dictado</th>
                                 <th data-col="Cupo máximo" data-campo="cupoMaximo" data-filtro="numero">Cupo máximo</th>
-                                <th data-col="Días de acceso" data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
+                                <th data-col="Días de acceso" data-oculta data-campo="accesoDias" data-filtro="numero">Días de acceso</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -70,11 +70,16 @@
                                 <td th:text="${#temporals.format(coh.fechaFinInscripcion, 'dd/MM/yyyy')}">31/03/2026</td>
                                 <td th:text="${coh.fechaInicioDictado != null ? #temporals.format(coh.fechaInicioDictado, 'dd/MM/yyyy') : '—'}">01/04/2026</td>
                                 <td th:text="${coh.fechaFinDictado != null ? #temporals.format(coh.fechaFinDictado, 'dd/MM/yyyy') : '—'}">30/06/2026</td>
-                                <td th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' de ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0 de 40</td>
+                                <td>
+                                    <span th:text="${coh.cupoMaximo != null ? coh.cantidadInscriptos + ' de ' + coh.cupoMaximo : coh.cantidadInscriptos + ' (sin límite)'}">0 de 40</span>
+                                    <span class="pn-insignia ms-2" th:if="${coh.cupoMaximo != null and !coh.baja}"
+                                          th:classappend="${coh.cupoDisponible == 0} ? 'pn-insignia-roja' : 'pn-insignia-verde'"
+                                          th:text="${coh.cupoDisponible == 0} ? 'Agotado' : 'Disponible'">Disponible</span>
+                                </td>
                                 <td th:text="${coh.accesoDias}">12</td>
                                 <td>
                                             <span class="pn-insignia"
-                                                  th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Próxima' or coh.estado == 'Pendiente'} ? 'pn-insignia-dorada' : (${coh.estado == 'Cancelada'} ? 'pn-insignia-roja' : 'pn-insignia-gris'))))"
+                                                  th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Pendiente'} ? 'pn-insignia-dorada' : (${coh.estado == 'Próxima'} ? 'pn-insignia-violeta' : (${coh.estado == 'Cancelada'} ? 'pn-insignia-roja' : 'pn-insignia-gris')))))"
                                                   th:text="${coh.baja} ? 'Dada de baja' : ${coh.estado}">Abierta</span>
                                         </td>
                                 <td th:text="${#temporals.format(coh.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>

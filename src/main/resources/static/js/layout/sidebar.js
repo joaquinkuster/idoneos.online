@@ -44,6 +44,16 @@
             });
             aplicar();
         });
+        // Entrada del menú: los enlaces y títulos aparecen con un fundido, uno tras otro (movimiento.css)
+        if (!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+            Array.prototype.forEach.call(menu.querySelectorAll('.pn-menu-grupo, .pn-menu-enlace'), function (el, i) {
+                el.style.setProperty('--i', Math.min(i, 12));
+                el.classList.add('pn-entra-menu');
+            });
+            setTimeout(function () {
+                menu.querySelectorAll('.pn-entra-menu').forEach(function (el) { el.classList.remove('pn-entra-menu'); el.style.removeProperty('--i'); });
+            }, 900);
+        }
         menu.classList.add('agrupado');
     });
 })();

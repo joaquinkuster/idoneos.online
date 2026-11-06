@@ -44,14 +44,8 @@
                 <label class="pn-etiqueta">Nombre</label>
                 <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
               </div>
-              <div class="pn-filtros-campo">
-                <label class="pn-etiqueta">Categoría</label>
-                <select name="categoriaId" class="pn-input">
-                  <option value="">Todas las categorías</option>
-                  <option th:each="cat : ${categorias}" th:value="${cat.idCategoria}" th:text="${cat.nombre}"
-                          th:selected="${categoriaSeleccionada != null and categoriaSeleccionada == cat.idCategoria}">Categoría</option>
-                </select>
-              </div>
+              <!-- La categoría se elige con los chips de debajo: este campo solo la lleva -->
+              <input type="text" name="categoriaId" th:value="${categoriaSeleccionada}" hidden tabindex="-1" aria-hidden="true">
               <div class="pn-filtros-campo">
                 <label class="pn-etiqueta">Nivel</label>
                 <select name="nivelId" class="pn-input">
@@ -87,6 +81,7 @@
               <a th:href="@{/catalogo}" class="pn-btn pn-btn-contorno">Limpiar</a>
             </form>
           </section>
+          <div class="pn-chips" data-chips-categorias></div>
 
           <th:block th:if="${cursos == null or #lists.isEmpty(cursos)}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso con cohortes abiertas coincide con los filtros seleccionados.', @{/catalogo}, 'Limpiar filtros')}"></th:block></th:block>
 
@@ -94,11 +89,16 @@
           <div data-empty hidden th:if="${totalCursos > 0}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los filtros seleccionados.', null, null)}"></th:block></div>
 
           <!-- Grilla de cards -->
-          <div class="wf-cards-grid" data-cards th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-            <th:block th:each="c : ${cursos}">
-  <th:block th:replace="~{fragments/components/cardCurso :: card(${c}, ${cantTemasPorCurso != null ? cantTemasPorCurso.get(c.idCurso) : null}, ${cursosProximamente != null and cursosProximamente.contains(c.idCurso) ? 'Próximamente' : 'Inscripción abierta'}, '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
-</th:block>
-          </div>
+          <div class="pn-grupos" data-cards th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}, data-chips=${chipsCategorias}">
+                        <section class="pn-grupo-carta" th:each="grupo : ${grupos}">
+                            <th:block th:replace="~{fragments/components/groupHeader :: carta(${grupo.categoria}, ${cursosPorCategoria.getOrDefault(grupo.categoria.idCategoria, 0L)})}"></th:block>
+                            <div class="pn-grupo-cuerpo wf-cards-grid">
+                                <th:block th:each="c : ${grupo.filas}">
+                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${c}, ${cantTemasPorCurso != null ? cantTemasPorCurso.get(c.idCurso) : null}, ${cursosProximamente != null and cursosProximamente.contains(c.idCurso) ? 'Próximamente' : 'Inscripción abierta'}, '/catalogo/ficha/' + ${c.idCurso}, 'Ver ficha del curso', null, null)}"></th:block>
+                                </th:block>
+                            </div>
+                        </section>
+                    </div>
 
           <!-- Pie: cursos por página y paginador (mismo estilo que los listados del panel) -->
           <section class="pn-card mt-4" th:if="${totalCursos > 0}">

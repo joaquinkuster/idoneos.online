@@ -1,0 +1,38 @@
+/* Ancho de contenido de todo el sitio: el mismo que el del navbar. El contenido arranca donde arranca el logo y termina donde termina el
+   menú del usuario (--nb-relleno a cada lado, sin ancho máximo), tanto en el sitio público y las páginas del alumno como en el panel.
+   Va al final de la lista de estilos para ganar sobre los anchos y rellenos de cada página. */
+:root {
+    --wf-ancho-contenedor: 100%;
+}
+
+/* Páginas con container-fluid de Bootstrap (catálogo, Mis cursos, pagos, certificados, caja, inicio) */
+.container-fluid.px-4.px-lg-5 {
+    padding-left: var(--nb-relleno) !important;
+    padding-right: var(--nb-relleno) !important;
+}
+
+/* Ruta de navegación debajo del banner */
+.wf-migas-barra {
+    padding-left: var(--nb-relleno);
+    padding-right: var(--nb-relleno);
+}
+
+/* Texto del banner */
+@media (min-width: 992px) {
+    .nb ~ .wf-hero-banner {
+        padding-left: var(--nb-relleno);
+        padding-right: var(--nb-relleno);
+    }
+}
+
+/* Secciones del inicio y de "Acerca de" */
+.ac-contenido {
+    padding-left: var(--nb-relleno);
+    padding-right: var(--nb-relleno);
+}
+
+/* Pie */
+.sf-footer-contenido {
+    padding-left: var(--nb-relleno);
+    padding-right: var(--nb-relleno);
+}
