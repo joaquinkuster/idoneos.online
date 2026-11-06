@@ -39,6 +39,12 @@ public class Alumno {
     private Set<Inscripcion> inscripciones = new HashSet<>();
 
     /**
+     * Cuántas veces el alumno eligió «Ahora no» cuando se le preguntó qué le interesa. Al llegar al máximo no se le vuelve a preguntar.
+     */
+    @Column(name = "vecesOmitioIntereses", nullable = false, columnDefinition = "integer default 0")
+    private int vecesOmitioIntereses = 0;
+
+    /**
      * Constructor para crear el alumno con los datos básicos.
      *
      * @param usuario usuario al que pertenece este perfil de rol.

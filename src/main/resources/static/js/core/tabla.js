@@ -331,11 +331,15 @@
             b.addEventListener('click', function () {
                 pagina = datos[1];
                 refrescar();
-                // Al cambiar de página se vuelve al principio del listado con un desplazamiento suave
-                var arriba = raiz.getBoundingClientRect().top + window.pageYOffset - 90;
-                window.scrollTo({ top: Math.max(0, arriba), behavior: SIN_MOVIMIENTO ? 'auto' : 'smooth' });
+                subirAlListado();
             });
             return b;
+        }
+
+        // Al cambiar de página o de filas por página se vuelve al principio del listado con un desplazamiento suave
+        function subirAlListado() {
+            var arriba = raiz.getBoundingClientRect().top + window.pageYOffset - 90;
+            window.scrollTo({ top: Math.max(0, arriba), behavior: SIN_MOVIMIENTO ? 'auto' : 'smooth' });
         }
 
         if (selectPorPagina) {
@@ -343,6 +347,7 @@
                 porPagina = parseInt(selectPorPagina.value, 10);
                 pagina = 1;
                 refrescar();
+                subirAlListado();
             });
         }
 

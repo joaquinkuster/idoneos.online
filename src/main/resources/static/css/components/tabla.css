@@ -91,6 +91,29 @@
     overflow-x: auto;
 }
 
+/* Barra de desplazamiento de las listas: fina y gris, como la del resumen y la del menú lateral (más oscura al pasar el mouse) */
+.pn-tabla-contenedor {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
+}
+
+.pn-tabla-contenedor::-webkit-scrollbar {
+    height: 8px;
+}
+
+.pn-tabla-contenedor::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.pn-tabla-contenedor::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.45);
+    border-radius: 8px;
+}
+
+.pn-tabla-contenedor::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.65);
+}
+
 .pn-tabla {
     width: 100%;
     border-collapse: collapse;

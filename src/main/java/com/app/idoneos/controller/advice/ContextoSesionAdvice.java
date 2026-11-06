@@ -1,11 +1,13 @@
 package com.app.idoneos.controller.advice;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
 import com.app.idoneos.model.Usuario;
+import com.app.idoneos.service.interesalumno.InteresAlumnoService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -20,6 +22,12 @@ public class ContextoSesionAdvice {
 
     /** Nombre del atributo de sesión con un mensaje que se muestra una sola vez en la página siguiente. */
     public static final String MENSAJE_DE_SESION = "mensajeDeSesion";
+
+    /** Nombre del atributo de sesión que marca que ya se le preguntó al alumno por sus intereses en esta sesión. */
+    public static final String INTERESES_PREGUNTADOS = "interesesPreguntados";
+
+    @Autowired
+    private InteresAlumnoService interesAlumnoService;
 
     /**
      * Si hay un mensaje guardado en la sesión (por ejemplo, el de inicio de sesión exitoso), lo agrega al modelo
@@ -38,6 +46,32 @@ public class ContextoSesionAdvice {
                 model.addAttribute("mensaje", mensaje);
             }
         }
+    }
+
+    /**
+     * Para el alumno con sesión iniciada agrega lo que necesita la ventana de intereses del menú: las categorías que puede elegir, las
+     * que ya eligió y si hay que preguntarle qué le interesa al ingresar (todavía no eligió ninguna, no llegó al máximo de «Ahora no» y
+     * no se le preguntó ya en esta sesión). Solo en las páginas completas: no en las peticiones de filas ni en las de datos.
+     *
+     * @param authentication La autenticación actual, si existe.
+     * @param request        La solicitud HTTP.
+     * @param model          El modelo de la vista.
+     */
+    @ModelAttribute
+    public void agregarIntereses(Authentication authentication, HttpServletRequest request, Model model) {
+        if (!"GET".equals(request.getMethod()) || request.getHeader("X-Tabla") != null
+                || !(authentication != null && authentication.getPrincipal() instanceof Usuario usuario)
+                || !usuario.esAlumnoActivo() || usuario.getAlumno() == null) {
+            return;
+        }
+        var alumno = usuario.getAlumno();
+        var elegidas = interesAlumnoService.buscarCategorias(alumno);
+        HttpSession sesion = request.getSession(false);
+        boolean preguntar = elegidas.isEmpty() && interesAlumnoService.debePreguntar(alumno)
+                && (sesion == null || sesion.getAttribute(INTERESES_PREGUNTADOS) == null);
+        model.addAttribute("interesesCategorias", interesAlumnoService.buscarCategoriasElegibles());
+        model.addAttribute("interesesElegidos", elegidas.stream().map(com.app.idoneos.model.Categoria::getIdCategoria).toList());
+        model.addAttribute("preguntarIntereses", preguntar);
     }
 
     /**

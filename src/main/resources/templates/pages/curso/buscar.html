@@ -100,6 +100,18 @@
 
                     <!-- Grilla de cursos del docente -->
                     <div class="pn-grupos" data-cards th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}, data-chips=${chipsCategorias}">
+                        <!-- Cursos con una cohorte pendiente de contenido: una carta aparte, al inicio de la primera página -->
+                        <section class="pn-grupo-carta pn-grupo-pendiente" th:if="${pendientes != null and !#lists.isEmpty(pendientes)}">
+                            <th:block th:replace="~{fragments/components/groupHeader :: pendientes(${#lists.size(pendientes)})}"></th:block>
+                            <div class="pn-grupo-cuerpo wf-cards-grid">
+                                <th:block th:each="p : ${pendientes}">
+                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${p.curso},
+                                ${programasPorCurso != null and programasPorCurso.containsKey(p.curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(p.curso.idCurso)) ? programasPorCurso.get(p.curso.idCurso).get(0).cantidadTemas : 0},
+                                ${p.dias == 0 ? 'Abre hoy' : (p.dias == 1 ? 'Abre mañana' : 'Abre en ' + p.dias + ' días')},
+                                '/curso/acceder/' + ${p.curso.idCurso} + '?cohorteId=' + ${p.cohorte.idCohorte}, 'Completar contenido', null, null)}"></th:block>
+                                </th:block>
+                            </div>
+                        </section>
                         <section class="pn-grupo-carta" th:each="grupo : ${grupos}">
                             <th:block th:replace="~{fragments/components/groupHeader :: carta(${grupo.categoria}, ${cursosPorCategoria.getOrDefault(grupo.categoria.idCategoria, 0L)})}"></th:block>
                             <div class="pn-grupo-cuerpo wf-cards-grid">

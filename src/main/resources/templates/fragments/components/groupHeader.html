@@ -28,6 +28,22 @@
             <i class="fa-solid fa-chevron-up pn-grupo-flecha" aria-hidden="true"></i>
         </span>
     </div>
+
+    <!-- Encabezado de la carta de cursos con cohortes pendientes de contenido: igual al de una categoría, con la etiqueta "Requiere tu acción". -->
+    <div th:fragment="pendientes(total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
+        <i class="fa-solid fa-circle-exclamation pn-grupo-aviso" aria-hidden="true"></i>
+        <div class="pn-grupo-textos">
+            <span class="pn-grupo-etiqueta">Requiere tu acción</span>
+            <div class="pn-grupo-nombre-fila">
+                <h2 class="pn-grupo-titulo">Pendientes de contenido</h2>
+                <span class="pn-grupo-conteo" th:text="${total + (total == 1 ? ' curso' : ' cursos')}">2 cursos</span>
+            </div>
+        </div>
+        <span class="pn-grupo-accion">
+            <span class="pn-grupo-ocultar">Ocultar cursos</span><span class="pn-grupo-mostrar">Mostrar cursos</span>
+            <i class="fa-solid fa-chevron-up pn-grupo-flecha" aria-hidden="true"></i>
+        </span>
+    </div>
 </body>
 
 </html>

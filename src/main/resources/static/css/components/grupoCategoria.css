@@ -53,6 +53,49 @@
     border-radius: 14px;
 }
 
+/* Carta de cursos pendientes de contenido: la misma carta de una categoría, con el borde dorado, la cabecera teñida de dorado suave
+   y un ícono de aviso; el cuerpo con las cards sigue blanco. */
+.pn-grupo-carta.pn-grupo-pendiente {
+    border-color: #D4A03D;
+    background: #FFFAEB; /* el contenedor, en un tono más claro que la cabecera */
+}
+
+.pn-grupo-pendiente .pn-grupo-cabecera {
+    justify-content: flex-start;
+    background: var(--pn-gold-soft, #FEF3C7);
+    border-radius: 13px 13px 0 0;
+}
+
+.pn-grupo-pendiente .pn-grupo-cabecera.cerrado {
+    border-radius: 13px;
+}
+
+.pn-grupo-pendiente .pn-grupo-textos {
+    flex: 1;
+    min-width: 0;
+}
+
+.pn-grupo-aviso {
+    flex: none;
+    font-size: 30px;
+    color: #B7791F;
+}
+
+.pn-grupo-pendiente .pn-grupo-titulo,
+.pn-grupo-pendiente .pn-grupo-accion {
+    color: #7A4E0B;
+}
+
+.pn-grupo-pendiente .pn-grupo-conteo {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #fff;
+}
+
+.pn-grupo-pendiente .pn-grupo-cuerpo {
+    border-top-color: #E8CC8A;
+}
+
 .pn-grupo-cabecera {
     display: flex;
     align-items: center;

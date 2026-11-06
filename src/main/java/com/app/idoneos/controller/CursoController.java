@@ -158,9 +158,19 @@ public class CursoController {
                 PaginacionUtil.Pagina<Curso> paginaCards = Filtros.cards.paginar(cursos, request.getParameterMap(), 8, POR_CATEGORIA);
                 cargarGrupos(model, Filtros.cards, cursos, request.getParameterMap(), true, "categoriaId");
                 PaginacionUtil.cargarEnModelo(model, paginaCards);
+                // Cursos con una cohorte pendiente de contenido: una carta aparte al inicio de la primera página
+                String paginaPedida = request.getParameter("pagina");
+                List<CursoPendiente> pendientes = List.of();
+                if (paginaPedida == null || paginaPedida.isBlank() || "1".equals(paginaPedida)) {
+                    pendientes = buscarPendientesDeContenido(Filtros.cards.filtrar(cursos, request.getParameterMap()));
+                    model.addAttribute("pendientes", pendientes);
+                }
                 cursos = paginaCards.filas();
                 model.addAttribute("grupos", com.app.idoneos.util.AgrupacionUtil.agrupar(cursos, Curso::getCategoria));
-                resumen = cursoService.resumir(cursos);
+                // El resumen incluye también los cursos de la carta de pendientes (cantidad de temas y inscripción abierta de sus cards)
+                List<Curso> paraResumir = new java.util.ArrayList<>(cursos);
+                pendientes.forEach(p -> { if (!paraResumir.contains(p.curso())) { paraResumir.add(p.curso()); } });
+                resumen = cursoService.resumir(paraResumir);
             }
             if (esAdministrador) {
                 // El administrador ve una página por vez: el motor común filtra, ordena y pagina en el servidor
@@ -270,7 +280,8 @@ public class CursoController {
      */
     @GetMapping("/acceder/{idCurso}")
     public String acceder(@PathVariable("idCurso") int idCurso,
-            @RequestParam(value = "seccion", defaultValue = "temas") String seccion, Model model,
+            @RequestParam(value = "seccion", defaultValue = "temas") String seccion,
+            @RequestParam(value = "cohorteId", required = false) Integer cohorteId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         boolean esAdministrador = false;
@@ -290,6 +301,13 @@ public class CursoController {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
             }
             esAdministrador = participacion == null;
+            // «Completar contenido» desde Mis cursos: la cohorte pendiente pasa a ser la cohorte por defecto del docente y se
+            // sigue a la página del curso sin el parámetro
+            if (cohorteId != null && !esAdministrador) {
+                cohorteService.buscarPorId(cohorteId).filter(c -> c.getCurso().getIdCurso() == idCurso)
+                        .ifPresent(c -> cohorteService.cambiarContextoDeTrabajo(c, usuario.getDocente()));
+                return "redirect:/curso/acceder/" + idCurso;
+            }
             Curso curso;
             Programa programa;
             Cohorte cohorte;
@@ -615,6 +633,36 @@ public class CursoController {
         cursoService.actualizarImagen(curso.getIdCurso(), nombre);
     }
 
+
+    /**
+     * Un curso con una cohorte pendiente de contenido y los días que faltan para que abra su inscripción (el plazo que tiene el docente
+     * para completarla).
+     *
+     * @param curso   El curso.
+     * @param cohorte La cohorte pendiente que abre antes: es la que se deja como cohorte por defecto al completar el contenido.
+     * @param dias    Los días que faltan para el inicio de la inscripción de la cohorte pendiente más próxima (0 si es hoy).
+     */
+    public record CursoPendiente(Curso curso, Cohorte cohorte, long dias) {
+    }
+
+    /**
+     * Arma la lista de cursos con alguna cohorte pendiente de contenido, ordenados por la que abre antes.
+     *
+     * @param cursos Los cursos a revisar.
+     * @return Los cursos pendientes con los días que faltan para la apertura de su cohorte más próxima.
+     */
+    private List<CursoPendiente> buscarPendientesDeContenido(List<Curso> cursos) {
+        java.time.LocalDate hoy = java.time.LocalDate.now();
+        return cursos.stream()
+                .map(curso -> cohorteService.buscarPorCurso(curso).stream().filter(Cohorte::esPendiente)
+                        .min(java.util.Comparator.comparing(Cohorte::getFechaInicioInscripcion))
+                        .map(cohorte -> new CursoPendiente(curso, cohorte, Math.max(0,
+                                java.time.temporal.ChronoUnit.DAYS.between(hoy, cohorte.getFechaInicioInscripcion().toLocalDate()))))
+                        .orElse(null))
+                .filter(java.util.Objects::nonNull)
+                .sorted(java.util.Comparator.comparingLong(CursoPendiente::dias))
+                .toList();
+    }
 
     /** Agrupa los cursos por categoría (ordenada por nombre); dentro de cada una se conserva el orden del listado. */
     public static final java.util.Comparator<Curso> POR_CATEGORIA = java.util.Comparator
