@@ -43,29 +43,28 @@ public class InteresController {
             HttpSession sesion) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
+            boolean teniaIntereses = !interesAlumnoService.buscarCategorias(usuario.getAlumno()).isEmpty();
             interesAlumnoService.guardar(usuario.getAlumno().getIdAlumno(), categoriaIds);
             sesion.setAttribute(ContextoSesionAdvice.INTERESES_PREGUNTADOS, true);
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Guardamos tus intereses.");
+            return RespuestaFormularioUtil.armarRespuestaExitosa(teniaIntereses ? "Intereses modificados correctamente."
+                    : "Intereses registrados correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
     }
 
     /**
-     * Registra que el alumno eligió «Ahora no» al preguntarle qué le interesa: se le vuelve a preguntar en el próximo ingreso
-     * hasta llegar al máximo de omisiones. Responde en JSON.
+     * El alumno cerró la ventana sin guardar al preguntarle qué le interesa: no se le vuelve a preguntar en esta sesión (en el próximo ingreso se
+     * le pregunta de nuevo, mientras no tenga intereses registrados). No guarda nada en la base. Responde en JSON.
      *
-     * @param authentication La autenticación actual.
-     * @param sesion         La sesión HTTP.
+     * @param sesion La sesión HTTP.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/omitir")
-    public ResponseEntity<Map<String, String>> omitir(Authentication authentication, HttpSession sesion) {
+    public ResponseEntity<Map<String, String>> omitir(HttpSession sesion) {
         try {
-            Usuario usuario = (Usuario) authentication.getPrincipal();
-            interesAlumnoService.omitir(usuario.getAlumno().getIdAlumno());
             sesion.setAttribute(ContextoSesionAdvice.INTERESES_PREGUNTADOS, true); // no se vuelve a preguntar en esta sesión
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Podés elegir tus intereses cuando quieras desde tu menú.");
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Podés registrar tus intereses cuando quieras desde tu menú.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }

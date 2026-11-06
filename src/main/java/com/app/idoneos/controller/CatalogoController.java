@@ -70,6 +70,9 @@ public class CatalogoController {
     @Autowired
     private ProgramaService programaService;
 
+    @Autowired
+    private com.app.idoneos.service.interesalumno.InteresAlumnoService interesAlumnoService;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -100,15 +103,33 @@ public class CatalogoController {
         List<Curso> cursos = pagina.filas();
         model.addAttribute("grupos", com.app.idoneos.util.AgrupacionUtil.agrupar(cursos, Curso::getCategoria));
 
+        // Alumno con intereses: una carta aparte al inicio de la primera página con los cursos de sus categorías (ya filtrados)
+        List<Curso> recomendados = List.of();
+        String paginaPedida = request.getParameter("pagina");
+        Alumno alumno = alumnoDe(authentication);
+        if (alumno != null && (paginaPedida == null || paginaPedida.isBlank() || "1".equals(paginaPedida))) {
+            java.util.Set<Integer> idsCategorias = new java.util.HashSet<>();
+            interesAlumnoService.buscarCategorias(alumno).forEach(categoria -> idsCategorias.add(categoria.getIdCategoria()));
+            if (!idsCategorias.isEmpty()) {
+                recomendados = CursoController.Filtros.cards.filtrar(todos, request.getParameterMap()).stream()
+                        .filter(curso -> idsCategorias.contains(curso.getCategoria().getIdCategoria()))
+                        .sorted(CursoController.POR_CATEGORIA.thenComparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList();
+            }
+        }
+        model.addAttribute("recomendados", recomendados);
+        // Las cards de la carta de recomendados necesitan los mismos datos que las del listado
+        List<Curso> aDibujar = new java.util.ArrayList<>(cursos);
+        recomendados.stream().filter(curso -> !aDibujar.contains(curso)).forEach(aDibujar::add);
+
         // Los cursos que todavía no tienen una cohorte con la inscripción abierta, solo próximas: la card dice «Próximamente»
         java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();
-        cursos.stream().filter(curso -> cursoService.buscarCohortesAbiertas(curso).isEmpty())
+        aDibujar.stream().filter(curso -> cursoService.buscarCohortesAbiertas(curso).isEmpty())
                 .forEach(curso -> cursosProximamente.add(curso.getIdCurso()));
         model.addAttribute("cursosProximamente", cursosProximamente);
 
         // Cantidad de temas de cada curso (según su primer programa activo)
         Map<Integer, Integer> cantidadTemasPorCurso = new HashMap<>();
-        for (Curso curso : cursos) {
+        for (Curso curso : aDibujar) {
             List<Programa> programas = programaService.buscarPorCurso(curso);
             cantidadTemasPorCurso.put(curso.getIdCurso(),
                     programas.isEmpty() ? 0 : programas.get(0).getCantidadTemas());

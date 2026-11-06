@@ -30,13 +30,22 @@
             }
         });
 
-        // Opciones del usuario (Mis cursos, Panel administrador, etc.): la de la página actual también se marca
+        // Opciones del usuario (Mis cursos, Panel administrador, etc.): la de la página actual también se marca. Se compara la ruta y los parámetros
+        // de la opción (por ejemplo «Cursos» es /curso/buscar?vista=cards y «Panel administrador» es /curso/buscar): si coinciden varias, queda
+        // marcada la que tiene más parámetros, la más específica.
+        var parametrosActuales = new URLSearchParams(window.location.search);
+        var coincidencias = [];
         navbar.querySelectorAll('.um-item[href]').forEach(function (opcion) {
             var destino = opcion.getAttribute('href');
-            if (destino && destino !== '#' && (destino === ruta || ruta.indexOf(destino + '/') === 0)) {
-                opcion.classList.add('activo');
-            }
+            if (!destino || destino === '#') { return; }
+            var url = new URL(destino, window.location.origin);
+            var mismaRuta = url.pathname === ruta || ruta.indexOf(url.pathname + '/') === 0;
+            var parametros = Array.from(url.searchParams.entries());
+            var mismosParametros = parametros.every(function (p) { return parametrosActuales.get(p[0]) === p[1]; });
+            if (mismaRuta && mismosParametros) { coincidencias.push({ opcion: opcion, parametros: parametros.length }); }
         });
+        var masEspecifica = coincidencias.reduce(function (maximo, c) { return Math.max(maximo, c.parametros); }, 0);
+        coincidencias.forEach(function (c) { if (c.parametros === masEspecifica) { c.opcion.classList.add('activo'); } });
 
         // Acordeón del menú de usuario (Mi portal): se abre solo si la página actual es una de sus opciones
         navbar.querySelectorAll('.um-grupo').forEach(function (grupo) {

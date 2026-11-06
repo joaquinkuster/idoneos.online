@@ -11,9 +11,6 @@ import com.app.idoneos.model.Categoria;
  */
 public interface InteresAlumnoService {
 
-    /** Cuántas veces se le pregunta al alumno por sus intereses (con «Ahora no») antes de dejar de insistir. */
-    int MAXIMO_DE_OMISIONES = 3;
-
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -25,8 +22,7 @@ public interface InteresAlumnoService {
     List<Categoria> buscarCategorias(Alumno alumno);
 
     /**
-     * Indica si hay que preguntarle al alumno qué le interesa: todavía no eligió ninguna categoría y no llegó al máximo de veces
-     * que puede elegir «Ahora no».
+     * Indica si hay que preguntarle al alumno qué le interesa: mientras no tenga ninguna categoría de interés registrada.
      *
      * @param alumno El alumno.
      * @return {@code true} si hay que preguntarle.
@@ -50,11 +46,4 @@ public interface InteresAlumnoService {
      * @throws IllegalArgumentException si no se elige ninguna categoría o alguna no existe.
      */
     void guardar(int idAlumno, List<Integer> idsCategorias);
-
-    /**
-     * Registra que el alumno eligió «Ahora no» al preguntarle qué le interesa.
-     *
-     * @param idAlumno El identificador del alumno.
-     */
-    void omitir(int idAlumno);
 }

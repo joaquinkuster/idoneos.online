@@ -16,23 +16,26 @@
         </div>
 
         <div class="um-seccion">
-            <!-- Administrador -->
-            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item">Panel administrador</a>
-            <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar?vista=cards}" class="um-item">Cursos</a>
-
-            <!-- Docente -->
-            <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item">Mis cursos</a>
-
-            <!-- Alumno: acordeón «Mi portal». El encabezado solo abre y cierra; adentro están las dos pantallas -->
-            <div th:if="${usuario.esAlumnoActivo()}" class="um-grupo">
+            <!-- «Mi portal»: un acordeón igual para los tres roles. El encabezado solo abre y cierra; adentro están las pantallas del rol -->
+            <div th:if="${usuario.esAdministradorActivo() or usuario.esDocenteActivo() or usuario.esAlumnoActivo()}" class="um-grupo">
                 <button type="button" class="um-item um-grupo-cabecera" data-um-desplegar aria-expanded="false">
                     <span>Mi portal</span><i class="fa-solid fa-chevron-down"></i>
                 </button>
                 <div class="um-submenu">
                     <div class="um-submenu-interior">
-                        <a th:href="@{/inscripcion/buscar}" class="um-item um-item-sub">Mis cursos</a>
-                        <a th:href="@{/pago/buscar}" class="um-item um-item-sub">Mis pagos</a>
-                        <a th:href="@{/certificado/buscar}" class="um-item um-item-sub">Mis certificados</a>
+                        <!-- Administrador -->
+                        <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item um-item-sub">Panel administrador</a>
+                        <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar?vista=cards}" class="um-item um-item-sub">Cursos</a>
+
+                        <!-- Docente («Mi biblioteca» todavía no tiene pantalla: se habilita más adelante) -->
+                        <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item um-item-sub">Mis cursos</a>
+                        <button type="button" th:if="${usuario.esDocenteActivo()}" class="um-item um-item-sub" data-biblioteca>Mi biblioteca</button>
+
+                        <!-- Alumno -->
+                        <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/inscripcion/buscar}" class="um-item um-item-sub">Mis cursos</a>
+                        <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/pago/buscar}" class="um-item um-item-sub">Mis pagos</a>
+                        <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/certificado/buscar}" class="um-item um-item-sub">Mis certificados</a>
+                        <button type="button" th:if="${usuario.esAlumnoActivo()}" class="um-item um-item-sub" data-abrir-intereses>Mis intereses</button>
                     </div>
                 </div>
             </div>
@@ -51,4 +54,5 @@
             <form id="formularioCerrarSesion" th:action="@{/logout}" method="post" class="d-none"></form>
         </div>
     </div>
+    <th:block th:replace="~{fragments/components/modalIntereses :: bloque}"></th:block>
 </div>

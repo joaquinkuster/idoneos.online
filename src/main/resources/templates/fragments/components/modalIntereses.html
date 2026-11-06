@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Ventana de intereses del alumno: elige las categorías de cursos que le interesan. Se abre sola al ingresar si todavía no eligió
+         ninguna (se cierra como cualquier otra ventana: Ahora no, la X, Esc o un clic afuera) y se abre a mano desde «Mis intereses» del menú del usuario o «Editar intereses» del catálogo.
+         static/js/layout/intereses.js la mueve al final del body y maneja los botones. -->
+    <div th:fragment="bloque" th:if="${usuario != null and usuario.esAlumnoActivo() and interesesCategorias != null}"
+         class="modal fade pn-modal" id="modalIntereses" tabindex="-1" aria-hidden="true" th:attr="data-preguntar=${preguntarIntereses}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo" data-intereses-titulo>Registrar intereses</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <div class="pn-seccion-titulo">
+                        <h4>¿Qué te interesa aprender?</h4>
+                        <p>Elegí las que quieras para ver primero los cursos que más te sirvan</p>
+                    </div>
+                    <div class="ia-chips" role="group" aria-label="Categorías de interés">
+                        <button type="button" class="pn-chip" th:each="c : ${interesesCategorias}" th:attr="data-categoria=${c.idCategoria}"
+                                th:classappend="${interesesElegidos.contains(c.idCategoria)} ? 'on'" th:text="${c.nombre}">Finanzas personales</button>
+                    </div>
+                    <div class="pn-ayuda-error ia-error" data-intereses-error></div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal" data-intereses-omitir>Ahora no</button>
+                        <button type="button" class="pn-btn pn-btn-primario" data-intereses-guardar>Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

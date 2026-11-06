@@ -41,7 +41,7 @@ public class InteresAlumnoServiceImpl implements InteresAlumnoService {
 
     @Override
     public boolean debePreguntar(Alumno alumno) {
-        return alumno.getVecesOmitioIntereses() < MAXIMO_DE_OMISIONES && interesAlumnoRepository.findByAlumno(alumno).isEmpty();
+        return interesAlumnoRepository.findByAlumno(alumno).isEmpty();
     }
 
     @Override
@@ -69,14 +69,5 @@ public class InteresAlumnoServiceImpl implements InteresAlumnoService {
         interesAlumnoRepository.deleteByAlumno(alumno);
         interesAlumnoRepository.flush();
         categorias.forEach(categoria -> interesAlumnoRepository.save(new InteresAlumno(alumno, categoria)));
-    }
-
-    @Override
-    @Transactional
-    public void omitir(int idAlumno) {
-        Alumno alumno = alumnoRepository.findById(idAlumno)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El alumno no existe."));
-        alumno.setVecesOmitioIntereses(alumno.getVecesOmitioIntereses() + 1);
-        alumnoRepository.save(alumno);
     }
 }

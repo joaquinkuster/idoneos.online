@@ -44,6 +44,23 @@
             <i class="fa-solid fa-chevron-up pn-grupo-flecha" aria-hidden="true"></i>
         </span>
     </div>
+
+    <!-- Encabezado de la carta de cursos recomendados (catálogo del alumno con intereses): igual al de una categoría, con la cabecera azul suave,
+         un ícono y la etiqueta «Según tus intereses». Los intereses se modifican desde «Mis intereses» del menú del usuario. -->
+    <div th:fragment="recomendados(total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
+        <i class="fa-solid fa-wand-magic-sparkles pn-grupo-aviso" aria-hidden="true"></i>
+        <div class="pn-grupo-textos">
+            <span class="pn-grupo-etiqueta">Según tus intereses</span>
+            <div class="pn-grupo-nombre-fila">
+                <h2 class="pn-grupo-titulo">Cursos que podrían interesarte</h2>
+                <span class="pn-grupo-conteo" th:text="${total + (total == 1 ? ' curso' : ' cursos')}">6 cursos</span>
+            </div>
+        </div>
+        <span class="pn-grupo-accion">
+            <span class="pn-grupo-ocultar">Ocultar cursos</span><span class="pn-grupo-mostrar">Mostrar cursos</span>
+            <i class="fa-solid fa-chevron-up pn-grupo-flecha" aria-hidden="true"></i>
+        </span>
+    </div>
 </body>
 
 </html>

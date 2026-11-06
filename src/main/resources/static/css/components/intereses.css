@@ -1,0 +1,18 @@
+/* Ventana de intereses del alumno (fragments/components/modalIntereses.html): usa la estructura y el ancho de las ventanas de los ABM
+   (pn-modal); aquí solo van los chips de categoría. */
+.ia-chips {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* bajo el título de sección, que va centrado como en los demás modales */
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.ia-chips .pn-chip {
+    padding: 7px 16px;
+    font-size: 14px;
+}
+
+.ia-error {
+    min-height: 18px;
+}

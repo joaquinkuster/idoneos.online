@@ -53,31 +53,50 @@
     border-radius: 14px;
 }
 
-/* Carta de cursos pendientes de contenido: la misma carta de una categoría, con el borde dorado, la cabecera teñida de dorado suave
-   y un ícono de aviso; el cuerpo con las cards sigue blanco. */
-.pn-grupo-carta.pn-grupo-pendiente {
-    border-color: #D4A03D;
-    background: #FFFAEB; /* el contenedor, en un tono más claro que la cabecera */
-}
-
-.pn-grupo-pendiente .pn-grupo-cabecera {
+/* Cartas destacadas (la misma carta de una categoría, con el borde de color, la cabecera teñida, un ícono y el cuerpo en un tono más claro):
+   - pendientes de contenido (docente): dorado.
+   - recomendados según los intereses (alumno): azul. */
+.pn-grupo-pendiente .pn-grupo-cabecera,
+.pn-grupo-recomendado .pn-grupo-cabecera {
     justify-content: flex-start;
-    background: var(--pn-gold-soft, #FEF3C7);
     border-radius: 13px 13px 0 0;
 }
 
-.pn-grupo-pendiente .pn-grupo-cabecera.cerrado {
+.pn-grupo-pendiente .pn-grupo-cabecera.cerrado,
+.pn-grupo-recomendado .pn-grupo-cabecera.cerrado {
     border-radius: 13px;
 }
 
-.pn-grupo-pendiente .pn-grupo-textos {
+.pn-grupo-pendiente .pn-grupo-textos,
+.pn-grupo-recomendado .pn-grupo-textos {
     flex: 1;
     min-width: 0;
 }
 
-.pn-grupo-aviso {
+.pn-grupo-pendiente .pn-grupo-aviso,
+.pn-grupo-recomendado .pn-grupo-aviso {
     flex: none;
     font-size: 30px;
+}
+
+.pn-grupo-pendiente .pn-grupo-conteo,
+.pn-grupo-recomendado .pn-grupo-conteo {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #fff;
+}
+
+/* Pendientes de contenido: dorado */
+.pn-grupo-carta.pn-grupo-pendiente {
+    border-color: #D4A03D;
+    background: #FFFAEB;
+}
+
+.pn-grupo-pendiente .pn-grupo-cabecera {
+    background: var(--pn-gold-soft, #FEF3C7);
+}
+
+.pn-grupo-pendiente .pn-grupo-aviso {
     color: #B7791F;
 }
 
@@ -86,14 +105,39 @@
     color: #7A4E0B;
 }
 
-.pn-grupo-pendiente .pn-grupo-conteo {
-    padding: 2px 10px;
-    border-radius: 999px;
-    background: #fff;
-}
-
 .pn-grupo-pendiente .pn-grupo-cuerpo {
     border-top-color: #E8CC8A;
+}
+
+/* Recomendados: azul suave */
+.pn-grupo-carta.pn-grupo-recomendado {
+    border-color: #8DB4E2;
+    background: #F5F9FE;
+}
+
+.pn-grupo-recomendado .pn-grupo-cabecera {
+    background: #E3EEFB;
+}
+
+.pn-grupo-recomendado .pn-grupo-aviso {
+    color: #2B6CB0;
+}
+
+.pn-grupo-recomendado .pn-grupo-titulo,
+.pn-grupo-recomendado .pn-grupo-accion {
+    color: #1E4278;
+}
+
+.pn-grupo-recomendado .pn-grupo-etiqueta {
+    color: #1E4278;
+}
+
+.pn-grupo-recomendado .pn-grupo-etiqueta::after {
+    background: #1E4278;
+}
+
+.pn-grupo-recomendado .pn-grupo-cuerpo {
+    border-top-color: #BCD3EE;
 }
 
 .pn-grupo-cabecera {

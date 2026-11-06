@@ -119,6 +119,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/pago/estado/*", "/pago/comprobante/*").authenticated()
                         .requestMatchers("/pago/**").hasRole("Alumno")
                         // CU-02, CU-27 y CU-45: Ver mis cursos, Acceder curso e Inscribirse (Alumno)
+                        // Intereses del alumno: las categorías que le interesan (se le preguntan al ingresar y se editan desde el menú)
+                        .requestMatchers("/interes/**").hasRole("Alumno")
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
                         .requestMatchers("/recordatorio/**").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)

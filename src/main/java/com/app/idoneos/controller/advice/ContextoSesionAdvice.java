@@ -67,7 +67,7 @@ public class ContextoSesionAdvice {
         var alumno = usuario.getAlumno();
         var elegidas = interesAlumnoService.buscarCategorias(alumno);
         HttpSession sesion = request.getSession(false);
-        boolean preguntar = elegidas.isEmpty() && interesAlumnoService.debePreguntar(alumno)
+        boolean preguntar = interesAlumnoService.debePreguntar(alumno)
                 && (sesion == null || sesion.getAttribute(INTERESES_PREGUNTADOS) == null);
         model.addAttribute("interesesCategorias", interesAlumnoService.buscarCategoriasElegibles());
         model.addAttribute("interesesElegidos", elegidas.stream().map(com.app.idoneos.model.Categoria::getIdCategoria).toList());
