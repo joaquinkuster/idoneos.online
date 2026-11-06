@@ -87,3 +87,204 @@
         border-bottom: 1px solid var(--pn-borde);
     }
 }
+
+/* Pestañas «Nuevo» / «De la biblioteca» */
+.ac-selector-pestanas {
+    display: flex;
+    gap: 18px;
+    margin: 4px 0 14px;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.ac-selector-pestanas button {
+    padding: 6px 2px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    font: inherit;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.ac-selector-pestanas button.on {
+    border-bottom-color: #B7791F;
+    color: #7A4E0B;
+    font-weight: 600;
+}
+
+.ac-selector-pestanas button:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.ac-selector-cuenta {
+    display: inline-block;
+    min-width: 20px;
+    margin-left: 4px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #E6F1FB;
+    color: #0C447C;
+    font-size: 11px;
+    text-align: center;
+}
+
+.ac-selector-detalle [data-panel="biblioteca"] .pn-etiqueta {
+    margin-bottom: 4px;
+}
+
+.ac-selector-detalle [data-panel="biblioteca"] select {
+    margin-bottom: 10px;
+}
+
+.ac-selector-buscar {
+    margin: 14px 0 8px;
+}
+
+.ac-selector-biblioteca {
+    min-height: 120px;
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+}
+
+/* Divisor de grupo: el mismo de los tipos de recurso de la biblioteca digital */
+.ac-bib-grupo {
+    padding: 6px 12px;
+    background: #E8EEF5;
+    border-top: 1px solid #CBD5E1;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--pn-texto, #0F172A);
+    cursor: pointer;
+    user-select: none;
+}
+
+.ac-bib-grupo:first-child {
+    border-top: 0;
+}
+
+.ac-bib-flecha {
+    width: 14px;
+    font-size: 12px;
+    color: var(--pn-texto-suave, #64748B);
+    transition: transform 0.15s;
+}
+
+.ac-bib-grupo.cerrado .ac-bib-flecha {
+    transform: rotate(-90deg);
+}
+
+.ac-bib-conteo {
+    margin-left: 6px;
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--pn-texto-suave, #64748B);
+}
+
+.ac-bib-fila {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 7px 12px;
+    border-top: 1px solid var(--pn-borde);
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.ac-bib-fila:hover,
+.ac-bib-fila.elegida {
+    background: #F0F7FF;
+}
+
+.ac-bib-fila input {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+.ac-bib-datos {
+    flex: 1;
+    min-width: 0;
+}
+
+.ac-bib-titulo {
+    display: block;
+    color: var(--pn-texto);
+}
+
+.ac-bib-datos small {
+    display: block;
+    font-size: 11px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-bib-quien {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.ac-bib-vacio {
+    padding: 14px 12px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+/* Filas por página y paginador de la lista de la biblioteca (los mismos de los listados, más compactos) */
+.ac-selector-pie {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px 12px;
+    margin-top: 8px;
+    font-size: 12px;
+}
+
+.ac-selector-pie[hidden] {
+    display: none;
+}
+
+.ac-selector-pie .pn-paginador button {
+    width: 28px;
+    height: 28px;
+}
+
+.ac-selector-biblioteca.pn-sk-lista {
+    padding: 10px 10px 0;
+}
+
+/* Barra de desplazamiento de las listas del selector: fina, redondeada y discreta; se marca al pasar el mouse por la lista */
+.ac-selector-lista,
+.ac-selector-biblioteca {
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+}
+
+.ac-selector-lista::-webkit-scrollbar,
+.ac-selector-biblioteca::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ac-selector-lista::-webkit-scrollbar-track,
+.ac-selector-biblioteca::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px 0;
+}
+
+.ac-selector-lista::-webkit-scrollbar-thumb,
+.ac-selector-biblioteca::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+}
+
+.ac-selector-lista::-webkit-scrollbar-thumb:hover,
+.ac-selector-biblioteca::-webkit-scrollbar-thumb:hover {
+    background: #94A3B8;
+    background-clip: padding-box;
+}

@@ -244,8 +244,10 @@ public class ProgramaServiceImpl implements ProgramaService {
         Programa programa = buscarActivo(id);
         obtenerParticipacion(programa.getCurso(), docente);
         if (programa.getCantidadInscripcionesActivas() > 0) {
-            throw new IllegalArgumentException("Error! El programa tiene inscripciones activas: sus datos no pueden "
-                    + "modificarse porque son los que el alumno vio y pagó al inscribirse.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el programa", programa.getNombre(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(programa.getCantidadInscripcionesActivas(),
+                            "inscripción activa asociada", "inscripciones activas asociadas"),
+                    MensajeErrorUtil.LO_QUE_EL_ALUMNO_VIO_Y_PAGO));
         }
         programa.setNombre(validarNombre(nombre));
         programa.setDescripcion(validarDescripcion(descripcion));
@@ -367,7 +369,7 @@ public class ProgramaServiceImpl implements ProgramaService {
     @Override
     public Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<Integer> materialesQuitados,
             Collection<Integer> temasQuitadas) {
-        if (!programa.tieneCohortesEnCurso()) {
+        if (!programa.tieneCohortesActivas()) {
             return Optional.empty();
         }
         int minimo = buscarMinimoDeContenido();
@@ -390,7 +392,7 @@ public class ProgramaServiceImpl implements ProgramaService {
      */
     @Override
     public Optional<Bloqueo> verificarMinimoDeTemas(Programa programa, Collection<Integer> temasQuitadas) {
-        if (!programa.tieneCohortesEnCurso()) {
+        if (!programa.tieneCohortesActivas()) {
             return Optional.empty();
         }
         int minimo = buscarMinimoDeContenido();
@@ -402,7 +404,7 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     /**
      * Motivo (sin punto final) por el que no se puede quitar el material de un tema, con la misma oración que usan las
-     * autoevaluaciones: es el único visible del tema y su programa tiene cohortes en curso.
+     * autoevaluaciones: es el único visible del tema y su programa tiene cohortes activas.
      *
      * @param tema             El tema del material.
      * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
@@ -414,8 +416,45 @@ public class ProgramaServiceImpl implements ProgramaService {
             Optional<Bloqueo> bloqueo = verificarMinimoDeContenido(programa, materialesQuitados, java.util.Set.of());
             if (bloqueo.isPresent()) {
                 Tema afectada = programa.temasQueDejanDeContarSin(materialesQuitados).stream().findFirst().orElse(tema);
-                return Optional.of("es el único visible del tema «" + afectada.getTitulo()
-                        + "» y su programa tiene cohortes en curso");
+                return Optional.of(MensajeErrorUtil.motivoDisenoIncompleto("es el único material publicado del tema «"
+                        + afectada.getTitulo() + "»"));
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Motivo por el que quitar material dejaría incompleto el diseño: el tema pierde su único material publicado, su única clase
+     * grabada o su único video clon generado, y algún programa que lo incluye está en curso o tiene inscripciones activas.
+     */
+    @Override
+    public Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<Integer> materialesQuitados) {
+        boolean enCurso = tema.getProgramasQueLaIncluyen().stream()
+                .anyMatch(programa -> programa.tieneCohortesActivas() || programa.getCantidadInscripcionesActivas() > 0);
+        if (!enCurso) {
+            return Optional.empty();
+        }
+        var curso = tema.getCurso();
+        var antes = tema.getMaterialesPublicados();
+        var despues = antes.stream().filter(m -> !materialesQuitados.contains(m.getIdTemaRecurso())).toList();
+        java.util.function.BiPredicate<java.util.List<com.app.idoneos.model.TemaRecurso>, String> tiene = (lista, celda) -> lista.stream().anyMatch(m -> switch (celda) {
+            case "clon" -> m.getRecurso().getVideoClon() != null && com.app.idoneos.model.EstadoGeneracion.GENERADO
+                    .equals(m.getRecurso().getVideoClon().getEstadoGeneracion().getNombre());
+            case "grabada" -> com.app.idoneos.model.Modalidad.GRABADA.equals(m.getModalidadAsociada());
+            default -> m.getModalidadAsociada() == null;
+        });
+        String[][] celdas = {
+            {"clon", "video clon generado", "el único video clon generado"},
+            {"grabada", "clase grabada", "la única clase grabada publicada"},
+            {"material", "material", "el único material publicado"}};
+        for (String[] celda : celdas) {
+            boolean aplica = switch (celda[0]) {
+                case "clon" -> curso.incluyeModalidad(com.app.idoneos.model.Modalidad.CLON_IA);
+                case "grabada" -> curso.incluyeModalidad(com.app.idoneos.model.Modalidad.GRABADA);
+                default -> true;
+            };
+            if (aplica && tiene.test(antes, celda[0]) && !tiene.test(despues, celda[0])) {
+                return Optional.of(MensajeErrorUtil.motivoDisenoIncompleto("es " + celda[2] + " del tema «" + tema.getTitulo() + "»"));
             }
         }
         return Optional.empty();

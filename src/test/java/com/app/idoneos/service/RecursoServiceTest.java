@@ -155,7 +155,7 @@ class RecursoServiceTest {
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "GRABACION", datos(" ", null, null, null),
                 archivo("clase.mp4", MP4), true)).contains("título"));
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "RESUMEN", datos("Resumen", "A", null, null),
-                archivo("r.pdf", PDF), true)).contains("tipo de material"));
+                archivo("r.pdf", PDF), true)).contains("tipo de recurso"));
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "GRABACION", datos("Clase", null, null, null),
                 archivo("clase.mp4", PDF), true)).contains("MP4 o WEBM"));
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "GRABACION", datos("Clase", null, null, null),
@@ -264,7 +264,7 @@ class RecursoServiceTest {
         TemaRecurso uno = subirGrabacion("Uno");
         TemaRecurso dos = subirGrabacion("Dos");
 
-        assertTrue(mensaje(() -> recursoService.darDeBajaVarios(List.of(), fausto())).contains("al menos un material"));
+        assertTrue(mensaje(() -> recursoService.darDeBajaVarios(List.of(), fausto())).contains("al menos un recurso"));
         assertTrue(mensaje(() -> recursoService.darDeBajaVarios(List.of(uno.getIdTemaRecurso(), -5), fausto()))
                 .contains("no se encuentra activo"));
         assertFalse(uno.getBaja());
@@ -294,5 +294,297 @@ class RecursoServiceTest {
         // un docente solo ve el material de sus cursos
         assertTrue(recursoService.buscarConFiltros(null, null, null, null, null, null, docente("sebastian.bordato@idoneos.online"))
                 .stream().noneMatch(m -> m.getCurso().getNombre().equals("Macroeconomía de Coyuntura")));
+    }
+
+    // ------------------------------------------------------------------ Biblioteca: privado o público y recurso compartido
+
+    @Test
+    @DisplayName("Biblioteca: un recurso nuevo es privado salvo que se suba como público")
+    void guardaSiEsPrivadoOPublico() {
+        int tema = temaDeRentaFija().getIdTema();
+
+        TemaRecurso porDefecto = recursoService.subir(fausto(), tema, "ENLACE", datos("Enlace privado", null, "https://sitio.com", null), null, true);
+        TemaRecurso publico = recursoService.subir(fausto(), tema, "ENLACE",
+                new DatosRecurso("Enlace público", null, false, null, "https://sitio.com/otro", null, null, null, null, null, false), null, true);
+
+        assertTrue(porDefecto.getRecurso().getPrivado());
+        assertFalse(publico.getRecurso().getPrivado());
+    }
+
+    @Test
+    @DisplayName("Biblioteca: si otro tema usa el mismo recurso, no se puede modificar ni dar de baja el material")
+    void noModificaNiDaDeBajaUnRecursoCompartido() {
+        TemaRecurso material = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "ENLACE",
+                datos("Enlace compartido", null, "https://sitio.com/compartido", null), null, true);
+        assertEquals(0, recursoService.contarOtrosUsos(material));
+
+        // otro tema del mismo curso usa el mismo recurso
+        Tema otroTema = temaRepository.findAll().stream().filter(u -> u.getCurso().getIdCurso() == material.getTema().getCurso().getIdCurso()
+                && u.getIdTema() != material.getTema().getIdTema()).findFirst().orElseThrow();
+        TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(otroTema, material.getRecurso(), material.getDocenteCurso(), 1));
+        material.getRecurso().getTemasRecurso().add(uso);
+
+        assertEquals(1, recursoService.contarOtrosUsos(material));
+        String modificar = mensaje(() -> recursoService.modificar(material.getIdTemaRecurso(), fausto(),
+                datos("Otro título", null, "https://sitio.com/compartido", null), null));
+        assertTrue(modificar.contains("No se puede modificar") && modificar.contains("1 otro tema asociado"), modificar);
+        String baja = mensaje(() -> recursoService.darDeBaja(material.getIdTemaRecurso(), fausto()));
+        assertTrue(baja.contains("No se puede dar de baja") && baja.contains("1 otro tema asociado"), baja);
+        assertFalse(material.getBaja());
+
+        // cuando el otro tema deja de usarlo, vuelve a poder modificarse
+        uso.marcarInactivo();
+        assertEquals(0, recursoService.contarOtrosUsos(material));
+        recursoService.modificar(material.getIdTemaRecurso(), fausto(),
+                datos("Otro título", null, "https://sitio.com/compartido", null), null);
+        assertEquals("Otro título", material.getRecurso().getTitulo());
+    }
+
+    // ------------------------------------------------------------------ Biblioteca: recursos del docente, sin tema
+
+    @Test
+    @DisplayName("Biblioteca: registra un recurso sin tema, en la carpeta de la biblioteca del docente, y lo lista entre sus recursos")
+    void registraUnRecursoEnLaBiblioteca() {
+        Recurso recurso = recursoService.subirABiblioteca(fausto(), "GRABACION",
+                new DatosRecurso("Clase suelta", null, false, null, null, null, null, null, null, 30, false), archivo("clase.mp4", MP4), true);
+
+        String esperada = "biblioteca/docente" + fausto().getIdDocente() + "/recurso" + recurso.getIdRecurso() + ".mp4";
+        assertEquals(esperada, recurso.getRutaArchivo());
+        assertTrue(Files.exists(directorioCursos.resolve(esperada)));
+        assertFalse(recurso.getPrivado());
+        assertEquals(0, recursoService.contarUsos(recurso));
+        assertTrue(recursoService.buscarRecursosDelDocente(fausto()).contains(recurso));
+        assertFalse(recursoService.buscarRecursosDelDocente(docente("sebastian.bordato@idoneos.online")).contains(recurso));
+    }
+
+    @Test
+    @DisplayName("Biblioteca: pide aceptar los términos y condiciones para registrar un recurso")
+    void exigeTerminosAlRegistrar() {
+        String mensaje = mensaje(() -> recursoService.subirABiblioteca(fausto(), "ENLACE",
+                datos("Sin términos", null, "https://sitio.com/sin-terminos", null), null, false));
+        assertTrue(mensaje.contains("términos"), mensaje);
+    }
+
+    @Test
+    @DisplayName("Biblioteca: modifica y da de baja un recurso sin usar; si un tema lo usa o es de otro docente, no se puede")
+    void modificaYDaDeBajaEnLaBiblioteca() {
+        Recurso recurso = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                datos("Enlace suelto", null, "https://sitio.com/suelto", null), null, true);
+
+        // otro docente no puede tocarlo
+        String ajeno = mensaje(() -> recursoService.modificarEnBiblioteca(recurso.getIdRecurso(), docente("sebastian.bordato@idoneos.online"),
+                datos("Robado", null, "https://sitio.com/suelto", null), null));
+        assertTrue(ajeno.contains("pertenece a otro docente"), ajeno);
+        assertTrue(mensaje(() -> recursoService.darDeBajaEnBiblioteca(recurso.getIdRecurso(), docente("sebastian.bordato@idoneos.online")))
+                .contains("pertenece a otro docente"));
+
+        // sin usos se modifica
+        recursoService.modificarEnBiblioteca(recurso.getIdRecurso(), fausto(),
+                new DatosRecurso("Enlace renombrado", "Con descripción", false, null, "https://sitio.com/suelto", null, null, null, null, null, false), null);
+        assertEquals("Enlace renombrado", recurso.getTitulo());
+        assertFalse(recurso.getPrivado());
+
+        // un tema lo usa: no se modifica ni se da de baja
+        Tema tema = temaDeRentaFija();
+        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getDocenteCurso();
+        TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(tema, recurso, participacion, 99));
+        recurso.getTemasRecurso().add(uso);
+        assertEquals(1, recursoService.contarUsos(recurso));
+        String modificar = mensaje(() -> recursoService.modificarEnBiblioteca(recurso.getIdRecurso(), fausto(),
+                datos("Otro", null, "https://sitio.com/suelto", null), null));
+        assertTrue(modificar.contains("No se puede modificar") && modificar.contains("1 tema asociado"), modificar);
+        String baja = mensaje(() -> recursoService.darDeBajaEnBiblioteca(recurso.getIdRecurso(), fausto()));
+        assertTrue(baja.contains("No se puede dar de baja") && baja.contains("1 tema asociado"), baja);
+
+        // cuando deja de usarse, se da de baja
+        uso.marcarInactivo();
+        recursoService.darDeBajaEnBiblioteca(recurso.getIdRecurso(), fausto());
+        assertTrue(recurso.getBaja());
+        assertFalse(recursoService.buscarRecursosDelDocente(fausto()).contains(recurso));
+    }
+
+    @Test
+    @DisplayName("Biblioteca: explorar muestra los recursos públicos de otros docentes y no los propios ni los privados")
+    void exploraLosRecursosPublicosDeOtros() {
+        Docente sebastian = docente("sebastian.bordato@idoneos.online");
+        Recurso publicoDeSebastian = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                new DatosRecurso("Público de Sebastián", null, false, null, "https://sitio.com/pub", null, null, null, null, null, false), null, true);
+        Recurso privadoDeSebastian = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                datos("Privado de Sebastián", null, "https://sitio.com/priv", null), null, true);
+        Recurso publicoDeFausto = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                new DatosRecurso("Público de Fausto", null, false, null, "https://sitio.com/fausto", null, null, null, null, null, false), null, true);
+
+        List<Recurso> exploraFausto = recursoService.buscarRecursosPublicos(fausto());
+        assertTrue(exploraFausto.contains(publicoDeSebastian));
+        assertFalse(exploraFausto.contains(privadoDeSebastian));
+        assertFalse(exploraFausto.contains(publicoDeFausto));
+        assertTrue(recursoService.buscarRecursosPublicos(null).contains(publicoDeFausto));
+    }
+
+    @Test
+    @DisplayName("Biblioteca: el administrador ve todos los recursos y puede dar de baja uno sin usar; si un tema lo usa, no")
+    void administradorVeTodoYDaDeBaja() {
+        Recurso privado = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                datos("Privado de Fausto", null, "https://sitio.com/admin-priv", null), null, true);
+        Recurso publico = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                new DatosRecurso("Público de Fausto", null, false, null, "https://sitio.com/admin-pub", null, null, null, null, null, false), null, true);
+
+        List<Recurso> todos = recursoService.buscarTodosLosRecursos();
+        assertTrue(todos.contains(privado) && todos.contains(publico));
+
+        // usado por un tema: no se puede dar de baja
+        Tema tema = temaDeRentaFija();
+        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getDocenteCurso();
+        TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(tema, publico, participacion, 98));
+        publico.getTemasRecurso().add(uso);
+        String bloqueada = mensaje(() -> recursoService.darDeBajaComoAdministrador(publico.getIdRecurso()));
+        assertTrue(bloqueada.contains("No se puede dar de baja") && bloqueada.contains("1 tema asociado"), bloqueada);
+        assertFalse(publico.getBaja());
+
+        // sin usos se da de baja y deja de listarse
+        recursoService.darDeBajaComoAdministrador(privado.getIdRecurso());
+        assertTrue(privado.getBaja());
+        assertFalse(recursoService.buscarTodosLosRecursos().contains(privado));
+    }
+
+    @Test
+    @DisplayName("Biblioteca: las bibliografías son siempre públicas, se registren donde se registren y se pida lo que se pida")
+    void lasBibliografiasSonPublicas() {
+        int tema = temaDeRentaFija().getIdTema();
+
+        TemaRecurso enElCurso = recursoService.subir(fausto(), tema, "BIBLIOGRAFIA", datos("Libro del curso", "Autor", null, "978-1-23-456789-7"), null, true);
+        assertFalse(enElCurso.getRecurso().getPrivado());
+
+        Recurso enLaBiblioteca = recursoService.subirABiblioteca(fausto(), "BIBLIOGRAFIA",
+                new DatosRecurso("Libro suelto", null, false, "Autor", null, "978-0-12-345678-9", null, null, null, null, true), null, true);
+        assertFalse(enLaBiblioteca.getPrivado());
+
+        recursoService.modificarEnBiblioteca(enLaBiblioteca.getIdRecurso(), fausto(),
+                new DatosRecurso("Libro suelto", null, false, "Autor", null, "978-0-12-345678-9", null, null, null, null, true), null);
+        assertFalse(enLaBiblioteca.getPrivado());
+    }
+
+    @Test
+    @DisplayName("Biblioteca: el dueño publica un recurso privado; otro docente no puede")
+    void publicaUnRecurso() {
+        Recurso recurso = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                datos("Para publicar", null, "https://sitio.com/publicar", null), null, true);
+        assertTrue(recurso.getPrivado());
+
+        String ajeno = mensaje(() -> recursoService.publicar(recurso.getIdRecurso(), docente("sebastian.bordato@idoneos.online")));
+        assertTrue(ajeno.contains("pertenece a otro docente"), ajeno);
+        assertTrue(recurso.getPrivado());
+
+        recursoService.publicar(recurso.getIdRecurso(), fausto());
+        assertFalse(recurso.getPrivado());
+    }
+
+    @Test
+    @DisplayName("Biblioteca: la baja de varios recursos es todos o ninguno")
+    void daDeBajaVariosRecursos() {
+        Recurso libre = recursoService.subirABiblioteca(fausto(), "ENLACE", datos("Libre", null, "https://sitio.com/libre", null), null, true);
+        Recurso enUso = recursoService.subirABiblioteca(fausto(), "ENLACE", datos("En uso", null, "https://sitio.com/en-uso", null), null, true);
+        Tema tema = temaDeRentaFija();
+        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getDocenteCurso();
+        enUso.getTemasRecurso().add(temaRecursoRepository.save(new TemaRecurso(tema, enUso, participacion, 97)));
+
+        String mensaje = mensaje(() -> recursoService.darDeBajaVariosEnBiblioteca(List.of(libre.getIdRecurso(), enUso.getIdRecurso()), fausto()));
+        assertTrue(mensaje.contains("No se puede dar de baja") && mensaje.contains("En uso"), mensaje);
+        assertFalse(libre.getBaja());
+        assertFalse(enUso.getBaja());
+
+        recursoService.darDeBajaVariosEnBiblioteca(List.of(libre.getIdRecurso()), fausto());
+        assertTrue(libre.getBaja());
+    }
+
+    @Test
+    @DisplayName("Biblioteca digital: el docente ve todos sus recursos, públicos y privados, y solo los públicos de otros")
+    void veSusRecursosYLosPublicosDeOtros() {
+        Docente sebastian = docente("sebastian.bordato@idoneos.online");
+        Recurso privadoPropio = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                datos("Privado propio", null, "https://sitio.com/vis-priv", null), null, true);
+        Recurso publicoPropio = recursoService.subirABiblioteca(fausto(), "ENLACE",
+                new DatosRecurso("Público propio", null, false, null, "https://sitio.com/vis-pub", null, null, null, null, null, false), null, true);
+        Recurso publicoAjeno = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                new DatosRecurso("Público ajeno", null, false, null, "https://sitio.com/vis-ajeno", null, null, null, null, null, false), null, true);
+        Recurso privadoAjeno = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                datos("Privado ajeno", null, "https://sitio.com/vis-priv-ajeno", null), null, true);
+
+        List<Recurso> visibles = recursoService.buscarRecursosVisibles(fausto());
+        assertTrue(visibles.contains(privadoPropio) && visibles.contains(publicoPropio) && visibles.contains(publicoAjeno));
+        assertFalse(visibles.contains(privadoAjeno));
+    }
+
+    @Test
+    @DisplayName("Reutilizar: registra en un tema un recurso público de otro docente, sin crear otro recurso")
+    void reutilizaUnRecursoPublicoDeOtroDocente() {
+        Docente sebastian = docente("sebastian.bordato@idoneos.online");
+        Recurso publico = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                new DatosRecurso("Enlace público", null, false, null, "https://sitio.com/reutilizar-pub", null, null, null, null, null, false), null, true);
+
+        TemaRecurso material = recursoService.reutilizar(fausto(), temaDeRentaFija().getIdTema(), publico.getIdRecurso());
+
+        assertEquals(publico.getIdRecurso(), material.getRecurso().getIdRecurso());
+        assertEquals(temaDeRentaFija().getIdTema(), material.getTema().getIdTema());
+        assertEquals(1, recursoService.contarUsos(publico));
+    }
+
+    @Test
+    @DisplayName("Reutilizar: no se puede registrar dos veces el mismo recurso en el mismo tema")
+    void noReutilizaDosVecesEnElMismoTema() {
+        TemaRecurso material = subirGrabacion("Clase para reutilizar");
+
+        String mensaje = mensaje(() -> recursoService.reutilizar(fausto(), material.getTema().getIdTema(), material.getRecurso().getIdRecurso()));
+
+        assertTrue(mensaje.contains("ya está en el tema"), mensaje);
+    }
+
+    @Test
+    @DisplayName("Reutilizar: un recurso privado de otro docente no está disponible")
+    void noReutilizaUnRecursoPrivadoAjeno() {
+        Recurso privadoAjeno = recursoService.subirABiblioteca(docente("sebastian.bordato@idoneos.online"), "ENLACE",
+                datos("Enlace privado ajeno", null, "https://sitio.com/reutilizar-priv", null), null, true);
+
+        String mensaje = mensaje(() -> recursoService.reutilizar(fausto(), temaDeRentaFija().getIdTema(), privadoAjeno.getIdRecurso()));
+
+        assertTrue(mensaje.contains("no se encuentra disponible"), mensaje);
+    }
+
+    @Test
+    @DisplayName("Reutilizar varios: se registran todos en el tema, o ninguno si alguno no se puede registrar")
+    void reutilizaVariosTodosONinguno() {
+        Docente sebastian = docente("sebastian.bordato@idoneos.online");
+        Recurso uno = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                new DatosRecurso("Varios 1", null, false, null, "https://sitio.com/varios-1", null, null, null, null, null, false), null, true);
+        Recurso dos = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                new DatosRecurso("Varios 2", null, false, null, "https://sitio.com/varios-2", null, null, null, null, null, false), null, true);
+        Recurso privadoAjeno = recursoService.subirABiblioteca(sebastian, "ENLACE",
+                datos("Varios privado", null, "https://sitio.com/varios-priv", null), null, true);
+        Integer tema = temaDeRentaFija().getIdTema();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> recursoService.reutilizar(fausto(), tema, List.of(uno.getIdRecurso(), privadoAjeno.getIdRecurso())));
+        assertEquals(0, recursoService.contarUsos(uno));
+
+        List<TemaRecurso> registrados = recursoService.reutilizar(fausto(), tema, List.of(uno.getIdRecurso(), dos.getIdRecurso()));
+        assertEquals(2, registrados.size());
+        assertEquals(1, recursoService.contarUsos(uno));
+        assertEquals(1, recursoService.contarUsos(dos));
+    }
+
+    @Test
+    @DisplayName("No se da de baja ni se oculta el único material de un tema si eso deja incompleto el diseño de un curso en marcha")
+    void noQuitaElUnicoMaterialDeUnCursoEnMarcha() {
+        TemaRecurso unico = temaRecursoRepository.findAll().stream().filter(m -> !m.getBaja() && m.getModalidadAsociada() == null)
+                .filter(m -> m.getTema().getProgramasQueLaIncluyen().stream().anyMatch(p -> p.tieneCohortesActivas()))
+                .filter(m -> m.getTema().getMaterialesPublicados().stream().filter(x -> x.getModalidadAsociada() == null).count() == 1)
+                .filter(m -> recursoService.contarOtrosUsos(m) == 0)
+                .findFirst().orElse(null);
+        org.junit.jupiter.api.Assumptions.assumeTrue(unico != null, "la semilla no tiene un tema con un único material en un curso en marcha");
+        Docente docente = unico.getRecurso().getDocente();
+
+        String mensaje = mensaje(() -> recursoService.darDeBaja(unico.getIdTemaRecurso(), docente));
+
+        assertTrue(mensaje.contains("quedaría incompleto") || mensaje.contains("único"), mensaje);
     }
 }

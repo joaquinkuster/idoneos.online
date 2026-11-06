@@ -161,7 +161,7 @@ class PoolServiceTest {
         Pool marcoRegulatorio = pool("Marco regulatorio");
 
         assertTrue(marcoRegulatorio.tieneIntentosActivos());
-        assertError("ya tiene intentos", () -> poolService.modificar(marcoRegulatorio.getIdPool(), fausto(),
+        assertError("tiene intentos de autoevaluación asociados", () -> poolService.modificar(marcoRegulatorio.getIdPool(), fausto(),
                 "Marco regulatorio", dosPreguntas()));
     }
 

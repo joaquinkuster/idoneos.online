@@ -130,7 +130,7 @@ class AccederCursoControllerTest {
     void alumnoVeLaPortada() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")));
+                .andExpect(content().string(Matchers.containsString("class=\"ac-portada ac-entra-portada\"")));
     }
 
     @Test

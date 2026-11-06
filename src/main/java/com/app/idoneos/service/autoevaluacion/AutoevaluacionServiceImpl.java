@@ -253,9 +253,9 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         boolean seOculta = datos.oculto() && !autoevaluacion.getOculto();
         if (seOculta && quedariaSinAutoevaluacionVisible(tema, Set.of(autoevaluacion.getIdAutoevaluacion()))) {
             throw com.app.idoneos.util.RespuestaFormularioUtil.armarCampoInvalido("oculto",
-                    "Error! No se puede ocultar la autoevaluación «" + autoevaluacion.getNombre()
-                    + "»: es la única visible del tema «" + tema.getTitulo()
-                    + "» y su programa tiene cohortes en curso. Registrá otra autoevaluación antes.");
+                    com.app.idoneos.util.MensajeErrorUtil.armarAccionBloqueada("ocultar", "la autoevaluación", autoevaluacion.getNombre(),
+                            com.app.idoneos.util.MensajeErrorUtil.motivoDisenoIncompleto("es la única autoevaluación visible del tema «" + tema.getTitulo() + "»"),
+                            "Registrá otra antes de ocultarla."));
         }
 
         autoevaluacion.setIntentosPermitidos(datos.intentosPermitidos());
@@ -318,9 +318,9 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
             Tema tema = autoevaluacion.getTema();
             if (autoevaluacion.esVisible() && quedariaSinAutoevaluacionVisible(tema, dadasDeBaja)) {
                 throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("la autoevaluación",
-                        autoevaluacion.getNombre(), "es la única visible del tema «" + tema.getTitulo()
-                                + "» y su programa tiene cohortes en curso",
-                        "Registrá otra autoevaluación antes."));
+                        autoevaluacion.getNombre(),
+                        MensajeErrorUtil.motivoDisenoIncompleto("es la única autoevaluación visible del tema «" + tema.getTitulo() + "»"),
+                        "Registrá otra antes de darla de baja."));
             }
         }
         LocalDateTime ahora = LocalDateTime.now();
@@ -377,7 +377,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
      */
     private boolean quedariaSinAutoevaluacionVisible(Tema tema, Set<Integer> quitadas) {
         List<Autoevaluacion> visibles = tema.getAutoevaluacionesPublicadas();
-        return tema.tieneCohortesEnCurso() && !visibles.isEmpty()
+        return tema.tieneCohortesActivas() && !visibles.isEmpty()
                 && visibles.stream().allMatch(a -> quitadas.contains(a.getIdAutoevaluacion()));
     }
 

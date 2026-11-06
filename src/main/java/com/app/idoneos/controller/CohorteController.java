@@ -133,6 +133,7 @@ public class CohorteController {
             @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
             @RequestParam(value = "asignar", required = false) Integer asignar,
+            @RequestParam(value = "volver", required = false) String volver,
             @RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
@@ -237,6 +238,8 @@ public class CohorteController {
         model.addAttribute("programasDelCurso", todasLasCohortes.stream().filter(c -> c.esPendiente() && !c.getBaja() && c.getCantidadInscriptos() == 0)
                 .collect(java.util.stream.Collectors.toMap(Cohorte::getIdCohorte,
                         c -> c.getCurso().getProgramasActivos())));
+        // Si se llegó desde el diseño del curso (?volver=curso), al asignar el programa se vuelve al inicio del curso
+        model.addAttribute("volverAlCurso", asignar != null && "curso".equals(volver));
         // Desde el diseño del curso se llega con ?asignar=<cohorte>: se abre la ventana de asignar programa de esa cohorte
         model.addAttribute("abrirModal", asignar != null && ((java.util.Map<?, ?>) model.getAttribute("programasDelCurso")).containsKey(asignar)
                 ? "modalAsignarPrograma" + asignar : null);
@@ -323,16 +326,27 @@ public class CohorteController {
      */
     @PostMapping("/asignarPrograma/{id}")
     public ResponseEntity<Map<String, String>> asignarPrograma(@PathVariable("id") Integer id,
-            @RequestParam(value = "programaId", required = false) Integer programaId, Authentication authentication) {
+            @RequestParam(value = "programaId", required = false) Integer programaId,
+            @RequestParam(value = "volverAlCurso", defaultValue = "false") boolean volverAlCurso, Authentication authentication) {
         try {
             if (programaId == null) {
                 throw RespuestaFormularioUtil.armarCampoInvalido("programaId", "Error! Debe seleccionar el programa de la cohorte.");
             }
             Usuario usuario = (Usuario) authentication.getPrincipal();
             Cohorte cohorte = cohorteService.asignarPrograma(id, programaId, usuario.getDocente());
-            return RespuestaFormularioUtil.armarRespuestaExitosa(cohorte.esPendiente()
+            String mensaje = cohorte.esPendiente()
                     ? "Programa asignado. La cohorte sigue pendiente hasta que el contenido del programa esté completo."
-                    : "Programa asignado. La cohorte quedó activa.");
+                    : "Programa asignado. La cohorte quedó activa.";
+            // Desde el diseño del curso se vuelve al inicio del curso, donde sigue el diseño
+            if (!volverAlCurso) {
+                return RespuestaFormularioUtil.armarRespuestaExitosa(mensaje);
+            }
+            // Con la alerta del paso que sigue (o "Completaste el diseño"); si se descarta, igual se vuelve al curso
+            Integer cursoId = cohorte.getCurso().getIdCurso();
+            Map<String, String> cuerpo = new java.util.LinkedHashMap<>(
+                    panel.exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente()).getBody());
+            cuerpo.put("destino", "/curso/acceder/" + cursoId);
+            return ResponseEntity.ok(cuerpo);
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }

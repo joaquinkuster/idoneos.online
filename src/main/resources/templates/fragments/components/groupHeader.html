@@ -13,6 +13,16 @@
         </td>
     </tr>
 
+    <!-- Divisor de una tabla agrupada por un texto cualquiera (por ejemplo, el tipo de recurso): el mismo de una categoría, con el nombre y la
+         cantidad de filas del grupo en todo el listado filtrado. -->
+    <tr th:fragment="filaTipo(nombre, total)" class="pn-grupo pn-grupo-fila" data-grupo role="button" tabindex="0" aria-expanded="true">
+        <td colspan="99">
+            <i class="fa-solid fa-chevron-down pn-grupo-flecha" aria-hidden="true"></i>
+            <span class="pn-grupo-nombre" th:text="${nombre}">Grabación</span>
+            <span class="pn-grupo-conteo" th:text="${total + (total == 1 ? ' recurso' : ' recursos')}">6 recursos</span>
+        </td>
+    </tr>
+
     <!-- Encabezado de la carta de una categoría (cards): la etiqueta dorada, el nombre con la cantidad de cursos al lado y, a la derecha,
          el label que colapsa o expande la carta (core/tabla.js cambia "Ocultar cursos" por "Mostrar cursos"). -->
     <div th:fragment="carta(categoria, total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">

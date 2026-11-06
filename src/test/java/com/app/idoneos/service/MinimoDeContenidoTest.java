@@ -45,7 +45,7 @@ class MinimoDeContenidoTest {
     private Programa programa() {
         return programaRepository.findAll().stream()
                 .filter(p -> !p.getBaja() && p.getCurso().getNombre().equals("Mercado de Capitales Argentino")
-                        && p.tieneCohortesEnCurso())
+                        && p.tieneCohortesActivas())
                 .findFirst().orElseThrow();
     }
 
@@ -79,9 +79,9 @@ class MinimoDeContenidoTest {
         // Dar de baja todos los materiales deja al programa sin temas con material
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> materialService.darDeBajaVarios(materiales.stream().map(TemaRecurso::getIdTemaRecurso).toList(), null));
-        assertTrue(error.getMessage().startsWith("Error! No se puede dar de baja el material «"), error.getMessage());
-        assertTrue(error.getMessage().contains("»: es el único visible del tema «"), error.getMessage());
-        assertTrue(error.getMessage().endsWith("» y su programa tiene cohortes en curso. Registrá otro material antes."),
+        assertTrue(error.getMessage().startsWith("Error! No se puede dar de baja el recurso «"), error.getMessage());
+        assertTrue(error.getMessage().contains("»: es el único material publicado del tema «"), error.getMessage());
+        assertTrue(error.getMessage().endsWith("» y su curso tiene cohortes activas: el diseño del curso quedaría incompleto. Registrá otro antes de darlo de baja."),
                 error.getMessage());
         assertEquals(materiales.size(), materialesPublicados(programa).size()); // todo o nada: no se dio de baja ninguno
     }
@@ -120,8 +120,8 @@ class MinimoDeContenidoTest {
     }
 
     @Test
-    @DisplayName("El material de un tema que no cuenta para el mínimo se puede dar de baja")
-    void elMaterialDeUnaTemaQueNoCuentaSePuedeDarDeBaja() {
+    @DisplayName("El material de un tema que no cuenta para el mínimo tampoco se da de baja si deja incompleto el diseño del curso")
+    void elMaterialDeUnTemaQueNoCuentaParaElMinimoNoSeDaDeBajaSiDejaIncompletoElDiseno() {
         Programa programa = programa();
         // Un tema con material pero sin autoevaluación visible no cuenta para el mínimo
         TemaCronograma noCuenta = programa.getCronogramaOrdenado().stream()
@@ -132,7 +132,9 @@ class MinimoDeContenidoTest {
         int antes = programa.getCantidadTemasConMaterialPublicado();
         List<Integer> ids = noCuenta.getTema().getMateriales().stream().filter(m -> !m.getBaja() && !m.getOculto())
                 .map(TemaRecurso::getIdTemaRecurso).toList();
-        materialService.darDeBajaVarios(ids, null);
+        // El mínimo no lo impide, pero el tema se quedaría sin su único material o clase grabada: el diseño quedaría incompleto
+        String error = assertThrows(IllegalArgumentException.class, () -> materialService.darDeBajaVarios(ids, null)).getMessage();
+        assertTrue(error.contains("el diseño del curso quedaría incompleto"), error);
         assertEquals(antes, programa.getCantidadTemasConMaterialPublicado());
     }
 }

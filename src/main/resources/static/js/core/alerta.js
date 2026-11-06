@@ -64,6 +64,34 @@
             .then(function (r) { return r.isConfirmed; });
     };
 
+    /**
+     * Pregunta, al final del alta de un recurso en un curso, si se publica en la biblioteca digital (otros docentes podrán verlo). Si se
+     * acepta, lo publica.
+     */
+    window.preguntarPublicarRecurso = async function (idRecurso) {
+        var respuesta = await window.mostrarAviso({
+            tipo: 'info',
+            titulo: '¿Querés publicarlo en la biblioteca digital?',
+            texto: 'Otros docentes van a poder ver este recurso. Si preferís no hacerlo, queda privado.',
+            confirmar: 'Publicar',
+            cancelar: 'Ahora no'
+        });
+        if (!respuesta.isConfirmed) { return; }
+        try {
+            var resultado = await fetch('/biblioteca/publicar/' + idRecurso, {
+                method: 'POST', headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' }, credentials: 'same-origin'
+            });
+            var datos = await resultado.json();
+            if (resultado.ok && datos.mensaje) {
+                await window.mostrarExito(datos.mensaje);
+            } else {
+                await window.mostrarError(datos.error || 'Error! Ocurrió un error inesperado. Intente nuevamente.');
+            }
+        } catch (e) {
+            await window.mostrarError('Error! No se pudo conectar con el servidor. Intente nuevamente.');
+        }
+    };
+
     window.mostrarError = function (mensaje) {
         return window.mostrarAviso({ tipo: 'error', titulo: 'Atención', texto: mensaje });
     };

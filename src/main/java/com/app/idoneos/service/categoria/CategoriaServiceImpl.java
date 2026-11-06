@@ -186,8 +186,11 @@ public class CategoriaServiceImpl implements CategoriaService {
     public Categoria modificar(Integer idCategoria, String nombre, String descripcion) {
         Categoria categoria = categoriaRepository.findById(idCategoria).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra activa."));
-        if (contarInscripcionesActivas(categoria) > 0) {
-            throw new IllegalArgumentException("Error! La categoría tiene inscripciones activas asociadas y no puede modificarse.");
+        long inscripcionesActivas = contarInscripcionesActivas(categoria);
+        if (inscripcionesActivas > 0) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la categoría", categoria.getNombre(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(inscripcionesActivas, "inscripción activa asociada",
+                            "inscripciones activas asociadas"), ""));
         }
         if (nombre == null || nombre.isBlank()) {
             throw RespuestaFormularioUtil.armarCampoInvalido("nombre", "Error! El nombre de la categoría no puede quedar vacío.");

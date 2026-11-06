@@ -245,11 +245,11 @@ class AutoevaluacionServiceTest {
     @DisplayName("CU-66 y CU-67: no se oculta ni se da de baja la última autoevaluación visible de un tema con cohortes en curso")
     void ultimaAutoevaluacionVisible() {
         Autoevaluacion unica = autoevaluacion("Autoevaluación del tema 3");
-        assertTrue(tercera().tieneCohortesEnCurso());
+        assertTrue(tercera().tieneCohortesActivas());
 
-        assertError("única visible", () -> autoevaluacionService.modificar(unica.getIdAutoevaluacion(),
+        assertError("única autoevaluación visible", () -> autoevaluacionService.modificar(unica.getIdAutoevaluacion(),
                 fausto(), conCambios(unica, unica.getNombre(), "3", "", true)));
-        assertError("única visible", () -> autoevaluacionService.darDeBaja(unica.getIdAutoevaluacion(), fausto()));
+        assertError("única autoevaluación visible", () -> autoevaluacionService.darDeBaja(unica.getIdAutoevaluacion(), fausto()));
         assertFalse(unica.getOculto());
         assertFalse(unica.esInactivo());
 
@@ -259,7 +259,7 @@ class AutoevaluacionServiceTest {
         autoevaluacionService.modificar(unica.getIdAutoevaluacion(), fausto(),
                 conCambios(unica, unica.getNombre(), "3", "", true));
         assertTrue(unica.getOculto());
-        assertError("única visible", () -> autoevaluacionService.darDeBaja(otra.getIdAutoevaluacion(), fausto()));
+        assertError("única autoevaluación visible", () -> autoevaluacionService.darDeBaja(otra.getIdAutoevaluacion(), fausto()));
     }
 
     @Test

@@ -32,7 +32,7 @@
             <div class="ac-aviso ac-aviso-atraso" th:if="${programa != null and soloLecturaPorInscripciones}">
                 <div>
                     <strong>Cronograma en solo lectura</strong>
-                    <span>El programa tiene inscripciones activas: el cronograma no puede modificarse porque es lo que el alumno vio y pagó al inscribirse.</span>
+                    <span>El programa tiene <span th:text="${programa.cantidadInscripcionesActivas + (programa.cantidadInscripcionesActivas == 1 ? ' inscripción activa asociada' : ' inscripciones activas asociadas')}">2 inscripciones activas asociadas</span>: no se puede modificar su cronograma. Es lo que el alumno vio y pagó al inscribirse.</span>
                 </div>
             </div>
 

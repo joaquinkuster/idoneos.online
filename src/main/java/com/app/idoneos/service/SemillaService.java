@@ -1102,6 +1102,8 @@ public class SemillaService {
         String nombreAutor = autor.getDocente().getUsuario().getNombreCompleto();
         switch (tipo) {
             case BIBLIOGRAFIA -> {
+                recurso.setPrivado(false); // las bibliografías son siempre públicas
+                recursoRepository.save(recurso);
                 Bibliografia bibliografia = new Bibliografia(recurso, "978-987-00-0000-0", nombreAutor);
                 Object[] pdf = subirArchivoDeEjemplo(tema, recurso, "pdf");
                 bibliografia.setRutaArchivo((String) pdf[0]);

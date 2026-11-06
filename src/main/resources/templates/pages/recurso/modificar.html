@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
 <!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /recurso/modificar/{id}). -->
-    <div th:fragment="modal(m)" class="modal fade pn-modal" th:id="'modalModificarMaterial' + ${m.idTemaRecurso}" tabindex="-1" aria-hidden="true"
-         th:with="tipo=${m.tipo}, bibliografia=${m.recurso.bibliografia}">
+    <div th:fragment="modal(m, otrosUsos, esDuenio)" class="modal fade pn-modal" th:id="'modalModificarMaterial' + ${m.idTemaRecurso}" tabindex="-1" aria-hidden="true"
+         th:with="tipo=${m.tipo}, bibliografia=${m.recurso.bibliografia}, bloqueado=${otrosUsos > 0 or !esDuenio}">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
@@ -12,7 +12,7 @@
                 </div>
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/recurso/modificar/' + ${m.idTemaRecurso}}" method="post" enctype="multipart/form-data"
-                          class="form-ajax" data-validar novalidate data-pasos data-resumen="Material" data-modo="modificacion"
+                          class="form-ajax" data-validar novalidate data-pasos data-resumen="Recurso" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","atributoForm":"data-ctx-tema"}]'
                           th:attr="data-resumen-titulo=${'(' + m.titulo + ')'}, data-ctx-curso=${curso.nombre}, data-ctx-tema=${m.tema.titulo}">
     <div class="pn-pasos pn-pasos-nombrados">
@@ -20,9 +20,11 @@
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
+    <!-- Si otros temas usan el mismo recurso, el formulario queda deshabilitado y se avisa debajo -->
+    <fieldset class="pn-fieldset-plano" th:disabled="${bloqueado}">
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
-            <h4>Datos del material</h4>
+            <h4>Datos del recurso</h4>
             <p>Título, descripción y visibilidad</p>
         </div>
         <div class="row g-3">
@@ -53,7 +55,7 @@
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
-            <h4>Contenido del material</h4>
+            <h4>Contenido del recurso</h4>
             <p>Archivo o enlace y datos de la obra</p>
         </div>
         <div class="row g-3">
@@ -71,6 +73,10 @@
                                        th:attr="data-extensiones=${#strings.listJoin(tipoRecurso.extensionesPermitidas, ',')}, data-tamanio-mb=${tipoRecurso.tamanioMaximo / 1048576}">
                                 <small class="text-muted"
                                        th:text="${(m.recurso.tieneArchivo() ? 'Hay un archivo cargado. ' : 'No hay archivo cargado. ') + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(tipoRecurso.extensionesPermitidas, ', ')) + '. Máximo ' + (tipoRecurso.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
+                                <div class="rc-vista-previa" data-vista-previa th:if="${m.formatoDeVista == 'pdf' or m.formatoDeVista == 'video'}"
+                                     th:attr="data-fuente=@{'/recurso/archivo/' + ${m.idTemaRecurso}}, data-formato=${m.formatoDeVista}" hidden>
+                                    <canvas aria-label="Vista previa del archivo actual"></canvas>
+                                </div>
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
@@ -131,10 +137,19 @@
         </div>
         <div class="pn-arbol" data-resumen-arbol></div>
     </div>
+    </fieldset>
+
+    <div class="pn-aviso pn-aviso-dorado" th:if="${!esDuenio}">
+        El recurso pertenece a otro docente: solo su dueño puede <strong>modificarlo</strong>. Si ya no lo necesitás, podés darlo de baja de tu tema.
+    </div>
+    <div class="pn-aviso pn-aviso-dorado" th:if="${esDuenio and otrosUsos > 0}">
+        El recurso tiene <strong th:text="${otrosUsos + (otrosUsos == 1 ? ' otro tema asociado' : ' otros temas asociados')}">2 otros temas asociados</strong>: no se puede <strong>modificar</strong> mientras siga en uso, porque el cambio afectaría a quienes ya lo usan.
+    </div>
+
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente th:disabled="${bloqueado}">Siguiente</button>
         <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
     </div>
 </form>

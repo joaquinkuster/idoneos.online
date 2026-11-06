@@ -287,10 +287,13 @@ public class CohorteServiceImpl implements CohorteService {
         Cohorte cohorte = cohorteRepository.findById(idCohorte).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
         if (cohorte.esCancelada()) {
-            throw new IllegalArgumentException("Error! La cohorte está cancelada y no puede modificarse.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la cohorte", cohorte.getEtiqueta(),
+                    "está cancelada", ""));
         }
         if (cohorte.getCantidadInscriptos() > 0) {
-            throw new IllegalArgumentException("Error! La cohorte tiene inscripciones activas asociadas y no puede modificarse.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la cohorte", cohorte.getEtiqueta(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(cohorte.getCantidadInscriptos(), "inscripción activa asociada",
+                            "inscripciones activas asociadas"), ""));
         }
         boolean enVivo = cohorte.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
         validarDatosCohorte(cohorte.getCurso(), enVivo, fechaInicioInscripcion, fechaFinInscripcion,
@@ -328,7 +331,9 @@ public class CohorteServiceImpl implements CohorteService {
             throw new IllegalArgumentException("Error! Solo se puede asignar el programa a una cohorte pendiente.");
         }
         if (cohorte.getCantidadInscriptos() > 0) {
-            throw new IllegalArgumentException("Error! La cohorte tiene inscripciones activas asociadas y no puede modificarse.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("asignar el programa a", "la cohorte",
+                    cohorte.getEtiqueta(), "tiene " + MensajeErrorUtil.formatearCantidad(cohorte.getCantidadInscriptos(),
+                            "inscripción activa asociada", "inscripciones activas asociadas"), ""));
         }
         Programa programa = programaDelCurso(cohorte.getCurso(), idPrograma);
         cohorte.setPrograma(programa);

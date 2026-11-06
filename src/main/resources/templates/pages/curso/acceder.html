@@ -41,6 +41,7 @@
                 <!-- Diseño del curso para la cohorte de trabajo: los 5 pasos (datos, programa, temas, cronograma y contenido), con el
                      detalle del paso elegido debajo. Lo que era la página Diseño, para que sea lo primero que ve el docente -->
                 <section class="ec-card" th:if="${seccion == 'temas' and esDocente}"
+                    th:classappend="${cohorte != null} ? (${estadoDiseno.pasoActual == 6} ? 'ec-grupo completo' : 'ec-grupo')"
                     th:with="paso=${estadoDiseno.pasoActual}, completo=${estadoDiseno.pasoActual == 6},
                              datosOk=${estadoDiseno.datosCompletos}, progOk=${programa != null}, temasOk=${estadoDiseno.temasCompletos},
                              cronOk=${programa != null and estadoDiseno.duracionAsignada},
@@ -54,10 +55,21 @@
                             th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar programa</a>
                     </th:block>
                     <th:block th:if="${cohorte != null}">
-                        <div class="ec-fila">
-                            <strong class="ec-titulo">Diseño del curso</strong>
-                            <span class="ec-chip" th:classappend="${completo} ? 'ok' : 'pe'" th:text="${completo ? 'Completo' : 'Falta completar'}">Falta completar</span>
+                        <!-- Encabezado de grupo: llama la atención mientras falta completar el diseño y pasa a verde cuando está completo -->
+                        <div class="ec-grupo-cab">
+                            <i class="fa-solid ec-grupo-icono" th:classappend="${completo} ? 'fa-circle-check' : 'fa-circle-exclamation'" aria-hidden="true"></i>
+                            <div class="ec-grupo-textos">
+                                <span class="pn-grupo-etiqueta" th:text="${completo ? 'Todo listo' : 'Requiere tu acción'}">Requiere tu acción</span>
+                                <div class="pn-grupo-nombre-fila">
+                                    <h2 class="pn-grupo-titulo">Diseño del curso</h2>
+                                    <span class="pn-grupo-conteo" th:text="${completo ? 'Completo' : 'Paso ' + paso + ' de 5'}">Paso 3 de 5</span>
+                                </div>
+                            </div>
+                            <button type="button" class="ec-grupo-alternar" data-ec-alternar>
+                                <span data-ec-texto>Ocultar detalle</span><i class="fa-solid fa-chevron-up" aria-hidden="true"></i>
+                            </button>
                         </div>
+                        <div class="ec-grupo-cuerpo"><div class="ec-carta">
                         <div class="ec-pasos">
                             <button type="button" class="ec-paso" data-ec-paso="1" th:classappend="${datosOk} ? 'ok' : (${paso == 1} ? 'cur' : '')">
                                 <span class="ec-punto" th:text="${datosOk ? '✓' : '1'}">1</span><span class="ec-paso-nombre">Datos</span></button>
@@ -88,10 +100,10 @@
                                 <div class="ec-acciones" th:if="${puedeGestionar}">
                                     <!-- Lleva al listado de cohortes y abre ahí la ventana de asignar programa de esta cohorte -->
                                     <a class="pn-btn pn-btn-primario" th:if="${puedeAsignarPrograma and !#lists.isEmpty(programasDelCurso)}"
-                                        th:href="@{/cohorte/buscar(cursoId=${curso.idCurso}, asignar=${cohorte.idCohorte})}" th:text="${progOk ? 'Cambiar programa' : 'Asignar programa'}">Asignar programa</a>
+                                        th:href="@{/cohorte/buscar(cursoId=${curso.idCurso}, asignar=${cohorte.idCohorte}, volver='curso')}" th:text="${progOk ? 'Cambiar programa' : 'Asignar programa'}">Asignar programa</a>
                                     <a class="pn-btn pn-btn-primario" th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}"
                                         th:if="${#lists.isEmpty(programasDelCurso)}">Registrar programa</a>
-                                    <a class="pn-btn pn-btn-contorno" th:href="@{/programa/buscar(cursoId=${curso.idCurso})}"
+                                    <a class="pn-btn pn-btn-secundario" th:href="@{/programa/buscar(cursoId=${curso.idCurso})}"
                                         th:unless="${#lists.isEmpty(programasDelCurso)}">Ver programas</a>
                                 </div>
                             </div>
@@ -103,7 +115,7 @@
                                     <p class="ec-nota" th:text="${estadoDiseno.cantidadTemas + ' de ' + estadoDiseno.minimoTemas + (estadoDiseno.minimoTemas == 1 ? ' tema como mínimo.' : ' temas como mínimo.')}">3 de 2 temas como mínimo.</p>
                                     <div class="ec-acciones" th:if="${puedeGestionar}">
                                         <a class="pn-btn pn-btn-primario" th:href="@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}" th:text="${temasOk ? 'Registrar otro tema' : 'Registrar tema'}">Registrar tema</a>
-                                        <a class="pn-btn pn-btn-contorno" th:href="@{/tema/buscar(cursoId=${curso.idCurso})}" th:if="${estadoDiseno.cantidadTemas > 0}">Ver temas</a>
+                                        <a class="pn-btn pn-btn-secundario" th:href="@{/tema/buscar(cursoId=${curso.idCurso})}" th:if="${estadoDiseno.cantidadTemas > 0}">Ver temas</a>
                                     </div>
                                 </th:block>
                             </div>
@@ -142,8 +154,8 @@
                             <span class="ec-nota" th:if="${cohorte.esPendiente()}"
                                 th:text="${completo ? 'Diseño completo: la cohorte se activa sola.' : 'Completá el diseño antes del ' + #temporals.format(cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ', cuando abre la inscripción, o la cohorte se cancela.'}">Nota</span>
                             <span class="ec-nota" th:unless="${cohorte.esPendiente()}" th:text="${'Cohorte ' + #strings.toLowerCase(cohorte.estado) + '.'}">Cohorte en dictado.</span>
-                            <button type="button" class="ec-enlace" data-ec-alternar>Ocultar detalle</button>
                         </div>
+                        </div></div>
                     </th:block>
                 </section>
 
@@ -428,23 +440,28 @@
         var pasos = document.querySelectorAll('[data-ec-paso]');
         var paneles = detalle.querySelectorAll('[data-ec-panel]');
         var alternar = document.querySelector('[data-ec-alternar]');
+        var carta = alternar.closest('.ec-card');
+        function etiqueta(texto, oculto) {
+            alternar.querySelector('[data-ec-texto]').textContent = texto;
+            if (carta) { carta.classList.toggle('detalle-oculto', !!oculto); }
+        }
         function mostrar(n) {
             paneles.forEach(function (p) { p.hidden = p.dataset.ecPanel !== String(n); });
             pasos.forEach(function (b) { b.classList.toggle('sel', b.dataset.ecPaso === String(n)); });
             detalle.hidden = false;
-            alternar.textContent = 'Ocultar detalle';
+            etiqueta('Ocultar detalle', false);
         }
         pasos.forEach(function (b) { b.addEventListener('click', function () { mostrar(b.dataset.ecPaso); }); });
         alternar.addEventListener('click', function () {
             if (detalle.hidden) { mostrar(detalle.dataset.paso || detalle.dataset.pasoInicial); return; }
             detalle.hidden = true;
-            alternar.textContent = 'Ver detalle';
+            etiqueta('Ver detalle', true);
         });
         detalle.dataset.paso = detalle.dataset.pasoInicial;
         if (detalle.dataset.completo === 'true') {
             // Con el diseño completo no hay nada pendiente: el detalle arranca oculto
             detalle.hidden = true;
-            alternar.textContent = 'Ver detalle';
+            etiqueta('Ver detalle', true);
         } else {
             mostrar(detalle.dataset.pasoInicial);
         }
@@ -500,6 +517,16 @@
             var panel = document.getElementById('tema-' + orden.trim());
             if (panel) { window.bootstrap.Collapse.getOrCreateInstance(panel, { toggle: false }).show(); }
         });
+    })();
+</script>
+<script th:if="${puedeGestionar}">
+    // ?reutilizar=<recurso> (desde «Registrar en un tema» de la biblioteca digital): abre solo el selector de recursos en la pestaña
+    // «De la biblioteca» con ese recurso elegido, para que el docente solo elija el tema
+    (function () {
+        var recurso = new URL(window.location.href).searchParams.get('reutilizar');
+        if (recurso && window.abrirSelectorConRecurso) {
+            window.addEventListener('load', function () { window.setTimeout(function () { window.abrirSelectorConRecurso(recurso); }, 300); });
+        }
     })();
 </script>
 </body>

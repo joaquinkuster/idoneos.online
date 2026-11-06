@@ -174,8 +174,8 @@ public class PoolServiceImpl implements PoolService {
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
         obtenerParticipacion(pool.getTema().getCurso(), docente);
         if (pool.tieneIntentosActivos()) {
-            throw new IllegalArgumentException("Error! El contenido del pool «" + pool.getNombre()
-                    + "» no puede modificarse porque ya tiene intentos de autoevaluación asociados.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el contenido del pool", pool.getNombre(),
+                    "tiene intentos de autoevaluación asociados", ""));
         }
         String nombreLimpio = validarNombre(nombre, pool.getTema(), pool);
         validarPreguntas(preguntas);

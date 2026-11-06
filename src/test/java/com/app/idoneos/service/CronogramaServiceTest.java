@@ -230,7 +230,7 @@ class CronogramaServiceTest {
         assertTrue(programa.getCantidadInscripcionesActivas() > 0);
 
         assertTrue(mensaje(() -> cronogramaService.modificar(fausto(), programa.getIdPrograma(),
-                ids(programa), List.of("1", "1", "1"))).contains("tiene inscripciones activas"));
+                ids(programa), List.of("1", "1", "1"))).contains("inscripciones activas asociadas"));
     }
 
     @Test

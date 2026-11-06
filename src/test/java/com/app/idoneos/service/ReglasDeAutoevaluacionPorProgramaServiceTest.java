@@ -136,7 +136,7 @@ class ReglasDeAutoevaluacionPorProgramaServiceTest {
         sacarLasAutoevaluaciones(tipoDeCambio());
         String error = assertThrows(IllegalArgumentException.class,
                 () -> cronogramaService.modificar(fausto(), programa.getIdPrograma(), ids, semanas)).getMessage();
-        assertTrue(error.contains("cohortes en curso"), error);
+        assertTrue(error.contains("cohortes activas"), error);
         assertTrue(error.contains("«Tipo de cambio»"), error);
 
         // Si se quita del cronograma el tema sin autoevaluación, la modificación es válida

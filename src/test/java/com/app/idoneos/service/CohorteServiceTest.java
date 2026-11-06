@@ -342,7 +342,7 @@ class CohorteServiceTest {
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cohorteService.modificar(cancelada.getIdCohorte(), INICIO, INICIO.plusDays(30), null, 84, null));
-        assertEquals("Error! La cohorte está cancelada y no puede modificarse.", error.getMessage());
+        assertTrue(error.getMessage().startsWith("Error! No se puede modificar la cohorte «") && error.getMessage().endsWith("»: está cancelada."), error.getMessage());
     }
 
     @Test

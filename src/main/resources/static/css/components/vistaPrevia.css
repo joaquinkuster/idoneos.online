@@ -1,0 +1,23 @@
+/* Vista previa de los recursos en los formularios: la primera página de un PDF o un cuadro de un video, en una miniatura con un borde
+   fino, igual para los dos (sin margen ni esquinas redondeadas entre la imagen y el borde). */
+.rc-vista-previa {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 10px;
+    padding: 0;
+    border: 1px solid #CBD5E1; /* línea fina gris, igual en PDF y en grabaciones */
+    border-radius: 0;
+    background: #fff;
+}
+
+.rc-vista-previa[hidden] {
+    display: none;
+}
+
+.rc-vista-previa canvas {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 0;
+}

@@ -177,6 +177,194 @@ public class RecursoServiceImpl implements RecursoService {
         return inscripcionService.buscarConAccesoATema(alumno, material.getTema());
     }
 
+    // ---------------------------------------------------------------- Biblioteca del docente
+
+    @Override
+    public List<Recurso> buscarRecursosDelDocente(Docente docente) {
+        return recursoRepository.findByDocenteAndBajaFalse(docente).stream()
+                .sorted(Comparator.comparing(Recurso::getFechaCreacion).reversed()).toList();
+    }
+
+    @Override
+    public List<Recurso> buscarRecursosVisibles(Docente docente) {
+        return recursoRepository.findByBajaFalse().stream()
+                .filter(recurso -> !recurso.getPrivado() || (docente != null && recurso.getDocente().getIdDocente() == docente.getIdDocente()))
+                .sorted(Comparator.comparing(Recurso::getFechaCreacion).reversed()).toList();
+    }
+
+    @Override
+    public List<Recurso> buscarRecursosPublicos(Docente excluido) {
+        return recursoRepository.findByPrivadoFalseAndBajaFalse().stream()
+                .filter(recurso -> excluido == null || recurso.getDocente().getIdDocente() != excluido.getIdDocente())
+                .sorted(Comparator.comparing(Recurso::getFechaCreacion).reversed()).toList();
+    }
+
+    @Override
+    public List<Recurso> buscarTodosLosRecursos() {
+        return recursoRepository.findByBajaFalse().stream()
+                .sorted(Comparator.comparing(Recurso::getFechaCreacion).reversed()).toList();
+    }
+
+    @Override
+    @Transactional
+    public void darDeBajaComoAdministrador(Integer idRecurso) {
+        Recurso recurso = buscarRecursoPorId(idRecurso)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
+        darDeBajaSinUsos(recurso);
+    }
+
+    @Override
+    public boolean puedeVerEnBiblioteca(Recurso recurso, Usuario usuario) {
+        if (usuario.esAdministradorActivo()) {
+            return true;
+        }
+        Docente docente = usuario.getDocente();
+        return docente != null && (!recurso.getPrivado() || recurso.getDocente().getIdDocente() == docente.getIdDocente());
+    }
+
+    @Override
+    public Optional<Recurso> buscarRecursoPorId(Integer idRecurso) {
+        return recursoRepository.findById(idRecurso == null ? -1 : idRecurso).filter(recurso -> !recurso.esInactivo());
+    }
+
+    @Override
+    public long contarUsos(Recurso recurso) {
+        return recurso.getTemasRecurso().stream().filter(uso -> !uso.esInactivo()).count();
+    }
+
+    @Override
+    @Transactional
+    public Recurso subirABiblioteca(Docente docente, String tipoTexto, DatosRecurso datos, MultipartFile archivo, boolean terminos) {
+        if (docente == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+        }
+        TipoRecurso tipo = TipoRecurso.deTexto(tipoTexto);
+        if (tipo == null || !tipo.permiteSubidaManual()) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar un tipo de recurso de la lista.");
+        }
+        boolean hayArchivo = archivo != null && !archivo.isEmpty();
+        validarDatos(tipo, datos, hayArchivo, true);
+        validarIsbnNoRepetido(tipo, datos, -1);
+        if (hayArchivo) {
+            ManejadorArchivosUtil.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
+        }
+        if (!terminos) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("terminos",
+                    "Error! Debe aceptar los términos y condiciones sobre el contenido del recurso.");
+        }
+        Recurso recurso = new Recurso(docente, datos.titulo().trim());
+        recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
+        recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
+        recurso.setFechaAceptacionTyc(LocalDateTime.now());
+        recurso = recursoRepository.saveAndFlush(recurso); // para conocer su identificador
+        String ruta = hayArchivo ? guardarArchivoEnBiblioteca(recurso, docente, tipo, archivo) : null;
+        crearDatosPropios(recurso, tipo, datos, ruta, hayArchivo ? archivo.getSize() : null);
+        return recurso;
+    }
+
+    @Override
+    @Transactional
+    public Recurso modificarEnBiblioteca(Integer idRecurso, Docente docente, DatosRecurso datos, MultipartFile archivo) {
+        Recurso recurso = obtenerRecursoDelDocente(idRecurso, docente, "modificar");
+        TipoRecurso tipo = TipoRecurso.deTexto(recurso.getTipo());
+        if (tipo == null || !tipo.permiteSubidaManual()) {
+            throw new IllegalArgumentException("Error! Este tipo de recurso no se puede modificar manualmente.");
+        }
+        long usos = contarUsos(recurso);
+        if (usos > 0) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el recurso", recurso.getTitulo(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(usos, "tema asociado", "temas asociados"), ""));
+        }
+        boolean hayArchivo = archivo != null && !archivo.isEmpty();
+        validarDatos(tipo, datos, hayArchivo, false);
+        validarIsbnNoRepetido(tipo, datos, recurso.getIdRecurso());
+        if (hayArchivo) {
+            ManejadorArchivosUtil.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
+        }
+        String rutaAnterior = recurso.getRutaArchivo();
+        String rutaNueva = hayArchivo ? guardarArchivoEnBiblioteca(recurso, docente, tipo, archivo) : null;
+        if (rutaNueva != null && rutaAnterior != null && !rutaAnterior.equals(rutaNueva)) {
+            ManejadorArchivosUtil.eliminar(rutaAnterior, directorioCursos);
+        }
+        actualizarDatosPropios(recurso, tipo, datos, rutaNueva, hayArchivo ? archivo.getSize() : null);
+        recurso.setTitulo(datos.titulo().trim());
+        recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
+        recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
+        recurso.setUltimaModificacion(LocalDateTime.now());
+        return recursoRepository.save(recurso);
+    }
+
+    @Override
+    @Transactional
+    public void darDeBajaEnBiblioteca(Integer idRecurso, Docente docente) {
+        darDeBajaSinUsos(obtenerRecursoDelDocente(idRecurso, docente, "dar de baja"));
+    }
+
+    /** Da de baja el recurso si ningún tema lo usa. */
+    private void darDeBajaSinUsos(Recurso recurso) {
+        validarSinUsos(recurso);
+        marcarRecursoDeBaja(recurso);
+    }
+
+    /** Comprueba que ningún tema use el recurso; si alguno lo usa, la baja no se puede. */
+    private void validarSinUsos(Recurso recurso) {
+        long usos = contarUsos(recurso);
+        if (usos > 0) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", recurso.getTitulo(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(usos, "tema asociado", "temas asociados"),
+                    "Dé de baja primero su recurso en " + (usos == 1 ? "ese tema." : "esos temas.")));
+        }
+    }
+
+    private void marcarRecursoDeBaja(Recurso recurso) {
+        recurso.marcarInactivo();
+        recurso.setUltimaModificacion(LocalDateTime.now());
+        recursoRepository.save(recurso);
+    }
+
+    @Override
+    @Transactional
+    public void publicar(Integer idRecurso, Docente docente) {
+        Recurso recurso = obtenerRecursoDelDocente(idRecurso, docente, "publicar");
+        recurso.setPrivado(false);
+        recurso.setUltimaModificacion(LocalDateTime.now());
+        recursoRepository.save(recurso);
+    }
+
+    @Override
+    @Transactional
+    public void darDeBajaVariosEnBiblioteca(List<Integer> ids, Docente docente) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un recurso.");
+        }
+        List<Recurso> recursos = ids.stream().distinct().map(id -> obtenerRecursoDelDocente(id, docente, "dar de baja")).toList();
+        recursos.forEach(this::validarSinUsos); // todos o ninguno
+        recursos.forEach(this::marcarRecursoDeBaja);
+    }
+
+    /** Busca un recurso activo y comprueba que sea del docente. */
+    private Recurso obtenerRecursoDelDocente(Integer idRecurso, Docente docente, String accion) {
+        if (docente == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+        }
+        Recurso recurso = buscarRecursoPorId(idRecurso)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
+        if (recurso.getDocente().getIdDocente() != docente.getIdDocente()) {
+            String mensaje = "dar de baja".equals(accion)
+                    ? MensajeErrorUtil.armarBajaBloqueada("el recurso", recurso.getTitulo(), "pertenece a otro docente", "")
+                    : MensajeErrorUtil.armarAccionBloqueada(accion, "el recurso", recurso.getTitulo(), "pertenece a otro docente", "");
+            throw new IllegalArgumentException(mensaje);
+        }
+        return recurso;
+    }
+
+    private String guardarArchivoEnBiblioteca(Recurso recurso, Docente docente, TipoRecurso tipo, MultipartFile archivo) {
+        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(directorioCursos, docente.getIdDocente());
+        String nombre = ManejadorArchivosUtil.guardar(archivo, carpeta, "recurso" + recurso.getIdRecurso(),
+                tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
+        return ManejadorArchivosUtil.construirRutaRelativa(directorioCursos, carpeta.resolve(nombre));
+    }
+
     // ---------------------------------------------------------------- Creaciones
 
     /**
@@ -199,7 +387,7 @@ public class RecursoServiceImpl implements RecursoService {
         DocenteCurso participacion = obtenerParticipacion(tema.getCurso(), docente);
         TipoRecurso tipo = TipoRecurso.deTexto(tipoTexto);
         if (tipo == null || !tipo.permiteSubidaManual()) {
-            throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar un tipo de material de la lista.");
+            throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar un tipo de recurso de la lista.");
         }
         if (tipo == TipoRecurso.GRABACION && !tema.getCurso().incluyeModalidad(Modalidad.GRABADA)) {
             throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! El curso no tiene la modalidad '"
@@ -213,11 +401,12 @@ public class RecursoServiceImpl implements RecursoService {
         }
         if (!terminos) {
             throw RespuestaFormularioUtil.armarCampoInvalido("terminos",
-                    "Error! Debe aceptar los términos y condiciones sobre el contenido del material.");
+                    "Error! Debe aceptar los términos y condiciones sobre el contenido del recurso.");
         }
 
         Recurso recurso = new Recurso(docente, datos.titulo().trim());
         recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
+        recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
         recurso.setFechaAceptacionTyc(LocalDateTime.now());
         recurso = recursoRepository.saveAndFlush(recurso); // para conocer su identificador
         String ruta = hayArchivo ? guardarArchivo(recurso, tema, tipo, archivo) : null;
@@ -231,6 +420,60 @@ public class RecursoServiceImpl implements RecursoService {
         tema.getTemasRecurso().add(material);
         recurso.getTemasRecurso().add(material);
         return material;
+    }
+
+    /**
+     * Registra en un tema un recurso de la biblioteca digital.
+     */
+    @Override
+    @Transactional
+    public TemaRecurso reutilizar(Docente docente, Integer idTema, Integer idRecurso) {
+        return reutilizar(docente, idTema, List.of(idRecurso == null ? -1 : idRecurso)).get(0);
+    }
+
+    /**
+     * Registra en un tema varios recursos de la biblioteca digital (todos o ninguno): primero se valida cada uno y recién después se
+     * registran, así un recurso que no se puede registrar no deja a los demás a medias.
+     */
+    @Override
+    @Transactional
+    public List<TemaRecurso> reutilizar(Docente docente, Integer idTema, List<Integer> idsRecurso) {
+        List<Integer> ids = idsRecurso == null ? List.of() : idsRecurso.stream().filter(java.util.Objects::nonNull).distinct().toList();
+        if (ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe elegir al menos un recurso de la biblioteca.");
+        }
+        Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(u -> !u.esInactivo())
+                .orElseThrow(() -> RespuestaFormularioUtil.armarCampoInvalido("temaId", "Error! Debe seleccionar el tema."));
+        DocenteCurso participacion = obtenerParticipacion(tema.getCurso(), docente);
+        List<TemaRecurso> delTema = temaRecursoRepository.findByTemaAndBajaFalse(tema);
+        List<Recurso> recursos = new java.util.ArrayList<>();
+        for (Integer idRecurso : ids) {
+            Recurso recurso = recursoRepository.findById(idRecurso).filter(r -> !r.esInactivo())
+                    .filter(r -> !r.getPrivado() || r.getDocente().getIdDocente() == docente.getIdDocente())
+                    .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra disponible en la biblioteca."));
+            TipoRecurso tipo = TipoRecurso.deTexto(recurso.getTipo());
+            if (tipo == null || !tipo.permiteSubidaManual()) {
+                throw new IllegalArgumentException("Error! Este tipo de recurso no se puede registrar a mano en un tema.");
+            }
+            if (tipo == TipoRecurso.GRABACION && !tema.getCurso().incluyeModalidad(Modalidad.GRABADA)) {
+                throw new IllegalArgumentException("Error! El curso no tiene la modalidad '" + Modalidad.GRABADA
+                        + "': no puede registrarse una grabación.");
+            }
+            if (delTema.stream().anyMatch(m -> m.getRecurso().getIdRecurso() == recurso.getIdRecurso())) {
+                throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("registrar", "el recurso", recurso.getTitulo(),
+                        "ya está en el tema «" + tema.getTitulo() + "»", "Elegí otro tema."));
+            }
+            recursos.add(recurso);
+        }
+        int orden = delTema.stream().mapToInt(TemaRecurso::getNumeroOrden).max().orElse(0);
+        List<TemaRecurso> registrados = new java.util.ArrayList<>();
+        for (Recurso recurso : recursos) {
+            TemaRecurso material = temaRecursoRepository.save(new TemaRecurso(tema, recurso, participacion, ++orden));
+            tema.getTemasRecurso().add(material);
+            recurso.getTemasRecurso().add(material);
+            registrados.add(material);
+        }
+        return registrados;
     }
 
     // ---------------------------------------------------------------- Modificaciones
@@ -250,12 +493,21 @@ public class RecursoServiceImpl implements RecursoService {
     @Transactional
     public TemaRecurso modificar(Integer id, Docente docente, DatosRecurso datos, MultipartFile archivo) {
         TemaRecurso material = buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El material no se encuentra activo."));
+                .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
         obtenerParticipacion(material.getCurso(), docente);
+        if (!esDuenio(material, docente)) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el recurso", material.getTitulo(),
+                    "pertenece a otro docente", ""));
+        }
+        long otrosUsos = contarOtrosUsos(material);
+        if (otrosUsos > 0) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el recurso", material.getTitulo(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(otrosUsos, "otro tema asociado", "otros temas asociados"), ""));
+        }
         Recurso recurso = material.getRecurso();
         TipoRecurso tipo = TipoRecurso.deTexto(recurso.getTipo());
         if (tipo == null || !tipo.permiteSubidaManual()) {
-            throw new IllegalArgumentException("Error! Este tipo de material no se puede modificar manualmente.");
+            throw new IllegalArgumentException("Error! Este tipo de recurso no se puede modificar manualmente.");
         }
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatos(tipo, datos, hayArchivo, false);
@@ -268,7 +520,7 @@ public class RecursoServiceImpl implements RecursoService {
             // Volver a publicar un material cuya modalidad el curso ya no tiene
             String modalidad = material.getModalidadAsociada();
             if (modalidad != null && !material.getCurso().incluyeModalidad(modalidad)) {
-                throw RespuestaFormularioUtil.armarCampoInvalido("oculto", "Error! No se puede publicar el material «"
+                throw RespuestaFormularioUtil.armarCampoInvalido("oculto", "Error! No se puede publicar el recurso «"
                         + material.getTitulo() + "»: el curso no tiene la modalidad '" + modalidad + "'.");
             }
         }
@@ -276,8 +528,14 @@ public class RecursoServiceImpl implements RecursoService {
             programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), Set.of(material.getIdTemaRecurso())).ifPresent(motivo -> {
                 // El error es del campo "Visibilidad": se muestra debajo de él, como en las autoevaluaciones
                 throw RespuestaFormularioUtil.armarCampoInvalido("oculto",
-                        MensajeErrorUtil.armarAccionBloqueada("ocultar", "el material", material.getTitulo(), motivo,
-                                "Registrá otro material antes."));
+                        MensajeErrorUtil.armarAccionBloqueada("ocultar", "el recurso", material.getTitulo(), motivo,
+                                "Registrá otro antes de ocultarlo."));
+            });
+            // Ocultarlo no puede dejar el diseño del curso incompleto mientras el curso tiene cohortes activas
+            programaService.buscarMotivoDeDisenoIncompleto(material.getTema(), Set.of(material.getIdTemaRecurso())).ifPresent(motivo -> {
+                throw RespuestaFormularioUtil.armarCampoInvalido("oculto",
+                        MensajeErrorUtil.armarAccionBloqueada("ocultar", "el recurso", material.getTitulo(), motivo,
+                                "Registrá otro antes de ocultarlo."));
             });
         }
 
@@ -326,7 +584,7 @@ public class RecursoServiceImpl implements RecursoService {
     @Transactional
     public void darDeBajaVarios(List<Integer> ids, Docente docente) {
         if (ids == null || ids.isEmpty()) {
-            throw new IllegalArgumentException("Error! Debe seleccionar al menos un material.");
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un recurso.");
         }
         List<TemaRecurso> materiales = ids.stream().distinct().map(id -> validarBaja(id, docente)).toList();
         validarMinimoAlDarDeBaja(materiales);
@@ -335,9 +593,14 @@ public class RecursoServiceImpl implements RecursoService {
 
     private TemaRecurso validarBaja(Integer id, Docente docente) {
         TemaRecurso material = buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El material no se encuentra activo."));
+                .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
         if (docente != null) {
             obtenerParticipacion(material.getCurso(), docente);
+        }
+        long otrosUsos = contarOtrosUsos(material);
+        if (otrosUsos > 0) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", material.getTitulo(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(otrosUsos, "otro tema asociado", "otros temas asociados"), ""));
         }
         return material;
     }
@@ -346,8 +609,13 @@ public class RecursoServiceImpl implements RecursoService {
         Set<Integer> ids = materiales.stream().map(TemaRecurso::getIdTemaRecurso).collect(Collectors.toSet());
         for (TemaRecurso material : materiales) {
             programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), ids).ifPresent(motivo -> {
-                throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el material", material.getTitulo(), motivo,
-                        "Registrá otro material antes."));
+                throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", material.getTitulo(), motivo,
+                        "Registrá otro antes de darlo de baja."));
+            });
+            // El diseño del curso no puede pasar de completo a incompleto mientras el curso tiene cohortes activas
+            programaService.buscarMotivoDeDisenoIncompleto(material.getTema(), ids).ifPresent(motivo -> {
+                throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", material.getTitulo(), motivo,
+                        "Registrá otro antes de darlo de baja."));
             });
         }
     }
@@ -367,6 +635,19 @@ public class RecursoServiceImpl implements RecursoService {
     }
 
     // ---------------------------------------------------------------- Auxiliares
+
+    /** Indica si el docente es el dueño del recurso del material (solo él puede modificar el recurso). */
+    @Override
+    public boolean esDuenio(TemaRecurso material, Docente docente) {
+        return docente != null && material.getRecurso().getDocente().getIdDocente() == docente.getIdDocente();
+    }
+
+    /** Cuenta los otros temas activos que usan el mismo recurso. */
+    @Override
+    public long contarOtrosUsos(TemaRecurso material) {
+        return material.getRecurso().getTemasRecurso().stream()
+                .filter(uso -> !uso.esInactivo() && uso.getIdTemaRecurso() != material.getIdTemaRecurso()).count();
+    }
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
         return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
@@ -410,7 +691,7 @@ public class RecursoServiceImpl implements RecursoService {
                 throw RespuestaFormularioUtil.armarCampoInvalido("enlace", MensajeErrorUtil.armarFormatoInvalido("El enlace", "comienza con http:// o https://"));
             }
         } else if (enlace != null) {
-            throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de material no admite un enlace externo.");
+            throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de recurso no admite un enlace externo.");
         }
         if (tipo == TipoRecurso.BIBLIOGRAFIA) {
             String isbn = convertirVacioANulo(datos.isbn());
@@ -421,7 +702,7 @@ public class RecursoServiceImpl implements RecursoService {
             largoMaximo("editorial", "La editorial", convertirVacioANulo(datos.editorial()), LARGO_EDITORIAL);
         }
         if (tipo == TipoRecurso.ENLACE && hayArchivo) {
-            throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de material no lleva archivo.");
+            throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de recurso no lleva archivo.");
         }
         if (esAlta && !hayArchivo && (tipo == TipoRecurso.PRESENTACION || tipo == TipoRecurso.GRABACION)) {
             throw RespuestaFormularioUtil.armarCampoInvalido("archivo", tipo == TipoRecurso.GRABACION
@@ -477,7 +758,7 @@ public class RecursoServiceImpl implements RecursoService {
                 recurso.setGrabacion(grabacionRepository.save(grabacion));
             }
             case ENLACE -> recurso.setEnlace(enlaceRepository.save(new Enlace(recurso, convertirVacioANulo(datos.enlace()))));
-            default -> throw new IllegalArgumentException("Error! Este tipo de material no se puede cargar manualmente.");
+            default -> throw new IllegalArgumentException("Error! Este tipo de recurso no se puede cargar manualmente.");
         }
     }
 
@@ -524,7 +805,7 @@ public class RecursoServiceImpl implements RecursoService {
                 enlace.setUrl(convertirVacioANulo(datos.enlace()));
                 enlaceRepository.save(enlace);
             }
-            default -> throw new IllegalArgumentException("Error! Este tipo de material no se puede modificar manualmente.");
+            default -> throw new IllegalArgumentException("Error! Este tipo de recurso no se puede modificar manualmente.");
         }
     }
 

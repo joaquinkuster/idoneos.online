@@ -20,4 +20,18 @@ public interface RecursoRepository extends JpaRepository<Recurso, Integer> {
      * @return los recursos activos
      */
     List<Recurso> findByDocenteAndBajaFalse(com.app.idoneos.model.Docente docente);
+
+    /**
+     * Busca los recursos públicos activos: los que cualquier docente puede ver desde la biblioteca.
+     *
+     * @return los recursos públicos.
+     */
+    List<Recurso> findByPrivadoFalseAndBajaFalse();
+
+    /**
+     * Busca todos los recursos activos, públicos y privados (lo que ve el administrador).
+     *
+     * @return los recursos activos.
+     */
+    List<Recurso> findByBajaFalse();
 }

@@ -98,7 +98,7 @@ class AccederCursoDocenteControllerTest {
         int id = idCurso("Mercado de Capitales Argentino");
 
         mockMvc.perform(get("/curso/acceder/" + id)).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")))
+                .andExpect(content().string(Matchers.containsString("class=\"ac-portada ac-entra-portada\"")))
                 .andExpect(content().string(Matchers.containsString("Portada de Mercado de Capitales Argentino")))
                 // el botón "Curso" vuelve a ser un botón del menú, sin card
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))));
@@ -114,7 +114,7 @@ class AccederCursoDocenteControllerTest {
         curso.setImagen(null);
 
         mockMvc.perform(get("/curso/acceder/" + curso.getIdCurso())).andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("class=\"ac-portada\"")))
+                .andExpect(content().string(Matchers.containsString("class=\"ac-portada ac-entra-portada\"")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Portada de Macroeconomía"))));
     }
 

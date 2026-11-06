@@ -82,23 +82,23 @@ class CohorteTest {
         Cohorte cohorte = new Cohorte(null, ahora.minusDays(5), ahora.plusDays(30), 10);
         assertTrue(cohorte.esActiva());
         assertEquals("Abierta", cohorte.getEstado());
-        assertTrue(cohorte.estaEnCurso());
+        assertTrue(cohorte.estaActiva());
 
         cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.PENDIENTE));
         assertTrue(cohorte.esPendiente());
         assertEquals("Pendiente", cohorte.getEstado());
         assertFalse(cohorte.estaAbierta());
-        assertFalse(cohorte.estaEnCurso());
+        assertFalse(cohorte.estaActiva());
 
         cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.CANCELADA));
         assertTrue(cohorte.esCancelada());
         assertEquals("Cancelada", cohorte.getEstado());
         assertFalse(cohorte.estaAbierta());
-        assertFalse(cohorte.estaEnCurso());
+        assertFalse(cohorte.estaActiva());
 
         cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.ACTIVA));
         assertEquals("Abierta", cohorte.getEstado());
-        assertTrue(cohorte.estaEnCurso());
+        assertTrue(cohorte.estaActiva());
     }
 
     @Test

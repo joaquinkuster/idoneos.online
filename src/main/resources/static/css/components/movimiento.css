@@ -81,7 +81,17 @@
     animation: pnEntraHeroLado 0.65s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
 }
 
+/* Visores de recursos (el del curso y el de la biblioteca digital): la cabecera y el visor entran en cascada con el mismo fundido */
+.mv-cabecera,
+.mv-contenedor {
+    animation: pnEntraHero 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--hd, 0s) both;
+}
+
+.mv-cabecera { --hd: 0.05s; }
+.mv-contenedor { --hd: 0.18s; }
+
 @media (prefers-reduced-motion: reduce) {
+    .mv-cabecera, .mv-contenedor { animation: none !important; }
     .wf-hero-banner *, .wf-hero-section *, .ix-hero-titulo, .ix-hero-texto, .ix-hero-boton, .ix-hero-boton-contorno { animation: none !important; }
     .ac-entra-portada, .ac-entra > *, .ac-entra .ac-acordeon > .ac-tema { animation: none !important; }
     .pn-entra-menu { animation: none; }

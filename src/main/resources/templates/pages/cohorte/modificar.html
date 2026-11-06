@@ -83,7 +83,7 @@
         <div class="pn-arbol" data-resumen-arbol></div>
     </div>
     <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}">
-        La cohorte tiene <strong th:text="${cohorte.cantidadInscriptos}">1</strong> inscripción(es) activa(s) y no puede modificarse: son datos que el alumno vio y pagó al inscribirse.
+        La cohorte tiene <strong th:text="${cohorte.cantidadInscriptos + (cohorte.cantidadInscriptos == 1 ? ' inscripción activa asociada' : ' inscripciones activas asociadas')}">2 inscripciones activas asociadas</strong>: no se puede modificar. Es lo que el alumno vio y pagó al inscribirse.
     </div>
     <div class="pn-aviso pn-aviso-dorado" th:if="${cohorte.esPendiente()}">
         La cohorte está <strong>pendiente</strong>: se activa cuando el docente complete el contenido del programa.

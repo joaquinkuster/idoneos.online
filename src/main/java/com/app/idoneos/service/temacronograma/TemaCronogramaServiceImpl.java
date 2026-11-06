@@ -146,8 +146,10 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
             throw new IllegalArgumentException("Error! No participás en este curso.");
         }
         if (programa.getCantidadInscripcionesActivas() > 0) {
-            throw new IllegalArgumentException("Error! El programa tiene inscripciones activas: el cronograma no puede "
-                    + "modificarse porque es lo que el alumno vio y pagó al inscribirse.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                    programa.getNombre(), "tiene " + MensajeErrorUtil.formatearCantidad(programa.getCantidadInscripcionesActivas(),
+                            "inscripción activa asociada", "inscripciones activas asociadas"),
+                    MensajeErrorUtil.LO_QUE_EL_ALUMNO_VIO_Y_PAGO));
         }
 
         // Se valida todo lo que se recibió antes de cambiar algo
@@ -182,23 +184,26 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
                             "Error! Uno de los temas no se encuentra activa en este curso."));
             temas.put(id, tema);
         }
-        if (programa.tieneCohortesEnCurso()) {
+        if (programa.tieneCohortesActivas()) {
             List<String> sinAutoevaluacion = ids.stream().map(temas::get)
                     .filter(u -> u.getAutoevaluacionesPublicadas().isEmpty()).map(u -> "«" + u.getTitulo() + "»").toList();
             if (!sinAutoevaluacion.isEmpty()) {
-                throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: todos los temas del "
-                        + "cronograma deben tener al menos una autoevaluación visible. Faltan en: "
-                        + String.join(", ", sinAutoevaluacion) + ".");
+                throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                        programa.getNombre(), MensajeErrorUtil.motivoDisenoIncompleto("incluye "
+                                + (sinAutoevaluacion.size() == 1 ? "un tema sin autoevaluación visible: " : "temas sin autoevaluación visible: ")
+                                + String.join(", ", sinAutoevaluacion)),
+                        "Registrá una autoevaluación en " + (sinAutoevaluacion.size() == 1 ? "ese tema" : "esos temas") + " antes."));
             }
         }
 
-        if (programa.tieneCohortesEnCurso()) {
+        if (programa.tieneCohortesActivas()) {
             // El cronograma que se guarda debe conservar el mínimo de temas
             int minimo = programaService.buscarMinimoDeContenido();
             if (ids.size() < programa.getCantidadTemas() && ids.size() < minimo) {
-                throw new IllegalArgumentException("Error! El programa tiene cohortes en curso: debe conservar al menos "
-                        + MensajeErrorUtil.formatearCantidad(minimo, "tema", "temas")
-                        + " en su cronograma (quedaría con " + ids.size() + ").");
+                throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                        programa.getNombre(), MensajeErrorUtil.motivoDisenoIncompleto("debe conservar al menos "
+                                + MensajeErrorUtil.formatearCantidad(minimo, "tema", "temas") + " y quedaría con " + ids.size()),
+                        "Mantené al menos " + MensajeErrorUtil.formatearCantidad(minimo, "tema", "temas") + " en el cronograma."));
             }
         }
 

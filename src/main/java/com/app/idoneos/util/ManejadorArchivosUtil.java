@@ -62,6 +62,17 @@ public class ManejadorArchivosUtil {
     }
 
     /**
+     * Resuelve la carpeta de la biblioteca de un docente, donde se guardan los recursos que carga sin asociarlos a un tema.
+     *
+     * @param base      La carpeta base de los archivos de cursos.
+     * @param idDocente El identificador del docente.
+     * @return La carpeta {@code biblioteca/docente{id}} dentro de la carpeta base.
+     */
+    public static Path resolverCarpetaDeBiblioteca(Path base, int idDocente) {
+        return base.resolve("biblioteca").resolve("docente" + idDocente);
+    }
+
+    /**
      * Indica si una ruta guardada es un enlace externo (en lugar de un archivo del servidor).
      *
      * @param ruta La ruta guardada.

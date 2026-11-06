@@ -252,7 +252,7 @@ class ProgramaControllerTest {
         mockMvc.perform(post("/programa/modificar/" + conInscripciones).param("nombre", "Otro")
                 .param("objetivos", "Obj"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene inscripciones activas")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("inscripciones activas asociadas")));
     }
 
     @Test

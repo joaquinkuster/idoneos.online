@@ -122,8 +122,9 @@ body.pn-body {
     transition: margin-left 0.2s ease;
 }
 
-.pn-app.colapsado .pn-principal {
-    margin-left: 0;
+.pn-app.colapsado .pn-principal,
+.pn-app.sin-menu .pn-principal {
+    margin-left: 0; /* páginas del panel sin menú lateral (por ejemplo, la biblioteca digital) */
 }
 
 .pn-contenido {

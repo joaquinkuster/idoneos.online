@@ -80,18 +80,18 @@ class RecursoControllerTest {
     void docenteBuscaMaterial() throws Exception {
         mockMvc.perform(get("/recurso/buscar").param("cursoId", String.valueOf(idCursoPrincipal())))
                 .andExpect(status().isOk()).andExpect(view().name("pages/recurso/buscar"))
-                .andExpect(content().string(Matchers.containsString("Listado de materiales")))
+                .andExpect(content().string(Matchers.containsString("Listado de recursos")))
                 .andExpect(content().string(Matchers.containsString("Grabación: Estructura del mercado argentino")))
                 .andExpect(content().string(Matchers.containsString("Borrador: ejercicios de duration")))
                 .andExpect(content().string(Matchers.containsString("Oculto")))
-                .andExpect(content().string(Matchers.containsString("Subir material")))
+                .andExpect(content().string(Matchers.containsString("Registrar recurso")))
                 // sin botón "Ver": el material se abre desde su tema
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalVerMaterial"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-btn-ver"))))
                 // "Subir material" abre el formulario directamente, con el tipo como un campo más (sin selector)
                 .andExpect(content().string(Matchers.containsString("data-bs-target=\"#modalNuevoMaterial\"")))
                 .andExpect(content().string(Matchers.containsString("name=\"tipo\"")))
-                .andExpect(content().string(Matchers.containsString("Tipo de material")))
+                .andExpect(content().string(Matchers.containsString("Tipo de recurso")))
                 // los documentos son solo PDF
                 .andExpect(content().string(Matchers.containsString("data-extensiones=\"pdf\"")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Recomendamos PDF"))))
@@ -167,7 +167,7 @@ class RecursoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Borrador: ejercicios de duration")))
                 .andExpect(content().string(Matchers.containsString("Dar de baja")))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("Subir material"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar recurso"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalNuevoMaterial"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalModificarMaterial"))));
         mockMvc.perform(subir("Clase", "clase.mp4", MP4)).andExpect(status().isForbidden());

@@ -20,25 +20,25 @@
                 <i class="fa-solid fa-chevron-right"></i>
                 <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
                 <i class="fa-solid fa-chevron-right"></i>
-                <strong>Materiales</strong>
+                <strong>Recursos</strong>
             </nav>
 
             <div class="pn-encabezado">
                 <div>
-                    <h1 class="pn-titulo">Materiales</h1>
-                    <p class="pn-subtitulo" th:text="${'Gestiona las grabaciones, la bibliografía y las presentaciones de ' + curso.nombre}">Gestiona los materiales del curso</p>
+                    <h1 class="pn-titulo">Recursos</h1>
+                    <p class="pn-subtitulo" th:text="${'Gestiona los recursos de ' + curso.nombre + ': grabaciones, bibliografía, presentaciones y enlaces'}">Gestiona los recursos del curso</p>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
-                    <i class="fa-solid fa-plus"></i> Subir material
+                    <i class="fa-solid fa-plus"></i> Registrar recurso
                 </button>
             </div>
 
             <section class="pn-card" data-tabla data-tabla-servidor="/recurso/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
-                    <h2 class="pn-lista-titulo">Listado de materiales</h2>
+                    <h2 class="pn-lista-titulo">Listado de recursos</h2>
                     <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
-                            data-url="/recurso/darDeBajaMasiva" data-elementos="materiales"
+                            data-url="/recurso/darDeBajaMasiva" data-elementos="recursos"
                             data-termino-uno="elemento asociado" data-termino-varios="elementos asociados">Dar de baja seleccionado/s</button>
                 </div>
 
@@ -58,14 +58,17 @@
                                 <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Tipo" data-campo="tipo" data-filtro="lista" data-sin-busqueda>Tipo</th>
                                 <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
+                                <th data-col="Docente" data-campo="docente" data-filtro="lista">Docente</th>
                                 <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visibilidad</th>
+                                <th data-col="Biblioteca" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Biblioteca</th>
                                 <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'" data-dependencias="0">
+                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'"
+                                th:attr="data-dependencias=${otrosUsosPorMaterial != null ? otrosUsosPorMaterial.getOrDefault(m.idTemaRecurso, 0L) : 0}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>
                                 <td>
@@ -80,26 +83,34 @@
                                     </span>
                                 </td>
                                 <td><span class="pn-truncar pn-truncar-corto" th:text="${m.autor != null and !#strings.isEmpty(m.autor) ? m.autor : '—'}">Autor</span></td>
+                                <td><span class="pn-truncar" th:text="${m.recurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span></td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${m.oculto} ? 'pn-insignia-dorada' : 'pn-insignia-azul'"
                                           th:text="${m.oculto} ? 'Oculto' : 'Publicado'">Publicado</span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${m.recurso.privado} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
+                                          th:text="${m.recurso.privado} ? 'Privado' : 'Público'">Privado</span>
                                 </td>
                                 <td th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</td>
                                 <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
+                                        <a th:href="@{'/recurso/ver/' + ${m.idTemaRecurso}}" class="pn-btn pn-btn-ver pn-btn-chico" th:if="${!m.baja}">Ver</a>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
                                                 th:data-bs-target="'#modalModificarMaterial' + ${m.idTemaRecurso}"
                                                 th:data-modal-url="@{'/recurso/modificar/' + ${m.idTemaRecurso}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
                                                 data-bs-toggle="modal" data-bs-target="#modalBajaMaterial"
                                                 th:data-baja-accion="@{'/recurso/darDeBaja/' + ${m.idTemaRecurso}}"
-                                                th:data-baja-pregunta="'¿Confirmas dar de baja el material «' + ${m.titulo} + '»?'"
-                                                th:data-baja-nota="'El material dejará de mostrarse a los alumnos.'">Dar de baja</button>
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el recurso «' + ${m.titulo} + '»?'"
+                                                th:data-baja-nota="${otrosUsosPorMaterial != null and otrosUsosPorMaterial.getOrDefault(m.idTemaRecurso, 0L) > 0
+                                        ? 'Tiene ' + otrosUsosPorMaterial.get(m.idTemaRecurso) + (otrosUsosPorMaterial.get(m.idTemaRecurso) == 1 ? ' otro tema asociado' : ' otros temas asociados') + ': no se puede dar de baja.'
+                                        : 'El recurso dejará de mostrarse a los alumnos.'}">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-folder-open', 'No se encontraron materiales', 'Ningún material coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(11, 'fa-folder-open', 'No se encontraron recursos', 'Ningún recurso coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -125,19 +136,19 @@
     </div>
 </div>
 
-<!-- Modal: subir material (CU-29). Los datos que pide dependen del tipo elegido en el formulario -->
+<!-- Modal: registrar recurso (CU-29). Los datos que pide dependen del tipo elegido en el formulario -->
 <div class="modal fade pn-modal" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}"
      th:attr="data-abrir-tipo=${nuevoTipo}, data-tema=${temaSeleccionada}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
-                <h3 class="pn-modal-titulo">Subir material</h3>
+                <h3 class="pn-modal-titulo">Registrar recurso</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
                 <form th:action="@{/recurso/subir}" method="post" enctype="multipart/form-data" class="form-ajax"
                       data-validar data-validador="material" data-material-formulario novalidate
-                      data-pasos data-resumen="Material" data-modo="alta"
+                      data-pasos data-resumen="Recurso" data-modo="alta"
                       data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","campo":"temaId","atributo":"data-tema"}]' th:attr="data-ctx-curso=${curso.nombre}">
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
@@ -146,12 +157,12 @@
     </div>
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
-            <h4>Datos del material</h4>
+            <h4>Datos del recurso</h4>
             <p>Tipo, tema, título y visibilidad</p>
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta">Tipo de material <span class="pn-obligatorio">*</span></label>
+                            <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
                             <select name="tipo" class="pn-input" required>
                                 <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
                                         th:attr="data-nombre=${t.nombre},
@@ -198,7 +209,7 @@
     </div>
     <div class="pn-paso" data-grupo="Contenido">
         <div class="pn-seccion-titulo">
-            <h4>Contenido del material</h4>
+            <h4>Contenido del recurso</h4>
             <p data-material-ayuda>Archivo o enlace externo y datos de la obra</p>
         </div>
         <div class="row g-3">
@@ -206,6 +217,7 @@
                             <label class="pn-etiqueta"><span data-archivo-etiqueta>Archivo</span> <span class="pn-obligatorio" data-archivo-obligatorio>*</span></label>
                             <input type="file" name="archivo" class="pn-input pn-input-archivo">
                             <small class="text-muted" data-archivo-ayuda></small>
+                            <div class="rc-vista-previa" data-vista-previa hidden><canvas aria-label="Vista previa del archivo"></canvas></div>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-12 pn-campo" data-bloque="enlace" hidden>
@@ -293,9 +305,9 @@
     </div>
 </div>
 
-<!-- Modales por material: modificar (CU-30) y dar de baja (CU-31) -->
+<!-- Modales por recurso: modificar (CU-30) y dar de baja (CU-31) -->
 <th:block th:each="m : ${materiales}">
-    <!-- Modificar (solo docente, material activo) -->
+    <!-- Modificar (solo docente, recurso activo) -->
 
     <!-- Dar de baja -->
     <th:block th:if="${!m.baja}">
@@ -303,7 +315,7 @@
 </th:block>
 
 <!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
-<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaMaterial', 'material', '¿Confirmas dar de baja?', '', '/recurso/darDeBaja/0', null, null)}"></th:block>
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaMaterial', 'recurso', '¿Confirmas dar de baja?', '', '/recurso/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
 <script th:src="@{/js/core/modalModificar.js}"></script>

@@ -121,6 +121,12 @@ public class SecurityConfig {
                         // CU-02, CU-27 y CU-45: Ver mis cursos, Acceder curso e Inscribirse (Alumno)
                         // Intereses del alumno: las categorías que le interesan (se le preguntan al ingresar y se editan desde el menú)
                         .requestMatchers("/interes/**").hasRole("Alumno")
+                        // Mi biblioteca: los recursos del docente
+                        // Explorar y ver los recursos: el docente (los públicos y los suyos) y el administrador (todos); dar de baja, también ambos
+                        .requestMatchers(HttpMethod.GET, "/biblioteca/buscar", "/biblioteca/explorar", "/biblioteca/ver/*", "/biblioteca/archivo/*")
+                        .hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/biblioteca/darDeBaja/*").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/biblioteca/**").hasRole("Docente")
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
                         .requestMatchers("/recordatorio/**").hasRole("Alumno")
                         // CU-01 y CU-11: búsqueda de cursos y cohortes (Docente y Administrador)

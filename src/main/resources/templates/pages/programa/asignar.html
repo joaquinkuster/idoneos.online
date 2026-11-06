@@ -19,6 +19,8 @@
                                           data-pasos data-resumen="Cohorte" data-modo="modificacion" data-asignar-programa
                                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
                                           th:attr="data-ctx-curso=${coh.curso.nombre}, data-resumen-nombre=${coh.etiqueta}">
+                                        <!-- Si se llegó desde el diseño del curso, al terminar se vuelve al inicio del curso -->
+                                        <input type="hidden" name="volverAlCurso" value="true" th:if="${volverAlCurso == true}">
                                         <div class="pn-pasos pn-pasos-nombrados">
                                             <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos básicos</span></span><span class="pn-pasos-linea"></span>
                                             <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>

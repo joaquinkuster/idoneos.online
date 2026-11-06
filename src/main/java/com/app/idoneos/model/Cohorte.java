@@ -286,13 +286,13 @@ public class Cohorte {
     }
 
     /**
-     * Verifica si la cohorte todavía no terminó: es próxima, tiene la inscripción abierta o está en dictado. Los alumnos
-     * de una cohorte así cursan (o van a cursar) los temas del programa. Una cohorte pendiente o cancelada no cuenta:
-     * todavía no tiene alumnos ni los va a tener.
+     * Verifica si la cohorte está activa: es próxima, tiene la inscripción abierta o está en dictado, y todavía no terminó. Los
+     * alumnos de una cohorte así cursan (o van a cursar) los temas del programa. Una cohorte pendiente, cancelada o finalizada no
+     * cuenta: todavía no tiene alumnos ni los va a tener, o ya terminó.
      *
      * @return {@code true} si la cohorte está activa y no está finalizada.
      */
-    public boolean estaEnCurso() {
+    public boolean estaActiva() {
         return !baja && esActiva() && !"Finalizada".equals(getEstado());
     }
 

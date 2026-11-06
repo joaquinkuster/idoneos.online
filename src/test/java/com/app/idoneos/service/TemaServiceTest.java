@@ -283,7 +283,7 @@ class TemaServiceTest {
         Tema conInscripciones = mercado().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
         assertTrue(conInscripciones.tieneInscripcionesActivas());
         assertTrue(mensaje(() -> temaService.modificar(conInscripciones.getIdTema(), fausto(), "Otro", null,
-                "Contenido")).contains("tiene inscripciones activas asociadas"));
+                "Contenido")).contains("inscripciones activas asociadas"));
 
         List<TemaCronograma> cronograma = macro().getProgramaVigente().getCronogramaOrdenado();
         Tema tema = cronograma.get(0).getTema();

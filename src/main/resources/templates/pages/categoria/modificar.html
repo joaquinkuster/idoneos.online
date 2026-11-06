@@ -34,8 +34,9 @@
                                 <div class="pn-ayuda-error"></div>
                             </div>
                         </fieldset>
-                        <div class="pn-aviso pn-aviso-dorado">
-                            La categoría tiene inscripciones activas y no puede modificarse: es un dato que el alumno vio y pagó al inscribirse.
+                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}"
+                             th:with="cantidad=${inscripcionesPorCategoria.get(cat.idCategoria)}">
+                            La categoría tiene <strong th:text="${cantidad + (cantidad == 1 ? ' inscripción activa asociada' : ' inscripciones activas asociadas')}">2 inscripciones activas asociadas</strong>: no se puede modificar. Es lo que el alumno vio y pagó al inscribirse.
                         </div>
                         <div class="pn-modal-pie">
                             <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>

@@ -133,7 +133,7 @@ class CronogramaControllerTest {
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", cursoId(mercado())))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Cronograma en solo lectura")))
-                .andExpect(content().string(Matchers.containsString("tiene inscripciones activas")))
+                .andExpect(content().string(Matchers.containsString("inscripciones activas asociadas")))
                 .andExpect(content().string(Matchers.containsString("data-editable=\"false\"")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-panel-disponibles"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-modificar"))))
@@ -224,7 +224,7 @@ class CronogramaControllerTest {
         Programa conInscripciones = programaDe(mercado());
         mockMvc.perform(post("/cronograma/modificar").param("programaId", String.valueOf(conInscripciones.getIdPrograma())))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(Matchers.containsString("tiene inscripciones activas")));
+                .andExpect(jsonPath("$.error").value(Matchers.containsString("inscripciones activas asociadas")));
     }
 
     // ------------------------------------------------------------------ Enlaces

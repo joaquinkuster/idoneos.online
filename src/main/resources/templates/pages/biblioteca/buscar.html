@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app sin-menu" id="pnApp">
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Biblioteca digital</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Biblioteca digital</h1>
+                    <p class="pn-subtitulo" th:text="${esAdministrador ? 'Todos los recursos de los docentes, públicos y privados' : 'Tus recursos y los que compartieron otros docentes'}">Tus recursos y los que compartieron otros docentes</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:unless="${esAdministrador}" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
+                    <i class="fa-solid fa-plus"></i> Registrar recurso
+                </button>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/biblioteca/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de recursos</h2>
+                    <span class="pn-seleccionados" th:unless="${esAdministrador}" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" th:if="${esAdministrador}" data-total-filtradas data-singular="recurso encontrado" data-plural="recursos encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' recurso encontrado' : ' recursos encontrados')}">0 recursos encontrados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" th:unless="${esAdministrador}" data-baja-masiva
+                            data-url="/biblioteca/darDeBajaMasiva" data-elementos="recursos"
+                            data-termino-uno="tema asociado" data-termino-varios="temas asociados">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/biblioteca/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <!-- El tipo se elige con los chips de debajo: este campo solo lo lleva -->
+                    <input type="text" name="tipo" hidden tabindex="-1" aria-hidden="true">
+                    <a th:href="@{/biblioteca/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+                <!-- Chips de tipo (los dibuja core/tabla.js con los datos de la tabla) -->
+                <div class="pn-chips" data-chips-categorias></div>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion" th:unless="${esAdministrador}"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
+                                <th data-col="Tipo" data-campo="tipo">Tipo</th>
+                                <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
+                                <th data-col="ISBN" data-campo="isbn" data-filtro="texto">ISBN</th>
+                                <th data-col="Editorial" data-campo="editorial" data-filtro="texto" data-oculta>Editorial</th>
+                                <th data-col="Fecha de publicación" data-campo="fechaPublicacion" data-filtro="fecha" data-oculta>Fecha de publicación</th>
+                                <th data-col="Subido por" data-campo="docente" data-filtro="lista">Subido por</th>
+                                <th data-col="Biblioteca" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Biblioteca</th>
+                                <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}, data-chips=${chipsTipos}">
+                            <th:block th:each="r, it : ${recursos}" th:with="propio=${propios.contains(r.idRecurso)}">
+                            <th:block th:if="${agrupar == true and (it.first or recursos[it.index - 1].tipo != r.tipo)}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaTipo(${r.tipo}, ${recursosPorTipo.getOrDefault(r.tipo, 0L)})}"></tr>
+                            </th:block>
+                            <tr data-fila th:attr="data-dependencias=${usosPorRecurso.getOrDefault(r.idRecurso, 0L)}">
+                                <td class="pn-col-seleccion" th:unless="${esAdministrador}"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:if="${propio}" th:value="${r.idRecurso}"></td>
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${r.titulo}">Clase 3</span>
+                                </td>
+                                <td>
+                                    <span class="ac-tipo-celda">
+                                        <th:block th:replace="~{fragments/components/iconRecurso :: icon(${r.tipo}, 'ac-recurso-icon-chico')}"></th:block>
+                                        <span th:text="${r.tipo}">Grabación</span>
+                                    </span>
+                                </td>
+                                <td><span class="pn-truncar pn-truncar-corto" th:text="${r.autor != null and !#strings.isEmpty(r.autor) ? r.autor : '—'}">Autor</span></td>
+                                <td th:text="${r.bibliografia != null and !#strings.isEmpty(r.bibliografia.isbn) ? r.bibliografia.isbn : '—'}">978-987-00-0000-0</td>
+                                <td><span class="pn-truncar pn-truncar-corto" th:text="${r.bibliografia != null and !#strings.isEmpty(r.bibliografia.editorial) ? r.bibliografia.editorial : '—'}">Editorial</span></td>
+                                <td th:text="${r.bibliografia != null and r.bibliografia.fechaPublicacion != null ? #temporals.format(r.bibliografia.fechaPublicacion, 'dd/MM/yyyy') : '—'}">01/03/2020</td>
+                                <td><span class="pn-truncar" th:text="${propio ? 'Vos' : r.docente.usuario.nombreCompleto}">Vos</span></td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${r.privado} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
+                                          th:text="${r.privado} ? 'Privado' : 'Público'">Privado</span>
+                                </td>
+                                <td th:text="${r.generadoPorIa ? 'Sí' : 'No'}">No</td>
+                                <td th:text="${r.fechaCreacion != null ? #temporals.format(r.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <a th:href="@{'/biblioteca/ver/' + ${r.idRecurso}}" class="pn-btn pn-btn-ver pn-btn-chico">Ver</a>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${propio}"
+                                                th:data-bs-target="'#modalModificarRecurso' + ${r.idRecurso}"
+                                                th:data-modal-url="@{'/biblioteca/modificar/' + ${r.idRecurso}}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${propio or esAdministrador}"
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaRecurso"
+                                                th:data-baja-accion="@{'/biblioteca/darDeBaja/' + ${r.idRecurso}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el recurso «' + ${r.titulo} + '»?'"
+                                                th:data-baja-nota="${usosPorRecurso.getOrDefault(r.idRecurso, 0L) > 0
+                                                        ? 'Tiene ' + usosPorRecurso.get(r.idRecurso) + (usosPorRecurso.get(r.idRecurso) == 1 ? ' tema asociado' : ' temas asociados') + ': no se puede dar de baja.'
+                                                        : 'El recurso dejará de estar disponible en la biblioteca digital.'}">Dar de baja</button>
+                                        <!-- Más: solo el docente, y solo para los recursos que se registran a mano en un tema -->
+                                        <div class="dropdown" th:if="${!esAdministrador and r.tipo != 'Resumen' and r.tipo != 'Video clon'}">
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><button type="button" class="dropdown-item" data-registrar-en-tema
+                                                            th:attr="data-recurso-id=${r.idRecurso}, data-recurso-titulo=${r.titulo}, data-recurso-grabacion=${r.tipo == 'Grabación'}"
+                                                            th:disabled="${#lists.isEmpty(cursosDelDocente)}"
+                                                            th:title="${#lists.isEmpty(cursosDelDocente) ? 'No tenés cursos activos' : ''}">Registrar en un tema</button></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </th:block>
+                            <tr th:replace="~{fragments/components/empty :: fila(${esAdministrador ? 11 : 12}, 'fa-folder-open', 'No se encontraron recursos', 'Todavía no hay recursos o ninguno coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esAdministrador ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<!-- Ventana: registrar recurso. Los datos que pide dependen del tipo elegido en el formulario -->
+<div class="modal fade pn-modal" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true" th:unless="${esAdministrador}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar recurso</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/biblioteca/registrar}" method="post" enctype="multipart/form-data" class="form-ajax"
+                      data-validar data-validador="material" data-material-formulario novalidate
+                      data-pasos data-resumen="Recurso" data-modo="alta">
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del recurso</h4>
+            <p>Tipo, biblioteca, título y descripción</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
+                            <select name="tipo" class="pn-input" required>
+                                <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
+                                        th:attr="data-nombre=${t.nombre},
+                                                 data-extensiones=${#strings.listJoin(t.extensionesPermitidas, ',')},
+                                                 data-tamanio-mb=${t.tamanioMaximo / 1048576},
+                                                 data-descripcion=${t.descripcionDeSubida}">Grabación</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta" title="Privado: solo vos podés usarlo. Público: otros docentes pueden usarlo desde la biblioteca.">Biblioteca</label>
+                            <select name="privado" class="pn-input">
+                                <option value="true">Privado</option>
+                                <option value="false">Público</option>
+                            </select>
+                        </div>
+<div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 150</span>
+                            </div>
+                            <input type="text" name="titulo" class="pn-input" maxlength="150" placeholder="Título" data-contador required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+
+<div class="col-12 pn-campo">
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Descripción (opcional)</label>
+                                <span class="pn-contador">0 / 500</span>
+                            </div>
+                            <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" placeholder="Descripción" data-contador></textarea>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Contenido">
+        <div class="pn-seccion-titulo">
+            <h4>Contenido del recurso</h4>
+            <p data-material-ayuda>Archivo o enlace externo y datos de la obra</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo" data-bloque="archivo">
+                            <label class="pn-etiqueta"><span data-archivo-etiqueta>Archivo</span> <span class="pn-obligatorio" data-archivo-obligatorio>*</span></label>
+                            <input type="file" name="archivo" class="pn-input pn-input-archivo">
+                            <small class="text-muted" data-archivo-ayuda></small>
+                            <div class="rc-vista-previa" data-vista-previa hidden><canvas aria-label="Vista previa del archivo"></canvas></div>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-12 pn-campo" data-bloque="enlace" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Enlace externo <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 500</span>
+                            </div>
+                            <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="autor" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Autor <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 100</span>
+                            </div>
+                            <input type="text" name="autor" class="pn-input" maxlength="100" placeholder="Autor" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="isbn" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 17</span>
+                            </div>
+                            <input type="text" name="isbn" class="pn-input" maxlength="17" placeholder="978-0-00-000000-0" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="editorial" hidden>
+                            <div class="pn-etiqueta-fila">
+                                <label class="pn-etiqueta">Editorial (opcional)</label>
+                                <span class="pn-contador">0 / 100</span>
+                            </div>
+                            <input type="text" name="editorial" class="pn-input" maxlength="100" placeholder="Editorial" data-contador>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="fechaPublicacion" hidden>
+                            <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
+                            <input type="date" name="fechaPublicacion" class="pn-input">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="paginas" hidden>
+                            <label class="pn-etiqueta">Páginas</label>
+                            <input type="number" name="paginas" class="pn-input pn-bloqueado" readonly placeholder="Se calcula">
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-6 pn-campo" data-bloque="duracionMinutos" hidden>
+                            <label class="pn-etiqueta">Duración</label>
+                            <input type="hidden" name="duracionMinutos">
+                            <div class="pn-tiempo-fila">
+                                <label class="pn-tiempo-parte"><span>Minutos</span>
+                                    <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-minutos>
+                                </label>
+                                <label class="pn-tiempo-parte"><span>Segundos</span>
+                                    <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-segundos>
+                                </label>
+                            </div>
+                            <span class="visually-hidden" data-resumen-linea="Duración" data-duracion-linea></span>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-12 pn-campo" data-bloque="terminos" data-resumen-omitir>
+                            <label class="pn-casilla">
+                                <input type="checkbox" name="terminos" value="true" required
+                                       data-mensaje-obligatorio="Debe aceptar ser responsable del contenido.">
+                                <span><b>Términos y condiciones.</b> Acepto ser responsable del contenido que subo a la plataforma.</span>
+                            </label>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y subir</button>
+    </div>
+</form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Registrar un recurso de la biblioteca en un tema: se elige el curso y se sigue en el selector de recursos de ese curso -->
+<div class="modal fade pn-modal" id="modalRegistrarEnTema" tabindex="-1" aria-hidden="true" th:if="${!esAdministrador}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar en un tema</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <div class="pn-seccion-titulo">
+                    <h4>¿En qué curso querés registrarlo?</h4>
+                    <p data-registrar-descripcion>Se abre el selector de recursos de ese curso con el recurso elegido, para que elijas el tema.</p>
+                </div>
+                <div class="pn-campo">
+                    <label class="pn-etiqueta">Curso <span class="pn-obligatorio">*</span></label>
+                    <select class="pn-input" data-registrar-curso>
+                        <option value="">Seleccionar curso</option>
+                        <option th:each="c : ${cursosDelDocente}" th:value="${c.idCurso}" th:text="${c.nombre}"
+                                th:attr="data-grabada=${c.incluyeModalidad('Grabada')}">Curso</option>
+                    </select>
+                    <div class="pn-ayuda-error" data-registrar-error></div>
+                </div>
+                <div class="pn-modal-pie">
+                    <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-registrar-continuar>Continuar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        var modalEl = document.getElementById('modalRegistrarEnTema');
+        if (!modalEl) { return; }
+        var recurso = null;
+        var curso = modalEl.querySelector('[data-registrar-curso]');
+        var error = modalEl.querySelector('[data-registrar-error]');
+        document.addEventListener('click', function (e) {
+            var boton = e.target.closest('[data-registrar-en-tema]');
+            if (!boton || boton.disabled) { return; }
+            recurso = boton.dataset.recursoId;
+            // Una grabación solo se registra en cursos con la modalidad Grabada
+            Array.prototype.forEach.call(curso.options, function (o) {
+                o.hidden = !!o.value && boton.dataset.recursoGrabacion === 'true' && o.dataset.grabada !== 'true';
+            });
+            curso.value = '';
+            error.textContent = '';
+            curso.classList.remove('es-invalido');
+            modalEl.querySelector('[data-registrar-descripcion]').textContent = 'Se abre el selector de recursos de ese curso con «' + boton.dataset.recursoTitulo + '» elegido, para que elijas el tema.';
+            window.bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        });
+        modalEl.querySelector('[data-registrar-continuar]').addEventListener('click', function () {
+            if (!curso.value) {
+                curso.classList.add('es-invalido');
+                error.textContent = 'Debe seleccionar el curso.';
+                return;
+            }
+            window.location.href = '/curso/acceder/' + curso.value + '?reutilizar=' + recurso;
+        });
+    })();
+</script>
+
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaRecurso', 'recurso', '¿Confirmas dar de baja?', '', '/biblioteca/darDeBaja/0', null, null)}"></th:block>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
+<script th:src="@{/js/pages/recurso/recurso.js}"></script>
+</body>
+</html>

@@ -26,10 +26,11 @@
                         <!-- Administrador -->
                         <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar}" class="um-item um-item-sub">Panel administrador</a>
                         <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/curso/buscar?vista=cards}" class="um-item um-item-sub">Cursos</a>
+                        <a th:if="${usuario.esAdministradorActivo()}" th:href="@{/biblioteca/buscar}" class="um-item um-item-sub">Biblioteca digital</a>
 
-                        <!-- Docente («Mi biblioteca» todavía no tiene pantalla: se habilita más adelante) -->
+                        <!-- Docente -->
                         <a th:if="${usuario.esDocenteActivo()}" th:href="@{/curso/buscar}" class="um-item um-item-sub">Mis cursos</a>
-                        <button type="button" th:if="${usuario.esDocenteActivo()}" class="um-item um-item-sub" data-biblioteca>Mi biblioteca</button>
+                        <a th:if="${usuario.esDocenteActivo()}" th:href="@{/biblioteca/buscar}" class="um-item um-item-sub">Biblioteca digital</a>
 
                         <!-- Alumno -->
                         <a th:if="${usuario.esAlumnoActivo()}" th:href="@{/inscripcion/buscar}" class="um-item um-item-sub">Mis cursos</a>

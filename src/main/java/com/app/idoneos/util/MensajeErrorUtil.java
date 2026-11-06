@@ -30,6 +30,12 @@ public final class MensajeErrorUtil {
     }
 
     /**
+     * Lo que se aclara cuando no se puede modificar un programa, un tema o un cronograma que ya tiene inscripciones activas: es lo que el
+     * alumno vio y pagó. Es la misma oración en las tres ABM.
+     */
+    public static final String LO_QUE_EL_ALUMNO_VIO_Y_PAGO = "Es lo que el alumno vio y pagó al inscribirse.";
+
+    /**
      * Arma el mensaje de una baja que no se puede realizar, con la estructura
      * {@code Error! No se puede dar de baja {tipo} «{nombre}»: {motivo}. {qué hacer}}.
      *
@@ -59,6 +65,18 @@ public final class MensajeErrorUtil {
     public static String armarAccionBloqueada(String accion, String tipo, String nombre, String motivo, String queHacer) {
         String mensaje = "Error! No se puede " + accion + " " + tipo + " «" + nombre + "»: " + motivo + ".";
         return queHacer == null || queHacer.isBlank() ? mensaje : mensaje + " " + queHacer;
+    }
+
+    /**
+     * Cierre común de los motivos por los que no se puede quitar, ocultar o cambiar contenido de un curso con cohortes activas: el
+     * diseño del curso pasaría de completo a incompleto. Se usa en todos los pasos del diseño (temas, cronograma, material y
+     * autoevaluaciones) para que el mensaje sea siempre el mismo.
+     *
+     * @param detalle Lo que pasaría con el registro, sin punto final (por ejemplo, "es la única clase grabada publicada del tema «X»").
+     * @return El motivo completo, sin punto final.
+     */
+    public static String motivoDisenoIncompleto(String detalle) {
+        return detalle + " y su curso tiene cohortes activas: el diseño del curso quedaría incompleto";
     }
 
     /** El valor no tiene el formato esperado. */

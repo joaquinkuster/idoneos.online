@@ -129,6 +129,10 @@ public class RecursoController {
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
             PaginacionUtil.Pagina<TemaRecurso> pagina = Filtros.tabla.paginar(materiales, request.getParameterMap());
             PaginacionUtil.cargarEnModelo(model, pagina);
+            // Cuántos otros temas usan el recurso de cada material de la página: si hay alguno no se modifica ni se da de baja
+            Map<Integer, Long> otrosUsosPorMaterial = new java.util.HashMap<>();
+            pagina.filas().forEach(m -> otrosUsosPorMaterial.put(m.getIdTemaRecurso(), materialService.contarOtrosUsos(m)));
+            model.addAttribute("otrosUsosPorMaterial", otrosUsosPorMaterial);
             panel.cargarContexto(model, contexto, "materiales");
             model.addAttribute("abrirModal", abrirModal);
             model.addAttribute("temas", temas);
@@ -146,7 +150,7 @@ public class RecursoController {
             model.addAttribute("bajaSeleccionada", baja);
             model.addAttribute("nuevoTipo", nuevoValido && !esAdministrador ? nuevoTipo.name() : null);
             model.addAttribute("puedeGestionar", !esAdministrador);
-            model.addAttribute("titulo", "Materiales | Idóneos Online");
+            model.addAttribute("titulo", "Recursos | Idóneos Online");
             return "pages/recurso/buscar";
         } catch (IllegalArgumentException e) {
             return panel.volverAMisCursos(redirectAttributes, e);
@@ -263,12 +267,13 @@ public class RecursoController {
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "terminos", defaultValue = "false") boolean terminos,
+            @RequestParam(value = "privado", defaultValue = "true") boolean privado,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             TemaRecurso material = materialService.subir(usuario.getDocente(), temaId, tipo,
                     new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
-                            fechaPublicacion, duracionMinutos),
+                            fechaPublicacion, duracionMinutos, privado),
                     archivo, terminos);
             // Se muestra cómo quedó dentro del curso: el panel del curso con el tema del material expandido
             Programa vigente = material.getTema().getCurso().getProgramaVigente();
@@ -276,9 +281,111 @@ public class RecursoController {
                     .filter(u -> u.getTema().getIdTema() == material.getTema().getIdTema())
                     .map(u -> "?expandir=" + u.getNumeroOrden()).findFirst().orElse("");
             // Alerta guía: si todavía falta contenido, propone seguir completándolo
-            return panel.exitoConContenidoPendiente("Material '" + material.getTitulo() + "' subido con éxito.",
+            ResponseEntity<Map<String, String>> respuesta = panel.exitoConContenidoPendiente("Recurso '" + material.getTitulo() + "' subido con éxito.",
                     "/curso/acceder/" + material.getTema().getCurso().getIdCurso() + expandir,
                     material.getTema().getCurso().getIdCurso(), usuario.getDocente());
+            // Al final del alta se pregunta si se publica en la biblioteca digital (las bibliografías ya son públicas)
+            if (!material.getRecurso().getPrivado()) {
+                return respuesta;
+            }
+            Map<String, String> cuerpo = new java.util.LinkedHashMap<>(respuesta.getBody());
+            cuerpo.put("publicarId", String.valueOf(material.getRecurso().getIdRecurso()));
+            return ResponseEntity.ok(cuerpo);
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /**
+     * Lista los recursos de la biblioteca digital que el docente puede reutilizar en un tema: los suyos y los públicos de otros docentes.
+     * Alimenta la pestaña «De la biblioteca» del selector de recursos.
+     *
+     * @param tipo           El tipo de recurso (opcional: sin tipo trae todos los que se registran a mano).
+     * @param authentication La autenticación actual.
+     * @return La lista, con los del docente primero.
+     */
+    @GetMapping("/reutilizables")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public List<Map<String, Object>> reutilizables(@RequestParam(value = "tipo", required = false) String tipo,
+            Authentication authentication) {
+        Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
+        TipoRecurso buscado = TipoRecurso.deTexto(tipo);
+        List<Map<String, Object>> propios = new java.util.ArrayList<>();
+        List<Map<String, Object>> ajenos = new java.util.ArrayList<>();
+        for (com.app.idoneos.model.Recurso recurso : materialService.buscarRecursosVisibles(docente)) {
+            TipoRecurso tipoDelRecurso = TipoRecurso.deTexto(recurso.getTipo());
+            if (tipoDelRecurso == null || !tipoDelRecurso.permiteSubidaManual() || (buscado != null && tipoDelRecurso != buscado)) {
+                continue;
+            }
+            boolean propio = recurso.getDocente().getIdDocente() == docente.getIdDocente();
+            Map<String, Object> fila = new java.util.LinkedHashMap<>();
+            fila.put("id", recurso.getIdRecurso());
+            fila.put("titulo", recurso.getTitulo());
+            fila.put("tipo", tipoDelRecurso.name());
+            fila.put("autor", recurso.getAutor());
+            fila.put("isbn", recurso.getBibliografia() == null ? null : recurso.getBibliografia().getIsbn());
+            fila.put("detalle", detalleDeReutilizable(recurso, tipoDelRecurso));
+            fila.put("propio", propio);
+            fila.put("docente", recurso.getDocente().getUsuario().getNombreCompleto());
+            (propio ? propios : ajenos).add(fila);
+        }
+        propios.addAll(ajenos);
+        return propios;
+    }
+
+    /** La línea de información que se muestra bajo el título de un recurso reutilizable, según su tipo. */
+    private String detalleDeReutilizable(com.app.idoneos.model.Recurso recurso, TipoRecurso tipo) {
+        java.util.List<String> partes = new java.util.ArrayList<>();
+        switch (tipo) {
+            case BIBLIOGRAFIA -> {
+                partes.add(recurso.getAutor());
+                partes.add(recurso.getBibliografia() == null ? null : recurso.getBibliografia().getIsbn());
+            }
+            case PRESENTACION -> {
+                partes.add(recurso.getAutor());
+                Integer paginas = recurso.getMaterialLectura() == null ? null : recurso.getMaterialLectura().getPaginas();
+                partes.add(paginas == null ? null : paginas + (paginas == 1 ? " página" : " páginas"));
+            }
+            case GRABACION -> {
+                Integer minutos = recurso.getGrabacion() == null ? null : recurso.getGrabacion().getDuracionMinutos();
+                partes.add(minutos == null ? "Video" : String.format("Duración: %d:%02d:00", minutos / 60, minutos % 60));
+            }
+            case ENLACE -> {
+                String url = recurso.getEnlace() == null ? null : recurso.getEnlace().getUrl();
+                try {
+                    partes.add(url == null ? null : java.net.URI.create(url).getHost());
+                } catch (IllegalArgumentException e) {
+                    partes.add(url);
+                }
+            }
+            default -> { }
+        }
+        return partes.stream().filter(p -> p != null && !p.isBlank()).collect(java.util.stream.Collectors.joining(" · "));
+    }
+
+    /**
+     * Registra en un tema uno o varios recursos de la biblioteca digital (todos o ninguno). Responde en JSON, como el alta.
+     *
+     * @param temaId         El tema.
+     * @param recursoIds     Los recursos de la biblioteca.
+     * @param authentication La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito (y la alerta guía si todavía falta contenido) o el mensaje de error.
+     */
+    @PostMapping("/reutilizar")
+    public ResponseEntity<Map<String, String>> reutilizar(@RequestParam(value = "temaId", required = false) Integer temaId,
+            @RequestParam(value = "recursoIds", required = false) List<Integer> recursoIds, Authentication authentication) {
+        try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            List<TemaRecurso> materiales = materialService.reutilizar(usuario.getDocente(), temaId, recursoIds);
+            TemaRecurso primero = materiales.get(0);
+            Programa vigente = primero.getTema().getCurso().getProgramaVigente();
+            String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
+                    .filter(u -> u.getTema().getIdTema() == primero.getTema().getIdTema())
+                    .map(u -> "?expandir=" + u.getNumeroOrden()).findFirst().orElse("");
+            String mensaje = materiales.size() == 1 ? "Recurso '" + primero.getTitulo() + "' registrado en el tema."
+                    : materiales.size() + " recursos registrados en el tema.";
+            return panel.exitoConContenidoPendiente(mensaje, "/curso/acceder/" + primero.getTema().getCurso().getIdCurso() + expandir,
+                    primero.getTema().getCurso().getIdCurso(), usuario.getDocente());
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
@@ -310,14 +417,15 @@ public class RecursoController {
             @RequestParam(value = "paginas", required = false) Integer paginas,
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
+            @RequestParam(value = "privado", defaultValue = "true") boolean privado,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             materialService.modificar(id, usuario.getDocente(),
                     new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
-                            fechaPublicacion, duracionMinutos),
+                            fechaPublicacion, duracionMinutos, privado),
                     archivo);
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Material modificado correctamente.");
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
@@ -336,7 +444,7 @@ public class RecursoController {
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
             materialService.darDeBaja(id, docenteQueGestiona(authentication));
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Material dado de baja con éxito.");
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso dado de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
@@ -355,7 +463,7 @@ public class RecursoController {
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
         try {
             materialService.darDeBajaVarios(ids, docenteQueGestiona(authentication));
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Materiales dados de baja con éxito.");
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Recursos dados de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
@@ -366,7 +474,7 @@ public class RecursoController {
      * (destino "video" o "empty") desde el mismo sitio. Si el pedido es una navegación (destino "document"), un iframe
      * u otro sitio, o el navegador no informa el origen, se rechaza.
      */
-    private boolean esPedidoDeLaPlataforma(HttpServletRequest request) {
+    public static boolean esPedidoDeLaPlataforma(HttpServletRequest request) {
         String destino = request.getHeader("Sec-Fetch-Dest");
         String sitio = request.getHeader("Sec-Fetch-Site");
         return "same-origin".equals(sitio) && ("video".equals(destino) || "empty".equals(destino));
@@ -394,14 +502,16 @@ public class RecursoController {
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         TemaRecurso m = materialService.buscarPorId(id).filter(x -> !x.getBaja())
-                .orElseThrow(() -> new IllegalArgumentException("Error! El material no se encuentra disponible."));
+                .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra disponible."));
         ContextoCurso contexto = panel.contextoDelPanel(m.getCurso().getIdCurso(), (Usuario) authentication.getPrincipal());
         if (contexto.esAdministrador()) {
-            throw new IllegalArgumentException("Error! Solo el equipo docente modifica el material.");
+            throw new IllegalArgumentException("Error! Solo el equipo docente modifica el recurso.");
         }
         model.addAttribute("curso", contexto.curso());
         model.addAttribute("m", m);
-        return "pages/recurso/modificar :: modal(m=${m})";
+        model.addAttribute("otrosUsos", materialService.contarOtrosUsos(m)); // si es mayor a cero, el recurso está compartido: no se modifica
+        model.addAttribute("esDuenio", materialService.esDuenio(m, ((Usuario) authentication.getPrincipal()).getDocente()));
+        return "pages/recurso/modificar :: modal(m=${m}, otrosUsos=${otrosUsos}, esDuenio=${esDuenio})";
     }
 
 
@@ -419,7 +529,9 @@ public class RecursoController {
                 new FiltroUtil.Columna<TemaRecurso>("tema", FiltroUtil.Tipo.LISTA, m -> m.getTema().getTitulo()),
                 new FiltroUtil.Columna<TemaRecurso>("tipo", FiltroUtil.Tipo.LISTA, TemaRecurso::getTipo),
                 new FiltroUtil.Columna<TemaRecurso>("autor", FiltroUtil.Tipo.TEXTO, TemaRecurso::getAutor),
+                new FiltroUtil.Columna<TemaRecurso>("docente", FiltroUtil.Tipo.LISTA, m -> m.getRecurso().getDocente().getUsuario().getNombreCompleto()),
                 new FiltroUtil.Columna<TemaRecurso>("visibilidad", FiltroUtil.Tipo.LISTA, m -> m.getOculto() ? "Oculto" : "Publicado"),
+                new FiltroUtil.Columna<TemaRecurso>("biblioteca", FiltroUtil.Tipo.LISTA, m -> m.getRecurso().getPrivado() ? "Privado" : "Público"),
                 new FiltroUtil.Columna<TemaRecurso>("generadoPorIa", FiltroUtil.Tipo.LISTA,
                         m -> m.getRecurso().getGeneradoPorIa() ? "Sí" : "No"),
                 new FiltroUtil.Columna<TemaRecurso>("fechaCreacion", FiltroUtil.Tipo.FECHA,

@@ -162,3 +162,208 @@ a.ec-chip:hover { filter: brightness(.96); }
 .ac-contexto .sb-oculto {
     display: none;
 }
+
+/* ==========================================================================
+   Diseño del curso con encabezado de grupo: dorado mientras falta completar (como las cartas de "Pendientes de contenido") y verde cuando
+   está completo. Los pasos y el detalle van dentro de una carta blanca.
+   ========================================================================== */
+.ec-card.ec-grupo {
+    padding: 0;
+    overflow: hidden;
+    border-color: #D4A03D;
+    border-radius: 14px;
+    background: #FFFAEB;
+}
+
+.ec-grupo-cab {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 24px;
+    background: var(--pn-gold-soft, #FEF3C7);
+}
+
+.ec-grupo-icono {
+    flex: none;
+    font-size: 30px;
+    color: #B7791F;
+}
+
+.ec-grupo-textos {
+    flex: 1;
+    min-width: 0;
+}
+
+.ec-grupo .pn-grupo-titulo {
+    color: #7A4E0B;
+}
+
+.ec-grupo .pn-grupo-conteo {
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #fff;
+}
+
+.ec-grupo-alternar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7A4E0B;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.ec-grupo-alternar i {
+    font-size: 12px;
+    transition: transform 0.2s ease;
+}
+
+.ec-grupo.detalle-oculto .ec-grupo-alternar i {
+    transform: rotate(180deg);
+}
+
+.ec-grupo-cuerpo {
+    padding: 20px 24px 24px;
+    border-top: 1px solid #E8CC8A;
+}
+
+.ec-carta {
+    padding: 18px 20px 16px;
+    border: 1px solid var(--pn-borde, #E2E8F0);
+    border-radius: 12px;
+    background: #fff;
+}
+
+.ec-grupo .ec-pasos {
+    margin-top: 0;
+}
+
+.ec-grupo .ec-detalle {
+    margin-top: 12px;
+    padding: 14px 0 0;
+    border: 0;
+    border-top: 1px solid #E2E8F0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.ec-grupo .ec-pie {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid #E2E8F0;
+}
+
+/* Pasos en dorado, como los asistentes de los formularios, mientras falta completar */
+.ec-grupo:not(.completo) .ec-paso.ok .ec-punto {
+    background: #D4A03D;
+    border-color: #D4A03D;
+    color: #fff;
+}
+
+.ec-grupo:not(.completo) .ec-paso.ok:not(:last-child)::after {
+    background: #D4A03D;
+}
+
+.ec-grupo:not(.completo) .ec-paso.cur .ec-punto {
+    border-color: #D4A03D;
+    color: #8A6B1F;
+    box-shadow: 0 0 0 4px #FEF3C7;
+}
+
+.ec-grupo:not(.completo) .ec-paso.cur .ec-paso-nombre {
+    color: #8A6B1F;
+}
+
+.ec-grupo:not(.completo) .ec-paso.sel .ec-punto {
+    background: #B7791F;
+    border-color: #B7791F;
+    color: #fff;
+    box-shadow: none;
+}
+
+/* Completo: marco, encabezado y fondo en verde; los pasos ya son verdes */
+.ec-card.ec-grupo.completo {
+    border-color: #86EFAC;
+    background: #F0FDF4;
+}
+
+.completo .ec-grupo-cab {
+    background: #DCFCE7;
+}
+
+.completo .ec-grupo-icono {
+    color: #16A34A;
+}
+
+.completo .pn-grupo-etiqueta {
+    color: #166534;
+}
+
+.completo .pn-grupo-etiqueta::after {
+    background: #4ADE80;
+}
+
+.completo .pn-grupo-titulo,
+.completo .ec-grupo-alternar {
+    color: #14532D;
+}
+
+.completo .ec-grupo-cuerpo {
+    border-top-color: #BBF7D0;
+}
+
+/* Contenido del detalle (título, descripción, badge y botones): el título y la descripción con el tamaño de los de los modales, el badge
+   al lado del título y los botones abajo a la derecha, con el principal en el extremo */
+.ec-grupo .ec-cab {
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.ec-grupo .ec-detalle h4 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+.ec-grupo .ec-detalle .ec-nota {
+    margin: 15px 0;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.ec-grupo .ec-acciones {
+    flex-direction: row-reverse; /* el primer botón (el principal) queda a la derecha */
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.ec-grupo .ec-detalle > div[data-ec-panel] > .pn-btn {
+    display: block;
+    margin-left: auto; /* un botón suelto (por ejemplo "Completar datos") también va a la derecha */
+}
+
+/* Paso 5 (Contenido): más aire entre el título y la lista de temas, y sin la línea pegada al título */
+.ec-grupo .ec-detalle .ec-cab {
+    margin-bottom: 4px;
+}
+
+.ec-grupo .ec-detalle .ec-tema {
+    border-top: 0;
+}
+
+.ec-grupo .ec-detalle .ec-cab + .ec-tema {
+    margin-top: 15px;
+}
+
+.ec-grupo .ec-detalle .ec-acciones {
+    margin-top: 12px;
+}

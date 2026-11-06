@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /recurso/modificar/{id}). -->
+    <div th:fragment="modal(r, usos)" class="modal fade pn-modal" th:id="'modalModificarRecurso' + ${r.idRecurso}" tabindex="-1" aria-hidden="true"
+         th:with="tipo=${r.tipo}, bibliografia=${r.bibliografia}, bloqueado=${usos > 0}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo" th:text="${'Editar ' + #strings.toLowerCase(tipo)}">Editar grabación</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <form th:action="@{'/biblioteca/modificar/' + ${r.idRecurso}}" method="post" enctype="multipart/form-data"
+                          class="form-ajax" data-validar novalidate data-pasos data-resumen="Recurso" data-modo="modificacion"
+                          th:attr="data-resumen-titulo=${'(' + r.titulo + ')'}">
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <!-- Si otros temas usan el mismo recurso, el formulario queda deshabilitado y se avisa debajo -->
+    <fieldset class="pn-fieldset-plano" th:disabled="${bloqueado}">
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del recurso</h4>
+            <p>Título, descripción y biblioteca</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-8 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(r.titulo) + ' / 150'}">0 / 150</span>
+                                </div>
+                                <input type="text" name="titulo" class="pn-input" maxlength="150" th:value="${r.titulo}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-4 pn-campo">
+                                <label class="pn-etiqueta" title="Privado: solo vos podés usarlo. Público: otros docentes pueden usarlo desde la biblioteca.">Biblioteca</label>
+                                <select name="privado" class="pn-input" th:disabled="${tipo == 'Bibliografía'}">
+                                    <option value="true" th:selected="${r.privado and tipo != 'Bibliografía'}">Privado</option>
+                                    <option value="false" th:selected="${!r.privado or tipo == 'Bibliografía'}">Público</option>
+                                </select>
+                            </div>
+<div class="col-12 pn-campo">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Descripción (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(r.descripcion != null ? r.descripcion : '') + ' / 500'}">0 / 500</span>
+                                </div>
+                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" data-contador th:text="${r.descripcion}"></textarea>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Contenido">
+        <div class="pn-seccion-titulo">
+            <h4>Contenido del recurso</h4>
+            <p>Archivo o enlace y datos de la obra</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo" th:if="${tipo == 'Enlace'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Enlace externo <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(r.rutaArchivo) + ' / 500'}">0 / 500</span>
+                                </div>
+                                <input type="text" name="enlace" class="pn-input" maxlength="500" placeholder="https://" th:value="${r.rutaArchivo}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-12 pn-campo" th:if="${tipo != 'Enlace'}" th:with="tipoRecurso=${T(com.app.idoneos.service.recurso.RecursoService.TipoRecurso).deTexto(tipo)}">
+                                <label class="pn-etiqueta">Reemplazar archivo (opcional)</label>
+                                <input type="file" name="archivo" class="pn-input pn-input-archivo"
+                                       th:attr="data-extensiones=${#strings.listJoin(tipoRecurso.extensionesPermitidas, ',')}, data-tamanio-mb=${tipoRecurso.tamanioMaximo / 1048576}">
+                                <small class="text-muted"
+                                       th:text="${(r.tieneArchivo() ? 'Hay un archivo cargado. ' : 'No hay archivo cargado. ') + 'Formatos: ' + #strings.toUpperCase(#strings.listJoin(tipoRecurso.extensionesPermitidas, ', ')) + '. Máximo ' + (tipoRecurso.tamanioMaximo / 1048576) + ' MB.'}">Formatos</small>
+                                <div class="rc-vista-previa" data-vista-previa
+                                     th:if="${r.tieneArchivo() and !r.esEnlaceExterno() and (r.extension == 'pdf' or r.extension == 'mp4' or r.extension == 'webm')}"
+                                     th:attr="data-fuente=@{'/biblioteca/archivo/' + ${r.idRecurso}}, data-formato=${r.extension == 'pdf' ? 'pdf' : 'video'}" hidden>
+                                    <canvas aria-label="Vista previa del archivo actual"></canvas>
+                                </div>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Autor <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(r.autor != null ? r.autor : '') + ' / 100'}">0 / 100</span>
+                                </div>
+                                <input type="text" name="autor" class="pn-input" maxlength="100" th:value="${r.autor}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(bibliografia.isbn) + ' / 17'}">0 / 17</span>
+                                </div>
+                                <input type="text" name="isbn" class="pn-input" maxlength="17" th:value="${bibliografia.isbn}" data-contador required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+                                <div class="pn-etiqueta-fila">
+                                    <label class="pn-etiqueta">Editorial (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(bibliografia.editorial != null ? bibliografia.editorial : '') + ' / 100'}">0 / 100</span>
+                                </div>
+                                <input type="text" name="editorial" class="pn-input" maxlength="100" th:value="${bibliografia.editorial}" data-contador>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+                                <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
+                                <input type="date" name="fechaPublicacion" class="pn-input" th:value="${bibliografia.fechaPublicacion}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
+                                <label class="pn-etiqueta">Páginas</label>
+                                <input type="number" name="paginas" class="pn-input pn-bloqueado" readonly placeholder="Se calcula"
+                                       th:value="${tipo == 'Bibliografía' ? bibliografia.paginas : r.materialLectura.paginas}">
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Grabación'}" th:with="minutosGrabados=${r.grabacion.duracionMinutos}">
+                                <label class="pn-etiqueta">Duración</label>
+                                <input type="hidden" name="duracionMinutos" th:value="${minutosGrabados}">
+                                <div class="pn-tiempo-fila">
+                                    <label class="pn-tiempo-parte"><span>Minutos</span>
+                                        <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-minutos th:value="${minutosGrabados}">
+                                    </label>
+                                    <label class="pn-tiempo-parte"><span>Segundos</span>
+                                        <input type="number" class="pn-input pn-bloqueado" readonly placeholder="Se calcula" data-duracion-segundos th:value="${minutosGrabados != null ? 0 : ''}">
+                                    </label>
+                                </div>
+                                <span class="visually-hidden" data-resumen-linea="Duración" data-duracion-linea th:text="${minutosGrabados != null ? minutosGrabados + ' min' : ''}"></span>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Estos son los cambios que se van a guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    </fieldset>
+
+    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueado}">
+        El recurso tiene <strong th:text="${usos + (usos == 1 ? ' tema asociado' : ' temas asociados')}">2 temas asociados</strong>: no se puede <strong>modificar</strong> mientras siga en uso, porque el cambio afectaría a quienes ya lo usan.
+    </div>
+
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente th:disabled="${bloqueado}">Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+    </div>
+</form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

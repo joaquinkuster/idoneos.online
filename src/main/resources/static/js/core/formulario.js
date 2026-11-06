@@ -71,6 +71,10 @@
 
             if (respuesta.ok && datos.mensaje) {
                 await window.mostrarExito(datos.mensaje);
+                // Al final del alta de un recurso: ¿se publica en la biblioteca digital?
+                if (datos.publicarId && window.preguntarPublicarRecurso) {
+                    await window.preguntarPublicarRecurso(datos.publicarId);
+                }
                 if (datos.siguienteUrl && window.preguntarSiguientePaso
                         && await window.preguntarSiguientePaso(datos.siguienteTitulo, datos.siguienteTexto, datos.siguienteConfirmar, datos.siguienteTipo)) {
                     window.location.href = datos.siguienteUrl;

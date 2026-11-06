@@ -127,7 +127,7 @@
 .pn-seccion-titulo p {
     font-size: 13px;
     color: var(--pn-texto-suave);
-    margin: 4px 0 0;
+    margin: 15px 0 0; /* un poco de aire entre el título de la sección y su descripción */
 }
 
 .pn-etiqueta {

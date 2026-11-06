@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body mv-protegido">
+<div class="pn-app sin-menu" id="pnApp">
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{/biblioteca/buscar}">Biblioteca digital</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${recurso.titulo}">Recurso</strong>
+            </nav>
+
+            <!-- Cabecera del material -->
+            <header class="mv-cabecera">
+                <div class="mv-titulo-fila">
+                    <th:block th:replace="~{fragments/components/iconRecurso :: icon(${recurso.tipo}, '')}"></th:block>
+                    <div>
+                        <h1 class="ac-titulo mv-titulo" th:text="${recurso.titulo}">Clase 3: Valuación de bonos</h1>
+                        <p class="ac-subtitulo-curso">
+                            <span th:text="${recurso.tipo}">Grabación</span>
+                            <th:block th:if="${recurso.autor != null and !#strings.isEmpty(recurso.autor)}">
+                                · <span th:text="${recurso.autor}">Autor</span>
+                            </th:block>
+                            · Subido por: <span th:text="${esPropio ? 'Vos' : recurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span>
+                            · <span th:text="${recurso.privado} ? 'Privado' : 'Público'">Privado</span>
+                        </p>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Vista del material según su formato -->
+            <section class="pn-card mv-contenedor" th:switch="${formato}"
+                     th:attr="data-marca=${usuario.nombreCompleto + ' · ' + usuario.correo}">
+                <!-- Grabación: reproductor sin descarga ni imagen en imagen (el material se ve solo desde la plataforma) -->
+                <div th:case="'video'" class="mv-reproductor">
+                    <video class="mv-video" controls preload="metadata" th:src="@{${urlArchivo}}"
+                           controlsList="nodownload nofullscreen noremoteplayback" disablePictureInPicture disableRemotePlayback>
+                        Tu navegador no puede reproducir este video.
+                    </video>
+                    <button type="button" class="mv-boton mv-pantalla-video" data-video-pantalla-completa
+                            aria-label="Pantalla completa" title="Pantalla completa"><i class="fa-solid fa-expand"></i></button>
+                </div>
+
+                <!-- PDF: visor de páginas -->
+                <div th:case="'pdf'" class="mv-visor" data-visor-pdf th:attr="data-url=@{${urlArchivo}}">
+                    <div class="mv-lienzo">
+                        <div class="mv-desplazable">
+                            <canvas class="mv-pagina" aria-label="Página del documento"></canvas>
+                        </div>
+                        <div class="mv-estado mv-estado-skeleton" data-visor-estado role="status"><span class="visually-hidden">Cargando…</span></div>
+                    </div>
+                    <div class="mv-barra">
+                        <button type="button" class="mv-boton" data-visor-anterior aria-label="Página anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                        <span class="mv-paginas">
+                            <input type="number" min="1" value="1" data-visor-pagina aria-label="Número de página">
+                            <span>de <span data-visor-total>–</span></span>
+                        </span>
+                        <button type="button" class="mv-boton" data-visor-siguiente aria-label="Página siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+                        <span class="mv-espacio"></span>
+                        <span class="mv-zoom">
+                            <button type="button" class="mv-boton" data-visor-alejar aria-label="Alejar" title="Alejar (-)"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                            <button type="button" class="mv-zoom-valor" data-visor-zoom aria-label="Volver al 100%" title="Volver al 100% (0)">100%</button>
+                            <button type="button" class="mv-boton" data-visor-acercar aria-label="Acercar" title="Acercar (+)"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                        </span>
+                        <button type="button" class="mv-boton" data-visor-pantalla-completa aria-label="Pantalla completa" title="Pantalla completa"><i class="fa-solid fa-expand"></i></button>
+                    </div>
+                </div>
+
+                <!-- Sin archivo -->
+                <div th:case="*" class="mv-sin-vista">
+                    <i class="fa-regular fa-folder-open"></i>
+                    <h2>Este recurso todavía no tiene archivo</h2>
+                    <p>Cuando se cargue el archivo en un formato compatible, vas a poder verlo acá.</p>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esAdministrador ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:if="${formato == 'pdf'}" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script th:if="${formato == 'pdf'}" th:src="@{/js/pages/recurso/visor.js}"></script>
+<script th:src="@{/js/pages/recurso/proteccion.js}"></script>
+</body>
+</html>

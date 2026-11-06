@@ -308,8 +308,8 @@ public class Tema {
      *
      * @return {@code true} si el tema es cursada (o lo será) por alumnos de alguna cohorte.
      */
-    public boolean tieneCohortesEnCurso() {
-        return getProgramasQueLaIncluyen().stream().anyMatch(Programa::tieneCohortesEnCurso);
+    public boolean tieneCohortesActivas() {
+        return getProgramasQueLaIncluyen().stream().anyMatch(Programa::tieneCohortesActivas);
     }
 
     /**

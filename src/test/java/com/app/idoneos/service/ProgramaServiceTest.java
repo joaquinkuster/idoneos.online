@@ -199,7 +199,7 @@ class ProgramaServiceTest {
         Programa conInscripciones = mercado().getProgramaVigente();
         assertTrue(conInscripciones.getCantidadInscripcionesActivas() > 0);
         assertTrue(mensaje(() -> programaService.modificar(conInscripciones.getIdPrograma(), fausto(), "Nombre",
-                null)).contains("tiene inscripciones activas"));
+                null)).contains("inscripciones activas asociadas"));
 
         int id = macro().getProgramaVigente().getIdPrograma();
         assertTrue(mensaje(() -> programaService.modificar(id, fausto(), " ", null))

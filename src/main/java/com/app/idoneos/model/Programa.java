@@ -180,8 +180,8 @@ public class Programa {
      *
      * @return {@code true} si alguna cohorte activa no está finalizada.
      */
-    public boolean tieneCohortesEnCurso() {
-        return cohortes.stream().anyMatch(Cohorte::estaEnCurso);
+    public boolean tieneCohortesActivas() {
+        return cohortes.stream().anyMatch(Cohorte::estaActiva);
     }
 
     /**

@@ -305,9 +305,13 @@ public class TemaServiceImpl implements TemaService {
         Tema tema = temaRepository.findById(id == null ? -1 : id).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
         obtenerParticipacion(tema.getCurso(), docente);
-        if (tema.tieneInscripcionesActivas()) {
-            throw new IllegalArgumentException("Error! El tema tiene inscripciones activas asociadas: no puede "
-                    + "modificarse porque es parte de lo que el alumno vio y pagó al inscribirse.");
+        int inscripcionesActivas = tema.getProgramasQueLaIncluyen().stream()
+                .mapToInt(programa -> programa.getCantidadInscripcionesActivas()).sum();
+        if (inscripcionesActivas > 0) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el tema", tema.getTitulo(),
+                    "tiene " + MensajeErrorUtil.formatearCantidad(inscripcionesActivas, "inscripción activa asociada",
+                            "inscripciones activas asociadas"),
+                    MensajeErrorUtil.LO_QUE_EL_ALUMNO_VIO_Y_PAGO));
         }
         String tituloLimpio = validarDatos(titulo);
         validarTituloLibre(tema.getCurso(), tituloLimpio, tema);
@@ -427,10 +431,10 @@ public class TemaServiceImpl implements TemaService {
         programaService.verificarMinimoDeTemas(programa, ids).ifPresent(bloqueo -> {
             Tema primera = aQuitar.get(0).getTema();
             throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el tema", primera.getTitulo(),
-                    (bloqueo.minimo() == 1 ? "es la único tema que debe conservar su programa"
-                            : "es una de las " + bloqueo.minimoEnTemas() + " que debe conservar su programa")
-                            + " y este tiene cohortes en curso",
-                    "Registrá otro tema antes."));
+                    MensajeErrorUtil.motivoDisenoIncompleto(bloqueo.minimo() == 1
+                            ? "es el único tema que debe conservar su programa"
+                            : "es uno de los " + bloqueo.minimoEnTemas() + " temas que debe conservar su programa"),
+                    "Registrá otro antes de darlo de baja."));
         });
     }
 

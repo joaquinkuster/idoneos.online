@@ -168,7 +168,7 @@ public class PanelCursoComponent {
                 if (!curso.getProgramasActivos().isEmpty() && puedeAsignar) {
                     return com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje,
                             "¿Asignás un programa?", "Ahora la cohorte necesita su programa: elegí uno de los que ya tiene el curso.",
-                            "Asignar programa", "/cohorte/buscar" + id + "&asignar=" + cohorte.getIdCohorte());
+                            "Asignar programa", "/cohorte/buscar" + id + "&asignar=" + cohorte.getIdCohorte() + "&volver=curso");
                 }
                 return com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje,
                         "¿Registrás el programa?", "Ahora la cohorte necesita su programa: registrá el primero.",
