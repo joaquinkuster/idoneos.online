@@ -25,7 +25,7 @@
 
             <div class="pn-encabezado">
                 <div class="gl-titulo-fila">
-                    <th:block th:replace="~{fragments/components/iconRecurso :: icon('Foro', '')}"></th:block>
+                    <th:block th:replace="~{pages/recurso/icon :: icon('Foro', '')}"></th:block>
                     <div>
                         <h1 class="pn-titulo" th:text="${'Foro ' + numeroOrden}">Foro 1</h1>
                         <p class="pn-subtitulo">
@@ -39,9 +39,9 @@
                 </button>
             </div>
 
-            <section class="pn-card fo-contenedor" data-tabla th:attr="data-tabla-servidor=@{'/consulta/buscarPorTema/' + ${tema.idTema}}, data-opciones=${tablaOpciones}">
+            <section class="pn-card fo-contenedor" data-tabla th:attr="data-tabla-servidor=@{'/foro/buscarPorTema/' + ${tema.idTema}}, data-opciones=${tablaOpciones}">
                 <!-- Buscador: por texto y rango de fechas de registro -->
-                <form th:action="@{'/consulta/buscarPorTema/' + ${tema.idTema}}" method="get" class="pn-filtros" data-filtro-front>
+                <form th:action="@{'/foro/buscarPorTema/' + ${tema.idTema}}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo pn-filtros-campo-grande">
                         <label class="pn-etiqueta">Texto</label>
                         <input type="text" name="texto" class="pn-input" th:value="${texto}" placeholder="Buscar en las consultas"
@@ -55,7 +55,7 @@
                         <label class="pn-etiqueta">Hasta</label>
                         <input type="date" name="hasta" class="pn-input" th:value="${hasta}">
                     </div>
-                    <a class="pn-btn pn-btn-contorno" th:href="@{'/consulta/buscarPorTema/' + ${tema.idTema}}">Limpiar</a>
+                    <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/buscarPorTema/' + ${tema.idTema}}">Limpiar</a>
                 </form>
 
                 <div class="pn-tabla-contenedor">

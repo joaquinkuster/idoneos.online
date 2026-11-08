@@ -32,6 +32,9 @@ public class ProgresoServiceImpl implements ProgresoService {
     private ProgresoRepository progresoRepository;
 
     @Autowired
+    private com.app.idoneos.repository.EstadoAvanceRepository estadoAvanceRepository;
+
+    @Autowired
     private InscripcionService inscripcionService;
 
     @Autowired
@@ -170,6 +173,9 @@ public class ProgresoServiceImpl implements ProgresoService {
         progresoRepository.save(progreso);
         // Con la último tema pendiente completada, el alumno terminó el programa: se emite su certificado
         if (inscripcion.getTemaEnCurso() == null) {
+            // Terminó el programa: el avance pasa a Finalizado y se emite su certificado
+            inscripcion.actualizarAvance(estadoAvanceRepository.findByNombre(com.app.idoneos.model.EstadoAvance.FINALIZADO).orElseThrow());
+            inscripcionRepository.save(inscripcion);
             certificadoService.emitir(inscripcion);
         }
         return true;
@@ -184,7 +190,7 @@ public class ProgresoServiceImpl implements ProgresoService {
         for (Programa programa : tema.getProgramasQueLaIncluyen()) {
             for (Cohorte cohorte : programa.getCohortesActivas()) {
                 for (Inscripcion inscripcion : cohorte.getInscripciones()) {
-                    if (!inscripcion.esInactivo() && inscripcion.estaHabilitada()) {
+                    if (!inscripcion.esInactivo() && inscripcion.fueHabilitada()) {
                         actualizar(inscripcion, tema);
                     }
                 }

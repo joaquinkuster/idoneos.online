@@ -307,6 +307,59 @@
     background: #DC2626;
 }
 
+/* Las partes de abajo del tablero (temas, autoevaluaciones pendientes y la leyenda de «Hoy») se separan con una línea gris suave y el mismo margen */
+.cn-leyenda-hoy {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #E2E8F0;
+}
+
+/* Sin línea arriba: conserva la misma distancia con lo de arriba (el margen más el relleno de las demás) */
+.cn-pendientes {
+    margin-top: 15px;
+}
+
+.cn-leyenda-hoy .cn-hoy {
+    margin-top: 0;
+}
+
+/* Autoevaluaciones pendientes del alumno (solo informativo) */
+.cn-pendientes-titulo {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.cn-pendientes ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.cn-pendientes li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.cn-pendientes li i {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #D4A03D;
+}
+
+.cn-sin-pendientes {
+    margin: 0;
+    font-size: 12px;
+    color: #64748B;
+}
+
 /* Leyenda flotante de barras y líneas (la maneja tooltipCronograma.js) */
 .cn-tooltip {
     position: fixed;

@@ -36,7 +36,7 @@ class ComprobanteServiceTest {
 
     /** El pago rechazado de Lucía en la semilla: todavía no tiene comprobante. */
     private Pago pagoSinComprobante() {
-        return inscripcionService.buscarConFiltros(null, "lucia.fernandez@correo.com", Inscripcion.ACCESO_PENDIENTE_DE_PAGO)
+        return inscripcionService.buscarConFiltros(null, "lucia.fernandez@correo.com", com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO)
                 .get(0).getPagoSinAprobar();
     }
 
@@ -79,7 +79,7 @@ class ComprobanteServiceTest {
     @Test
     @DisplayName("El comprobante de un pago aprobado se genera como PDF")
     void generaElPdf() {
-        Pago aprobado = inscripcionService.buscarConFiltros(null, "valentina.ruiz@correo.com", Inscripcion.ACCESO_VIGENTE)
+        Pago aprobado = inscripcionService.buscarConFiltros(null, "valentina.ruiz@correo.com", com.app.idoneos.model.EstadoInscripcion.HABILITADA)
                 .get(0).getPagoAprobado();
 
         byte[] pdf = comprobanteService.generarPdf(aprobado.getComprobanteVigente());

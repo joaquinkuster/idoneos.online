@@ -153,7 +153,7 @@
                         <div class="ec-fila ec-pie">
                             <span class="ec-nota" th:if="${cohorte.esPendiente()}"
                                 th:text="${completo ? 'Diseño completo: la cohorte se activa sola.' : 'Completá el diseño antes del ' + #temporals.format(cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ', cuando abre la inscripción, o la cohorte se cancela.'}">Nota</span>
-                            <span class="ec-nota" th:unless="${cohorte.esPendiente()}" th:text="${'Cohorte ' + #strings.toLowerCase(cohorte.estado) + '.'}">Cohorte en dictado.</span>
+                            <span class="ec-nota" th:unless="${cohorte.esPendiente()}" th:text="${'Estado de la cohorte: ' + #strings.toLowerCase(cohorte.estado) + '.'}">Cohorte en dictado.</span>
                         </div>
                         </div></div>
                     </th:block>
@@ -218,12 +218,12 @@
                             </button>
 
                             <!-- Docente: modificar o dar de baja el tema (lleva al ABM de temas con esa ventana abierta) -->
-                            <div class="dropdown ac-menu-tema" th:if="${puedeGestionar}">
+                            <div class="dropdown ac-menu-tema" th:if="${puedeGestionar == true or esAdministrador == true}">
                                 <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown" aria-expanded="false"
                                     aria-label="Opciones del tema"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                                 <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item"
-                                            th:href="@{/tema/buscar(cursoId=${curso.idCurso}, accion='editar', temaId=${u.idTema})}">Modificar</a></li>
+                                    <li th:if="${puedeGestionar}"><a class="dropdown-item"
+                                            th:href="@{/tema/buscar(cursoId=${curso.idCurso}, editar=${u.idTema})}">Modificar</a></li>
                                     <li><a class="dropdown-item text-danger"
                                             th:href="@{/tema/buscar(cursoId=${curso.idCurso}, accion='baja', temaId=${u.idTema})}">Dar de baja</a></li>
                                 </ul>
@@ -252,19 +252,19 @@
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(materiales)}">
                                         <li class="ac-actividad" th:each="m : ${materiales}">
                                             <th:block
-                                                th:replace="~{fragments/components/iconRecurso :: icon(${m.tipo}, '')}">
+                                                th:replace="~{pages/recurso/icon :: icon(${m.tipo}, '')}">
                                             </th:block>
                                             <!-- Un enlace externo lleva directo a su página (en otra pestaña); el resto abre la vista del material -->
                                             <a class="ac-actividad-titulo" th:text="${m.titulo}" rel="noopener"
                                                 th:href="${m.recurso.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/recurso/ver/' + ${m.idTemaRecurso}}"
                                                 th:target="${m.recurso.esEnlaceExterno()} ? '_blank' : null">Material</a>
                                             <span class="pn-insignia pn-insignia-gris" th:if="${m.oculto}">Oculto</span>
-                                            <div class="dropdown ac-menu-material" th:if="${puedeGestionar}">
+                                            <div class="dropdown ac-menu-material" th:if="${puedeGestionar == true or esAdministrador == true}">
                                                 <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown"
                                                     aria-expanded="false" aria-label="Opciones del material"><i
                                                         class="fa-solid fa-ellipsis-vertical"></i></button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item"
+                                                    <li th:if="${puedeGestionar}"><a class="dropdown-item"
                                                             th:href="@{/recurso/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema}, accion='editar', materialId=${m.idTemaRecurso})}">Modificar</a>
                                                     </li>
                                                     <li><a class="dropdown-item text-danger"
@@ -280,14 +280,14 @@
                                         th:if="${!#lists.isEmpty(u.terminosGlosarioOrdenados)}">
                                         <h3 class="ac-grupo-titulo">Glosario</h3>
                                         <a class="ac-grupo-enlace"
-                                            th:href="${esDocente} ? @{/termino/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/termino/buscarPorTema/' + ${u.idTema}}">Ver
+                                            th:href="${esDocente} ? @{/glosario/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/glosario/buscarPorTema/' + ${u.idTema}}">Ver
                                             listado</a>
                                     </div>
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(u.terminosGlosarioOrdenados)}">
                                         <li class="ac-actividad">
-                                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Glosario', '')}">
+                                            <th:block th:replace="~{pages/recurso/icon :: icon('Glosario', '')}">
                                             </th:block>
-                                            <a class="ac-actividad-titulo" th:href="@{'/termino/buscarPorTema/' + ${u.idTema}}"
+                                            <a class="ac-actividad-titulo" th:href="@{'/glosario/buscarPorTema/' + ${u.idTema}}"
                                                 th:text="${'Glosario ' + uc.numeroOrden}">Glosario</a>
                                         </li>
                                     </ul>
@@ -302,17 +302,17 @@
                                     <ul class="ac-actividades" th:if="${!#lists.isEmpty(autoevaluaciones)}">
                                         <li class="ac-actividad" th:each="a : ${autoevaluaciones}">
                                             <th:block
-                                                th:replace="~{fragments/components/iconRecurso :: icon('Autoevaluación', '')}">
+                                                th:replace="~{pages/recurso/icon :: icon('Autoevaluación', '')}">
                                             </th:block>
                                             <a class="ac-actividad-titulo" th:text="${a.nombre}"
                                                 th:href="${esDocente or esAdministrador} ? @{/autoevaluacion/buscar(cursoId=${curso.idCurso})} : @{'/autoevaluacion/ver/' + ${a.idAutoevaluacion}}">Autoevaluación</a>
                                             <span class="pn-insignia pn-insignia-gris" th:if="${a.oculto}">Oculta</span>
-                                            <div class="dropdown ac-menu-material" th:if="${puedeGestionar}">
+                                            <div class="dropdown ac-menu-material" th:if="${puedeGestionar == true or esAdministrador == true}">
                                                 <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown"
                                                     aria-expanded="false" aria-label="Opciones de la autoevaluación"><i
                                                         class="fa-solid fa-ellipsis-vertical"></i></button>
                                                 <ul class="dropdown-menu dropdown-menu-end">
-                                                    <li><a class="dropdown-item"
+                                                    <li th:if="${puedeGestionar}"><a class="dropdown-item"
                                                             th:href="@{/autoevaluacion/buscar(cursoId=${curso.idCurso}, accion='editar', autoevaluacionId=${a.idAutoevaluacion})}">Modificar</a>
                                                     </li>
                                                     <li><a class="dropdown-item text-danger"
@@ -327,15 +327,15 @@
                                     <div class="ac-grupo-cabecera">
                                         <h3 class="ac-grupo-titulo">Foro</h3>
                                         <a class="ac-grupo-enlace"
-                                            th:href="${esDocente} ? @{/consulta/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/consulta/buscarPorTema/' + ${u.idTema}}">Ver
+                                            th:href="${esDocente} ? @{/foro/buscar(cursoId=${curso.idCurso}, temaId=${u.idTema})} : @{'/foro/buscarPorTema/' + ${u.idTema}}">Ver
                                             listado</a>
                                     </div>
                                     <ul class="ac-actividades">
                                         <li class="ac-actividad">
-                                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Foro', '')}">
+                                            <th:block th:replace="~{pages/recurso/icon :: icon('Foro', '')}">
                                             </th:block>
                                             <a class="ac-actividad-titulo"
-                                                th:href="@{'/consulta/buscarPorTema/' + ${u.idTema}}">Foro de consultas</a>
+                                                th:href="@{'/foro/buscarPorTema/' + ${u.idTema}}">Foro de consultas</a>
                                         </li>
                                     </ul>
 
@@ -523,6 +523,13 @@
     // ?reutilizar=<recurso> (desde «Registrar en un tema» de la biblioteca digital): abre solo el selector de recursos en la pestaña
     // «De la biblioteca» con ese recurso elegido, para que el docente solo elija el tema
     (function () {
+        // ?completar=datos (desde el asistente): abre solo la ventana con los datos del curso que faltan
+        if (new URL(window.location.href).searchParams.get('completar') === 'datos') {
+            window.addEventListener('load', function () {
+                var ventana = document.getElementById('modalModificarCurso');
+                if (ventana && window.bootstrap) { window.setTimeout(function () { window.bootstrap.Modal.getOrCreateInstance(ventana).show(); }, 400); }
+            });
+        }
         var recurso = new URL(window.location.href).searchParams.get('reutilizar');
         if (recurso && window.abrirSelectorConRecurso) {
             window.addEventListener('load', function () { window.setTimeout(function () { window.abrirSelectorConRecurso(recurso); }, 300); });

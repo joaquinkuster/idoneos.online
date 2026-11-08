@@ -80,13 +80,13 @@
             <p class="fx-apoyo fx-descuento" th:if="${descuentosVigentes != null and !#lists.isEmpty(descuentosVigentes) and curso.precio != null and curso.precio > 0}"
                th:text="${descuentoAplicable != null ? descuentoAplicable.porcentajeTexto + '% de descuento: ' + descuentoAplicable.nombre : 'Hasta ' + descuentosVigentes.get(0).porcentajeTexto + '% de descuento según tus cursos comprados'}">10% de descuento: Descuento de bienvenida</p>
 
-            <th:block th:if="${hayCohortes}" th:with="primeraAbierta=${primeraCohorte.estado == 'Abierta'}, alumno=${usuario != null ? usuario.alumno : null}">
+            <th:block th:if="${hayCohortes}" th:with="primeraAbierta=${primeraCohorte.estaAbierta()}, alumno=${usuario != null ? usuario.alumno : null}">
               <label class="fx-etiqueta-campo" for="fxCohorte">Cohorte</label>
               <!-- Un solo select con las cohortes abiertas y las próximas; el estado de cada una va entre paréntesis -->
               <select id="fxCohorte" class="pn-input" data-cohortes>
                 <option th:each="cohorte : ${cohortesElegibles}" th:value="${cohorte.idCohorte}"
                         th:text="${cohorte.programa.nombre + (cohorte.fechaInicioDictado != null ? ' · desde ' + #temporals.format(cohorte.fechaInicioDictado, 'dd/MM/yyyy') : '') + ' (' + cohorte.estado + ')'}"
-                        th:attr="data-estado=${cohorte.estado}, data-hasta=${#temporals.format(cohorte.fechaFinInscripcion, 'dd/MM/yyyy')},
+                        th:attr="data-estado=${cohorte.estado}, data-abierta=${cohorte.estaAbierta()}, data-hasta=${#temporals.format(cohorte.fechaFinInscripcion, 'dd/MM/yyyy')},
                                  data-abre=${#temporals.format(cohorte.fechaInicioInscripcion, 'dd/MM/yyyy')},
                                  data-aviso=${#temporals.format(cohorte.fechaInicioInscripcion.minusDays(diasRecordatorio), 'dd/MM/yyyy')},
                                  data-recordada=${cohortesRecordadas != null and cohortesRecordadas.contains(cohorte.idCohorte)},

@@ -24,6 +24,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/pago/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de pagos</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="pago encontrado" data-plural="pagos encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' pago encontrado' : ' pagos encontrados')}">0 pagos encontrados</span>
                 </div>
 
                 <!-- Filtros (CU-50): curso, alumno, estado y rango de fechas -->
@@ -41,6 +43,7 @@
                                 <th data-col="Monto" data-campo="monto" data-filtro="numero">Monto</th>
                                 <th data-col="Medio de pago" data-campo="medioDePago" data-filtro="lista">Medio de pago</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                <th data-col="Motivo del rechazo" data-campo="motivo" data-filtro="texto">Motivo del rechazo</th>
                                 <th data-col="Comprobante" data-campo="comprobante" data-filtro="texto">Comprobante</th>
                                 <th data-col="Fecha de aprobación" data-campo="fechaAprobacion" data-filtro="fecha">Fecha de aprobación</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
@@ -54,6 +57,7 @@
                                 th:data-f-monto="${p.monto}"
                                 th:data-f-mediodepago="${p.metodoPago.nombre}"
                                 th:data-f-estado="${p.estadoPago.nombre}"
+                                th:data-f-motivo="${p.motivoRechazo != null ? p.motivoRechazo : ''}"
                                 th:data-f-comprobante="${p.comprobanteVigente != null ? p.comprobanteVigente.numero : ''}"
                                 th:data-f-fechaaprobacion="${p.fechaAprobacion != null ? #temporals.format(p.fechaAprobacion, 'yyyy-MM-dd') : ''}"
                                 th:data-f-fechacreacion="${#temporals.format(p.fechaCreacion, 'yyyy-MM-dd HH:mm')}">
@@ -69,16 +73,14 @@
                                           th:classappend="${p.estaAprobado()} ? 'pn-insignia-verde' : (${p.estaPendiente()} ? 'pn-insignia-dorada' : 'pn-insignia-roja')"
                                           th:text="${p.estadoPago.nombre}">Aprobado</span>
                                 </td>
+                                <td><th:block th:replace="~{fragments/components/textoLargo :: texto(${p.motivoRechazo}, 25)}"></th:block></td>
                                 <td th:text="${p.comprobanteVigente != null ? p.comprobanteVigente.numero : '—'}">—</td>
                                 <td th:text="${p.fechaAprobacion != null ? #temporals.format(p.fechaAprobacion, 'dd/MM/yyyy HH:mm') : '—'}">13/10/2026 10:00</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">13/10/2026 09:50</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="btn btn-secondary btn-sm pn-btn-motivo" data-motivo-pago
-                                                th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
-                                                th:attr="data-bs-content=${p.detalleErrorOperacion}">Ver motivo</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" data-bs-toggle="modal"
-                                                th:if="${!p.estaAprobado()}"
+                                                th:if="${p.estaPendiente()}"
                                                 th:data-bs-target="'#modalModificarPago' + ${p.idPago}"
                                                 th:data-modal-url="@{'/pago/modificar/' + ${p.idPago}}">Modificar</button>
                                         <a class="pn-btn pn-btn-ver pn-btn-chico" target="_blank" rel="noopener"
@@ -87,7 +89,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-credit-card', 'No se encontraron pagos', 'Ningún pago coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(10, 'fa-credit-card', 'No se encontraron pagos', 'Ningún pago coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -238,20 +240,19 @@
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/core/abrirModal.js}"></script>
 <script th:src="@{/js/pages/pago/resumen.js}"></script>
-<script th:src="@{/js/pages/pago/motivo.js}"></script>
 <script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 <script>
-    // Modificar un pago de MODO: el código de referencia y el número de comprobante son obligatorios solo al acreditarlo
+    // Modificar un pago: se muestran solo los campos del estado elegido (acreditar pide los datos del comprobante; rechazar, el motivo)
     function iniciarModificarPago(raiz) {
     raiz.querySelectorAll('[id^=modalModificarPago] form').forEach(function (formulario) {
-        if (!formulario.querySelector('[data-ref-modo]')) { return; }
         var estado = formulario.elements['estado'];
-        var campos = [formulario.elements['referencia'], formulario.elements['numeroComprobante']];
+        if (!estado) { return; }
         function aplicar() {
-            var acreditar = estado.value === 'Aprobado';
-            campos.forEach(function (campo) { campo.required = acreditar; });
-            formulario.querySelectorAll('[data-ref-obligatorio]').forEach(function (e) { e.hidden = !acreditar; });
-            formulario.querySelectorAll('[data-ref-opcional]').forEach(function (e) { e.hidden = acreditar; });
+            formulario.querySelectorAll('[data-solo-estado]').forEach(function (campo) {
+                var visible = campo.getAttribute('data-solo-estado') === estado.value;
+                campo.hidden = !visible;
+                campo.querySelectorAll('input, select, textarea').forEach(function (control) { control.disabled = !visible; });
+            });
         }
         estado.addEventListener('change', aplicar);
         aplicar();

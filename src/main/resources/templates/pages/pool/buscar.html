@@ -36,7 +36,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/pool/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de pools</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="pool encontrado" data-plural="pools encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' pool encontrado' : ' pools encontrados')}">0 pools encontrados</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/pool/darDeBajaMasiva" data-elementos="pools"
                             data-termino-uno="autoevaluación asociada" data-termino-varios="autoevaluaciones asociadas">Dar de baja seleccionado/s</button>
@@ -102,6 +103,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>

@@ -45,21 +45,19 @@
                                 <input type="text" name="busqueda" th:value="${busqueda}" class="pn-input" placeholder="Buscar por nombre" autocomplete="off">
                             </div>
                             <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Estado</label>
-                                <select name="estado" class="pn-input">
+                                <label class="pn-etiqueta">Estado de la inscripción</label>
+                                <select name="estadoInscripcion" class="pn-input">
                                     <option value="">Todos los estados</option>
-                                    <option value="En Progreso" th:selected="${estadoSeleccionado == 'En Progreso'}">En Progreso</option>
-                                    <option value="Finalizado" th:selected="${estadoSeleccionado == 'Finalizado'}">Finalizado</option>
+                                    <option th:each="e : ${estadosDisponibles}" th:value="${e}" th:text="${e}"
+                                            th:selected="${estadoInscripcionSeleccionado == e}">Acceso habilitado</option>
                                 </select>
                             </div>
                             <div class="pn-filtros-campo">
-                                <label class="pn-etiqueta">Acceso</label>
-                                <select name="acceso" class="pn-input">
-                                    <option value="">Todos los accesos</option>
-                                    <option value="Vigente">Vigente</option>
-                                    <option value="Programada">Programada</option>
-                                    <option value="Pendiente de pago">Pendiente de pago</option>
-                                    <option value="Vencida">Vencida</option>
+                                <label class="pn-etiqueta">Estado de avance</label>
+                                <select name="avance" class="pn-input">
+                                    <option value="">Todos los estados de avance</option>
+                                    <option th:each="e : ${avancesDisponibles}" th:value="${e}" th:text="${e}"
+                                            th:selected="${avanceSeleccionado == e}">En progreso</option>
                                 </select>
                             </div>
                             <a th:href="@{/inscripcion/buscar}" class="pn-btn pn-btn-contorno">Limpiar</a>
@@ -88,8 +86,8 @@
                             <th:block th:replace="~{fragments/components/groupHeader :: carta(${grupo.categoria}, ${cursosPorCategoria.getOrDefault(grupo.categoria.idCategoria, 0L)})}"></th:block>
                             <div class="pn-grupo-cuerpo wf-cards-grid">
                                 <th:block th:each="insc : ${grupo.filas}">
-                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${insc.curso}, ${insc.cohorte.programa.cantidadTemas},
-                                ${insc.estadoAcceso == 'Vigente' ? insc.estado : insc.estadoAcceso},
+                                    <th:block th:replace="~{pages/curso/card :: card(${insc.curso}, ${insc.cohorte.programa.cantidadTemas},
+                                ${insc.tieneAcceso() ? insc.estado : insc.nombreEstado},
                                 '/inscripcion/acceder/' + ${insc.idInscripcion}, 'Acceder al curso', 'inscripcion', ${insc})}"></th:block>
                                 </th:block>
                             </div>
@@ -132,6 +130,7 @@
     <script th:src="@{/js/core/tabla.js}"></script>
     <script th:src="@{/js/core/panel.js}"></script>
     <script th:src="@{/js/core/formulario.js}"></script>
+    <script th:src="@{/js/core/modalBaja.js}"></script>
     <script th:src="@{/js/pages/pago/pago.js}"></script>
 </body>
 </html>

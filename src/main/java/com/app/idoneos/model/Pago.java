@@ -99,10 +99,10 @@ public class Pago {
     private String detalleMetodoPago;
 
     /**
-     * Detalle del error ocurrido en la operación, si lo hubo. Es opcional.
+     * Motivo del rechazo del pago, si fue rechazado (el que informa la plataforma, traducido, o el que escribe el administrador). Es opcional.
      */
-    @Column(name = "detalleErrorOperacion", nullable = true, columnDefinition = "TEXT")
-    private String detalleErrorOperacion;
+    @Column(name = "motivoRechazo", nullable = true, columnDefinition = "TEXT")
+    private String motivoRechazo;
 
     /**
      * Fecha y hora de aprobación del pago. Es opcional.

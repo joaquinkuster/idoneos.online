@@ -105,8 +105,8 @@ public interface CohorteService extends CrudService<Cohorte> {
     Cohorte asignarPrograma(Integer idCohorte, Integer idPrograma, Docente docente);
 
     /**
-     * Pasa a Activa toda cohorte pendiente cuyo programa ya tiene el contenido completo (el docente lo completó después de
-     * que la cohorte se registrara o se le asignara el programa).
+     * Saca de «Pendiente de contenido» a toda cohorte cuyo programa ya tiene el contenido completo (el docente lo completó después de
+     * que la cohorte se registrara o se le asignara el programa): pasa al estado que le corresponde por sus fechas.
      *
      * @return la cantidad de cohortes que se activaron
      */
@@ -117,9 +117,18 @@ public interface CohorteService extends CrudService<Cohorte> {
      * al momento: el docente no tiene que esperar al próximo ciclo para ver el cambio de estado).
      *
      * @param idCohorte el identificador de la cohorte
-     * @return {@code true} si la cohorte pasó de Pendiente a Activa
+     * @return {@code true} si la cohorte salió de Pendiente de contenido
      */
     boolean activarSiEstaCompleta(Integer idCohorte);
+
+    /**
+     * Mueve de estado las cohortes que ya cumplieron una fecha: Inscripción próxima, abierta, cerrada, En dictado, Dictado finalizado y
+     * Cursada finalizada (cuando cerró la inscripción, terminó el dictado y ninguna inscripción sigue en juego). Las pendientes y las canceladas
+     * no se mueven.
+     *
+     * @return la cantidad de cohortes que cambiaron de estado
+     */
+    int actualizarEstadosPorFecha();
 
     /**
      * Cancela toda cohorte pendiente que llegó a la fecha de inicio de su inscripción sin tener el contenido de su programa

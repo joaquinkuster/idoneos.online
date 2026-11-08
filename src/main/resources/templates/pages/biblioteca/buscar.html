@@ -28,10 +28,9 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/biblioteca/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de recursos</h2>
-                    <span class="pn-seleccionados" th:unless="${esAdministrador}" data-seleccionados>0 de 0 seleccionados</span>
-                    <span class="pn-seleccionados" th:if="${esAdministrador}" data-total-filtradas data-singular="recurso encontrado" data-plural="recursos encontrados"
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="recurso encontrado" data-plural="recursos encontrados"
                           th:text="${tablaTotal + (tablaTotal == 1 ? ' recurso encontrado' : ' recursos encontrados')}">0 recursos encontrados</span>
-                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" th:unless="${esAdministrador}" data-baja-masiva
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/biblioteca/darDeBajaMasiva" data-elementos="recursos"
                             data-termino-uno="tema asociado" data-termino-varios="temas asociados">Dar de baja seleccionado/s</button>
                 </div>
@@ -50,7 +49,7 @@
                     <table class="pn-tabla">
                         <thead>
                             <tr>
-                                <th class="pn-col-seleccion" th:unless="${esAdministrador}"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
                                 <th data-col="Tipo" data-campo="tipo">Tipo</th>
                                 <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
@@ -58,7 +57,7 @@
                                 <th data-col="Editorial" data-campo="editorial" data-filtro="texto" data-oculta>Editorial</th>
                                 <th data-col="Fecha de publicación" data-campo="fechaPublicacion" data-filtro="fecha" data-oculta>Fecha de publicación</th>
                                 <th data-col="Subido por" data-campo="docente" data-filtro="lista">Subido por</th>
-                                <th data-col="Biblioteca" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Biblioteca</th>
+                                <th data-col="Compartido con docentes" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Compartido con docentes</th>
                                 <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -69,15 +68,16 @@
                             <th:block th:if="${agrupar == true and (it.first or recursos[it.index - 1].tipo != r.tipo)}">
                                 <tr th:replace="~{fragments/components/groupHeader :: filaTipo(${r.tipo}, ${recursosPorTipo.getOrDefault(r.tipo, 0L)})}"></tr>
                             </th:block>
-                            <tr data-fila th:attr="data-dependencias=${usosPorRecurso.getOrDefault(r.idRecurso, 0L)}">
-                                <td class="pn-col-seleccion" th:unless="${esAdministrador}"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
-                                    th:if="${propio}" th:value="${r.idRecurso}"></td>
+                            <tr data-fila th:attr="data-dependencias=${usosPorRecurso.getOrDefault(r.idRecurso, 0L)}, data-ver-url=@{'/biblioteca/ver/' + ${r.idRecurso}}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:if="${propio or esAdministrador}" th:value="${r.idRecurso}"></td>
                                 <td>
-                                    <span class="pn-celda-principal pn-truncar" th:text="${r.titulo}">Clase 3</span>
+                                    <a class="pn-celda-principal pn-truncar pn-enlace-ver" title="Ver el recurso"
+                                       th:href="@{'/biblioteca/ver/' + ${r.idRecurso}}" th:text="${r.titulo}">Clase 3</a>
                                 </td>
                                 <td>
                                     <span class="ac-tipo-celda">
-                                        <th:block th:replace="~{fragments/components/iconRecurso :: icon(${r.tipo}, 'ac-recurso-icon-chico')}"></th:block>
+                                        <th:block th:replace="~{pages/recurso/icon :: icon(${r.tipo}, 'ac-recurso-icon-chico')}"></th:block>
                                         <span th:text="${r.tipo}">Grabación</span>
                                     </span>
                                 </td>
@@ -88,13 +88,12 @@
                                 <td><span class="pn-truncar" th:text="${propio ? 'Vos' : r.docente.usuario.nombreCompleto}">Vos</span></td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${r.privado} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
-                                          th:text="${r.privado} ? 'Privado' : 'Público'">Privado</span>
+                                          th:text="${r.privado} ? 'No' : 'Sí'">No</span>
                                 </td>
                                 <td th:text="${r.generadoPorIa ? 'Sí' : 'No'}">No</td>
                                 <td th:text="${r.fechaCreacion != null ? #temporals.format(r.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <a th:href="@{'/biblioteca/ver/' + ${r.idRecurso}}" class="pn-btn pn-btn-ver pn-btn-chico">Ver</a>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${propio}"
                                                 th:data-bs-target="'#modalModificarRecurso' + ${r.idRecurso}"
                                                 th:data-modal-url="@{'/biblioteca/modificar/' + ${r.idRecurso}}">Modificar</button>
@@ -120,7 +119,7 @@
                                 </td>
                             </tr>
                             </th:block>
-                            <tr th:replace="~{fragments/components/empty :: fila(${esAdministrador ? 11 : 12}, 'fa-folder-open', 'No se encontraron recursos', 'Todavía no hay recursos o ninguno coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(12, 'fa-folder-open', 'No se encontraron recursos', 'Todavía no hay recursos o ninguno coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -136,6 +135,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>
@@ -181,10 +181,10 @@
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta" title="Privado: solo vos podés usarlo. Público: otros docentes pueden usarlo desde la biblioteca.">Biblioteca</label>
+                            <label class="pn-etiqueta" title="No: solo vos podés usarlo. Sí: otros docentes pueden usarlo desde la biblioteca.">Compartido con docentes</label>
                             <select name="privado" class="pn-input">
-                                <option value="true">Privado</option>
-                                <option value="false">Público</option>
+                                <option value="true">No</option>
+                                <option value="false">Sí</option>
                             </select>
                         </div>
 <div class="col-12 pn-campo">

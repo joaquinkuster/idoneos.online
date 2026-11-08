@@ -13,7 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.model.Alumno;
+import com.app.idoneos.model.EstadoInscripcion;
 import com.app.idoneos.model.Inscripcion;
+import com.app.idoneos.repository.EstadoInscripcionRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.inscripcion.InscripcionService;
 
@@ -23,6 +25,9 @@ import com.app.idoneos.service.inscripcion.InscripcionService;
 @SpringBootTest
 @Transactional
 class InscripcionServiceTest {
+
+    @Autowired
+    private EstadoInscripcionRepository estadoInscripcionRepository;
 
     @Autowired
     private InscripcionService inscripcionService;
@@ -78,14 +83,18 @@ class InscripcionServiceTest {
     }
 
     @Test
-    @DisplayName("Una inscripción dada de baja o no habilitada no permite el acceso")
+    @DisplayName("Una inscripción dada de baja, no habilitada o suspendida no permite el acceso")
     void inscripcionDeBajaONoHabilitada() {
         Inscripcion inscripcion = inscripcionDe("valentina.ruiz@correo.com");
-        inscripcion.setHabilitado(false);
+        inscripcion.setEstadoInscripcion(estadoInscripcionRepository.findByNombre(EstadoInscripcion.PENDIENTE_DE_PAGO).orElseThrow());
         assertThrows(IllegalArgumentException.class,
                 () -> inscripcionService.validarAcceso(inscripcion.getIdInscripcion(), inscripcion.getAlumno()));
 
-        inscripcion.setHabilitado(true);
+        inscripcion.setEstadoInscripcion(estadoInscripcionRepository.findByNombre(EstadoInscripcion.SUSPENDIDA).orElseThrow());
+        assertThrows(IllegalArgumentException.class,
+                () -> inscripcionService.validarAcceso(inscripcion.getIdInscripcion(), inscripcion.getAlumno()));
+
+        inscripcion.setEstadoInscripcion(estadoInscripcionRepository.findByNombre(EstadoInscripcion.HABILITADA).orElseThrow());
         inscripcion.marcarInactivo();
         assertThrows(IllegalArgumentException.class,
                 () -> inscripcionService.validarAcceso(inscripcion.getIdInscripcion(), inscripcion.getAlumno()));

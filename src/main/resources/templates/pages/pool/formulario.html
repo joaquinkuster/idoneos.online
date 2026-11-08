@@ -4,8 +4,8 @@
 <form th:fragment="formulario(pool, datos)"
       th:action="@{${pool == null ? '/pool/registrar' : '/pool/modificar/' + pool.idPool}}"
       method="post" class="form-ajax" data-validar data-pasos data-resumen="Pool" data-pool-formulario
-      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
-      th:attr="data-modo=${pool == null ? 'alta' : 'modificacion'}, data-resumen-titulo=${pool != null ? '(' + pool.nombre + ')' : null}, data-ctx-curso=${curso.nombre}"
+      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","campo":"temaId","atributo":"data-tema"},{"etiqueta":"Tema","atributoForm":"data-ctx-tema"}]'
+      th:attr="data-modo=${pool == null ? 'alta' : 'modificacion'}, data-resumen-titulo=${pool != null ? '(' + pool.nombre + ')' : null}, data-ctx-curso=${curso.nombre}, data-ctx-tema=${pool != null ? pool.tema.titulo : null}"
       novalidate>
 
     <div class="pn-pasos pn-pasos-nombrados">
@@ -21,10 +21,10 @@
             <p>Tema y nombre del pool de preguntas</p>
         </div>
         <div class="row g-3">
-            <div class="col-md-6 pn-campo" th:if="${pool == null}">
+            <div class="col-md-6 pn-campo" th:if="${pool == null}" data-resumen-omitir>
                 <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
                 <select name="temaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Debe seleccionar el tema.">
-                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}"
+                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:data-tema="${uc.tema.titulo}"
                             th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}"
                             th:text="${uc.numeroOrden + '. ' + uc.tema.titulo}">1. Introducción</option>
                 </select>

@@ -1,6 +1,12 @@
 package com.app.idoneos.repository;
 
 import java.util.Collection;
+import java.util.Optional;
+
+import jakarta.persistence.LockModeType;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
@@ -57,4 +63,15 @@ public interface CohorteRepository extends JpaRepository<Cohorte, Integer> {
      * @return las cohortes activas del curso
      */
     List<Cohorte> findByCursoAndBajaFalse(Curso curso);
+
+    /**
+     * Trae la cohorte bloqueándola (escritura) hasta que termine la transacción: quien cambia el cupo o el estado de un
+     * pago la toma primero, así dos operaciones sobre la misma cohorte no se pisan (por ejemplo, el último lugar).
+     *
+     * @param id Identificador de la cohorte.
+     * @return La cohorte, si existe.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select c from Cohorte c where c.idCohorte = :id")
+    Optional<Cohorte> buscarPorIdConBloqueo(@Param("id") Integer id);
 }

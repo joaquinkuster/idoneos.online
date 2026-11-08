@@ -34,6 +34,11 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/tema/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de temas</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="tema encontrado" data-plural="temas encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' tema encontrado' : ' temas encontrados')}">0 temas encontrados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/tema/darDeBajaMasiva" data-elementos="temas"
+                            data-termino-uno="inscripción activa" data-termino-varios="inscripciones activas">Dar de baja seleccionado/s</button>
                 </div>
 
                 <form th:action="@{/tema/buscar}" method="get" class="pn-filtros" data-filtro-front>
@@ -45,6 +50,7 @@
                     <table class="pn-tabla">
                         <thead>
                             <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
                                 <th data-col="Descripción" data-campo="descripcion" data-filtro="texto">Descripción</th>
                                 <th data-col="Contenido" data-campo="contenido" data-filtro="texto">Contenido</th>
@@ -55,6 +61,8 @@
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="t : ${temasPagina}" data-fila data-dependencias="0">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${t.idTema}"></td>
                                 <td>
                                     <span class="pn-celda-principal pn-truncar" th:text="${t.titulo}">Introducción al mercado</span>
                                 </td>
@@ -74,7 +82,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-layer-group', 'No se encontraron temas', 'Registrá los temas del curso para armar su programa.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -89,6 +97,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>
@@ -207,6 +216,7 @@
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
 <script th:src="@{/js/pages/tema/tema.js}"></script>
+<script th:src="@{/js/core/abrirModal.js}"></script>
 <script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 </body>
 </html>

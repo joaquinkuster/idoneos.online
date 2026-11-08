@@ -105,8 +105,8 @@
                 <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/recurso/buscar?cursoId=' + ${curso.idCurso}, 'Recursos', ${activo}, 'materiales', false, ${guia and nivel == 5})}"></a>
                 <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/pool/buscar?cursoId=' + ${curso.idCurso}, 'Pools', ${activo}, 'pools', false, ${guia and nivel == 5})}"></a>
                 <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'Autoevaluaciones', ${activo}, 'autoevaluaciones', false, ${guia and nivel == 5})}"></a>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/termino/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, ${guia and nivel == 5})}"></a>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/consulta/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, ${guia and nivel == 5})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, ${guia and nivel == 5})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/foro/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, ${guia and nivel == 5})}"></a>
             </th:block>
         </th:block>
 

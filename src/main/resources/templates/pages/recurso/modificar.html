@@ -25,7 +25,7 @@
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
             <h4>Datos del recurso</h4>
-            <p>Título, descripción y visibilidad</p>
+            <p>Título, descripción y si es visible para alumnos</p>
         </div>
         <div class="row g-3">
 <div class="col-md-8 pn-campo">
@@ -37,7 +37,7 @@
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-md-4 pn-campo">
-                                <label class="pn-etiqueta">Visibilidad</label>
+                                <label class="pn-etiqueta">Visible para alumnos</label>
                                 <select name="oculto" class="pn-input">
                                     <option value="false" th:selected="${!m.oculto}">Publicado</option>
                                     <option value="true" th:selected="${m.oculto}">Oculto</option>

@@ -1,0 +1,38 @@
+/* Texto largo de una celda: los puntos suspensivos son un enlace que abre el texto completo en un globo */
+.pn-texto-mas {
+    margin-left: 1px;
+    font-weight: 700;
+    color: var(--pn-ver);
+    text-decoration: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.pn-texto-mas:hover {
+    text-decoration: underline;
+}
+
+.pn-texto-mas:focus-visible {
+    text-decoration: underline;
+}
+
+.pn-texto-popover {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --bs-popover-max-width: 260px;
+    --bs-popover-font-size: 12px;
+    --bs-popover-border-width: 0;
+    --bs-popover-bg: #FFFFFF;
+    --bs-popover-body-padding-x: 12px;
+    --bs-popover-body-padding-y: 10px;
+    border: 0;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.18);
+}
+
+.pn-texto-popover .popover-arrow {
+    display: none;
+}
+
+.pn-texto-popover .popover-body {
+    line-height: 1.5;
+    color: var(--pn-texto);
+}

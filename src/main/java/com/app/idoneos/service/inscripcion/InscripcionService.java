@@ -38,7 +38,7 @@ public interface InscripcionService extends CrudService<Inscripcion> {
 
     /**
      * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
-     * y por el estado de la inscripción (En Progreso o Finalizado).
+     * y por el estado de la inscripción (En progreso o Finalizado).
      *
      * @param alumno el alumno dueño de las inscripciones
      * @param nombreCurso parte del nombre del curso (opcional)
@@ -75,10 +75,18 @@ public interface InscripcionService extends CrudService<Inscripcion> {
      *
      * @param cursoId el curso (opcional)
      * @param alumno parte del nombre, el DNI o el correo del alumno (opcional)
-     * @param estadoAcceso Vigente, Vencida, Pendiente de pago o Programada (opcional)
+     * @param estado el nombre del estado de la inscripción (opcional), por ejemplo «Pendiente de pago» o «Acceso habilitado»
      * @return las inscripciones que cumplen los criterios
      */
-    List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estadoAcceso);
+    List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estado);
+
+    /**
+     * Todas las inscripciones, también las dadas de baja (listado del Administrador, que las conserva para consultar sus
+     * observaciones), de la más reciente a la más antigua.
+     *
+     * @return las inscripciones activas y las dadas de baja
+     */
+    List<Inscripcion> buscarTodasConBajas();
 
     // ---------------------------------------------------------------- Creaciones
 
@@ -108,22 +116,38 @@ public interface InscripcionService extends CrudService<Inscripcion> {
      */
     Inscripcion registrar(Integer idAlumno, Integer idCohorte, boolean terminosConfirmados);
 
+    // ---------------------------------------------------------------- Cierre de la inscripción
+
+    /**
+     * Cancela las inscripciones que siguen pendientes de pago cuando la inscripción a su cohorte ya terminó, para que no queden colgadas. Se
+     * cancela la que no tiene un pago en curso ni pendiente, incluso con un pago parcial aprobado (queda registrado, sin devolución): la que tiene
+     * un pago en curso espera a que se resuelva, y si se rechaza se cancela en una corrida posterior.
+     *
+     * @return La cantidad de inscripciones canceladas.
+     */
+    int cancelarPendientesDeInscripcionCerrada();
+
+    /**
+     * Pasa a «Acceso vencido» las inscripciones con el acceso habilitado o suspendido cuya fecha de vencimiento ya pasó. Es irreversible: el
+     * vencimiento no se modifica.
+     *
+     * @return La cantidad de inscripciones que vencieron.
+     */
+    int vencerAccesos();
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * Modifica las observaciones, la habilitación y la fecha de vencimiento del acceso de una inscripción activa
-     * (CU-47), para correcciones administrativas.
+     * Modifica las observaciones y la suspensión del acceso de una inscripción activa (CU-47). El vencimiento del acceso no se modifica, y una
+     * inscripción cancelada por falta de pago o dada de baja no admite ningún cambio.
      *
      * @param idInscripcion la inscripción
      * @param observaciones las observaciones (opcional)
-     * @param habilitada si el acceso está habilitado (si es {@code null} no se cambia)
-     * @param vencimiento el último día de acceso
+     * @param habilitada {@code false} suspende el acceso, {@code true} lo reactiva (si es {@code null} no se cambia)
      * @return la inscripción modificada
-     * @throws IllegalArgumentException si la inscripción no está activa o el vencimiento es anterior al que resulta
-     *         de la duración del cronograma
+     * @throws IllegalArgumentException si la inscripción no está activa, es inmutable o no se puede habilitar
      */
-    Inscripcion modificar(Integer idInscripcion, String observaciones, Boolean habilitada,
-            LocalDate vencimiento);
+    Inscripcion modificar(Integer idInscripcion, String observaciones, Boolean habilitada);
 
     // ---------------------------------------------------------------- Bajas
 

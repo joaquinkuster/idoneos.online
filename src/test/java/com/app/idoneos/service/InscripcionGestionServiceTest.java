@@ -71,14 +71,20 @@ class InscripcionGestionServiceTest {
         return cohorteService.buscarConFiltros(idPrograma, null, estado, null, null, "recientes", null).get(0);
     }
 
-    private Inscripcion inscripcion(String correo, String estadoAcceso) {
-        return inscripcionService.buscarConFiltros(null, correo, estadoAcceso).get(0);
+    /** La semilla trae una inscripción con la fecha de vencimiento pasada: la tarea periódica la deja en «Acceso vencido». */
+    @org.junit.jupiter.api.BeforeEach
+    void vencerLosAccesos() {
+        inscripcionService.vencerAccesos();
+    }
+
+    private Inscripcion inscripcion(String correo, String estado) {
+        return inscripcionService.buscarConFiltros(null, correo, estado).get(0);
     }
 
     /** La inscripción de Valentina al curso de Mercado de Capitales, que tiene intentos de autoevaluación y consultas de foro. */
     private Inscripcion inscripcionConActividad() {
         Integer idCurso = cursoService.buscarPorNombre("Mercado de Capitales Argentino").orElseThrow().getIdCurso();
-        return inscripcionService.buscarConFiltros(idCurso, VALENTINA, Inscripcion.ACCESO_VIGENTE).get(0);
+        return inscripcionService.buscarConFiltros(idCurso, VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0);
     }
 
     private Alumno alumno(String correo) {
@@ -87,12 +93,11 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-44: busca las inscripciones por estado de acceso")
-    void buscarPorEstadoDeAcceso() {
-        assertEquals(3, inscripcionService.buscarConFiltros(null, null, Inscripcion.ACCESO_VIGENTE).size());
-        assertEquals(2, inscripcionService.buscarConFiltros(null, null, Inscripcion.ACCESO_PROGRAMADA).size());
-        assertEquals(1, inscripcionService.buscarConFiltros(null, null, Inscripcion.ACCESO_PENDIENTE_DE_PAGO).size());
-        assertEquals(1, inscripcionService.buscarConFiltros(null, null, Inscripcion.ACCESO_VENCIDA).size());
+    @DisplayName("CU-44: busca las inscripciones por estado")
+    void buscarPorEstado() {
+        assertEquals(5, inscripcionService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoInscripcion.HABILITADA).size());
+        assertEquals(1, inscripcionService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO).size());
+        assertEquals(1, inscripcionService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoInscripcion.VENCIDA).size());
     }
 
     @Test
@@ -102,15 +107,15 @@ class InscripcionGestionServiceTest {
 
         assertEquals(2, inscripcionService.buscarConFiltros(idCurso, null, null).size());
         assertEquals(2, inscripcionService.buscarConFiltros(null, "VALENTINA", null).size());
-        assertEquals(1, inscripcionService.buscarConFiltros(null, "41234567", Inscripcion.ACCESO_VIGENTE).size());
-        assertEquals(1, inscripcionService.buscarConFiltros(null, "lucia", Inscripcion.ACCESO_PENDIENTE_DE_PAGO).size());
+        assertEquals(1, inscripcionService.buscarConFiltros(null, "41234567", com.app.idoneos.model.EstadoInscripcion.HABILITADA).size());
+        assertEquals(1, inscripcionService.buscarConFiltros(null, "lucia", com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO).size());
     }
 
     @Test
     @DisplayName("CU-44: no lista las inscripciones dadas de baja")
     void buscarNoListaLasDadasDeBaja() {
         int antes = inscripcionService.buscarConFiltros(null, null, null).size();
-        Inscripcion vigente = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
         inscripcionService.darDeBaja(vigente.getIdInscripcion(), null, null);
 
@@ -120,13 +125,13 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-45: inscribirse a un curso gratuito deja el acceso habilitado, con vencimiento y progreso inicial")
     void inscribirCursoGratuito() {
-        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
+        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         Alumno valentina = alumno(VALENTINA);
 
         Inscripcion inscripcion = inscripcionService.inscribir(valentina, cohorte.getIdCohorte(), true);
 
-        assertEquals(Inscripcion.ACCESO_VIGENTE, inscripcion.getEstadoAcceso());
-        assertTrue(inscripcion.estaHabilitada());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.HABILITADA, inscripcion.getNombreEstado());
+        assertTrue(inscripcion.fueHabilitada());
         long dias = ChronoUnit.DAYS.between(LocalDateTime.now(), inscripcion.getFechaVencimientoAcceso());
         assertTrue(dias >= cohorte.getAccesoDias() - 1 && dias <= cohorte.getAccesoDias());
         // Progreso inicial: la primer tema del cronograma, sin completar
@@ -140,31 +145,31 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-45: inscribirse a un curso con costo deja la inscripción pendiente de pago")
     void inscribirCursoConCosto() {
-        Cohorte cohorte = cohorte("Finanzas Personales e Inversión", "Abierta");
+        Cohorte cohorte = cohorte("Finanzas Personales e Inversión", com.app.idoneos.model.EstadoCohorte.ABIERTA);
 
         Inscripcion inscripcion = inscripcionService.inscribir(alumno(VALENTINA), cohorte.getIdCohorte(), true);
 
-        assertFalse(inscripcion.estaHabilitada());
-        assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, inscripcion.getEstadoAcceso());
+        assertFalse(inscripcion.fueHabilitada());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO, inscripcion.getNombreEstado());
     }
 
     @Test
     @DisplayName("CU-45: con fechas de dictado, el vencimiento se cuenta desde el inicio del dictado")
     void inscribirCohorteConDictado() {
-        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", "Abierta");
+        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         cohorte.getPrograma().getCurso().setPrecio(0);
 
         Inscripcion inscripcion = inscripcionService.inscribir(alumno(VALENTINA), cohorte.getIdCohorte(), true);
 
         assertEquals(cohorte.getFechaInicioDictado().plusDays(cohorte.getAccesoDias()),
                 inscripcion.getFechaVencimientoAcceso());
-        assertEquals(Inscripcion.ACCESO_PROGRAMADA, inscripcion.getEstadoAcceso());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.HABILITADA, inscripcion.getNombreEstado());
     }
 
     @Test
     @DisplayName("CU-45: la inscripción se rechaza fuera de la ventana de inscripción")
     void inscribirFueraDeLaVentana() {
-        Cohorte finalizada = cohorte("Mercado de Capitales Argentino", "Finalizada");
+        Cohorte finalizada = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> inscripcionService.inscribir(alumno(VALENTINA), finalizada.getIdCohorte(), true));
@@ -174,8 +179,9 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-45: la inscripción se rechaza si la cohorte alcanzó su cupo máximo")
     void inscribirSinCupo() {
-        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
-        cohorte.setCupoMaximo(cohorte.getCantidadInscriptos());
+        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
+        inscripcionService.inscribir(alumno(LUCIA), cohorte.getIdCohorte(), true); // curso sin costo: queda habilitada y ocupa un lugar
+        cohorte.setCupoMaximo(cohorte.getCuposOcupados());
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> inscripcionService.inscribir(alumno(VALENTINA), cohorte.getIdCohorte(), true));
@@ -185,7 +191,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-45: no admite dos inscripciones activas del mismo alumno a una cohorte")
     void inscribirDuplicada() {
-        Cohorte cohorte = cohorte("Finanzas Personales e Inversión", "Abierta"); // Martín ya está inscripto
+        Cohorte cohorte = cohorte("Finanzas Personales e Inversión", com.app.idoneos.model.EstadoCohorte.ABIERTA); // Martín ya está inscripto
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> inscripcionService.inscribir(alumno(MARTIN), cohorte.getIdCohorte(), true));
@@ -195,7 +201,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-45: exige aceptar los términos y condiciones, un alumno y una cohorte disponible")
     void inscribirSinTerminosNiDatos() {
-        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
+        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         Alumno valentina = alumno(VALENTINA);
 
         IllegalArgumentException sinTerminos = assertThrows(IllegalArgumentException.class,
@@ -211,7 +217,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-46: el administrador registra la inscripción de un alumno con las mismas reglas")
     void registrar() {
-        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
+        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         Integer idAlumno = alumno(LUCIA).getIdAlumno();
 
         Inscripcion inscripcion = inscripcionService.registrar(idAlumno, cohorte.getIdCohorte(), true);
@@ -229,72 +235,105 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: modifica observaciones y vencimiento de una inscripción activa")
+    @DisplayName("CU-47: modifica las observaciones y suspende el acceso, sin tocar el vencimiento")
     void modificar() {
-        Inscripcion vigente = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
-        LocalDate vencimiento = LocalDate.now().plusMonths(8);
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+        LocalDateTime vencimiento = vigente.getFechaVencimientoAcceso();
 
-        inscripcionService.modificar(vigente.getIdInscripcion(), "  Extensión de cortesía ", true, vencimiento);
+        inscripcionService.modificar(vigente.getIdInscripcion(), "  Acceso en pausa ", false);
 
-        assertEquals("Extensión de cortesía", vigente.getObservaciones());
-        assertEquals(vencimiento, vigente.getFechaVencimientoAcceso().toLocalDate());
-        assertEquals(Inscripcion.ACCESO_VIGENTE, vigente.getEstadoAcceso());
+        assertEquals("Acceso en pausa", vigente.getObservaciones());
+        assertEquals(vencimiento, vigente.getFechaVencimientoAcceso());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA, vigente.getNombreEstado());
         assertNotNull(vigente.getUltimaModificacion());
+
+        // reactivarla la devuelve al acceso habilitado
+        inscripcionService.modificar(vigente.getIdInscripcion(), null, true);
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.HABILITADA, vigente.getNombreEstado());
     }
 
     @Test
-    @DisplayName("CU-47: no se habilita a mano una inscripción de un curso con costo sin pagos aprobados que cubran el precio")
+    @DisplayName("CU-47: reactivar una suspendida cuyo vencimiento ya pasó la deja con el acceso vencido")
+    void reactivarUnaSuspendidaVencida() {
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+        inscripcionService.modificar(vigente.getIdInscripcion(), null, false);
+        vigente.setFechaVencimientoAcceso(LocalDateTime.now().minusDays(1));
+
+        inscripcionService.modificar(vigente.getIdInscripcion(), null, true);
+
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.VENCIDA, vigente.getNombreEstado());
+    }
+
+    @Test
+    @DisplayName("Una suspendida con el vencimiento pasado y una habilitada con el vencimiento pasado pasan a «Acceso vencido» por la tarea periódica")
+    void vencerAccesosPorFecha() {
+        Inscripcion habilitada = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+        Inscripcion suspendida = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+        inscripcionService.modificar(suspendida.getIdInscripcion(), null, false);
+        habilitada.setFechaVencimientoAcceso(LocalDateTime.now().minusMinutes(5));
+        suspendida.setFechaVencimientoAcceso(LocalDateTime.now().minusMinutes(5));
+
+        assertEquals(2, inscripcionService.vencerAccesos());
+
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.VENCIDA, habilitada.getNombreEstado());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.VENCIDA, suspendida.getNombreEstado());
+        assertEquals(0, inscripcionService.vencerAccesos());
+    }
+
+    @Test
+    @DisplayName("CU-47: el administrador no habilita a mano una inscripción pendiente de pago: se habilita al aprobarse el pago")
     void noHabilitaSinPagoAprobado() {
-        Inscripcion pendiente = inscripcion(LUCIA, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
+        Inscripcion pendiente = inscripcion(LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> inscripcionService.modificar(pendiente.getIdInscripcion(), null, true,
-                        pendiente.getFechaVencimientoAcceso().toLocalDate()));
+                () -> inscripcionService.modificar(pendiente.getIdInscripcion(), null, true));
 
-        assertTrue(error.getMessage().contains("pago aprobado"), error.getMessage());
-        assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, pendiente.getEstadoAcceso());
+        assertTrue(error.getMessage().contains("se habilita al aprobarse el pago"), error.getMessage());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO, pendiente.getNombreEstado());
     }
 
     @Test
-    @DisplayName("CU-47: conserva el momento exacto del vencimiento si no se cambia el día")
-    void modificarInscripcionSinCambiarElDia() {
-        Inscripcion vigente = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
-        LocalDateTime original = vigente.getFechaVencimientoAcceso();
+    @DisplayName("CU-47: las observaciones tienen un máximo de caracteres")
+    void modificarConObservacionesLargas() {
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
-        inscripcionService.modificar(vigente.getIdInscripcion(), "Nota", null, original.toLocalDate());
-
-        assertEquals(original, vigente.getFechaVencimientoAcceso());
-    }
-
-    @Test
-    @DisplayName("CU-47: el vencimiento no puede ser anterior al que resulta de la duración del cronograma")
-    void modificarInscripcionConVencimientoAnteriorAlMinimo() {
-        Inscripcion vigente = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
-        LocalDate antesDelMinimo = vigente.getVencimientoMinimo().toLocalDate().minusDays(1);
-
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> inscripcionService.modificar(vigente.getIdInscripcion(), null, null, antesDelMinimo));
-        assertTrue(error.getMessage().contains("duración del cronograma"));
         assertThrows(IllegalArgumentException.class,
-                () -> inscripcionService.modificar(vigente.getIdInscripcion(), null, null, null));
-        assertThrows(IllegalArgumentException.class, () -> inscripcionService.modificar(
-                vigente.getIdInscripcion(), "x".repeat(501), null, LocalDate.now().plusYears(1)));
+                () -> inscripcionService.modificar(vigente.getIdInscripcion(), "x".repeat(501), null));
+    }
+
+    @Test
+    @DisplayName("CU-47: una inscripción cancelada por falta de pago o dada de baja no admite ningún cambio")
+    void noModificaUnaInscripcionInmutable() {
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+        Inscripcion pendiente = inscripcion(LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO);
+        pendiente.getCohorte().setFechaFinInscripcion(LocalDateTime.now().minusDays(1));
+        inscripcionService.cancelarPendientesDeInscripcionCerrada();
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.CANCELADA, pendiente.getNombreEstado());
+
+        IllegalArgumentException cancelada = assertThrows(IllegalArgumentException.class,
+                () -> inscripcionService.modificar(pendiente.getIdInscripcion(), "Nota", null));
+        assertTrue(cancelada.getMessage().contains("cancelada por falta de pago"));
+        assertThrows(IllegalArgumentException.class, () -> inscripcionService.darDeBaja(pendiente.getIdInscripcion(), null, null));
+
+        inscripcionService.darDeBaja(vigente.getIdInscripcion(), null, null);
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.DADA_DE_BAJA, vigente.getNombreEstado());
+        assertThrows(IllegalArgumentException.class, () -> inscripcionService.modificar(vigente.getIdInscripcion(), null, null));
     }
 
     @Test
     @DisplayName("CU-47: no se modifica una inscripción dada de baja")
     void modificarInscripcionDadaDeBaja() {
-        Inscripcion vigente = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         inscripcionService.darDeBaja(vigente.getIdInscripcion(), null, null);
 
         assertThrows(IllegalArgumentException.class, () -> inscripcionService.modificar(
-                vigente.getIdInscripcion(), null, null, LocalDate.now().plusYears(1)));
+                vigente.getIdInscripcion(), null, null));
     }
 
     @Test
     @DisplayName("CU-48: corrige el nombre y el DNI de un certificado emitido")
     void corregirCertificado() {
-        Certificado certificado = inscripcion(MARTIN, Inscripcion.ACCESO_VENCIDA).getCertificadoVigente();
+        Certificado certificado = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente();
 
         certificadoService.corregirDatos(certificado.getIdCertificado(), "  Martín A. Gómez ", "41234568");
 
@@ -306,7 +345,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-48: valida los campos obligatorios y el DNI")
     void corregirCertificadoConDatosInvalidos() {
-        Integer id = inscripcion(MARTIN, Inscripcion.ACCESO_VENCIDA).getCertificadoVigente().getIdCertificado();
+        Integer id = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente().getIdCertificado();
 
         assertThrows(IllegalArgumentException.class, () -> certificadoService.corregirDatos(id, " ", "41234567"));
         assertThrows(IllegalArgumentException.class, () -> certificadoService.corregirDatos(id, "Martín Gómez", null));
@@ -318,7 +357,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-48: no se corrige el certificado de una inscripción dada de baja")
     void corregirCertificadoDeInscripcionDadaDeBaja() {
-        Inscripcion vencida = inscripcion(MARTIN, Inscripcion.ACCESO_VENCIDA);
+        Inscripcion vencida = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA);
         Integer id = vencida.getCertificadoVigente().getIdCertificado();
         inscripcionService.darDeBaja(vencida.getIdInscripcion(), null, null);
 
@@ -328,7 +367,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-49: el alumno se da de baja: revoca el acceso, da de baja certificado e intentos y conserva los progresos")
     void darDeBajaDelAlumno() {
-        Inscripcion vencida = inscripcion(MARTIN, Inscripcion.ACCESO_VENCIDA);
+        Inscripcion vencida = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA);
         Certificado certificado = vencida.getCertificadoVigente();
         Inscripcion valentina = inscripcionConActividad();
         int progresos = valentina.getProgresos().size();
@@ -339,7 +378,7 @@ class InscripcionGestionServiceTest {
         inscripcionService.darDeBaja(vencida.getIdInscripcion(), vencida.getAlumno(), null);
 
         assertTrue(valentina.esInactivo());
-        assertEquals(Inscripcion.ACCESO_DADA_DE_BAJA, valentina.getEstadoAcceso());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.DADA_DE_BAJA, valentina.getNombreEstado());
         assertTrue(valentina.getObservaciones().contains("Cambio de planes"));
         assertTrue(valentina.getIntentosAutoevaluacion().stream().allMatch(i -> i.esInactivo()));
         assertEquals(progresos, valentina.getProgresos().size()); // los progresos no tienen baja lógica
@@ -371,7 +410,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-49: un alumno no puede dar de baja la inscripción de otro; el administrador puede con cualquiera")
     void darDeBajaAjenaYDelAdministrador() {
-        Inscripcion valentina = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
+        Inscripcion valentina = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         Alumno martin = alumno(MARTIN);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
@@ -386,7 +425,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-49: no se da de baja dos veces una inscripción y el motivo tiene un máximo")
     void darDeBajaInvalida() {
-        Inscripcion valentina = inscripcion(VALENTINA, Inscripcion.ACCESO_VIGENTE);
+        Inscripcion valentina = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
         assertThrows(IllegalArgumentException.class,
                 () -> inscripcionService.darDeBaja(valentina.getIdInscripcion(), null, "x".repeat(301)));
@@ -399,7 +438,7 @@ class InscripcionGestionServiceTest {
     @Test
     @DisplayName("CU-49: una inscripción dada de baja libera el cupo de la cohorte")
     void darDeBajaLiberaElCupo() {
-        Cohorte cohorte = cohorte("Finanzas Personales e Inversión", "Abierta");
+        Cohorte cohorte = cohorte("Finanzas Personales e Inversión", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         int inscriptos = cohorte.getCantidadInscriptos();
         Inscripcion nueva = inscripcionService.inscribir(alumno(VALENTINA), cohorte.getIdCohorte(), true);
         assertEquals(inscriptos + 1, cohorte.getCantidadInscriptos());

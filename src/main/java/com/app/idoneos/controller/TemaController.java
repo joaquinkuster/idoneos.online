@@ -68,7 +68,9 @@ public class TemaController {
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
-            @RequestParam(value = "editar", required = false) Integer editar, Model model, Authentication authentication,
+            @RequestParam(value = "editar", required = false) Integer editar,
+            @RequestParam(value = "accion", required = false) String accion,
+            @RequestParam(value = "temaId", required = false) Integer temaId, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
         try {
             ContextoCurso contexto = panel.contextoDelPanel(cursoId, (Usuario) authentication.getPrincipal());
@@ -78,7 +80,8 @@ public class TemaController {
             List<Tema> temas = temaService.buscarPorCurso(curso);
             model.addAttribute("temas", temas); // lista completa: la usa el asistente
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-            PaginacionUtil.Pagina<Tema> pagina = Filtros.tabla.paginar(temas, request.getParameterMap());
+            PaginacionUtil.Pagina<Tema> pagina = Filtros.tabla.paginarMostrando(temas, request.getParameterMap(),
+                    t -> "baja".equals(accion) && temaId != null && t.getIdTema() == temaId);
             PaginacionUtil.cargarEnModelo(model, pagina);
             model.addAttribute("temasPagina", pagina.filas());
             // Si cada tema tiene todo su contenido (según las modalidades del curso)
@@ -90,7 +93,11 @@ public class TemaController {
                 return "pages/tema/buscar :: filas"; // solo las filas de la página pedida
             }
             model.addAttribute("puedeGestionar", puedeGestionar);
-            model.addAttribute("abrirModal", puedeGestionar && (nuevo != null || editar != null) ? "modalTemas" : null);
+            // Desde la vista del curso: «Dar de baja» abre la confirmación de ese tema (el docente y el administrador pueden)
+            boolean bajaDesdeElCurso = "baja".equals(accion) && temaId != null
+                    && temas.stream().anyMatch(t -> t.getIdTema() == temaId);
+            model.addAttribute("abrirModal", bajaDesdeElCurso ? "modalBajaTema" + temaId
+                    : puedeGestionar && (nuevo != null || editar != null) ? "modalTemas" : null);
             model.addAttribute("temaAEditar", editar);
             model.addAttribute("titulo", "Temas | Idóneos Online");
             return "pages/tema/buscar";
@@ -164,6 +171,24 @@ public class TemaController {
                 temaService.darDeBaja(id, programaId, docenteQueGestiona(authentication));
             }
             return RespuestaFormularioUtil.armarRespuestaExitosa("Tema dada de baja con éxito.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /**
+     * CU-22: Da de baja varios temas del curso a la vez, todos o ninguno. Responde en JSON.
+     *
+     * @param ids            Identificadores de los temas seleccionados.
+     * @param authentication La autenticación actual.
+     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
+     */
+    @PostMapping("/darDeBajaMasiva")
+    public ResponseEntity<Map<String, String>> darDeBajaVarios(
+            @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
+        try {
+            temaService.darDeBajaVariasPorCurso(ids, docenteQueGestiona(authentication));
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Temas dados de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }

@@ -2,6 +2,7 @@ package com.app.idoneos.service.pasarelapago;
 
 import com.app.idoneos.model.Parametro;
 import com.app.idoneos.service.parametro.ParametroService;
+import com.app.idoneos.util.MotivoPagoUtil;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -45,6 +46,16 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
 
     private static final int LONGITUD_DESCRIPCION = 100;
 
+    /** MODO admite solicitudes de entre 5 y 10 minutos. */
+    private static final int VIGENCIA_MINIMA_SEGUNDOS = 5 * 60;
+    private static final int VIGENCIA_MAXIMA_SEGUNDOS = 10 * 60;
+
+    /**
+     * Colchón que se suma al plazo: MODO cuenta el vencimiento desde que recibe la solicitud, así que con el plazo en 5 minutos, "ahora más 5
+     * minutos" llegaría como 4 minutos y 59 segundos y MODO rechazaría la creación.
+     */
+    private static final int COLCHON_SEGUNDOS = 10;
+
     /** Margen antes del vencimiento del token para pedir uno nuevo. */
     private static final long MARGEN_TOKEN_SEGUNDOS = 600;
 
@@ -78,7 +89,8 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
                     .retrieve().body(JsonNode.class));
             return interpretar(respuesta);
         } catch (RestClientException e) {
-            throw new IllegalStateException("No se pudo consultar el pago en MODO", e);
+            REGISTRO.error("No se pudo consultar el pago {} en MODO", idSolicitud, e);
+            throw new IllegalArgumentException("Error! No se pudo consultar el pago en MODO. Intentá nuevamente en unos minutos.");
         }
     }
 
@@ -93,10 +105,13 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         String estado = texto(respuesta, "status");
         String estadoDelPago = texto(transaccion, "status");
         Solicitud solicitud = new Solicitud(texto(respuesta, "id"));
+        LocalDateTime vencimiento = vencimientoDe(respuesta);
         boolean aprobado = "ACCEPTED".equals(estado) || "APPROVED".equals(estadoDelPago);
         boolean rechazado = "REJECTED".equals(estado) || "REJECTED".equals(estadoDelPago);
         if (!aprobado && !rechazado) {
-            return Resultado.pendiente(solicitud);
+            // Processing: el pago está en vuelo y puede terminar aprobado; Created y Scanned: todavía nadie está pagando
+            boolean procesando = "PROCESSING".equals(estado) || "PROCESSING".equals(estadoDelPago);
+            return procesando ? Resultado.procesando(solicitud, vencimiento) : Resultado.pendiente(solicitud, vencimiento);
         }
         String nombre = String.join(" ", textoONada(transaccion, "first_name"), textoONada(transaccion, "last_name")).trim();
         JsonNode detalle = transaccion.path("payment_method_detail");
@@ -107,7 +122,27 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         }
         return new Resultado(aprobado ? Estado.APROBADO : Estado.RECHAZADO, solicitud, describirMedio(transaccion, detalle),
                 texto(detalle, "last_digits"), nombre.isEmpty() ? null : nombre, texto(transaccion, "dni"),
-                texto(transaccion, "reference_code"), aprobado ? null : motivoDelError(transaccion), fechaPago);
+                texto(transaccion, "reference_code"), aprobado ? null : motivoDelError(transaccion), fechaPago, vencimiento);
+    }
+
+    /** El momento hasta el que se puede pagar la solicitud, que MODO informa en UTC (nulo si no vino o no se pudo leer). */
+    private static LocalDateTime vencimientoDe(JsonNode respuesta) {
+        String vencimiento = texto(respuesta, "expiration_date");
+        if (vencimiento == null) {
+            return null;
+        }
+        try {
+            return LocalDateTime.ofInstant(Instant.parse(vencimiento), ZoneId.systemDefault());
+        } catch (java.time.format.DateTimeParseException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int vigenciaSolicitudSegundos() {
+        int minutos = parametros.obtenerEntero(Parametro.PLAZO_CONFIRMACION_PAGO, Parametro.PLAZO_CONFIRMACION_PAGO_POR_DEFECTO);
+        int segundos = Math.max(5, Math.min(10, minutos)) * 60 + COLCHON_SEGUNDOS;
+        return Math.max(VIGENCIA_MINIMA_SEGUNDOS, Math.min(VIGENCIA_MAXIMA_SEGUNDOS, segundos));
     }
 
     @Override
@@ -143,6 +178,9 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         cuerpo.put("cc_code", requerido(Parametro.MODO_CC_CODE));
         cuerpo.put("processor_code", requerido(Parametro.MODO_PROCESSOR_CODE));
         cuerpo.put("external_intention_id", idExterno);
+        // El vencimiento va en UTC con la zona explícita (la «Z»): sin ella MODO lo leería desfasado. Pasado ese momento no acepta el pago
+        cuerpo.put("expiration_date", java.time.format.DateTimeFormatter.ISO_INSTANT
+                .format(Instant.now().plusSeconds(vigenciaSolicitudSegundos()).truncatedTo(java.time.temporal.ChronoUnit.MILLIS)));
         String urlWebhook = urlWebhook();
         if (urlWebhook != null) {
             cuerpo.put("webhook_notification", urlWebhook);
@@ -185,9 +223,11 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
 
     private String motivoDelError(JsonNode transaccion) {
         JsonNode error = transaccion.path("operation_error");
+        // El código original de MODO (por ejemplo INSUFFICIENT_FUNDS) se traduce al español
+        String original = texto(error, "original_error");
         String mensaje = texto(error, "message");
-        return mensaje != null ? mensaje : (texto(error, "original_error") != null ? texto(error, "original_error")
-                : "El pago fue rechazado.");
+        String motivo = original != null ? original : mensaje;
+        return motivo != null ? MotivoPagoUtil.traducir(motivo) : "El pago fue rechazado.";
     }
 
     /** Los parámetros obligatorios que no están cargados o están vacíos. */

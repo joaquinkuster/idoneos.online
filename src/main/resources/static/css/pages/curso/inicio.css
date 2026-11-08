@@ -194,7 +194,14 @@ a.ec-chip:hover { filter: brightness(.96); }
     min-width: 0;
 }
 
+/* Encabezado de la carta del diseño (completo o pendiente): más chico que el de las secciones de página, para que no compita con el contenido */
+.ec-grupo .pn-grupo-etiqueta {
+    font-size: 11px;
+}
+
 .ec-grupo .pn-grupo-titulo {
+    font-size: 26px;
+    font-weight: 800;
     color: #7A4E0B;
 }
 
@@ -202,6 +209,8 @@ a.ec-chip:hover { filter: brightness(.96); }
     padding: 2px 10px;
     border-radius: 999px;
     background: #fff;
+    font-size: 13px;
+    font-weight: 600;
 }
 
 .ec-grupo-alternar {

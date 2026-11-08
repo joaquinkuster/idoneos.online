@@ -64,12 +64,25 @@
                                     <strong th:text="${'$ ' + #numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">$ 72.000</strong>
                                 </div>
 
-                                <button type="button" class="pn-btn pn-btn-primario caja-boton" data-pagar th:unless="${parcial}"
-                                        th:data-url="@{'/pago/pagar/' + ${inscripcion.idInscripcion}}"
-                                        th:data-inscripcion="${inscripcion.idInscripcion}"
-                                        th:data-monto="${#numbers.formatDecimal(total, 1, 'NONE', 2, 'POINT')}"
-                                        th:text="${total <= 0 ? 'Habilitar acceso' : 'Pagar con MODO'}">Pagar con MODO</button>
-                                <p class="caja-nota" th:if="${!parcial and total > 0}">Vas a completar el pago en el sitio de MODO, con la app de tu banco o tu tarjeta.</p>
+                                <!-- El botón cambia según el pago: sin pago (Realizar pago), en curso dentro del plazo (Continuar con el pago, el mismo QR)
+                                     o rechazado (Reintentar pago, un pago nuevo). Vencida su solicitud, se verifica con MODO y no se puede pagar de nuevo. -->
+                                <th:block th:with="enCurso=${inscripcion.pagoEnCurso},
+                                                   verificando=${inscripcion.pagoEnCurso != null and @pagoServiceImpl.estaVerificando(inscripcion.pagoEnCurso)},
+                                                   rechazado=${inscripcion.pagoEnCurso == null and inscripcion.pagoSinAprobar != null and inscripcion.pagoSinAprobar.estaRechazado()}">
+                                    <div class="pn-aviso pn-aviso-azul" style="margin: 12px 0 0;" th:if="${inscripcionNueva and total > 0}">
+                                        Tu inscripción está registrada, pero tu lugar no está asegurado hasta que realices el pago.
+                                    </div>
+                                    <div class="pn-aviso pn-aviso-dorado" style="margin: 12px 0 0;" th:if="${sinCupo}">
+                                        Por ahora no hay lugares disponibles. Si alguien no completa su pago, se libera uno.
+                                    </div>
+                                    <button type="button" class="pn-btn pn-btn-primario caja-boton" data-pagar th:unless="${parcial or verificando or sinCupo}"
+                                            th:data-url="@{'/pago/pagar/' + ${inscripcion.idInscripcion}}"
+                                            th:data-inscripcion="${inscripcion.idInscripcion}"
+                                            th:data-monto="${#numbers.formatDecimal(total, 1, 'NONE', 2, 'POINT')}"
+                                            th:text="${total <= 0 ? 'Habilitar acceso' : (enCurso != null ? 'Continuar con el pago' : (rechazado ? 'Reintentar pago' : 'Realizar pago con MODO'))}">Realizar pago con MODO</button>
+                                    <!-- Vencida la solicitud, MODO todavía no confirmó: una etiqueta (no una acción), como en Mis pagos y Mis cursos -->
+                                    <p class="pn-celda-secundaria caja-verificando" th:if="${verificando}">Verificando tu pago…</p>
+                                </th:block>
 
                                 <div class="pn-aviso pn-aviso-dorado mt-3" th:if="${parcial}">
                                                                         Ya se registró un pago de

@@ -223,6 +223,56 @@
     background: #DC2626;
 }
 
+/* Las tres partes de abajo del cajón (temas, autoevaluaciones pendientes y la leyenda de «Hoy») se separan con una línea gris suave y el mismo margen */
+.ac-drawer-pendientes,
+.ac-drawer-leyenda-hoy {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #E2E8F0;
+}
+
+.ac-drawer-leyenda-hoy .ac-drawer-hoy:first-child {
+    margin-top: 0;
+}
+
+/* Autoevaluaciones pendientes del alumno (solo informativo) */
+.ac-drawer-subtitulo {
+    margin: 0 0 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #334155;
+}
+
+.ac-drawer-pendientes ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ac-drawer-pendientes li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    color: #334155;
+}
+
+.ac-drawer-pendientes li i {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: #D4A03D;
+}
+
+.ac-drawer-sin-pendientes {
+    margin: 0;
+    font-size: 12px;
+    color: #64748B;
+}
+
 /* Pestaña del borde derecho para volver a mostrar el cajón */
 .ac-drawer-pestana {
     display: none;

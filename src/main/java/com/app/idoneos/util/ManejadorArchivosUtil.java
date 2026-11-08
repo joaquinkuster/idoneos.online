@@ -110,7 +110,7 @@ public class ManejadorArchivosUtil {
                 throw new IllegalArgumentException(MensajeErrorUtil.armarFormatoInvalido("El archivo", formatos));
             }
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error! No se pudo leer el archivo. Intente nuevamente.");
+            throw new IllegalArgumentException("Error! No se pudo leer el archivo. Intentá nuevamente.");
         }
         return extension;
     }
@@ -135,7 +135,7 @@ public class ManejadorArchivosUtil {
             copiar(archivo, carpeta.resolve(nombre + "." + extension));
             return nombre + "." + extension;
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error! No se pudo guardar el archivo. Intente nuevamente.");
+            throw new IllegalArgumentException("Error! No se pudo guardar el archivo. Intentá nuevamente.");
         }
     }
 
@@ -264,7 +264,7 @@ public class ManejadorArchivosUtil {
             }
             return extension;
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error! No se pudo leer la imagen. Intente nuevamente.");
+            throw new IllegalArgumentException("Error! No se pudo leer la imagen. Intentá nuevamente.");
         }
     }
 
@@ -296,7 +296,7 @@ public class ManejadorArchivosUtil {
             }
             return nombre + "." + extension;
         } catch (IOException e) {
-            throw new IllegalArgumentException("Error! No se pudo guardar la imagen. Intente nuevamente.");
+            throw new IllegalArgumentException("Error! No se pudo guardar la imagen. Intentá nuevamente.");
         }
     }
 

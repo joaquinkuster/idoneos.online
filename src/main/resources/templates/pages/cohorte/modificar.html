@@ -13,7 +13,7 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/cohorte/modificar/' + ${cohorte.idCohorte}}" method="post" class="form-ajax" data-validar data-validador="cohorte" data-pasos data-resumen="Cohorte" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"}]' novalidate
-                          th:attr="data-dias=${cohorte.curso.duracionDias}, data-envivo=${cohorte.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${cohorte.curso.nombre}, data-ctx-programa=${cohorte.programa != null ? cohorte.programa.nombre : ''}, data-pendiente=${cohorte.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-maximo-acceso=${accesoDiasMaximos}, data-resumen-titulo=${'(' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ')'}"
+                          th:attr="data-dias=${cohorte.curso.duracionDias}, data-envivo=${cohorte.curso.incluyeModalidad('En vivo')}, data-ctx-curso=${cohorte.curso.nombre}, data-ctx-programa=${cohorte.programa != null ? cohorte.programa.nombre : ''}, data-pendiente=${cohorte.esPendiente()}, data-plazo=${plazoMinimoContenidoDias}, data-maximo-acceso=${accesoDiasMaximos}, data-resumen-nombre=${cohorte.etiqueta}"
                           th:with="bloqueada=${cohorte.cantidadInscriptos > 0}, enVivo=${cohorte.curso.incluyeModalidad('En vivo')}">
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Fechas</span></span><span class="pn-pasos-linea"></span>

@@ -46,7 +46,7 @@ public class Inscripcion {
      * Fecha y hora en que vence el acceso al contenido. Se calcula al habilitarse la inscripción por primera vez, por lo
      * que es nula mientras está pendiente de pago.
      */
-    @Column(name = "fechaVencimientoAcceso", nullable = false)
+    @Column(name = "fechaVencimientoAcceso", nullable = true)
     private LocalDateTime fechaVencimientoAcceso;
 
     /**
@@ -74,10 +74,20 @@ public class Inscripcion {
     private LocalDateTime ultimaModificacion;
 
     /**
-     * Indica si la inscripción está habilitada. Es opcional.
+     * Estado del ciclo de vida de la inscripción: Pendiente de pago, Pago en curso, Habilitada, Suspendida o Cancelada. Reemplaza al antiguo
+     * booleano «habilitado».
      */
-    @Column(name = "habilitado", nullable = true)
-    private Boolean habilitado;
+    @ManyToOne
+    @JoinColumn(name = "idEstadoInscripcion", nullable = false)
+    private EstadoInscripcion estadoInscripcion;
+
+    /**
+     * Estado del avance del alumno: En progreso o Finalizado (completó todos los temas del cronograma). Se guarda para no tener que contar los
+     * temas completados cada vez que se lo consulta.
+     */
+    @ManyToOne
+    @JoinColumn(name = "idEstadoAvance", nullable = false)
+    private EstadoAvance estadoAvance;
 
     /**
      * Indica si el registro fue dado de baja (baja lógica). El valor predeterminado es "false", indicando que está vigente.
@@ -120,14 +130,13 @@ public class Inscripcion {
      *
      * @param cohorte relación con Cohorte.
      * @param alumno relación con Alumno.
-     * @param fechaVencimientoAcceso fecha y hora en que vence el acceso al contenido (nula si todavía no está habilitada).
+     * @param fechaVencimientoAcceso fecha y hora en que vence el acceso al contenido (nula si todavía no está habilitada: se calcula cuando se
+     *                               habilita por primera vez).
      */
     public Inscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime fechaVencimientoAcceso) {
         this.cohorte = cohorte;
         this.alumno = alumno;
-        // Mientras no se habilita no hay acceso: el vencimiento provisorio se recalcula cuando se habilita por primera vez
-        this.fechaVencimientoAcceso = fechaVencimientoAcceso != null || cohorte == null ? fechaVencimientoAcceso
-                : cohorte.calcularVencimientoAcceso(LocalDateTime.now());
+        this.fechaVencimientoAcceso = fechaVencimientoAcceso;
     }
 
     /**
@@ -165,65 +174,252 @@ public class Inscripcion {
         return cohorte.getPrograma().getCurso();
     }
 
-    /** Estados de acceso (se derivan de la habilitación, el vencimiento y el inicio del dictado). */
-    public static final String ACCESO_VIGENTE = "Vigente";
-    public static final String ACCESO_VENCIDA = "Vencida";
-    public static final String ACCESO_PENDIENTE_DE_PAGO = "Pendiente de pago";
-    public static final String ACCESO_PROGRAMADA = "Programada";
-    public static final String ACCESO_DADA_DE_BAJA = "Dada de baja";
+    public static final String AVANCE_SIN_AVANCE = "Sin avance";
+
+    private boolean esEstado(String nombre) {
+        return estadoInscripcion != null && nombre.equals(estadoInscripcion.getNombre());
+    }
 
     /**
-     * Indica si el acceso está habilitado: se habilita al aprobarse el pago (o al inscribirse a un curso gratuito).
-     * Las inscripciones sin dato se consideran habilitadas.
+     * Indica si la inscripción ya fue habilitada alguna vez: pagó, es gratuita o la habilitó el administrador. Incluye la suspendida y la vencida,
+     * que conservan su pago y su cupo (ya no se puede decir lo mismo de «Acceso habilitado», que es el estado de quien puede entrar hoy). Una
+     * inscripción sin estado (todavía no guardada) se considera habilitada.
      *
-     * @return {@code true} si no está explícitamente deshabilitada.
+     * @return {@code true} si el estado es Acceso habilitado, suspendido o vencido.
      */
-    public boolean estaHabilitada() {
-        return !Boolean.FALSE.equals(habilitado);
+    public boolean fueHabilitada() {
+        return estadoInscripcion == null || esEstado(EstadoInscripcion.HABILITADA) || esEstado(EstadoInscripcion.SUSPENDIDA)
+                || esEstado(EstadoInscripcion.VENCIDA);
+    }
+
+    /**
+     * Indica si el alumno tiene acceso al contenido en un momento: tiene el acceso habilitado y su fecha de vencimiento no pasó (se lee la fecha,
+     * no solo el estado, porque la tarea que vence los accesos corre una vez por minuto).
+     *
+     * @param ahora El momento de referencia.
+     * @return {@code true} si puede acceder.
+     */
+    public boolean tieneAcceso(LocalDateTime ahora) {
+        return (estadoInscripcion == null || esEstado(EstadoInscripcion.HABILITADA)) && !vencimientoPasado(ahora);
+    }
+
+    /**
+     * Indica si el alumno tiene acceso al contenido en este momento.
+     *
+     * @return {@code true} si puede acceder.
+     */
+    public boolean tieneAcceso() {
+        return tieneAcceso(LocalDateTime.now());
+    }
+
+    /**
+     * Indica si la fecha de vencimiento del acceso ya pasó (una inscripción que todavía no se habilitó no tiene fecha).
+     *
+     * @param ahora El momento de referencia.
+     * @return {@code true} si el vencimiento es anterior a ese momento.
+     */
+    public boolean vencimientoPasado(LocalDateTime ahora) {
+        return fechaVencimientoAcceso != null && fechaVencimientoAcceso.isBefore(ahora);
+    }
+
+    /**
+     * Indica si puede entrar al contenido ahora: tiene el acceso habilitado y el dictado de la cohorte ya comenzó (o no tiene fechas de dictado).
+     *
+     * @param ahora El momento de referencia.
+     * @return {@code true} si puede acceder y el dictado ya comenzó.
+     */
+    public boolean puedeAccederAhora(LocalDateTime ahora) {
+        return tieneAcceso(ahora) && !cohorte.dictadoPorComenzar(ahora);
+    }
+
+    /**
+     * Indica si puede entrar al contenido en este momento.
+     *
+     * @return {@code true} si puede acceder y el dictado ya comenzó.
+     */
+    public boolean puedeAccederAhora() {
+        return puedeAccederAhora(LocalDateTime.now());
+    }
+
+    /**
+     * Indica si espera el inicio del dictado en este momento (ver {@link #esperaElDictado(LocalDateTime)}).
+     *
+     * @return {@code true} si tiene el acceso habilitado pero el dictado no comenzó.
+     */
+    public boolean esperaElDictado() {
+        return esperaElDictado(LocalDateTime.now());
+    }
+
+    /**
+     * Indica si tiene el acceso habilitado pero el dictado de su cohorte todavía no comenzó (entra cuando empiece).
+     *
+     * @param ahora El momento de referencia.
+     * @return {@code true} si espera el inicio del dictado.
+     */
+    public boolean esperaElDictado(LocalDateTime ahora) {
+        return tieneAcceso(ahora) && cohorte.dictadoPorComenzar(ahora);
+    }
+
+    /**
+     * Indica si el acceso venció (estado guardado).
+     *
+     * @return {@code true} si el estado es Acceso vencido.
+     */
+    public boolean estaVencida() {
+        return esEstado(EstadoInscripcion.VENCIDA);
+    }
+
+    /**
+     * Indica si la inscripción fue dada de baja (por el alumno o el administrador).
+     *
+     * @return {@code true} si está dada de baja.
+     */
+    public boolean estaDadaDeBaja() {
+        return baja || esEstado(EstadoInscripcion.DADA_DE_BAJA);
+    }
+
+    /**
+     * Indica si la inscripción sigue en juego para su cohorte: está pendiente de pago, con un pago en curso o con el acceso por vencer (habilitada
+     * o suspendida, con la fecha de vencimiento por delante). Cuando ninguna lo está, la cursada de la cohorte terminó.
+     *
+     * @param ahora El momento de referencia.
+     * @return {@code true} si todavía puede pasar algo con ella.
+     */
+    public boolean sigueEnJuego(LocalDateTime ahora) {
+        if (estaDadaDeBaja() || estaCancelada()) {
+            return false;
+        }
+        if (requierePago()) {
+            return true;
+        }
+        return (esEstado(EstadoInscripcion.HABILITADA) || esEstado(EstadoInscripcion.SUSPENDIDA) || estadoInscripcion == null)
+                && !vencimientoPasado(ahora);
+    }
+
+    /**
+     * Indica si el estado ya no puede cambiar: Cancelada por falta de pago y Dada de baja son finales.
+     *
+     * @return {@code true} si la inscripción es inmutable.
+     */
+    public boolean esInmutable() {
+        return estaCancelada() || estaDadaDeBaja();
+    }
+
+    /**
+     * Indica si el administrador le suspendió el acceso.
+     *
+     * @return {@code true} si el estado es Suspendida.
+     */
+    public boolean estaSuspendida() {
+        return esEstado(EstadoInscripcion.SUSPENDIDA);
+    }
+
+    /**
+     * Indica si la inscripción está pendiente de pago: se inscribió y no tiene un pago en curso ni el acceso habilitado.
+     *
+     * @return {@code true} si el estado es Pendiente de pago.
+     */
+    public boolean estaPendienteDePago() {
+        return esEstado(EstadoInscripcion.PENDIENTE_DE_PAGO);
+    }
+
+    /**
+     * Indica si tiene un pago online en curso dentro del plazo de confirmación (reserva el cupo hasta que se resuelva).
+     *
+     * @return {@code true} si el estado es Pago en curso.
+     */
+    public boolean estaConPagoEnCurso() {
+        return esEstado(EstadoInscripcion.PAGO_EN_CURSO);
+    }
+
+    /**
+     * Indica si la inscripción fue cancelada (terminó la inscripción sin que se pagara, o la canceló el administrador).
+     *
+     * @return {@code true} si el estado es Cancelada.
+     */
+    public boolean estaCancelada() {
+        return esEstado(EstadoInscripcion.CANCELADA);
+    }
+
+    /**
+     * Indica si se la puede cancelar por falta de pago: está pendiente de pago y no tiene un pago en curso ni pendiente. Con un pago parcial aprobado
+     * también se cancela (queda registrado, sin devolución). Nunca se cancela una con un pago en curso o pendiente: la plata puede estar por llegar.
+     *
+     * @return {@code true} si se la puede cancelar por falta de pago.
+     */
+    public boolean sePuedeCancelarPorFaltaDePago() {
+        return estaPendienteDePago() && pagos.stream().noneMatch(Pago::estaPendiente);
+    }
+
+    /**
+     * Indica si todavía hay que pagarla: está pendiente de pago o con un pago en curso.
+     *
+     * @return {@code true} si no está habilitada ni cancelada.
+     */
+    public boolean requierePago() {
+        return estaPendienteDePago() || estaConPagoEnCurso();
+    }
+
+    /**
+     * Indica si la inscripción ocupa un lugar de la cohorte: la habilitada, la suspendida y la vencida (conservan su cupo) y la que tiene un pago
+     * en curso (que lo reserva).
+     *
+     * @return {@code true} si ocupa cupo.
+     */
+    public boolean ocupaCupo() {
+        return fueHabilitada() || estaConPagoEnCurso();
     }
 
     /**
      * Habilita el acceso. La primera vez que se habilita calcula el vencimiento del acceso a partir de ese momento
      * (ver {@link Cohorte#calcularVencimientoAcceso}); si ya tenía un vencimiento, lo conserva.
      *
-     * @param ahora El momento de la habilitación.
+     * @param habilitada El estado Habilitada.
+     * @param ahora      El momento de la habilitación.
      */
-    public void habilitar(LocalDateTime ahora) {
-        boolean estabaPendiente = Boolean.FALSE.equals(habilitado);
-        habilitado = true;
-        if (fechaVencimientoAcceso == null || estabaPendiente) {
+    public void habilitar(EstadoInscripcion habilitada, LocalDateTime ahora) {
+        boolean primeraVez = !fueHabilitada() || fechaVencimientoAcceso == null;
+        estadoInscripcion = habilitada;
+        if (primeraVez) {
             fechaVencimientoAcceso = cohorte.calcularVencimientoAcceso(ahora);
         }
     }
 
     /**
-     * Estado de acceso de la inscripción, en este orden: Dada de baja, Pendiente de pago (no está habilitada y por eso
-     * todavía no tiene vencimiento), Vencida (pasó la fecha de vencimiento), Programada (habilitada, pero el dictado de
-     * la cohorte todavía no comenzó) o Vigente.
+     * Pasa el avance a Finalizado si el alumno ya completó todos los temas del cronograma.
      *
-     * @param ahora El momento de referencia.
-     * @return El nombre del estado.
+     * @param finalizado El estado Finalizado.
+     * @return {@code true} si quedó finalizada.
      */
-    public String getEstadoAcceso(LocalDateTime ahora) {
-        if (baja) {
-            return ACCESO_DADA_DE_BAJA;
+    public boolean actualizarAvance(EstadoAvance finalizado) {
+        if (getPorcentajeProgreso() >= 100) {
+            estadoAvance = finalizado;
+            return true;
         }
-        if (!estaHabilitada()) {
-            return ACCESO_PENDIENTE_DE_PAGO;
-        }
-        if (fechaVencimientoAcceso != null && fechaVencimientoAcceso.isBefore(ahora)) {
-            return ACCESO_VENCIDA;
-        }
-        return cohorte.dictadoPorComenzar(ahora) ? ACCESO_PROGRAMADA : ACCESO_VIGENTE;
+        return false;
     }
 
     /**
-     * Estado de acceso de la inscripción en este momento.
+     * Estado de la inscripción (Pendiente de pago, Pago en curso, Acceso habilitado, Acceso suspendido, Acceso vencido, Cancelada por falta de pago o
+     * Dada de baja), distinto del avance.
      *
-     * @return El nombre del estado.
+     * @return El nombre del estado, o «Dada de baja» si el alumno o el administrador la dio de baja.
      */
-    public String getEstadoAcceso() {
-        return getEstadoAcceso(LocalDateTime.now());
+    public String getNombreEstado() {
+        if (baja) {
+            return EstadoInscripcion.DADA_DE_BAJA;
+        }
+        return estadoInscripcion == null ? EstadoInscripcion.HABILITADA : estadoInscripcion.getNombre();
+    }
+
+    /**
+     * Avance para el administrador: «Sin avance» mientras la inscripción no está habilitada (pendiente de pago, con el pago en
+     * curso o cancelada), porque todavía no puede avanzar; después, el avance del alumno.
+     *
+     * @return «Sin avance», «En progreso» o «Finalizado».
+     */
+    public String getNombreAvance() {
+        return fueHabilitada() ? getEstado() : AVANCE_SIN_AVANCE;
     }
 
     /**
@@ -270,6 +466,16 @@ public class Inscripcion {
     }
 
     /**
+     * Obtiene el pago que está en curso: el último pago sin aprobar, si todavía está pendiente de confirmación.
+     *
+     * @return El pago pendiente, o {@code null} si no hay ninguno en curso.
+     */
+    public Pago getPagoEnCurso() {
+        Pago pago = getPagoSinAprobar();
+        return pago != null && pago.estaPendiente() ? pago : null;
+    }
+
+    /**
      * Obtiene el certificado vigente (no anulado) de la inscripción.
      *
      * @return El certificado, o {@code null} si no se emitió.
@@ -288,6 +494,32 @@ public class Inscripcion {
     public LocalDateTime getVencimientoMinimo() {
         LocalDateTime base = cohorte.getFechaInicioDictado() != null ? cohorte.getFechaInicioDictado() : fechaCreacion;
         return base.plusDays(cohorte.getCurso().getDuracionDias());
+    }
+
+    /**
+     * Obtiene las autoevaluaciones que el alumno todavía tiene para hacer en esta inscripción: las visibles y abiertas de los temas que ya puede
+     * cursar y no completó, que no aprobó y a las que todavía le quedan intentos. Solo cuenta con el acceso vigente.
+     *
+     * @return Las autoevaluaciones pendientes, en el orden del cronograma.
+     */
+    public List<Autoevaluacion> getAutoevaluacionesPendientes() {
+        LocalDateTime ahora = LocalDateTime.now();
+        if (!puedeAccederAhora(ahora) || cohorte.getPrograma() == null) {
+            return List.of();
+        }
+        List<Autoevaluacion> pendientes = new java.util.ArrayList<>();
+        for (TemaCronograma cronograma : cohorte.getPrograma().getCronogramaOrdenado()) {
+            if (estaTemaCompletada(cronograma.getTema()) || !estaTemaHabilitada(cronograma)) {
+                continue;
+            }
+            for (Autoevaluacion autoevaluacion : cronograma.getTema().getAutoevaluacionesPublicadas()) {
+                Integer restantes = autoevaluacion.intentosRestantes(this);
+                if (autoevaluacion.estaAbierta(ahora) && !autoevaluacion.estaAprobadaPor(this) && (restantes == null || restantes > 0)) {
+                    pendientes.add(autoevaluacion);
+                }
+            }
+        }
+        return pendientes;
     }
 
     /**
@@ -310,16 +542,15 @@ public class Inscripcion {
     }
 
     /**
-     * Calcula el avance de la inscripción: En Progreso (aunque todavía no haya completado ningún tema) o Finalizado.
+     * Calcula el avance de la inscripción: En progreso (aunque todavía no haya completado ningún tema) o Finalizado.
      *
      * @return El estado de la inscripción.
      */
     public String getEstado() {
-        int porcentaje = getPorcentajeProgreso();
-        if (porcentaje >= 100) {
-            return "Finalizado";
+        if (estadoAvance != null) {
+            return estadoAvance.getNombre();
         }
-        return "En Progreso";
+        return getPorcentajeProgreso() >= 100 ? EstadoAvance.FINALIZADO : EstadoAvance.EN_PROGRESO;
     }
 
     /**

@@ -35,10 +35,10 @@
 
     // Qué se hace en la pestaña «Desde cero» de cada tipo de recurso
     var DESDE_CERO = {
-        PRESENTACION: 'Registrás una nueva presentación: subís las diapositivas de una clase en un archivo PDF y elegís el tema al que va.',
-        BIBLIOGRAFIA: 'Registrás una nueva bibliografía: cargás un texto o material de lectura con su autor y su ISBN (el archivo PDF es opcional) y elegís el tema al que va.',
-        GRABACION: 'Registrás una nueva grabación: subís el video de una clase dictada y elegís el tema al que va.',
-        ENLACE: 'Registrás un nuevo enlace: cargás la dirección web de un material que está fuera de la plataforma y elegís el tema al que va.'
+        PRESENTACION: 'Registrás una nueva presentación: subís las diapositivas de una clase en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        BIBLIOGRAFIA: 'Registrás una nueva bibliografía: cargás un texto o material de lectura con su autor y su ISBN (el archivo PDF es opcional) y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        GRABACION: 'Registrás una nueva grabación: subís el video de una clase dictada y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        ENLACE: 'Registrás un nuevo enlace: cargás la dirección web de un material que está fuera de la plataforma y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.'
     };
 
     function mostrarDetalle() {
@@ -356,8 +356,8 @@
                 // El glosario es uno por tema: se abre el del tema elegido con el formulario de alta abierto
                 var consulta = new URLSearchParams(destino.substring(destino.indexOf('?') + 1));
                 window.location.href = consulta.get('temaId')
-                    ? '/termino/buscarPorTema/' + consulta.get('temaId') + '?nuevo'
-                    : '/termino/buscar?cursoId=' + consulta.get('cursoId');
+                    ? '/glosario/buscarPorTema/' + consulta.get('temaId') + '?nuevo'
+                    : '/glosario/buscar?cursoId=' + consulta.get('cursoId');
             } else if (destino) {
                 window.location.href = destino + (destino.indexOf('?') >= 0 ? '&' : '?') + 'nuevo=' + elegida.dataset.tipoId;
             }

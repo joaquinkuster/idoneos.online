@@ -12,6 +12,7 @@ import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.service.CrudService;
 import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.service.tema.TemaService;
+import com.app.idoneos.util.DuracionUtil;
 import com.app.idoneos.util.MensajeErrorUtil;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,6 +50,10 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
 
     @Autowired
     private ParametroService parametroService;
+
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.app.idoneos.service.curso.CursoService cursoService;
 
     @Autowired
     private com.app.idoneos.service.programa.ProgramaService programaService;
@@ -168,6 +173,13 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         if (total > maximo) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarDemasiadoLargo("El cronograma", maximo, "días"));
         }
+        // Con cohortes activas el diseño debe seguir completo: los días de los temas tienen que sumar la duración del curso
+        if (total != maximo && programa.tieneCohortesActivas()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                    programa.getNombre(), MensajeErrorUtil.motivoDisenoIncompleto("asigna " + DuracionUtil.formatear(total)
+                            + " y el curso dura " + DuracionUtil.formatear(maximo)),
+                    "Asigná entre los temas los " + DuracionUtil.formatear(maximo) + " del curso."));
+        }
         // Los días de acceso de cada cohorte activa del programa no pueden quedar por debajo de la nueva duración
         for (com.app.idoneos.model.Cohorte cohorte : programa.getCohortesActivas()) {
             if (cohorte.getAccesoDias() < total) {
@@ -194,6 +206,21 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
                                 + String.join(", ", sinAutoevaluacion)),
                         "Registrá una autoevaluación en " + (sinAutoevaluacion.size() == 1 ? "ese tema" : "esos temas") + " antes."));
             }
+            // Un tema que se incorpora al cronograma tiene que traer el contenido completo que pide el diseño del curso
+            Set<Integer> yIncluidos = programa.getTemasCronograma().stream().map(c -> c.getTema().getIdTema()).collect(Collectors.toSet());
+            for (Integer id : ids) {
+                if (yIncluidos.contains(id)) {
+                    continue;
+                }
+                Tema nuevo = temas.get(id);
+                List<String> faltantes = cursoService.buscarContenidoDeTema(programa.getCurso(), nuevo).getFaltantes();
+                if (!faltantes.isEmpty()) {
+                    throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                            programa.getNombre(), MensajeErrorUtil.motivoDisenoIncompleto("incorpora el tema «" + nuevo.getTitulo()
+                                    + "», al que le falta contenido (" + String.join(", ", faltantes).toLowerCase() + ")"),
+                            "Completá su contenido antes."));
+                }
+            }
         }
 
         if (programa.tieneCohortesActivas()) {
@@ -212,7 +239,7 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         List<Integer> quitadas = programa.getTemasCronograma().stream().map(c -> c.getTema().getIdTema())
                 .filter(id -> !conservadas.contains(id)).toList();
         if (!quitadas.isEmpty()) {
-            temaService.darDeBajaVarias(quitadas, programa.getIdPrograma(), docente);
+            temaService.quitarVariasDelCronograma(quitadas, programa.getIdPrograma(), docente);
         }
 
         // Números provisionales para poder reubicar sin repetir un número de orden del programa

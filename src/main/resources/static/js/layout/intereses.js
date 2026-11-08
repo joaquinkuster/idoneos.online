@@ -1,5 +1,5 @@
 /**
- * Ventana de intereses del alumno (fragments/components/modalIntereses.html): elige las categorías de cursos que le interesan.
+ * Ventana de intereses del alumno (pages/intereses/formulario.html): elige las categorías de cursos que le interesan.
  *
  * Modo "ingreso": se abre sola al entrar si todavía no eligió ninguna; al cerrarla sin guardar no se le vuelve a preguntar en esa sesión. Modo "edicion": se abre desde «Mis intereses» del menú del usuario ([data-abrir-intereses]) con lo ya elegido; se puede cancelar sin registrar nada.
  */
@@ -71,11 +71,11 @@
                 var terminar = function () { window.location.reload(); };
                 if (window.mostrarExito) { window.mostrarExito(resultado.cuerpo.mensaje).then(terminar, terminar); } else { terminar(); }
             } else {
-                error.textContent = resultado.cuerpo.error || 'Error! Ocurrió un error inesperado. Intente nuevamente.';
+                error.textContent = resultado.cuerpo.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.';
                 boton.disabled = false;
             }
         }).catch(function () {
-            error.textContent = 'Error! Ocurrió un error inesperado. Intente nuevamente.';
+            error.textContent = 'Error! Ocurrió un error inesperado. Intentá nuevamente.';
             boton.disabled = false;
         });
     });

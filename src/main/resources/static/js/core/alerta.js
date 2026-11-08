@@ -85,10 +85,10 @@
             if (resultado.ok && datos.mensaje) {
                 await window.mostrarExito(datos.mensaje);
             } else {
-                await window.mostrarError(datos.error || 'Error! Ocurrió un error inesperado. Intente nuevamente.');
+                await window.mostrarError(datos.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.');
             }
         } catch (e) {
-            await window.mostrarError('Error! No se pudo conectar con el servidor. Intente nuevamente.');
+            await window.mostrarError('Error! No se pudo conectar con el servidor. Intentá nuevamente.');
         }
     };
 

@@ -24,7 +24,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/categoria/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de categorías</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="categoría encontrada" data-plural="categorías encontradas"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' categoría encontrada' : ' categorías encontradas')}">0 categorías encontradas</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/categoria/darDeBajaMasiva" data-elementos="categorías"
                             data-termino-uno="curso activo asociado" data-termino-varios="cursos activos asociados">Dar de baja seleccionado/s</button>
@@ -90,6 +91,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>

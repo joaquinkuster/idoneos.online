@@ -30,15 +30,17 @@
                 </div>
             </div>
 
-            <section class="pn-card" data-tabla data-tabla-servidor="/termino/buscar" th:attr="data-opciones=${tablaOpciones}">
+            <section class="pn-card" data-tabla data-tabla-servidor="/glosario/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de glosarios</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="glosario encontrado" data-plural="glosarios encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' glosario encontrado' : ' glosarios encontrados')}">0 glosarios encontrados</span>
                 </div>
 
                 <!-- Filtros -->
-                <form th:action="@{/termino/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                <form th:action="@{/glosario/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
-                    <a th:href="@{/termino/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                    <a th:href="@{/glosario/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
 
                 <div class="pn-tabla-contenedor">
@@ -56,7 +58,7 @@
                             <tr th:each="uc : ${temas}" data-fila data-dependencias="0">
                                 <td>
                                     <span class="ac-tipo-celda">
-                                        <th:block th:replace="~{fragments/components/iconRecurso :: icon('Glosario', 'ac-recurso-icon-chico')}"></th:block>
+                                        <th:block th:replace="~{pages/recurso/icon :: icon('Glosario', 'ac-recurso-icon-chico')}"></th:block>
                                         <span class="pn-celda-principal" th:text="${'Glosario ' + uc.numeroOrden}">Glosario 1</span>
                                     </span>
                                 </td>
@@ -69,7 +71,7 @@
                                 <td th:text="${uc.tema.ultimaActualizacionGlosario != null ? #temporals.format(uc.tema.ultimaActualizacionGlosario, 'dd/MM/yyyy') : '-'}">28/08/2026</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/termino/buscarPorTema/' + ${uc.tema.idTema}}">Ver detalle</a>
+                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:href="@{'/glosario/buscarPorTema/' + ${uc.tema.idTema}}">Ver detalle</a>
                                     </div>
                                 </td>
                             </tr>

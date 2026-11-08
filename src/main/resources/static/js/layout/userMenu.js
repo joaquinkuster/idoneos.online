@@ -57,9 +57,9 @@
                 window.location.href = resultado.destino || '/inicio';
                 return;
             }
-            await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intente nuevamente.');
+            await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.');
         } catch (error) {
-            await window.mostrarError('Error! No se pudo conectar con el servidor. Intente nuevamente.');
+            await window.mostrarError('Error! No se pudo conectar con el servidor. Intentá nuevamente.');
         }
         window.location.reload();
     });

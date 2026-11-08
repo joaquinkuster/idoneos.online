@@ -11,7 +11,7 @@
     align-items: center;
     gap: 10px;
     border: 1px solid transparent;
-    border-radius: 9999px;
+    border-radius: var(--boton-radio, 8px);
     padding: 5px 14px 5px 5px;
     cursor: pointer;
     text-align: left;

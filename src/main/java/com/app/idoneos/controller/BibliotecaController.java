@@ -320,8 +320,12 @@ public class BibliotecaController {
     public ResponseEntity<Map<String, String>> darDeBajaVarios(@RequestParam(value = "ids", required = false) List<Integer> ids,
             Authentication authentication) {
         try {
-            Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
-            recursoService.darDeBajaVariosEnBiblioteca(ids, docente);
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            if (usuario.esAdministradorActivo()) {
+                recursoService.darDeBajaVariosComoAdministrador(ids);
+            } else {
+                recursoService.darDeBajaVariosEnBiblioteca(ids, usuario.getDocente());
+            }
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recursos dados de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
@@ -364,7 +368,7 @@ public class BibliotecaController {
                         r -> r.getBibliografia() != null && r.getBibliografia().getFechaPublicacion() != null
                                 ? FiltroUtil.formatearFecha(r.getBibliografia().getFechaPublicacion().atStartOfDay()) : ""),
                 new FiltroUtil.Columna<Recurso>("docente", FiltroUtil.Tipo.LISTA, r -> r.getDocente().getUsuario().getNombreCompleto()),
-                new FiltroUtil.Columna<Recurso>("biblioteca", FiltroUtil.Tipo.LISTA, r -> r.getPrivado() ? "Privado" : "Público"),
+                new FiltroUtil.Columna<Recurso>("biblioteca", FiltroUtil.Tipo.LISTA, r -> r.getPrivado() ? "No" : "Sí"),
                 new FiltroUtil.Columna<Recurso>("generadoPorIa", FiltroUtil.Tipo.LISTA, r -> r.getGeneradoPorIa() ? "Sí" : "No"),
                 new FiltroUtil.Columna<Recurso>("fechaCreacion", FiltroUtil.Tipo.FECHA,
                         r -> FiltroUtil.formatearFechaHora(r.getFechaCreacion()))),

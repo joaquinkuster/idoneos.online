@@ -94,8 +94,19 @@
                             </table>
                         </div>
 
+                        <!-- Solo informativo (alumno): las autoevaluaciones que le quedan por hacer -->
+                        <div class="cn-pendientes" th:if="${cronoInscripcion != null}" th:with="pendientes=${cronoInscripcion.autoevaluacionesPendientes}">
+                            <h3 class="cn-pendientes-titulo">Autoevaluaciones pendientes</h3>
+                            <ul th:unless="${#lists.isEmpty(pendientes)}">
+                                <li th:each="a : ${pendientes}"><i></i><span th:text="${a.nombre}">Autoevaluación del tema 2</span></li>
+                            </ul>
+                            <p class="cn-sin-pendientes" th:if="${#lists.isEmpty(pendientes)}">No tenés autoevaluaciones pendientes.</p>
+                        </div>
+
                         <!-- Qué es la línea roja de la grilla -->
-                        <p class="cn-hoy" th:if="${enCurso and !terminado}"><i></i> Hoy (día actual)</p>
+                        <div class="cn-leyenda-hoy" th:if="${enCurso and !terminado}">
+                            <p class="cn-hoy"><i></i> Hoy (día actual)</p>
+                        </div>
                     </section>
                 </div>
 

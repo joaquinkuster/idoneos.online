@@ -56,12 +56,58 @@ class TemaServiceTest {
         return curso;
     }
 
+
+    @Autowired
+    private com.app.idoneos.repository.EstadoCohorteRepository estadoCohorteRepository;
+
+    /**
+     * La semilla deja cohortes activas en los programas. Estas pruebas miran la mecánica del cronograma sin las reglas de cohorte activa
+     * (que tienen sus propias pruebas), así que dejan las cohortes del programa pendientes de contenido.
+     */
+    private Programa sinCohortesActivas(Programa programa) {
+        var pendiente = estadoCohorteRepository.findByNombre(com.app.idoneos.model.EstadoCohorte.PENDIENTE).orElseThrow();
+        programa.getCohortes().forEach(cohorte -> cohorte.setEstadoCohorte(pendiente));
+        return programa;
+    }
+
     private Curso mercado() {
-        return curso("Mercado de Capitales Argentino");
+        Curso curso = curso("Mercado de Capitales Argentino");
+        sinCohortesActivas(curso.getProgramaVigente());
+        return curso;
     }
 
     private Curso macro() {
-        return curso("Macroeconomía de Coyuntura");
+        Curso curso = curso("Macroeconomía de Coyuntura");
+        sinCohortesActivas(curso.getProgramaVigente());
+        return curso;
+    }
+
+    private Programa macroConCohorteActiva() {
+        Programa programa = curso("Macroeconomía de Coyuntura").getProgramaVigente();
+        assertTrue(programa.tieneCohortesActivas(), "la semilla deja cohortes activas en el programa");
+        return programa;
+    }
+
+    @Test
+    @DisplayName("Con cohortes activas no se cambian los días de un tema suelto, no se quita un tema suelto ni se agrega un tema sin contenido")
+    void conCohorteActivaNoDesajustaLosDias() {
+        Programa programa = macroConCohorteActiva();
+        Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
+        int dias = programa.getDuracionTotalDias();
+
+        String duracion = mensaje(() -> temaService.modificar(tema.getIdTema(), programa.getIdPrograma(), fausto(), tema.getTitulo(),
+                tema.getDescripcion(), tema.getContenido(), programa.getCronogramaOrdenado().get(0).getDuracionDias() + 1));
+        assertTrue(duracion.contains("No se puede modificar la duración del tema"), duracion);
+        assertTrue(duracion.contains("Redistribuí los días desde el cronograma"), duracion);
+
+        String baja = mensaje(() -> temaService.darDeBaja(tema.getIdTema(), programa.getIdPrograma(), fausto()));
+        assertTrue(baja.contains("No se puede dar de baja el tema"), baja);
+        assertTrue(baja.contains("Redistribuí los días desde el cronograma"), baja);
+
+        String nuevo = mensaje(() -> temaService.agregar(fausto(), programa.getIdPrograma(), null, "Tema nuevo", null, "Contenido"));
+        assertTrue(nuevo.contains("No se puede agregar un tema nuevo al programa"), nuevo);
+
+        assertEquals(dias, programa.getDuracionTotalDias());
     }
 
     private Docente docente(String correo) {

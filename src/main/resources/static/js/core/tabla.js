@@ -241,7 +241,7 @@
                 // Las pantallas con comportamientos propios sobre las filas los vuelven a enganchar
                 document.dispatchEvent(new CustomEvent('tabla-actualizada', { detail: { tabla: raiz } }));
             }).catch(function () {
-                if (window.mostrarError) { window.mostrarError('Error! No se pudo cargar el listado. Intente nuevamente.'); }
+                if (window.mostrarError) { window.mostrarError('Error! No se pudo cargar el listado. Intentá nuevamente.'); }
             }).then(function () {
                 // El efecto de carga dura al menos un instante, para que se note aunque el servidor responda enseguida
                 setTimeout(function () { if (n === peticion) { raiz.classList.remove('pn-cargando'); raiz.removeAttribute('aria-busy'); } }, Math.max(0, 220 - (Date.now() - desde)));
@@ -267,7 +267,9 @@
                 return c && c.checked;
             }).length;
             if (contador) {
-                contador.textContent = marcadas + ' de ' + filas.length + ' seleccionados';
+                // Solo aparece cuando hay algo seleccionado (en el pie de la tabla, junto al rango de filas)
+                contador.textContent = marcadas + (marcadas === 1 ? ' seleccionado' : ' seleccionados');
+                contador.hidden = marcadas === 0;
             }
             if (botonBaja) {
                 botonBaja.classList.toggle('d-none', marcadas === 0);
@@ -400,9 +402,9 @@
                         window.location.reload();
                         return;
                     }
-                    await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intente nuevamente.');
+                    await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.');
                 } catch (error) {
-                    await window.mostrarError('Error! No se pudo conectar con el servidor. Intente nuevamente.');
+                    await window.mostrarError('Error! No se pudo conectar con el servidor. Intentá nuevamente.');
                 }
                 botonBaja.disabled = false;
             });
@@ -426,12 +428,23 @@
             menuColumnas = envoltura.querySelector('[data-columnas-menu]');
         }
         if (menuColumnas) {
-            var claveColumnas = 'idoneos.columnas.' + window.location.pathname;
-            // Columnas ocultas de entrada (th con data-oculta); si el usuario ya eligió las suyas, vale su elección
+            var claveColumnas = 'idoneos.columnas.v2.' + window.location.pathname;
+            // Columnas ocultas de entrada (th con data-oculta); si el usuario ya eligió las suyas, vale su elección. Se guardan también
+            // las columnas que existían al elegir: una columna nueva con data-oculta arranca oculta aunque haya una elección guardada
             var porDefecto = [];
-            cabeceras.forEach(function (th) { if (th.hasAttribute('data-oculta')) { porDefecto.push(th.getAttribute('data-col')); } });
+            var nombresColumnas = [];
+            cabeceras.forEach(function (th) {
+                if (th.hasAttribute('data-col')) { nombresColumnas.push(th.getAttribute('data-col')); }
+                if (th.hasAttribute('data-oculta')) { porDefecto.push(th.getAttribute('data-col')); }
+            });
             var ocultas = porDefecto;
-            try { var guardadas = leer(claveColumnas); if (guardadas !== null) { ocultas = JSON.parse(guardadas); } } catch (e) { ocultas = porDefecto; }
+            try {
+                var guardadas = leer(claveColumnas);
+                if (guardadas !== null) {
+                    var elegido = JSON.parse(guardadas);
+                    ocultas = elegido.o.concat(porDefecto.filter(function (n) { return elegido.c.indexOf(n) < 0; }));
+                }
+            } catch (e) { ocultas = porDefecto; }
             var casillas = [];
             reaplicarColumnas = function () { casillas.forEach(function (c) { aplicarColumna(c.th, c.indice, c.casilla.checked); }); };
             var aplicarColumna = function (th, indice, visible) {
@@ -452,7 +465,7 @@
                     aplicarColumna(th, indice, casilla.checked);
                     var ocultasAhora = casillas.filter(function (c) { return !c.casilla.checked; })
                         .map(function (c) { return c.nombre; });
-                    guardar(claveColumnas, JSON.stringify(ocultasAhora));
+                    guardar(claveColumnas, JSON.stringify({ o: ocultasAhora, c: nombresColumnas }));
                 });
                 casillas.push({ casilla: casilla, nombre: nombreColumna, th: th, indice: indice });
                 etiqueta.appendChild(casilla);
@@ -468,7 +481,7 @@
                     c.casilla.checked = porDefecto.indexOf(c.nombre) < 0;
                     aplicarColumna(c.th, c.indice, c.casilla.checked);
                 });
-                guardar(claveColumnas, JSON.stringify(porDefecto));
+                guardar(claveColumnas, JSON.stringify({ o: porDefecto, c: nombresColumnas }));
             });
             menuColumnas.appendChild(restablecer);
         }
@@ -882,6 +895,13 @@
         var cabecera = e.target.closest ? e.target.closest('.pn-grupo') : null;
         if (cabecera) { alternarGrupo(cabecera); }
     });
+    // Fila con data-ver-url: un clic en cualquier parte (salvo botones, enlaces y controles) abre su vista
+    document.addEventListener('click', function (e) {
+        var fila = e.target.closest('tr[data-ver-url]');
+        if (!fila || e.target.closest('a, button, input, select, textarea, label, .dropdown, .popover')) { return; }
+        window.location.href = fila.getAttribute('data-ver-url');
+    });
+
     document.addEventListener('keydown', function (e) {
         var cabecera = e.target.classList && e.target.classList.contains('pn-grupo') ? e.target : null;
         if (cabecera && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); alternarGrupo(cabecera); }

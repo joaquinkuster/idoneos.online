@@ -1,0 +1,458 @@
+/* ==========================================================================
+   Asistente navegacional: botón flotante (brújula) abajo a la derecha y carta con la «ruta» de pendientes del usuario.
+   ========================================================================== */
+.as-asistente {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 1040; /* sobre el contenido y debajo de las ventanas (1055) */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+}
+
+.as-boton {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--pn-navy, #0F233D);
+    color: #fff;
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(15, 35, 61, 0.28);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+
+/* La brújula queda en el centro exacto del círculo (sin la altura de línea del texto) */
+.as-boton > i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.as-boton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(15, 35, 61, 0.34);
+}
+
+.as-boton:hover > i {
+    animation: asAguja 0.7s ease-in-out;
+}
+
+/* La brújula "busca el norte" al pasar el mouse */
+@keyframes asAguja {
+    0% { transform: rotate(0); }
+    35% { transform: rotate(40deg); }
+    70% { transform: rotate(-20deg); }
+    100% { transform: rotate(0); }
+}
+
+.as-boton:focus-visible {
+    outline: 2px solid #D4A03D;
+    outline-offset: 3px;
+}
+
+.as-contador {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #D4A03D;
+    color: #0F233D;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 20px;
+    text-align: center;
+}
+
+.as-contador[hidden] {
+    display: none;
+}
+
+/* ---------------------------------------------------------------- Carta */
+.as-panel {
+    width: min(340px, calc(100vw - 40px));
+    max-height: min(560px, calc(100vh - 110px));
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid #CBD5E1;
+    border-radius: 14px;
+    box-shadow: 0 14px 38px rgba(15, 35, 61, 0.22);
+    overflow: hidden;
+    animation: asEntra 0.18s ease-out;
+}
+
+.as-panel[hidden] {
+    display: none;
+}
+
+@keyframes asEntra {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.as-cabecera {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--pn-borde, #E2E8F0);
+    cursor: pointer;
+}
+
+.as-cab-icono {
+    flex: none;
+    font-size: 22px;
+    color: #B7791F;
+}
+
+.as-cab-textos {
+    flex: 1;
+    min-width: 0;
+}
+
+.as-cab-titulo {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pn-navy, #0F233D);
+}
+
+.as-cerrar {
+    display: flex;
+    border: 0;
+    background: none;
+    padding: 2px;
+    color: var(--pn-texto-suave, #64748B);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Los pasos hacen scroll; la cabecera y el pie quedan fijos */
+.as-cuerpo {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 6px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+}
+
+.as-cuerpo::-webkit-scrollbar {
+    width: 8px;
+}
+
+.as-cuerpo::-webkit-scrollbar-thumb {
+    background: #CBD5E1;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background-clip: padding-box;
+}
+
+.as-vacio {
+    margin: 10px 8px;
+    font-size: 13px;
+    color: var(--pn-texto-suave, #64748B);
+    line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------- Ruta: los pendientes como un recorrido */
+.as-ruta {
+    display: flex;
+    flex-direction: column;
+}
+
+.as-nodo {
+    --color: #D4A03D;
+    --halo: #FEF3C7;
+    display: grid;
+    grid-template-columns: 26px minmax(0, 1fr) auto;
+    column-gap: 6px;
+    align-items: center;
+    padding: 9px 14px 9px 6px; /* a la derecha queda lugar para que la flecha no pegue con el fondo del hover */
+    border-radius: 10px;
+    color: inherit;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.as-nodo.atrasado {
+    --color: #EF4444;
+    --halo: #FEE2E2;
+}
+
+a.as-nodo:hover,
+a.as-nodo:focus-visible {
+    background: #F1F5F9;
+    outline: none;
+    color: inherit;
+}
+
+a.as-nodo:focus-visible {
+    box-shadow: inset 0 0 0 2px #D4A03D;
+}
+
+/* La columna del círculo: la línea pasa por su centro y une un paso con el siguiente */
+.as-punto {
+    position: relative;
+    align-self: stretch;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 2px; /* el círculo queda a la altura de la primera fila de la carta (la marca «Ahora» o el título) */
+}
+
+/* La línea cubre toda la carta y se une con el círculo de la siguiente */
+.as-punto::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -9px;
+    bottom: -9px;
+    width: 2px;
+    margin-left: -1px;
+    background: #E2E8F0;
+}
+
+/* La primera arranca en su círculo; la última, si no hay otro círculo, llega hasta la fila de la fecha */
+.as-nodo:first-child .as-punto::before {
+    top: 9px;
+}
+
+.as-nodo:last-child .as-punto::before {
+    bottom: 8px;
+}
+
+.as-punto::after {
+    content: '';
+    position: relative;
+    z-index: 1;
+    width: 14px;
+    height: 14px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #94A3B8;
+    transition: border-color 0.15s, transform 0.15s;
+}
+
+a.as-nodo:hover .as-punto::after {
+    border-color: #0F233D;
+    transform: scale(1.12);
+}
+
+/* El círculo de la más cercana: relleno, dorado o rojo si faltan 3 días o menos. Al pasar el mouse solo crece, como los demás */
+.as-nodo.urgente .as-punto::after {
+    background: var(--color);
+    border-color: var(--color);
+}
+
+a.as-nodo.urgente:hover .as-punto::after {
+    background: var(--color);
+    border-color: var(--color);
+    transform: scale(1.12);
+}
+
+.as-nodo.mas {
+    padding-top: 2px;
+    font-size: 12px;
+    color: #94A3B8;
+}
+
+.as-nodo.mas .as-punto {
+    align-items: center;
+    padding-top: 0;
+}
+
+.as-nodo.mas:last-child .as-punto::before {
+    bottom: 50%;
+}
+
+.as-nodo.mas .as-punto::after {
+    background: #E2E8F0;
+    border-color: #E2E8F0;
+}
+
+.as-nodo-texto {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    min-width: 0;
+}
+
+/* La etiqueta ocupa el ancho de su texto, no el de la fila */
+.as-ahora {
+    align-self: flex-start;
+    margin-bottom: 3px;
+    padding: 0 8px;
+    border-radius: 999px;
+    background: var(--halo);
+    color: #854F0B;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 16px;
+    white-space: nowrap;
+}
+
+.as-nodo.atrasado .as-ahora {
+    color: #991B1B;
+}
+
+/* La carta: título y tres filas (curso, acción, cuándo cierra o abre) */
+.as-nodo-titulo,
+.as-nodo-curso,
+.as-nodo-accion,
+.as-nodo-fecha {
+    max-width: 100%;
+    line-height: 1.35;
+}
+
+.as-nodo-titulo {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--pn-texto, #0F172A);
+}
+
+.as-nodo-curso {
+    font-size: 12px;
+    color: var(--pn-texto-suave, #64748B);
+}
+
+/* A la derecha, junto a la flecha: una etiqueta, no un enlace */
+.as-derecha {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.as-nodo-accion {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--pn-texto-suave, #64748B);
+    white-space: nowrap;
+    transition: color 0.15s;
+}
+
+a.as-nodo:hover .as-nodo-accion {
+    color: var(--pn-navy, #0F233D);
+}
+
+/* El título de la lista da el contexto de los pendientes */
+.as-seccion {
+    padding: 8px 6px 4px;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: left;
+    color: var(--pn-navy, #0F233D);
+}
+
+.as-nodo-fecha {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--pn-texto-suave, #64748B);
+}
+
+.as-nodo-fecha i {
+    font-size: 12px;
+}
+
+.as-nodo-fecha.pronto {
+    font-weight: 600;
+    color: #B91C1C;
+}
+
+.as-flecha {
+    margin-right: 2px;
+    color: #94A3B8;
+    font-size: 16px;
+    transition: transform 0.15s, color 0.15s;
+}
+
+.as-nodo.urgente .as-flecha {
+    color: #0F233D;
+}
+
+a.as-nodo:hover .as-flecha {
+    color: #0F233D;
+    transform: translateX(3px);
+}
+
+.as-sk-linea {
+    display: block;
+    width: 100%;
+    height: 11px;
+    margin: 3px 0;
+}
+
+.as-sk-linea.corta {
+    width: 60%;
+}
+
+/* ---------------------------------------------------------------- Acciones rápidas, fijas al pie */
+.as-pie {
+    flex-shrink: 0;
+    padding: 10px 12px 12px;
+    border-top: 1px solid var(--pn-borde, #E2E8F0);
+    background: #fff;
+}
+
+.as-pie[hidden] {
+    display: none;
+}
+
+.as-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Las acciones rápidas van sin rótulo, como botones con borde */
+.as-chip {
+    padding: 4px 10px;
+    border: 1px solid #CBD5E1;
+    border-radius: var(--boton-radio, 8px);
+    color: var(--pn-texto-suave, #64748B);
+    font-size: 12px;
+    text-decoration: none;
+}
+
+button.as-chip {
+    background: transparent;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.as-chip:hover {
+    background: #F1F5F9;
+    color: var(--pn-texto, #0F172A);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .as-boton:hover > i { animation: none; }
+}
+
+@media (max-width: 480px) {
+    .as-asistente {
+        right: 12px;
+        bottom: 12px;
+    }
+}

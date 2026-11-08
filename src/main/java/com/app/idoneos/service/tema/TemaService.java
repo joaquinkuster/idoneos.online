@@ -123,6 +123,15 @@ public interface TemaService extends CrudService<Tema> {
      */
     void darDeBajaPorCurso(Integer id, Docente docente);
 
+    /**
+     * Da de baja varios temas del curso a la vez, todos o ninguno (cada uno como {@link #darDeBajaPorCurso}).
+     *
+     * @param ids     los identificadores de los temas
+     * @param docente el docente que da de baja, o {@code null} si lo hace el administrador
+     * @throws IllegalArgumentException si no hay temas seleccionados o alguno no se puede dar de baja
+     */
+    void darDeBajaVariasPorCurso(List<Integer> ids, Docente docente);
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
@@ -177,4 +186,16 @@ public interface TemaService extends CrudService<Tema> {
      * @throws IllegalArgumentException si no se seleccionó ningún tema o alguna no puede darse de baja
      */
     void darDeBajaVarias(List<Integer> ids, Integer programaId, Docente docente);
+
+    /**
+     * Quita varios temas del cronograma de un programa como parte de la modificación de todo el cronograma (la usa
+     * {@code TemaCronogramaService.modificar}, que después reasigna los días y comprueba que la suma cierre con la del curso). A diferencia de
+     * {@link #darDeBajaVarias}, no bloquea el quitar temas de un programa con cohortes activas por los días que dejan sin asignar.
+     *
+     * @param ids        los identificadores de los temas
+     * @param programaId el identificador del programa
+     * @param docente    el docente que modifica el cronograma
+     * @throws IllegalArgumentException si alguna no puede quitarse (inscripciones o mínimo de temas)
+     */
+    void quitarVariasDelCronograma(List<Integer> ids, Integer programaId, Docente docente);
 }

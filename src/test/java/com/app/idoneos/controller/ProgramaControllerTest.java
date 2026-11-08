@@ -351,7 +351,7 @@ class ProgramaControllerTest {
     void guardaLaCohortePorDefecto() throws Exception {
         Curso curso = mercado();
         Cohorte finalizada = curso.getProgramaVigente().getCohortesActivas().stream()
-                .filter(c -> c.getEstado().equals("Finalizada")).findFirst().orElseThrow();
+                .filter(c -> c.getEstado().equals(com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA)).findFirst().orElseThrow();
 
         mockMvc.perform(post("/cohorte/establecerPorDefecto/" + finalizada.getIdCohorte()))
                 .andExpect(status().isOk())

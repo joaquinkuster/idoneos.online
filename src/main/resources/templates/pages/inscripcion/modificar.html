@@ -12,7 +12,7 @@
                 <div class="pn-modal-cuerpo">
                     <form th:action="@{'/inscripcion/modificar/' + ${i.idInscripcion}}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="modificacion"
                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Programa","atributoForm":"data-ctx-programa"},{"etiqueta":"Cohorte","atributoForm":"data-ctx-cohorte"}]' 
-                          th:attr="data-resumen-titulo=${'(' + i.alumno.usuario.nombreCompleto + ')'}, data-ctx-curso=${i.cohorte.programa.curso.nombre}, data-ctx-programa=${i.cohorte.programa.nombre}, data-ctx-cohorte=${i.cohorte.etiqueta}" novalidate>
+                          th:attr="data-resumen-nombre=${i.alumno.usuario.nombreCompleto}, data-ctx-curso=${i.cohorte.programa.curso.nombre}, data-ctx-programa=${i.cohorte.programa.nombre}, data-ctx-cohorte=${i.cohorte.etiqueta}" novalidate>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos de la inscripción</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Resumen</span></span>
@@ -20,34 +20,18 @@
     <div class="pn-paso" data-grupo="Datos de la inscripción">
         <div class="pn-seccion-titulo">
             <h4>Datos de la inscripción</h4>
-            <p>Vencimiento del acceso, habilitación y observaciones</p>
+            <p>Suspensión del acceso y observaciones</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo">
-                                <div class="pn-etiqueta-con-ayuda">
-                                    <label class="pn-etiqueta">Vencimiento del acceso <span class="pn-obligatorio">*</span></label>
-                                    <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el vencimiento del acceso" title="Ayuda"
-                                            th:data-ayuda-destino="'ayudaVencimiento' + ${i.idInscripcion}"><i class="fa-solid fa-circle-info"></i></button>
-                                </div>
-                                <input type="date" name="vencimiento" class="pn-input" th:required="${i.fechaVencimientoAcceso != null}"
-                                       th:value="${#temporals.format(i.fechaVencimientoAcceso, 'yyyy-MM-dd')}"
-                                       th:min="${#temporals.format(i.vencimientoMinimo, 'yyyy-MM-dd')}">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-md-6 pn-campo">
-                                <label class="pn-etiqueta">Acceso habilitado</label>
-                                <select name="habilitada" class="pn-input">
-                                    <option value="true" th:selected="${i.estaHabilitada()}">Sí</option>
-                                    <option value="false" th:selected="${!i.estaHabilitada()}">No (pendiente de pago)</option>
+<div class="col-12 pn-campo">
+                                <label class="pn-etiqueta">Suspendida</label>
+                                <!-- Solo se suspende una inscripción habilitada y se reactiva la suspendida; pendiente de pago o cancelada no se modifica -->
+                                <select name="habilitada" class="pn-input" th:disabled="${!i.tieneAcceso() and !i.estaSuspendida()}">
+                                    <!-- Sí suspende (habilitada = false) y No reactiva (habilitada = true) -->
+                                    <option value="false" th:selected="${i.estaSuspendida()}">Sí</option>
+                                    <option value="true" th:selected="${!i.estaSuspendida()}">No</option>
                                 </select>
                                 <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-12 ayuda-desplegable" th:id="'ayudaVencimiento' + ${i.idInscripcion}">
-                                <div class="ayuda-desplegable-interior">
-                                    <div class="cn-info">
-                                        <span th:text="${'Corrección administrativa (por ejemplo, una extensión de cortesía). El vencimiento no puede ser anterior al ' + #temporals.format(i.vencimientoMinimo, 'dd/MM/yyyy') + ', que resulta de la duración del cronograma.'}">Corrección administrativa.</span>
-                                    </div>
-                                </div>
                             </div>
 <div class="col-12 pn-campo">
                                 <div class="pn-etiqueta-fila">

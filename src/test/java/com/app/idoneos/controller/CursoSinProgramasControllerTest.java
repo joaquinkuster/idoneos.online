@@ -73,8 +73,8 @@ class CursoSinProgramasControllerTest {
         mockMvc.perform(get("/programa/buscar").param("cursoId", id)).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal=\"modalPrograma\""))));
         mockMvc.perform(get("/recurso/buscar").param("cursoId", id)).andExpect(status().isOk());
-        mockMvc.perform(get("/termino/buscar").param("cursoId", id)).andExpect(status().isOk());
-        mockMvc.perform(get("/consulta/buscar").param("cursoId", id)).andExpect(status().isOk());
+        mockMvc.perform(get("/glosario/buscar").param("cursoId", id)).andExpect(status().isOk());
+        mockMvc.perform(get("/foro/buscar").param("cursoId", id)).andExpect(status().isOk());
     }
 
     @Test

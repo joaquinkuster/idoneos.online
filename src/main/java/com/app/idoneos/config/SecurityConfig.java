@@ -125,7 +125,7 @@ public class SecurityConfig {
                         // Explorar y ver los recursos: el docente (los públicos y los suyos) y el administrador (todos); dar de baja, también ambos
                         .requestMatchers(HttpMethod.GET, "/biblioteca/buscar", "/biblioteca/explorar", "/biblioteca/ver/*", "/biblioteca/archivo/*")
                         .hasAnyRole("Docente", "Administrador")
-                        .requestMatchers(HttpMethod.POST, "/biblioteca/darDeBaja/*").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/biblioteca/darDeBaja/*", "/biblioteca/darDeBajaMasiva").hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/biblioteca/**").hasRole("Docente")
                         .requestMatchers("/inscripcion/**").hasRole("Alumno")
                         .requestMatchers("/recordatorio/**").hasRole("Alumno")
@@ -152,13 +152,13 @@ public class SecurityConfig {
                         // CU-32 a CU-35: glosario. Verlo: cualquier usuario con sesión (el controlador controla el acceso);
                         // buscar los glosarios de un curso: docente y administrador; dar de baja un término: docente y
                         // administrador; registrar y modificar: docente
-                        .requestMatchers(HttpMethod.GET, "/termino/buscarPorTema/*").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/termino/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.GET, "/glosario/buscarPorTema/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/glosario/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/termino/darDeBaja/*").hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/termino/**").hasRole("Docente")
                         // CU-19 a CU-22: ABM de temas (el docente agrega y modifica; el administrador busca y da de baja)
                         .requestMatchers(HttpMethod.GET, "/tema/buscar").hasAnyRole("Docente", "Administrador")
-                        .requestMatchers(HttpMethod.POST, "/tema/darDeBaja/*")
+                        .requestMatchers(HttpMethod.POST, "/tema/darDeBaja/*", "/tema/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/tema/**").hasRole("Docente")
                         // CU-60 a CU-63: ABM de pools (docente y administrador los buscan y los dan de baja; el docente los
@@ -190,8 +190,8 @@ public class SecurityConfig {
                         // CU-35 a CU-42: foro. Verlo: cualquier usuario con sesión (el controlador controla el acceso);
                         // listar los foros de un curso: docente y administrador; consultar: alumno; responder: docente;
                         // moderar (dar de baja consultas y respuestas): administrador
-                        .requestMatchers(HttpMethod.GET, "/consulta/buscarPorTema/*", "/consulta/ver/*").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/consulta/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.GET, "/foro/buscarPorTema/*", "/consulta/ver/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/foro/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.GET, "/respuesta/modificar/*").hasRole("Docente")
                         .requestMatchers(HttpMethod.POST, "/consulta/registrar", "/consulta/modificar/*").hasRole("Alumno")
                         .requestMatchers(HttpMethod.POST, "/respuesta/registrar", "/respuesta/modificar/*").hasRole("Docente")

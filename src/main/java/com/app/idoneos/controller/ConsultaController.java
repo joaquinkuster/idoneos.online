@@ -20,7 +20,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -37,8 +36,8 @@ import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
 /**
- * Controlador de las consultas del foro (MOD-F-02): CU-35 Buscar consulta de foro (GET /consulta/buscar, GET
- * /consulta/buscarPorTema/{temaId}), CU-39 Buscar respuesta de foro (GET /consulta/ver/{id}), CU-36 Registrar consulta (POST
+ * Controlador de las consultas del foro (MOD-F-02): CU-35 Buscar consulta de foro (GET /foro/buscar, GET
+ * /foro/buscarPorTema/{temaId}), CU-39 Buscar respuesta de foro (GET /consulta/ver/{id}), CU-36 Registrar consulta (POST
  * /consulta/registrar), CU-37 Modificar consulta (POST /consulta/modificar/{id}) y CU-38 Dar de baja consulta (POST
  * /consulta/darDeBaja/{id}). Las respuestas están en {@link RespuestaController}.
  *
@@ -47,7 +46,6 @@ import com.app.idoneos.util.RespuestaFormularioUtil;
  * consultas y respuestas. Todos ven el foro de los temas a las que tienen acceso.
  */
 @Controller
-@RequestMapping("/consulta")
 public class ConsultaController {
 
     @Autowired
@@ -75,7 +73,7 @@ public class ConsultaController {
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
      */
-    @GetMapping("/buscar")
+    @GetMapping("/foro/buscar")
     public String buscarForos(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -114,7 +112,7 @@ public class ConsultaController {
      * @param authentication     La autenticación actual.
      * @return La vista del foro.
      */
-    @GetMapping("/buscarPorTema/{temaId}")
+    @GetMapping("/foro/buscarPorTema/{temaId}")
     public String verForo(@PathVariable("temaId") Integer temaId,
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "desde", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
@@ -153,7 +151,7 @@ public class ConsultaController {
      * @param authentication        La autenticación actual.
      * @return La vista de la consulta.
      */
-    @GetMapping("/ver/{id}")
+    @GetMapping("/consulta/ver/{id}")
     public String ver(@PathVariable("id") Integer id,
             @RequestParam(value = "respuestaId", required = false) Integer respuestaId, Model model,
             Authentication authentication) {
@@ -183,7 +181,7 @@ public class ConsultaController {
      * @param authentication     La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/registrar")
+    @PostMapping("/consulta/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "texto", required = false) String texto, Authentication authentication) {
@@ -206,7 +204,7 @@ public class ConsultaController {
      * @param authentication  La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/modificar/{id}")
+    @PostMapping("/consulta/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "texto", required = false) String texto, Authentication authentication) {
         try {
@@ -226,13 +224,13 @@ public class ConsultaController {
      * @param id Identificador de la consulta.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/darDeBaja/{id}")
+    @PostMapping("/consulta/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
             Integer temaId = consultaService.buscarPorId(id).map(c -> c.getTema().getIdTema()).orElse(null);
             consultaService.darDeBaja(id);
             // Después de la baja se vuelve al foro: la consulta dada de baja ya no tiene página propia
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Consulta dada de baja con éxito.", "/consulta/buscarPorTema/" + temaId);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Consulta dada de baja con éxito.", "/foro/buscarPorTema/" + temaId);
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }

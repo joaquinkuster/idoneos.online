@@ -342,6 +342,18 @@ public class RecursoServiceImpl implements RecursoService {
         recursos.forEach(this::marcarRecursoDeBaja);
     }
 
+    @Override
+    @Transactional
+    public void darDeBajaVariosComoAdministrador(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            throw new IllegalArgumentException("Error! Debe seleccionar al menos un recurso.");
+        }
+        List<Recurso> recursos = ids.stream().distinct().map(id -> buscarRecursoPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."))).toList();
+        recursos.forEach(this::validarSinUsos); // todos o ninguno
+        recursos.forEach(this::marcarRecursoDeBaja);
+    }
+
     /** Busca un recurso activo y comprueba que sea del docente. */
     private Recurso obtenerRecursoDelDocente(Integer idRecurso, Docente docente, String accion) {
         if (docente == null) {
@@ -526,7 +538,7 @@ public class RecursoServiceImpl implements RecursoService {
         }
         if (datos.oculto() && !material.getOculto()) {
             programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), Set.of(material.getIdTemaRecurso())).ifPresent(motivo -> {
-                // El error es del campo "Visibilidad": se muestra debajo de él, como en las autoevaluaciones
+                // El error es del campo "Visible para alumnos": se muestra debajo de él, como en las autoevaluaciones
                 throw RespuestaFormularioUtil.armarCampoInvalido("oculto",
                         MensajeErrorUtil.armarAccionBloqueada("ocultar", "el recurso", material.getTitulo(), motivo,
                                 "Registrá otro antes de ocultarlo."));

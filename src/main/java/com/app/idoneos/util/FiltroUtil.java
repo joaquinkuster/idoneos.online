@@ -163,18 +163,18 @@ public final class FiltroUtil<T> {
 
     /**
      * Ordena las filas por la columna indicada en los parámetros. Lo vacío y las filas dadas de baja van siempre al final.
-     * Sin {@code ordenCampo} se respeta el orden de la lista.
+     * Sin {@code ordenCampo} se respeta el orden de la lista, pero las filas dadas de baja igual van al final (el orden es
+     * estable: entre sí conservan el orden que traían).
      *
      * @param filas  la lista a ordenar (se modifica).
      * @param params los parámetros de la solicitud.
      */
     public void ordenar(List<T> filas, Map<String, String[]> params) {
         String campo = texto(params, "ordenCampo");
-        if (campo.isEmpty()) {
-            return;
-        }
-        Columna<T> columna = columnas.stream().filter(c -> c.campo().equals(campo)).findFirst().orElse(null);
+        Columna<T> columna = campo.isEmpty() ? null
+                : columnas.stream().filter(c -> c.campo().equals(campo)).findFirst().orElse(null);
         if (columna == null) {
+            filas.sort((a, b) -> Boolean.compare(esBaja.test(a), esBaja.test(b)));
             return;
         }
         int sentido = "desc".equals(texto(params, "ordenDir")) ? -1 : 1;
@@ -285,6 +285,32 @@ public final class FiltroUtil<T> {
             filtradas.sort(agrupacion);
         }
         return PaginacionUtil.paginar(filtradas, params, opciones(items));
+    }
+
+    /**
+     * Igual que {@link #paginar(List, Map)}, pero si se busca una fila concreta (por ejemplo, la que se va a modificar o dar de
+     * baja al llegar desde otra pantalla) devuelve la página que la contiene, para que su botón esté en pantalla.
+     *
+     * @param items   Todas las filas del listado.
+     * @param params  Los parámetros de la petición (filtros, orden y página).
+     * @param buscada Identifica la fila buscada (nunca verdadero si no se busca ninguna).
+     * @return La página pedida, o la que contiene la fila buscada si no está en ella.
+     */
+    public PaginacionUtil.Pagina<T> paginarMostrando(List<T> items, Map<String, String[]> params,
+            java.util.function.Predicate<T> buscada) {
+        PaginacionUtil.Pagina<T> pagina = paginar(items, params);
+        if (pagina.filas().stream().anyMatch(buscada)) {
+            return pagina;
+        }
+        for (int n = 1; n <= pagina.paginas(); n++) {
+            Map<String, String[]> otros = new java.util.HashMap<>(params);
+            otros.put("pagina", new String[] { String.valueOf(n) });
+            PaginacionUtil.Pagina<T> candidata = paginar(items, otros);
+            if (candidata.filas().stream().anyMatch(buscada)) {
+                return candidata;
+            }
+        }
+        return pagina;
     }
 
     /**

@@ -96,7 +96,9 @@ public class PagoController {
         pagos = pagina.filas(); // los montos y detalles se calculan solo para las filas que se muestran
         model.addAttribute("cursosFiltro", pagos.stream().map(pago -> pago.getInscripcion().getCurso()).distinct()
                 .sorted(Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER)).toList());
-        List<Inscripcion> pendientes = inscripcionService.buscarConFiltros(null, null, Inscripcion.ACCESO_PENDIENTE_DE_PAGO);
+        // Las que todavía hay que pagar: pendientes de pago o con un pago en curso
+        List<Inscripcion> pendientes = inscripcionService.buscarConFiltros(null, null, null).stream()
+                .filter(Inscripcion::requierePago).toList();
         model.addAttribute("inscripcionesPendientes", pendientes);
         // Lo que debe cada inscripción (precio con el descuento, menos lo ya pagado): se propone como monto y es su tope
         Map<Integer, Float> montos = new LinkedHashMap<>();
@@ -152,18 +154,31 @@ public class PagoController {
      */
     @GetMapping("/caja/{idInscripcion}")
     public String verCaja(@PathVariable("idInscripcion") Integer idInscripcion, Model model, Authentication authentication,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            @RequestParam(value = "inscripcionNueva", required = false) String inscripcionNueva) {
         Inscripcion inscripcion = inscripcionService.buscarMisCursos(((Usuario) authentication.getPrincipal()).getAlumno(), null, null)
                 .stream().filter(i -> i.getIdInscripcion() == idInscripcion).findFirst().orElse(null);
         if (inscripcion == null) {
             redirectAttributes.addFlashAttribute("error", "Error! La inscripción no se encuentra disponible.");
             return "redirect:/inscripcion/buscar";
         }
-        if (inscripcion.estaHabilitada()) {
+        if (inscripcion.fueHabilitada()) {
             redirectAttributes.addFlashAttribute("error", "Error! Esta inscripción no tiene un pago pendiente.");
             return "redirect:/inscripcion/buscar";
         }
+        if (inscripcion.estaCancelada()) {
+            redirectAttributes.addFlashAttribute("error", "Error! La inscripción fue cancelada: no se puede pagar.");
+            return "redirect:/inscripcion/buscar";
+        }
+        // Cerrada la inscripción solo se puede continuar un pago ya iniciado
+        if (inscripcion.getCohorte().inscripcionCerrada() && inscripcion.getPagoEnCurso() == null) {
+            redirectAttributes.addFlashAttribute("error", "Error! La inscripción a esta cohorte ya cerró: no se puede pagar.");
+            return "redirect:/inscripcion/buscar";
+        }
         model.addAttribute("inscripcion", inscripcion);
+        model.addAttribute("inscripcionNueva", inscripcionNueva != null);
+        // Sin lugar: no ocupa cupo y la cohorte ya no tiene (se libera si alguien no completa su pago)
+        model.addAttribute("sinCupo", !inscripcion.ocupaCupo() && !inscripcion.getCohorte().tieneCupo());
         model.addAttribute("descuento", pagoService.calcularDescuento(inscripcion).orElse(null));
         model.addAttribute("total", pagoService.calcularMontoAPagar(inscripcion));
         model.addAttribute("parcial", inscripcion.tienePagoAprobado());
@@ -186,8 +201,9 @@ public class PagoController {
             Pago pago = pagoService.consultarEstado(idPago, solicitante((Usuario) authentication.getPrincipal()));
             Map<String, Object> cuerpo = new LinkedHashMap<>();
             cuerpo.put("estado", pago.getEstadoPago().getNombre());
-            cuerpo.put("motivo", pago.getDetalleErrorOperacion());
+            cuerpo.put("motivo", pago.getMotivoRechazo());
             cuerpo.put("idPago", pago.getIdPago());
+            cuerpo.put("verificando", pagoService.estaVerificando(pago));
             return RespuestaFormularioUtil.armarRespuestaConDatos(cuerpo);
         } catch (ResponseStatusException e) {
             throw e;
@@ -246,7 +262,7 @@ public class PagoController {
         model.addAttribute("pago", pago);
         model.addAttribute("resultado", resultado);
         model.addAttribute("inscripcion", pago.getInscripcion());
-        model.addAttribute("motivo", pago.getDetalleErrorOperacion());
+        model.addAttribute("motivo", pago.getMotivoRechazo());
         model.addAttribute("plazoMinutos", pagoService.plazoConfirmacionMinutos());
         model.addAttribute("titulo", "Resultado del pago | Idóneos Online");
     }
@@ -324,7 +340,7 @@ public class PagoController {
             Pago pago = pagoService.registrarManual(idInscripcion, monto, numeroComprobante, observaciones);
             Inscripcion inscripcion = pago.getInscripcion();
             String alumno = inscripcion.getAlumno().getUsuario().getNombreCompleto();
-            return RespuestaFormularioUtil.armarRespuestaExitosa(inscripcion.estaHabilitada()
+            return RespuestaFormularioUtil.armarRespuestaExitosa(inscripcion.fueHabilitada()
                     ? "Pago de " + alumno + " registrado con éxito. Se habilitó el acceso al curso y se emitió el comprobante."
                     : "Pago de " + alumno + " registrado, pero no cubre el precio del curso: la inscripción sigue pendiente de pago. "
                             + "Faltan $" + String.format(java.util.Locale.forLanguageTag("es-AR"), "%,.2f",
@@ -346,7 +362,7 @@ public class PagoController {
      * @param numeroComprobante El número de comprobante (de la transferencia o de MODO).
      * @param nombrePagador El nombre del pagador (al aprobar un pago de MODO).
      * @param dniPagador    El DNI del pagador (al aprobar un pago de MODO).
-     * @param motivo        El motivo del rechazo (opcional).
+     * @param motivo        El motivo del rechazo (obligatorio al rechazar).
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/modificar/{id}")
@@ -455,7 +471,7 @@ public class PagoController {
      */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
-        Pago p = pagoService.buscarPorId(id).filter(x -> !x.estaAprobado())
+        Pago p = pagoService.buscarPorId(id).filter(Pago::estaPendiente)
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pago no se encuentra disponible para modificar."));
         model.addAttribute("p", p);
         model.addAttribute("detalles", Map.of(p.getInscripcion().getIdInscripcion(), pagoService.calcularDetalle(p.getInscripcion())));
@@ -481,6 +497,8 @@ public class PagoController {
                 new FiltroUtil.Columna<Pago>("monto", FiltroUtil.Tipo.NUMERO, p -> String.valueOf(p.getMonto())),
                 new FiltroUtil.Columna<Pago>("medioDePago", FiltroUtil.Tipo.LISTA, p -> p.getMetodoPago().getNombre()),
                 new FiltroUtil.Columna<Pago>("estado", FiltroUtil.Tipo.LISTA, p -> p.getEstadoPago().getNombre()),
+                new FiltroUtil.Columna<Pago>("motivo", FiltroUtil.Tipo.TEXTO,
+                        p -> p.getMotivoRechazo() == null ? "" : p.getMotivoRechazo()),
                 new FiltroUtil.Columna<Pago>("comprobante", FiltroUtil.Tipo.TEXTO,
                         p -> p.getComprobanteVigente() == null ? "" : p.getComprobanteVigente().getNumero()),
                 new FiltroUtil.Columna<Pago>("fechaAprobacion", FiltroUtil.Tipo.FECHA,
@@ -495,6 +513,8 @@ public class PagoController {
                 new FiltroUtil.Columna<Pago>("monto", FiltroUtil.Tipo.NUMERO, p -> String.valueOf(p.getMonto())),
                 new FiltroUtil.Columna<Pago>("medioDePago", FiltroUtil.Tipo.LISTA, p -> p.getMetodoPago().getNombre()),
                 new FiltroUtil.Columna<Pago>("estado", FiltroUtil.Tipo.LISTA, p -> p.getEstadoPago().getNombre()),
+                new FiltroUtil.Columna<Pago>("motivo", FiltroUtil.Tipo.TEXTO,
+                        p -> p.getMotivoRechazo() == null ? "" : p.getMotivoRechazo()),
                 new FiltroUtil.Columna<Pago>("fechaCreacion", FiltroUtil.Tipo.FECHA,
                         p -> FiltroUtil.formatearFechaHora(p.getFechaCreacion()))),
                 p -> false);

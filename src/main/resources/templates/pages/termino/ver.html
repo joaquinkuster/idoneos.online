@@ -25,7 +25,7 @@
 
             <div class="pn-encabezado">
                 <div class="gl-titulo-fila">
-                    <th:block th:replace="~{fragments/components/iconRecurso :: icon('Glosario', '')}"></th:block>
+                    <th:block th:replace="~{pages/recurso/icon :: icon('Glosario', '')}"></th:block>
                     <div>
                         <h1 class="pn-titulo" th:text="${'Glosario ' + numeroOrden}">Glosario 1</h1>
                         <p class="pn-subtitulo">
@@ -39,7 +39,7 @@
                 </button>
             </div>
 
-            <section class="pn-card gl-contenedor" data-glosario th:attr="data-glosario-url=@{'/termino/buscarPorTema/' + ${tema.idTema}}">
+            <section class="pn-card gl-contenedor" data-glosario th:attr="data-glosario-url=@{'/glosario/buscarPorTema/' + ${tema.idTema}}">
                 <!-- Buscador: filtra en el navegador mientras se escribe; por defecto busca en los términos y en las definiciones -->
                 <form class="gl-buscador" data-glosario-filtros>
                     <div class="gl-buscador-fila">
@@ -80,7 +80,7 @@
                    th:text="${cantidadEncontrados + (cantidadEncontrados == 1 ? ' término encontrado' : ' términos encontrados') + ' para «' + textoBuscado + '»'}">3 términos encontrados</p>
 
                 <p class="gl-resultado" th:if="${unSoloTermino}">
-                    Se muestra un solo término. <a th:href="@{'/termino/buscarPorTema/' + ${tema.idTema}}">Ver todo el glosario</a>
+                    Se muestra un solo término. <a th:href="@{'/glosario/buscarPorTema/' + ${tema.idTema}}">Ver todo el glosario</a>
                 </p>
 
                 <!-- Términos agrupados por letra inicial -->
@@ -92,7 +92,7 @@
                             <h3 class="gl-termino-nombre" th:text="${t.termino}">Acción</h3>
                             <div class="gl-icons">
                                 <a class="gl-icon" title="Enlace permanente" aria-label="Enlace permanente"
-                                   th:href="@{/termino/buscarPorTema/{id}(id=${tema.idTema}, terminoId=${t.idTermino})}"><i class="fa-solid fa-link"></i></a>
+                                   th:href="@{/glosario/buscarPorTema/{id}(id=${tema.idTema}, terminoId=${t.idTermino})}"><i class="fa-solid fa-link"></i></a>
                                 <button type="button" class="gl-icon" th:if="${puedeGestionar}" title="Editar término" aria-label="Editar término"
                                         th:data-bs-target="'#modalModificarTermino' + ${t.idTermino}"
                                                 th:data-modal-url="@{'/termino/modificar/' + ${t.idTermino}}"><i class="fa-solid fa-pencil"></i></button>

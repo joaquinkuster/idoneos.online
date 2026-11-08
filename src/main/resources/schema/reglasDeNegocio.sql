@@ -5,32 +5,42 @@
 -- Se puede ejecutar mas de una vez: usa IF NOT EXISTS, CREATE OR REPLACE y DROP ... IF EXISTS.
 
 -- ---------------------------------------------------------------------------------------------
--- Cupo de la cohorte (CU-45 y CU-46): una inscripcion habilitada ocupa un cupo. Al habilitarse se bloquea la
--- cohorte mientras se cuentan los cupos ocupados, asi dos alumnos no pueden tomar el ultimo lugar a la vez.
+-- Cupo de la cohorte (CU-45 y CU-46): una inscripcion habilitada, suspendida o con un pago en curso ocupa un cupo.
+-- Al pasar a uno de esos estados se bloquea la cohorte mientras se cuentan los cupos ocupados. La aplicacion ya bloquea la
+-- cohorte antes de decidir; este disparador es la ultima barrera de la base.
 -- ---------------------------------------------------------------------------------------------
--- fn_cupo_cohorte(): disparador de las inscripciones. Cuando una inscripcion pasa a estar habilitada, bloquea la fila de la
--- cohorte (FOR UPDATE) y cuenta las inscripciones habilitadas y activas; si ya se alcanzo el cupo maximo, la rechaza.
--- El bloqueo hace que dos alumnos que se habilitan a la vez se esperen entre si y no puedan tomar el ultimo lugar juntos.
+-- fn_cupo_cohorte(): disparador de las inscripciones. Cuando una inscripcion pasa a ocupar un lugar, bloquea la fila de la
+-- cohorte (FOR UPDATE) y cuenta las inscripciones activas que ya lo ocupan; si ya se alcanzo el cupo maximo, la rechaza.
 -- Una cohorte sin cupo maximo no tiene limite.
 CREATE OR REPLACE FUNCTION fn_cupo_cohorte() RETURNS trigger AS $$
 DECLARE
     v_cupo int;
     v_ocupados bigint;
+    v_ocupa boolean;
+    v_ocupaba boolean := false;
 BEGIN
-    IF NEW.habilitado IS NOT TRUE OR NEW.baja = true THEN
+    SELECT nombre IN ('Acceso habilitado', 'Acceso suspendido', 'Acceso vencido', 'Pago en curso') INTO v_ocupa
+        FROM estado_inscripcion WHERE id_estado_inscripcion = NEW.id_estado_inscripcion;
+    IF v_ocupa IS NOT TRUE OR NEW.baja = true THEN
         RETURN NEW;
     END IF;
-    IF TG_OP = 'UPDATE' AND OLD.habilitado IS TRUE AND OLD.baja = false AND OLD.id_cohorte = NEW.id_cohorte THEN
-        RETURN NEW;
+    IF TG_OP = 'UPDATE' AND OLD.baja = false AND OLD.id_cohorte = NEW.id_cohorte THEN
+        SELECT nombre IN ('Acceso habilitado', 'Acceso suspendido', 'Acceso vencido', 'Pago en curso') INTO v_ocupaba
+            FROM estado_inscripcion WHERE id_estado_inscripcion = OLD.id_estado_inscripcion;
+        IF v_ocupaba IS TRUE THEN
+            RETURN NEW;
+        END IF;
     END IF;
     SELECT cupo_maximo INTO v_cupo FROM cohorte WHERE id_cohorte = NEW.id_cohorte FOR UPDATE;
     IF v_cupo IS NULL THEN
         RETURN NEW;
     END IF;
-    SELECT count(*) INTO v_ocupados FROM inscripcion
-        WHERE id_cohorte = NEW.id_cohorte AND baja = false AND habilitado = true AND id_inscripcion <> NEW.id_inscripcion;
+    SELECT count(*) INTO v_ocupados FROM inscripcion i
+        JOIN estado_inscripcion e ON e.id_estado_inscripcion = i.id_estado_inscripcion
+        WHERE i.id_cohorte = NEW.id_cohorte AND i.baja = false AND e.nombre IN ('Acceso habilitado', 'Acceso suspendido', 'Acceso vencido', 'Pago en curso')
+            AND i.id_inscripcion <> NEW.id_inscripcion;
     IF v_ocupados >= v_cupo THEN
-        RAISE EXCEPTION 'No se puede habilitar la inscripcion: la cohorte alcanzo su cupo maximo (%)', v_cupo
+        RAISE EXCEPTION 'No se puede ocupar un lugar: la cohorte alcanzo su cupo maximo (%)', v_cupo
             USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
     END IF;
     RETURN NEW;

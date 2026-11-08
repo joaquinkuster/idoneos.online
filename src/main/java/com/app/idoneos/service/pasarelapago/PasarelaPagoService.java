@@ -64,8 +64,24 @@ public interface PasarelaPagoService {
      */
     Solicitud crearSolicitud(String idExterno, float monto, String descripcion, String nombre, String correo, String dni);
 
+    /**
+     * Cuánto dura una solicitud de pago desde que se crea, en segundos: el plazo de confirmación del sistema (entre 5 y 10 minutos) más un colchón
+     * de 10 segundos, sin pasar de los 10 minutos que admite MODO. Es lo que se le envía a MODO como vencimiento: después de ese momento, MODO
+     * no acepta el pago.
+     *
+     * @return La vigencia de una solicitud, en segundos.
+     */
+    int vigenciaSolicitudSegundos();
+
     /** Resultado de un pago en la plataforma. */
-    enum Estado { PENDIENTE, APROBADO, RECHAZADO }
+    enum Estado {
+        /** MODO la creó o alguien escaneó su QR, pero todavía no se está pagando (Created o Scanned). */
+        PENDIENTE,
+        /** El pago está en vuelo: MODO lo está procesando (Processing) y puede terminar aprobado o rechazado. */
+        PROCESANDO,
+        APROBADO,
+        RECHAZADO
+    }
 
     /**
      * Solicitud de pago creada en la plataforma.
@@ -87,13 +103,30 @@ public interface PasarelaPagoService {
      * @param referencia     Código de referencia de la operación.
      * @param motivoError    Motivo del rechazo, si lo hubo.
      * @param fechaPago      Cuándo se pagó, si se pagó.
+     * @param vencimiento    Hasta cuándo se puede pagar la solicitud, según MODO (nulo si no lo informó).
      */
     record Resultado(Estado estado, Solicitud solicitud, String medioPago, String ultimosDigitos, String nombrePagador,
-            String dniPagador, String referencia, String motivoError, LocalDateTime fechaPago) {
+            String dniPagador, String referencia, String motivoError, LocalDateTime fechaPago, LocalDateTime vencimiento) {
+
+        /** Resultado sin el vencimiento (el que informa MODO solo en la consulta de una solicitud). */
+        public Resultado(Estado estado, Solicitud solicitud, String medioPago, String ultimosDigitos, String nombrePagador,
+                String dniPagador, String referencia, String motivoError, LocalDateTime fechaPago) {
+            this(estado, solicitud, medioPago, ultimosDigitos, nombrePagador, dniPagador, referencia, motivoError, fechaPago, null);
+        }
 
         /** Resultado de una solicitud que todavía no se pagó ni se rechazó. */
         public static Resultado pendiente(Solicitud solicitud) {
-            return new Resultado(Estado.PENDIENTE, solicitud, null, null, null, null, null, null, null);
+            return pendiente(solicitud, null);
+        }
+
+        /** Resultado de una solicitud que todavía no se pagó ni se rechazó, con su vencimiento. */
+        public static Resultado pendiente(Solicitud solicitud, LocalDateTime vencimiento) {
+            return new Resultado(Estado.PENDIENTE, solicitud, null, null, null, null, null, null, null, vencimiento);
+        }
+
+        /** Resultado de una solicitud cuyo pago MODO está procesando. */
+        public static Resultado procesando(Solicitud solicitud, LocalDateTime vencimiento) {
+            return new Resultado(Estado.PROCESANDO, solicitud, null, null, null, null, null, null, null, vencimiento);
         }
     }
 }

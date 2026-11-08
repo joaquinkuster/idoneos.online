@@ -19,51 +19,79 @@ class CohorteTest {
     private final LocalDateTime ahora = LocalDateTime.now();
 
     @Test
-    @DisplayName("Una cohorte cuya inscripción todavía no abrió está Próxima")
+    @DisplayName("Una cohorte cuya inscripción todavía no abrió está en Inscripción próxima")
     void estadoProxima() {
         Cohorte cohorte = new Cohorte(null, ahora.plusDays(5), ahora.plusDays(30), 10);
 
-        assertEquals("Próxima", cohorte.getEstado());
+        assertEquals(EstadoCohorte.PROXIMA, cohorte.calcularEstado(ahora, false));
+        assertEquals(EstadoCohorte.PROXIMA, cohorte.getEstado());
         assertFalse(cohorte.estaAbierta());
+        assertTrue(cohorte.estaProxima());
     }
 
     @Test
-    @DisplayName("Una cohorte dentro de su período de inscripción está Abierta")
+    @DisplayName("Una cohorte dentro de su período de inscripción está en Inscripción abierta, aunque el dictado ya haya empezado")
     void estadoAbierta() {
         Cohorte cohorte = new Cohorte(null, ahora.minusDays(5), ahora.plusDays(30), 10);
 
-        assertEquals("Abierta", cohorte.getEstado());
+        assertEquals(EstadoCohorte.ABIERTA, cohorte.calcularEstado(ahora, false));
         assertTrue(cohorte.estaAbierta());
+        cohorte.setFechaInicioDictado(ahora.minusDays(1));
+        cohorte.setFechaFinDictado(ahora.plusDays(60));
+        assertEquals(EstadoCohorte.ABIERTA, cohorte.calcularEstado(ahora, false));
     }
 
     @Test
-    @DisplayName("Una cohorte con la inscripción cerrada y dictado vigente está En dictado")
-    void estadoEnDictado() {
+    @DisplayName("Con dictado: Inscripción cerrada hasta que empieza, En dictado mientras dura y Dictado finalizado después (con inscripciones en juego)")
+    void estadoConDictado() {
         Cohorte cohorte = new Cohorte(null, ahora.minusDays(60), ahora.minusDays(30), 10);
-        cohorte.setFechaInicioDictado(ahora.minusDays(20));
-        cohorte.setFechaFinDictado(ahora.plusDays(40));
+        cohorte.setFechaInicioDictado(ahora.plusDays(10));
+        cohorte.setFechaFinDictado(ahora.plusDays(60));
+        assertEquals(EstadoCohorte.CERRADA, cohorte.calcularEstado(ahora, true));
 
-        assertEquals("En dictado", cohorte.getEstado());
+        cohorte.setFechaInicioDictado(ahora.minusDays(20));
+        assertEquals(EstadoCohorte.EN_DICTADO, cohorte.calcularEstado(ahora, true));
+
+        cohorte.setFechaFinDictado(ahora.minusDays(1));
+        assertEquals(EstadoCohorte.DICTADO_FINALIZADO, cohorte.calcularEstado(ahora, true));
     }
 
     @Test
-    @DisplayName("Una cohorte con el dictado terminado está Finalizada")
-    void estadoFinalizadaConDictado() {
+    @DisplayName("Terminado el dictado, la cohorte pasa a Cursada finalizada cuando ya no queda ninguna inscripción en juego")
+    void estadoCursadaFinalizadaConDictado() {
         Cohorte cohorte = new Cohorte(null, ahora.minusDays(200), ahora.minusDays(170), 10);
         cohorte.setFechaInicioDictado(ahora.minusDays(160));
         cohorte.setFechaFinDictado(ahora.minusDays(80));
 
-        assertEquals("Finalizada", cohorte.getEstado());
+        assertEquals(EstadoCohorte.DICTADO_FINALIZADO, cohorte.calcularEstado(ahora, true));
+        assertEquals(EstadoCohorte.CURSADA_FINALIZADA, cohorte.calcularEstado(ahora, false));
     }
 
     @Test
-    @DisplayName("Sin dictado, la cohorte finaliza cuando vencen los días de acceso desde el fin de la inscripción")
+    @DisplayName("Sin dictado: Inscripción cerrada mientras haya inscripciones en juego y Cursada finalizada cuando ya no queda ninguna")
     void estadoSinDictado() {
-        Cohorte vigente = new Cohorte(null, ahora.minusDays(40), ahora.minusDays(10), 70);
-        Cohorte vencida = new Cohorte(null, ahora.minusDays(400), ahora.minusDays(370), 70);
+        Cohorte cohorte = new Cohorte(null, ahora.minusDays(40), ahora.minusDays(10), 70);
 
-        assertEquals("En dictado", vigente.getEstado());
-        assertEquals("Finalizada", vencida.getEstado());
+        assertEquals(EstadoCohorte.CERRADA, cohorte.calcularEstado(ahora, true));
+        assertEquals(EstadoCohorte.CURSADA_FINALIZADA, cohorte.calcularEstado(ahora, false));
+    }
+
+    @Test
+    @DisplayName("Una inscripción sigue en juego si espera el pago, tiene un pago en curso o su acceso todavía no venció")
+    void inscripcionEnJuego() {
+        Cohorte cohorte = new Cohorte(null, ahora.minusDays(40), ahora.minusDays(10), 70);
+        Inscripcion habilitada = new Inscripcion(cohorte, null, ahora.plusDays(5));
+        habilitada.setEstadoInscripcion(new EstadoInscripcion(EstadoInscripcion.HABILITADA));
+        Inscripcion vencida = new Inscripcion(cohorte, null, ahora.minusDays(1));
+        vencida.setEstadoInscripcion(new EstadoInscripcion(EstadoInscripcion.VENCIDA));
+        Inscripcion cancelada = new Inscripcion(cohorte, null, ahora.plusDays(5));
+        cancelada.setEstadoInscripcion(new EstadoInscripcion(EstadoInscripcion.CANCELADA));
+
+        assertTrue(habilitada.sigueEnJuego(ahora));
+        assertFalse(vencida.sigueEnJuego(ahora));
+        assertFalse(cancelada.sigueEnJuego(ahora));
+        habilitada.setFechaVencimientoAcceso(ahora.minusMinutes(1));
+        assertFalse(habilitada.sigueEnJuego(ahora));
     }
 
     @Test
@@ -77,28 +105,32 @@ class CohorteTest {
     }
 
     @Test
-    @DisplayName("Una cohorte pendiente o cancelada no sigue el calendario: su estado es el guardado y no cuenta como en curso")
+    @DisplayName("Una cohorte pendiente o cancelada no sigue el calendario: su estado es el guardado y no cuenta como en marcha")
     void estadoPendienteYCancelada() {
         Cohorte cohorte = new Cohorte(null, ahora.minusDays(5), ahora.plusDays(30), 10);
         assertTrue(cohorte.esActiva());
-        assertEquals("Abierta", cohorte.getEstado());
+        assertEquals(EstadoCohorte.ABIERTA, cohorte.getEstado());
         assertTrue(cohorte.estaActiva());
 
         cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.PENDIENTE));
         assertTrue(cohorte.esPendiente());
-        assertEquals("Pendiente", cohorte.getEstado());
+        assertEquals(EstadoCohorte.PENDIENTE, cohorte.getEstado());
+        assertEquals(EstadoCohorte.PENDIENTE, cohorte.calcularEstado(ahora, false));
         assertFalse(cohorte.estaAbierta());
         assertFalse(cohorte.estaActiva());
 
         cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.CANCELADA));
         assertTrue(cohorte.esCancelada());
-        assertEquals("Cancelada", cohorte.getEstado());
+        assertEquals(EstadoCohorte.CANCELADA, cohorte.getEstado());
         assertFalse(cohorte.estaAbierta());
         assertFalse(cohorte.estaActiva());
 
-        cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.ACTIVA));
-        assertEquals("Abierta", cohorte.getEstado());
+        cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.ABIERTA));
+        assertEquals(EstadoCohorte.ABIERTA, cohorte.getEstado());
         assertTrue(cohorte.estaActiva());
+
+        cohorte.setEstadoCohorte(new EstadoCohorte(EstadoCohorte.CURSADA_FINALIZADA));
+        assertFalse(cohorte.estaActiva());
     }
 
     @Test

@@ -36,10 +36,10 @@
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-md-4 pn-campo">
-                                <label class="pn-etiqueta" title="Privado: solo vos podés usarlo. Público: otros docentes pueden usarlo desde la biblioteca.">Biblioteca</label>
+                                <label class="pn-etiqueta" title="No: solo vos podés usarlo. Sí: otros docentes pueden usarlo desde la biblioteca.">Compartido con docentes</label>
                                 <select name="privado" class="pn-input" th:disabled="${tipo == 'Bibliografía'}">
-                                    <option value="true" th:selected="${r.privado and tipo != 'Bibliografía'}">Privado</option>
-                                    <option value="false" th:selected="${!r.privado or tipo == 'Bibliografía'}">Público</option>
+                                    <option value="true" th:selected="${r.privado and tipo != 'Bibliografía'}">No</option>
+                                    <option value="false" th:selected="${!r.privado or tipo == 'Bibliografía'}">Sí</option>
                                 </select>
                             </div>
 <div class="col-12 pn-campo">

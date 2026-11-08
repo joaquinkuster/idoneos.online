@@ -43,7 +43,7 @@
             var actual = raiz.querySelector('[data-glosario-contenido]');
             if (nuevo && actual) { actual.replaceWith(nuevo); }
         }).catch(function () {
-            if (window.mostrarError) { window.mostrarError('Error! No se pudo cargar el glosario. Intente nuevamente.'); }
+            if (window.mostrarError) { window.mostrarError('Error! No se pudo cargar el glosario. Intentá nuevamente.'); }
         }).then(function () {
             // El efecto de carga dura al menos un instante, para que se note aunque el servidor responda enseguida
             setTimeout(function () { if (n === peticion) { raiz.classList.remove('pn-cargando'); raiz.removeAttribute('aria-busy'); } },

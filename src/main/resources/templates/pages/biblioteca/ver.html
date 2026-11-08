@@ -20,7 +20,7 @@
             <!-- Cabecera del material -->
             <header class="mv-cabecera">
                 <div class="mv-titulo-fila">
-                    <th:block th:replace="~{fragments/components/iconRecurso :: icon(${recurso.tipo}, '')}"></th:block>
+                    <th:block th:replace="~{pages/recurso/icon :: icon(${recurso.tipo}, '')}"></th:block>
                     <div>
                         <h1 class="ac-titulo mv-titulo" th:text="${recurso.titulo}">Clase 3: Valuación de bonos</h1>
                         <p class="ac-subtitulo-curso">
@@ -29,7 +29,7 @@
                                 · <span th:text="${recurso.autor}">Autor</span>
                             </th:block>
                             · Subido por: <span th:text="${esPropio ? 'Vos' : recurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span>
-                            · <span th:text="${recurso.privado} ? 'Privado' : 'Público'">Privado</span>
+                            · <span th:text="${recurso.privado} ? 'No compartido con docentes' : 'Compartido con docentes'">No compartido con docentes</span>
                         </p>
                     </div>
                 </div>

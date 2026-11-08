@@ -14,10 +14,12 @@
     function iniciar(ventana) {
         ventana.querySelectorAll('[data-duracion]').forEach(function (c) { if (window.DuracionIniciar) { window.DuracionIniciar(c); } });
         ventana.querySelectorAll('form[data-pasos]').forEach(function (f) { if (window.PanelIniciarPasos) { window.PanelIniciarPasos(f); } });
-        ventana.querySelectorAll('form[data-resumen]').forEach(function (f) { if (window.HojaDeRutaIniciar) { window.HojaDeRutaIniciar(f); } });
         if (window.iniciarMultiselect) { window.iniciarMultiselect(ventana); }
-        // Cada página inicia lo suyo (por ejemplo los pools de una autoevaluación) cuando llega la ventana
+        // Cada página inicia lo suyo (por ejemplo las preguntas de un pool o los pools de una autoevaluación) cuando llega la ventana
         document.dispatchEvent(new CustomEvent('ventana-cargada', { detail: { ventana: ventana } }));
+        // El resumen toma como "antes" lo que hay al terminar de armarse el formulario: se inicia después de lo que dibuja cada página,
+        // si no, lo que se dibuja después (como las preguntas del pool) figuraría como cambios sin haber tocado nada
+        ventana.querySelectorAll('form[data-resumen]').forEach(function (f) { if (window.HojaDeRutaIniciar) { window.HojaDeRutaIniciar(f); } });
     }
 
     document.addEventListener('click', function (e) {

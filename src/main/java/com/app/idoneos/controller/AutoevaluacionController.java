@@ -107,7 +107,8 @@ public class AutoevaluacionController {
             // Listado completo: los filtros se aplican en la pantalla
             List<Autoevaluacion> autoevaluaciones = autoevaluacionService.buscarConFiltros(cursoId, null, null, false, docente);
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-            PaginacionUtil.Pagina<Autoevaluacion> pagina = Filtros.tabla.paginar(autoevaluaciones, request.getParameterMap());
+            PaginacionUtil.Pagina<Autoevaluacion> pagina = Filtros.tabla.paginarMostrando(autoevaluaciones, request.getParameterMap(),
+                    a -> accion != null && autoevaluacionId != null && a.getIdAutoevaluacion() == autoevaluacionId);
             PaginacionUtil.cargarEnModelo(model, pagina);
             if (PaginacionUtil.pideSoloFilas(request)) {
                 model.addAttribute("autoevaluaciones", pagina.filas());

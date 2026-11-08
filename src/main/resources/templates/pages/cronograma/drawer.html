@@ -73,9 +73,19 @@
                 </li>
             </ul>
 
+            <!-- Solo informativo (alumno): las autoevaluaciones que le quedan por hacer -->
+            <div class="ac-drawer-pendientes" th:if="${inscripcion != null}" th:with="pendientes=${inscripcion.autoevaluacionesPendientes}">
+                <h3 class="ac-drawer-subtitulo">Autoevaluaciones pendientes</h3>
+                <ul th:unless="${#lists.isEmpty(pendientes)}">
+                    <li th:each="a : ${pendientes}"><i></i><span th:text="${a.nombre}">Autoevaluación del tema 2</span></li>
+                </ul>
+                <p class="ac-drawer-sin-pendientes" th:if="${#lists.isEmpty(pendientes)}">No tenés autoevaluaciones pendientes.</p>
+            </div>
+
             <!-- Qué es la línea roja de la grilla -->
-            <p class="ac-drawer-hoy" th:if="${comenzo and !finalizo}"><i></i> Hoy (día actual)</p>
-            <p class="ac-drawer-hoy" th:text="${'Cada columna es 1 ' + programa.unidadCronograma}">Cada columna es 1 semana</p>
+            <div class="ac-drawer-leyenda-hoy">
+                <p class="ac-drawer-hoy" th:if="${comenzo and !finalizo}"><i></i> Hoy (día actual)</p>
+            </div>
         </aside>
 
         <!-- Pestaña para volver a mostrar el cajón cuando está oculto -->

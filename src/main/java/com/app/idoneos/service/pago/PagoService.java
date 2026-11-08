@@ -140,6 +140,15 @@ public interface PagoService extends CrudService<Pago> {
     Pago consultarEstado(Integer idPago, Alumno alumno);
 
     /**
+     * Indica si un pago online está siendo verificado con MODO: sigue pendiente pero ya venció la solicitud, así que no se puede pagar de nuevo hasta
+     * que MODO informe cómo terminó. Mientras tanto la inscripción conserva su lugar.
+     *
+     * @param pago El pago.
+     * @return {@code true} si está pendiente y su solicitud ya venció.
+     */
+    boolean estaVerificando(Pago pago);
+
+    /**
      * Busca un pago al que puede acceder quien lo pide: el alumno, solo los suyos; el administrador, cualquiera.
      *
      * @param idPago el pago
@@ -238,7 +247,7 @@ public interface PagoService extends CrudService<Pago> {
     int conciliarPendientes();
 
     /**
-     * El administrador acredita o rechaza manualmente un pago pendiente o rechazado, corrigiendo su monto o
+     * El administrador acredita o rechaza manualmente un pago pendiente (el aprobado y el rechazado no se modifican), con su monto o
      * comprobante (CU-54). Al aprobarlo se habilita el acceso y se emite el comprobante.
      *
      * @param idPago el pago
@@ -248,9 +257,9 @@ public interface PagoService extends CrudService<Pago> {
      * @param numeroComprobante el número de comprobante (obligatorio en una transferencia y al acreditar un pago de MODO)
      * @param nombrePagador el nombre del pagador (obligatorio al aprobar un pago de MODO)
      * @param dniPagador el DNI del pagador (obligatorio al aprobar un pago de MODO)
-     * @param motivo el motivo, si se rechaza (opcional)
+     * @param motivo el motivo del rechazo (obligatorio al rechazar)
      * @return el pago actualizado
-     * @throws IllegalArgumentException si el pago no está pendiente o rechazado o falta algún dato
+     * @throws IllegalArgumentException si el pago no está pendiente (el aprobado y el rechazado no se modifican) o falta algún dato
      */
     Pago modificar(Integer idPago, String estado, Float monto, String referencia, String numeroComprobante,
             String nombrePagador, String dniPagador, String motivo);

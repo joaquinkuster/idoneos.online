@@ -20,18 +20,18 @@
                         <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}"
                                th:attr="data-tipo-id=${t.name()}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}, data-biblioteca='true'">
                             <input type="radio" name="recurso" th:value="${t.name()}">
-                            <th:block th:replace="~{fragments/components/iconRecurso :: icon(${t.nombre}, 'ac-recurso-icon-chico')}"></th:block>
+                            <th:block th:replace="~{pages/recurso/icon :: icon(${t.nombre}, 'ac-recurso-icon-chico')}"></th:block>
                             <span th:text="${t.nombre}">Grabación</span>
                         </label>
                         <label class="ac-selector-opcion" data-glosario="true" data-nombre="Glosario"
                                data-descripcion="Registrás un nuevo término del glosario: cargás el término con su definición, para que los alumnos consulten el vocabulario del tema. Se abre el glosario del tema con el formulario de alta.">
                             <input type="radio" name="recurso" value="glosario">
-                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Glosario', 'ac-recurso-icon-chico')}"></th:block>
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Glosario', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Glosario</span>
                         </label>
                         <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
                             <input type="radio" name="recurso" disabled>
-                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Resumen', 'ac-recurso-icon-chico')}"></th:block>
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Resumen', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Resumen</span><small>Próximamente</small>
                         </label>
 
@@ -39,18 +39,18 @@
                         <label class="ac-selector-opcion" data-ruta="/autoevaluacion/buscar" data-nombre="Autoevaluación"
                                data-descripcion="Registrás una nueva autoevaluación: armás el cuestionario con el que el alumno controla lo aprendido en el tema, a partir de las preguntas de un pool, y elegís el tema al que va. Se abre el listado de autoevaluaciones del curso con el formulario de alta.">
                             <input type="radio" name="recurso" value="autoevaluacion">
-                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Autoevaluación', 'ac-recurso-icon-chico')}"></th:block>
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Autoevaluación', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Autoevaluación</span>
                         </label>
                         <label class="ac-selector-opcion" data-ruta="/pool/buscar" data-nombre="Pool de preguntas"
                                data-descripcion="Registrás un nuevo pool de preguntas: cargás el conjunto de preguntas de un tema, del que se sortean las de cada autoevaluación, y elegís el tema al que va. Se abre el listado de pools del curso con el formulario de alta.">
                             <input type="radio" name="recurso" value="pool">
-                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Pool de preguntas', 'ac-recurso-icon-chico')}"></th:block>
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Pool de preguntas', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Pool de preguntas</span>
                         </label>
                         <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
                             <input type="radio" name="recurso" disabled>
-                            <th:block th:replace="~{fragments/components/iconRecurso :: icon('Clase con clon', 'ac-recurso-icon-chico')}"></th:block>
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Clase con clon', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Clase con clon</span><small>Próximamente</small>
                         </label>
                     </div>

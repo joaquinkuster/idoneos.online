@@ -3,6 +3,7 @@ package com.app.idoneos.controller;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -68,11 +69,17 @@ class InscripcionGestionControllerTest {
     private Cohorte cohorteAbierta(String curso) {
         Integer idPrograma = programaService.buscarPorCurso(cursoService.buscarPorNombre(curso).orElseThrow())
                 .get(0).getIdPrograma();
-        return cohorteService.buscarConFiltros(idPrograma, null, "Abierta", null, null, "recientes", null).get(0);
+        return cohorteService.buscarConFiltros(idPrograma, null, com.app.idoneos.model.EstadoCohorte.ABIERTA, null, null, "recientes", null).get(0);
     }
 
-    private Inscripcion inscripcion(String correo, String estadoAcceso) {
-        return inscripcionService.buscarConFiltros(null, correo, estadoAcceso).get(0);
+    /** La semilla trae una inscripción con la fecha de vencimiento pasada: la tarea periódica la deja en «Acceso vencido». */
+    @org.junit.jupiter.api.BeforeEach
+    void vencerLosAccesos() {
+        inscripcionService.vencerAccesos();
+    }
+
+    private Inscripcion inscripcion(String correo, String estado) {
+        return inscripcionService.buscarConFiltros(null, correo, estado).get(0);
     }
 
     // ---------- CU-44 Buscar inscripción ----------
@@ -87,8 +94,8 @@ class InscripcionGestionControllerTest {
                 .andExpect(model().attribute("inscripciones", org.hamcrest.Matchers.hasSize(7)))
                 .andExpect(content().string(containsString("data-filtro-front")))
                 .andExpect(content().string(containsString("Pendiente de pago")))
-                .andExpect(content().string(containsString("Programada")))
-                .andExpect(content().string(containsString("Vencida")))
+                .andExpect(content().string(containsString("Acceso habilitado")))
+                .andExpect(content().string(containsString("Acceso vencido")))
                 .andExpect(content().string(containsString("CERT-2026-000001")))
                 .andExpect(content().string(containsString("modalNuevaInscripcion")))
                 .andExpect(content().string(containsString("modalModificarInscripcion")))
@@ -126,7 +133,7 @@ class InscripcionGestionControllerTest {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Pendiente de pago")))
                 .andExpect(content().string(containsString("Comienza el")))
-                .andExpect(content().string(containsString("data-f-acceso")))
+                .andExpect(content().string(containsString("data-f-estadoinscripcion")))
                 .andExpect(content().string(containsString("modalBajaInscripcion")))
                 .andExpect(content().string(not(containsString("Acceder al curso"))));
     }
@@ -166,14 +173,15 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: al inscribirse a un curso con costo se avisa que falta el pago")
+    @DisplayName("CU-45: al inscribirse a un curso con costo no hay alerta de éxito: se va directo a la caja")
     void inscribirseConCosto() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
 
         mockMvc.perform(post("/inscripcion/inscribir").param("cohorteId", String.valueOf(cohorte.getIdCohorte()))
                 .param("terminos", "true"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensaje").value(containsString("completar el pago")));
+                .andExpect(jsonPath("$.mensaje").doesNotExist())
+                .andExpect(jsonPath("$.destino").value(containsString("/pago/caja/")));
     }
 
     @Test
@@ -258,7 +266,7 @@ class InscripcionGestionControllerTest {
     @DisplayName("CU-46: el administrador registra la inscripción de un alumno")
     void registrar() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
-        Integer idAlumno = inscripcion(VALENTINA, "Vigente").getAlumno().getIdAlumno();
+        Integer idAlumno = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA).getAlumno().getIdAlumno();
 
         mockMvc.perform(post("/inscripcion/registrar").param("alumnoId", idAlumno.toString())
                 .param("cohorteId", String.valueOf(cohorte.getIdCohorte())).param("terminos", "true"))
@@ -291,30 +299,51 @@ class InscripcionGestionControllerTest {
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-47: el administrador modifica una inscripción")
     void modificar() throws Exception {
-        Inscripcion pendiente = inscripcion(LUCIA, "Pendiente de pago");
+        Inscripcion pendiente = inscripcion(LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO);
+        // Mientras está pendiente de pago no tiene vencimiento: se calcula cuando se habilita
+        assertNull(pendiente.getFechaVencimientoAcceso());
 
-        String vencimiento = pendiente.getFechaVencimientoAcceso().toLocalDate().toString();
         mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion())
-                .param("observaciones", "Pago confirmado por transferencia").param("vencimiento", vencimiento))
+                .param("observaciones", "Pago confirmado por transferencia"))
                 .andExpect(status().isOk());
         assertEquals("Pago confirmado por transferencia", pendiente.getObservaciones());
 
         // habilitarla a mano sin un pago aprobado se rechaza
-        mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion()).param("habilitada", "true")
-                .param("vencimiento", vencimiento)).andExpect(status().isBadRequest());
-        assertTrue(!pendiente.estaHabilitada());
+        mockMvc.perform(post("/inscripcion/modificar/" + pendiente.getIdInscripcion()).param("habilitada", "true"))
+                .andExpect(status().isBadRequest());
+        assertTrue(!pendiente.fueHabilitada());
     }
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-47: rechaza un vencimiento anterior al de la duración del cronograma")
-    void modificarConVencimientoInvalido() throws Exception {
-        Inscripcion vigente = inscripcion(VALENTINA, "Vigente");
+    @DisplayName("CU-47: el administrador suspende el acceso de una inscripción habilitada y lo reactiva")
+    void suspenderYReactivar() throws Exception {
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+
+        mockMvc.perform(post("/inscripcion/modificar/" + vigente.getIdInscripcion()).param("habilitada", "false"))
+                .andExpect(status().isOk());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA, vigente.getEstadoInscripcion().getNombre());
+        assertTrue(vigente.fueHabilitada() && !vigente.tieneAcceso()); // conserva su habilitación, pero no accede
+
+        mockMvc.perform(post("/inscripcion/modificar/" + vigente.getIdInscripcion()).param("habilitada", "true"))
+                .andExpect(status().isOk());
+        assertEquals(com.app.idoneos.model.EstadoInscripcion.HABILITADA, vigente.getEstadoInscripcion().getNombre());
+        assertTrue(vigente.tieneAcceso());
+    }
+
+    @Test
+    @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
+    @DisplayName("CU-47: el vencimiento no se modifica, aunque se envíe una fecha")
+    void elVencimientoNoSeModifica() throws Exception {
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
+
+        java.time.LocalDateTime vencimiento = vigente.getFechaVencimientoAcceso();
 
         mockMvc.perform(post("/inscripcion/modificar/" + vigente.getIdInscripcion())
                 .param("vencimiento", LocalDate.now().minusDays(1).toString()))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(containsString("duración del cronograma")));
+                .andExpect(status().isOk());
+
+        assertEquals(vencimiento, vigente.getFechaVencimientoAcceso());
     }
 
     @Test
@@ -331,7 +360,7 @@ class InscripcionGestionControllerTest {
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-48: el administrador corrige el nombre y el DNI de un certificado")
     void corregirCertificado() throws Exception {
-        var certificado = inscripcion(MARTIN, "Vencida").getCertificadoVigente();
+        var certificado = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente();
 
         mockMvc.perform(post("/certificado/corregir/" + certificado.getIdCertificado())
                 .param("nombre", "Martín Gómez Ruiz").param("dni", "41234568"))
@@ -345,7 +374,7 @@ class InscripcionGestionControllerTest {
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-48: rechaza un DNI inválido")
     void corregirCertificadoConDniInvalido() throws Exception {
-        var certificado = inscripcion(MARTIN, "Vencida").getCertificadoVigente();
+        var certificado = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente();
 
         mockMvc.perform(post("/certificado/corregir/" + certificado.getIdCertificado())
                 .param("nombre", "Martín Gómez").param("dni", "abc"))
@@ -367,7 +396,7 @@ class InscripcionGestionControllerTest {
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-49: el alumno se da de baja de su inscripción, con motivo")
     void alumnoSeDaDeBaja() throws Exception {
-        Inscripcion vigente = inscripcion(VALENTINA, "Vigente");
+        Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
         mockMvc.perform(post("/inscripcion/darDeBaja/" + vigente.getIdInscripcion()).param("motivo", "No tengo tiempo"))
                 .andExpect(status().isOk())
@@ -381,7 +410,7 @@ class InscripcionGestionControllerTest {
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-49: el alumno no da de baja la inscripción de otro")
     void alumnoNoDaDeBajaLaAjena() throws Exception {
-        Inscripcion deMartin = inscripcion(MARTIN, "Vigente");
+        Inscripcion deMartin = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
         mockMvc.perform(post("/inscripcion/darDeBaja/" + deMartin.getIdInscripcion()))
                 .andExpect(status().isBadRequest())
@@ -394,7 +423,7 @@ class InscripcionGestionControllerTest {
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-49: el administrador da de baja cualquier inscripción")
     void administradorDaDeBaja() throws Exception {
-        Inscripcion deMartin = inscripcion(MARTIN, "Vigente");
+        Inscripcion deMartin = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
         mockMvc.perform(post("/inscripcion/darDeBaja/" + deMartin.getIdInscripcion()).param("motivo", "Fraude"))
                 .andExpect(status().isOk());
@@ -410,7 +439,7 @@ class InscripcionGestionControllerTest {
                 .filter(c -> c.getInscripcion().getAlumno().getUsuario().getCorreo().equals(VALENTINA)).findFirst().orElseThrow();
         inscripcionService.darDeBaja(consulta.getInscripcion().getIdInscripcion(), null, null);
 
-        mockMvc.perform(get("/consulta/buscarPorTema/" + consulta.getTema().getIdTema())).andExpect(status().isOk())
+        mockMvc.perform(get("/foro/buscarPorTema/" + consulta.getTema().getIdTema())).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Alumno anónimo")))
                 .andExpect(content().string(not(containsString("Valentina Ruiz"))));
         mockMvc.perform(get("/consulta/ver/" + consulta.getIdConsulta())).andExpect(status().isOk())

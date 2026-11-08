@@ -17,6 +17,11 @@
  *   [{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}, {"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]
  * (atributoForm toma el valor de un atributo del propio formulario).
  * data-resumen-titulo agrega un texto a la línea de lo que se registra (por ejemplo, la fecha de una cohorte).
+ * data-resumen-mes="campoA|campoB" nombra lo que se registra por el mes y el año del primer campo con fecha ("Marzo 2026 (Nueva)").
+ * data-resumen-derivado="Comprobante" en un campo lo saca de las ramas de lo que se modifica y lo pone en una rama aparte, una
+ * entidad que se deriva de ella; data-resumen-derivado-titulo marca el campo cuyo valor es el título de esa rama (por ejemplo, el número).
+ * data-resumen-original en un campo indica el valor que tiene guardado cuando el formulario lo abre con otro valor sugerido
+ * (por ejemplo, el estado de un pago que se propone acreditar): el resumen lo compara con ese valor y no con el inicial.
  */
 (function () {
     'use strict';
@@ -82,7 +87,19 @@
                     return !campo.closest('.d-none, [hidden]') && !campo.hasAttribute('data-resumen-omitir') && !(campo.matches('.pn-campo') && campo.querySelector('[data-resumen-linea]'));
                 }).map(function (campo) {
                     if (campo.hasAttribute('data-resumen-linea')) { return { etiqueta: campo.getAttribute('data-resumen-linea'), valor: lineaDe(campo) }; }
-                    return { etiqueta: etiquetaDe(campo), valor: valorDe(campo) };
+                    var datos = { etiqueta: etiquetaDe(campo), valor: valorDe(campo) };
+                    // Un campo de una entidad que se deriva de la que se modifica (el comprobante de un pago): va en su propia rama
+                    if (campo.hasAttribute('data-resumen-derivado')) {
+                        datos.derivado = campo.getAttribute('data-resumen-derivado');
+                        datos.titulo = campo.hasAttribute('data-resumen-derivado-titulo');
+                    }
+                    // Un campo que arranca con una sugerencia (distinta de lo que está guardado) declara su valor guardado
+                    if (campo.hasAttribute('data-resumen-original')) {
+                        var guardado = campo.getAttribute('data-resumen-original');
+                        var entrada = campo.querySelector('input');
+                        datos.original = entrada && entrada.getAttribute('data-resumen-formato') === 'moneda' ? moneda(guardado) : guardado;
+                    }
+                    return datos;
                 }).filter(function (c) { return c.etiqueta; })
             };
         });
@@ -157,11 +174,16 @@
         }
 
         /** La leyenda trae solo los colores que aparecen en este árbol: los niveles de contexto, el de lo que se registra y el del estado. */
-        function leyenda(contextos) {
+        function leyenda(contextos, derivados, sinCambios) {
             var items = [];
             contextos.forEach(function (c, i) { items.push([colorDeNivel(i), c.etiqueta]); });
             items.push([colorDeNivel(contextos.length), nombre]);
+            // Las entidades derivadas (el comprobante de un pago) son un nivel más abajo
+            derivados.forEach(function (d) { items.push([colorDeNivel(contextos.length + 1), d]); });
             items.push(esAlta ? ['verde', 'Lo que se registra'] : ['naranja', 'Lo que se modifica']);
+            // En una modificación, lo derivado se registra (es nuevo) y, si nada cambió, el nodo queda gris
+            if (!esAlta && derivados.length) { items.push(['verde', 'Lo que se registra']); }
+            if (sinCambios) { items.push(['gris', 'Sin cambios']); }
             var l = crear('div', 'pn-arbol-leyenda');
             items.forEach(function (e) {
                 l.appendChild(crear('span', 'pn-leyenda-item pn-nodo-' + e[0], '<i></i>' + esc(e[1])));
@@ -176,9 +198,9 @@
             // En una modificación se muestran los grupos con cambios y, dentro de ellos, todos sus datos
             var ramas = actual.map(function (grupo, i) {
                 if (grupo.sinRama) { return null; }
-                var campos = grupo.campos.map(function (c) {
+                var campos = grupo.campos.filter(function (c) { return !c.derivado; }).map(function (c) {
                     var anterior = original[i] ? original[i].campos.filter(function (o) { return o.etiqueta === c.etiqueta; })[0] : null;
-                    var antes = anterior ? anterior.valor : '';
+                    var antes = anterior ? (anterior.original !== undefined ? anterior.original : anterior.valor) : '';
                     return { etiqueta: c.etiqueta, valor: c.valor, antes: antes, cambio: c.valor !== antes };
                 });
                 return { indice: grupo.indice, grupo: grupo.grupo, campos: campos };
@@ -189,7 +211,11 @@
 
             // Contexto: de dónde cuelga lo que se registra (curso, programa), como ramas principales
             var contextos = contexto();
-            contenedor.appendChild(leyenda(contextos));
+            var nombresDerivados = [];
+            actual.forEach(function (g) {
+                g.campos.forEach(function (c) { if (c.derivado && nombresDerivados.indexOf(c.derivado) < 0) { nombresDerivados.push(c.derivado); } });
+            });
+            contenedor.appendChild(leyenda(contextos, nombresDerivados, !esAlta && !cambios && !nombresDerivados.length));
             var raiz = contenedor;
             contextos.forEach(function (c, i) {
                 var color = colorDeNivel(i);
@@ -205,14 +231,34 @@
             var sufijo = formulario.getAttribute('data-resumen-titulo');
             var campoNombre = formulario.querySelector('[name="nombre"], [name="titulo"]');
             var titulo;
+            // data-resumen-nombre-campo="campo|atributo": el nombre sale de un atributo de la opción elegida en ese select
+            var origenNombre = (formulario.getAttribute('data-resumen-nombre-campo') || '').split('|');
+            var selectNombre = origenNombre[0] ? formulario.querySelector('[name="' + origenNombre[0] + '"]') : null;
+            var opcionNombre = selectNombre && selectNombre.selectedOptions.length ? selectNombre.selectedOptions[0] : null;
+            var nombreElegido = opcionNombre && opcionNombre.value !== '' ? (opcionNombre.getAttribute(origenNombre[1]) || '') : '';
             var periodo = formulario.getAttribute('data-resumen-periodo');
             var partes = periodo ? periodo.split('|') : [];
             var desde = periodo ? formulario.querySelector('[name="' + partes[0] + '"]') : null;
             var hasta = periodo ? formulario.querySelector('[name="' + partes[1] + '"]') : null;
             function fecha(c) { return c && c.value ? c.value.split('-').reverse().join('/') : ''; }
-            if (desde && desde.value) {
+            // Una cohorte nueva se nombra por el mes y el año en que comienza (el del dictado o, si no tiene, el de la inscripción)
+            var camposMes = (formulario.getAttribute('data-resumen-mes') || '').split('|');
+            var mesAnio = '';
+            camposMes.forEach(function (n) {
+                var c = n ? formulario.querySelector('[name="' + n + '"]') : null;
+                var m = !mesAnio && c ? /^(\d{4})-(\d{2})/.exec(c.value || '') : null;
+                if (m) {
+                    var meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+                    mesAnio = meses[parseInt(m[2], 10) - 1] + ' ' + m[1];
+                }
+            });
+            if (mesAnio) {
+                titulo = esc(mesAnio + (esAlta ? ' (Nueva)' : ''));
+            } else if (desde && desde.value) {
                 // Un dato representativo de la cohorte: "Inscripción 01/11/2026 al 15/11/2026"
                 titulo = esc(partes[2] + ' ' + fecha(desde) + (hasta && hasta.value ? ' al ' + fecha(hasta) : ''));
+            } else if (nombreElegido) {
+                titulo = esc(nombreElegido);
             } else if (formulario.hasAttribute('data-resumen-nombre')) {
                 titulo = esc(formulario.getAttribute('data-resumen-nombre'));
             } else if (campoNombre && !campoNombre.disabled && campoNombre.value.trim()) {
@@ -230,8 +276,38 @@
             entidad.classList.add(contextos.length ? 'pn-nodo-tercero' : 'pn-nodo-primero');
             raiz.appendChild(entidad);
 
+            // Las entidades derivadas (por ejemplo el comprobante de un pago acreditado) van como ramas aparte: su título es el
+            // campo marcado como título (el número) y sus datos, los demás campos
+            function agregarDerivados() {
+                var derivados = {};
+                actual.forEach(function (g) {
+                    g.campos.forEach(function (c) {
+                        if (c.derivado) { (derivados[c.derivado] = derivados[c.derivado] || []).push(c); }
+                    });
+                });
+                Object.keys(derivados).forEach(function (clave) {
+                    var campos = derivados[clave];
+                    var campoTitulo = campos.filter(function (c) { return c.titulo; })[0];
+                    var color = colorDeNivel(contextos.length + 1);
+                    var rama = nodo(color, esc(campoTitulo && campoTitulo.valor ? campoTitulo.valor : clave), [color, clave], ['verde', 'Nuevo']);
+                    rama.classList.add('pn-nodo-grupo');
+                    campos.filter(function (c) { return !c.titulo; }).forEach(function (c) {
+                        rama.appendChild(crear('div', 'pn-arbol-dato pn-dato-nuevo',
+                            esc(c.etiqueta) + ': ' + (c.valor ? '<strong>' + esc(c.valor) + '</strong>' : empty())));
+                    });
+                    entidad.appendChild(rama);
+                });
+            }
+
             if (!ramas.length) {
-                entidad.appendChild(crear('p', 'pn-arbol-sin-cambios', 'No hay cambios para guardar'));
+                if (!Object.keys(actual.reduce(function (acc, g) {
+                    g.campos.forEach(function (c) { if (c.derivado) { acc[c.derivado] = 1; } });
+                    return acc;
+                }, {})).length) {
+                    entidad.appendChild(crear('p', 'pn-arbol-sin-cambios', 'No hay cambios para guardar'));
+                    return;
+                }
+                agregarDerivados();
                 return;
             }
             ramas.forEach(function (rama) {
@@ -255,6 +331,7 @@
                 });
                 entidad.appendChild(grupo);
             });
+            agregarDerivados();
         }
 
         // El árbol se arma cada vez que el paso de resumen pasa a estar visible

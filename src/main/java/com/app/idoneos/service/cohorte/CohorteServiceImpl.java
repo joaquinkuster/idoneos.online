@@ -60,6 +60,9 @@ public class CohorteServiceImpl implements CohorteService {
     private EstadoCohorteRepository estadoCohorteRepository;
 
     @Autowired
+    private com.app.idoneos.repository.InscripcionRepository inscripcionRepository;
+
+    @Autowired
     private DocenteCursoRepository docenteCursoRepository;
 
     // ---------------------------------------------------------------- Lecturas
@@ -213,8 +216,10 @@ public class CohorteServiceImpl implements CohorteService {
         Cohorte cohorte = new Cohorte(curso, programa, inicioDelDia(fechaInicioInscripcion), finDelDia(fechaFinInscripcion),
                 accesoDias);
         aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, cohorte.getCurso().getDuracionDias(), cupoMaximo);
-        cohorte.setEstadoCohorte(estadoCohorteRepository
-                .findByNombre(activa ? EstadoCohorte.ACTIVA : EstadoCohorte.PENDIENTE).orElseThrow());
+        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PENDIENTE).orElseThrow());
+        if (activa) {
+            moverAlEstadoDeLasFechas(cohorte, LocalDateTime.now());
+        }
         return cohorteRepository.save(cohorte);
     }
 
@@ -307,6 +312,8 @@ public class CohorteServiceImpl implements CohorteService {
         cohorte.setAccesoDias(accesoDias);
         aplicarDatosOpcionales(cohorte, enVivo, fechaInicioDictado, cohorte.getCurso().getDuracionDias(), cupoMaximo);
         cohorte.setUltimaModificacion(LocalDateTime.now());
+        // Con otras fechas puede corresponderle otro estado (por ejemplo, de Inscripción abierta a Inscripción próxima)
+        moverAlEstadoDeLasFechas(cohorte, LocalDateTime.now());
         return cohorteRepository.save(cohorte);
     }
 
@@ -338,7 +345,7 @@ public class CohorteServiceImpl implements CohorteService {
         Programa programa = programaDelCurso(cohorte.getCurso(), idPrograma);
         cohorte.setPrograma(programa);
         if (tieneContenidoCompleto(programa)) {
-            cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
+            activar(cohorte, LocalDateTime.now());
         }
         cohorte.setUltimaModificacion(LocalDateTime.now());
         return cohorteRepository.save(cohorte);
@@ -353,7 +360,7 @@ public class CohorteServiceImpl implements CohorteService {
         int activadas = 0;
         for (Cohorte cohorte : cohorteRepository.findByBajaFalse()) {
             if (cohorte.esPendiente() && tieneContenidoCompleto(cohorte.getPrograma())) {
-                cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
+                activar(cohorte, LocalDateTime.now());
                 cohorte.setUltimaModificacion(LocalDateTime.now());
                 cohorteRepository.save(cohorte);
                 activadas++;
@@ -369,10 +376,50 @@ public class CohorteServiceImpl implements CohorteService {
         if (cohorte == null || !cohorte.esPendiente() || !tieneContenidoCompleto(cohorte.getPrograma())) {
             return false;
         }
-        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.ACTIVA).orElseThrow());
+        activar(cohorte, LocalDateTime.now());
         cohorte.setUltimaModificacion(LocalDateTime.now());
         cohorteRepository.save(cohorte);
         return true;
+    }
+
+    /** Saca a la cohorte de «Pendiente de contenido»: pasa al estado que le corresponde por sus fechas. */
+    private void activar(Cohorte cohorte, LocalDateTime ahora) {
+        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PROXIMA).orElseThrow());
+        moverAlEstadoDeLasFechas(cohorte, ahora);
+    }
+
+    /**
+     * Deja a la cohorte (que no esté pendiente ni cancelada) en el estado que le corresponde por sus fechas y por si queda alguna inscripción
+     * en juego.
+     *
+     * @return {@code true} si cambió de estado.
+     */
+    private boolean moverAlEstadoDeLasFechas(Cohorte cohorte, LocalDateTime ahora) {
+        if (cohorte.esPendiente() || cohorte.esCancelada()) {
+            return false;
+        }
+        boolean enJuego = cohorte.getIdCohorte() != 0 && inscripcionRepository.contarEnJuego(cohorte, ahora) > 0;
+        String estado = cohorte.calcularEstado(ahora, enJuego);
+        if (cohorte.getEstadoCohorte() != null && estado.equals(cohorte.getEstadoCohorte().getNombre())) {
+            return false;
+        }
+        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(estado).orElseThrow());
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public int actualizarEstadosPorFecha() {
+        LocalDateTime ahora = LocalDateTime.now();
+        int cambiadas = 0;
+        for (Cohorte cohorte : cohorteRepository.findByBajaFalse()) {
+            if (moverAlEstadoDeLasFechas(cohorte, ahora)) {
+                cohorte.setUltimaModificacion(ahora);
+                cohorteRepository.save(cohorte);
+                cambiadas++;
+            }
+        }
+        return cambiadas;
     }
 
     /**
@@ -396,8 +443,8 @@ public class CohorteServiceImpl implements CohorteService {
     }
 
     /**
-     * Tarea periódica del ciclo de vida de las cohortes pendientes (cada minuto): primero activa las que el docente ya dejó
-     * completas y después cancela las que llegaron a su fecha sin estarlo.
+     * Tarea periódica del ciclo de vida de las cohortes (cada minuto): activa las pendientes que el docente ya dejó completas, cancela las que
+     * llegaron a su fecha sin estarlo y mueve de estado las que cumplieron una fecha de inscripción o de dictado.
      */
     @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60_000, initialDelay = 30_000)
     @org.springframework.transaction.annotation.Transactional
@@ -405,9 +452,10 @@ public class CohorteServiceImpl implements CohorteService {
         try {
             int activadas = activarPendientesConContenidoCompleto();
             int canceladas = cancelarPendientesVencidas();
-            if (activadas > 0 || canceladas > 0) {
+            int cambiadas = actualizarEstadosPorFecha();
+            if (activadas > 0 || canceladas > 0 || cambiadas > 0) {
                 org.slf4j.LoggerFactory.getLogger(CohorteServiceImpl.class)
-                        .info("Cohortes pendientes: {} activadas y {} canceladas", activadas, canceladas);
+                        .info("Cohortes: {} activadas, {} canceladas y {} con estado nuevo por fecha", activadas, canceladas, cambiadas);
             }
         } catch (RuntimeException e) {
             org.slf4j.LoggerFactory.getLogger(CohorteServiceImpl.class)

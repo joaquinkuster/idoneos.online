@@ -11,6 +11,7 @@ import com.app.idoneos.model.MetodoPago;
 import com.app.idoneos.model.Pago;
 import com.app.idoneos.model.Parametro;
 import com.app.idoneos.model.Usuario;
+import com.app.idoneos.repository.CohorteRepository;
 import com.app.idoneos.repository.DescuentoRepository;
 import com.app.idoneos.repository.EstadoPagoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
@@ -23,6 +24,8 @@ import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 import com.app.idoneos.util.MensajeErrorUtil;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 import com.app.idoneos.util.TextoUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,10 +71,23 @@ public class PagoServiceImpl implements PagoService {
     private EstadoPagoRepository estadoPagoRepository;
 
     @Autowired
+    private com.app.idoneos.repository.EstadoInscripcionRepository estadoInscripcionRepository;
+
+    private com.app.idoneos.model.EstadoInscripcion estadoInscripcion(String nombre) {
+        return estadoInscripcionRepository.findByNombre(nombre).orElseThrow();
+    }
+
+    @Autowired
     private MetodoPagoRepository metodoPagoRepository;
 
     @Autowired
     private InscripcionRepository inscripcionRepository;
+
+    @Autowired
+    private CohorteRepository cohorteRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Autowired
     private DescuentoRepository descuentoRepository;
@@ -148,7 +164,7 @@ public class PagoServiceImpl implements PagoService {
         // Cursos comprados: inscripciones habilitadas con pago aprobado (sin contar la que se está pagando)
         long comprados = inscripcionRepository.findByAlumnoAndBajaFalse(inscripcion.getAlumno()).stream()
                 .filter(otra -> otra.getIdInscripcion() != inscripcion.getIdInscripcion())
-                .filter(otra -> otra.estaHabilitada() && otra.tienePagoAprobado()).count();
+                .filter(otra -> otra.fueHabilitada() && otra.tienePagoAprobado()).count();
         return mejorDescuento(comprados);
     }
 
@@ -156,7 +172,7 @@ public class PagoServiceImpl implements PagoService {
     public Optional<Descuento> calcularDescuentoPara(Alumno alumno) {
         long comprados = alumno == null ? 0
                 : inscripcionRepository.findByAlumnoAndBajaFalse(alumno).stream()
-                        .filter(otra -> otra.estaHabilitada() && otra.tienePagoAprobado()).count();
+                        .filter(otra -> otra.fueHabilitada() && otra.tienePagoAprobado()).count();
         return mejorDescuento(comprados);
     }
 
@@ -193,7 +209,7 @@ public class PagoServiceImpl implements PagoService {
     @Override
     @Transactional
     public boolean habilitarSiNoHayQuePagar(Inscripcion inscripcion) {
-        if (inscripcion.estaHabilitada() || inscripcion.getCurso().getPrecio() <= 0) {
+        if (inscripcion.fueHabilitada() || inscripcion.getCurso().getPrecio() <= 0) {
             return false;
         }
         Descuento descuento = calcularDescuento(inscripcion).orElse(null);
@@ -276,6 +292,7 @@ public class PagoServiceImpl implements PagoService {
     @Override
     @Transactional
     public SolicitudPago iniciar(Integer idInscripcion, Alumno alumno, Float montoEsperado) {
+        bloquearCohorteDeLaInscripcion(idInscripcion);
         Inscripcion inscripcion = inscripcionRepository.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
         if (alumno == null || inscripcion.getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
@@ -287,9 +304,10 @@ public class PagoServiceImpl implements PagoService {
     @Override
     @Transactional
     public Pago registrarManual(Integer idInscripcion, Float monto, String numeroComprobante, String observaciones) {
+        bloquearCohorteDeLaInscripcion(idInscripcion);
         Inscripcion inscripcion = inscripcionRepository.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
-        if (inscripcion.estaHabilitada() && inscripcion.tienePagoAprobado()) {
+        if (inscripcion.fueHabilitada() && inscripcion.tienePagoAprobado()) {
             throw new IllegalArgumentException("Error! El pago de esta inscripción ya está registrado.");
         }
         String comprobanteLimpio = numeroComprobante == null ? "" : numeroComprobante.trim();
@@ -299,28 +317,22 @@ public class PagoServiceImpl implements PagoService {
         validarMonto(monto);
         validarNumeroComprobante(comprobanteLimpio, MetodoPago.TRANSFERENCIA, null);
         validarMontoNoSuperaLaDeuda(inscripcion, monto);
+        validarNoCancelada(inscripcion);
+        // Cerrada la inscripción no se registran pagos, tampoco el que completa un pago parcial: esa inscripción se cancela por falta de pago
+        if (inscripcion.getCohorte().inscripcionCerrada()) {
+            throw new IllegalArgumentException("Error! La inscripción a esta cohorte ya cerró: no se puede registrar un pago.");
+        }
         validarCupo(inscripcion);
         String notas = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
         if (notas != null && notas.length() > LONGITUD_OBSERVACIONES) {
             throw new IllegalArgumentException(
                     MensajeErrorUtil.armarDemasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
-        // Un pago que ya había fallado (rechazado) se reutiliza; uno pendiente (por ejemplo, de MODO sin confirmar) queda
-        // rechazado, porque el que se registra es otro pago y el pendiente no debe acreditarse después
-        Pago pago = inscripcion.getPagoSinAprobar();
-        if (pago != null && pago.estaPendiente()) {
-            pago = null;
-        }
+        // Un pendiente (por ejemplo, de MODO sin confirmar) queda rechazado, porque el que se registra es otro pago y el pendiente no debe
+        // acreditarse después. Cada registro es un pago nuevo: los intentos anteriores conservan sus datos para poder rastrearlos
         rechazarPendientes(inscripcion, null);
-        if (pago == null) {
-            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.TRANSFERENCIA), inscripcion,
-                    "IDN-" + UUID.randomUUID(), monto);
-        }
-        pago.setMetodoPago(metodo(MetodoPago.TRANSFERENCIA));
-        pago.setIdIntencionExterna("IDN-" + UUID.randomUUID());
-        pago.setMonto(monto);
-        pago.setDescuento(null);
-        limpiarResultado(pago);
+        Pago pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.TRANSFERENCIA), inscripcion,
+                "IDN-" + UUID.randomUUID(), monto);
         pago.setNumeroComprobante(comprobanteLimpio);
         pago.setDetalleMetodoPago(notas != null ? "Transferencia al CBU de la institución · " + notas
                 : "Transferencia al CBU de la institución");
@@ -348,7 +360,7 @@ public class PagoServiceImpl implements PagoService {
     @Transactional
     public SolicitudPago reintentar(Integer idPago, Alumno alumno) {
         Pago pago = buscarVisible(idPago, alumno);
-        if (!pago.estaRechazado() || pago.getInscripcion().estaHabilitada() || pago.getInscripcion().esInactivo()) {
+        if (!pago.estaRechazado() || pago.getInscripcion().fueHabilitada() || pago.getInscripcion().esInactivo()) {
             throw new IllegalArgumentException(
                     "Error! El pago no se encuentra rechazado o su inscripción ya tiene el acceso habilitado.");
         }
@@ -384,6 +396,7 @@ public class PagoServiceImpl implements PagoService {
 
     /** Cada minuto concilia los pagos online pendientes (el aviso de MODO por webhook puede no llegar). */
     @Scheduled(fixedDelay = 60_000, initialDelay = 60_000)
+    @Transactional // la llamada a conciliarPendientes() es interna (no pasa por el proxy): la transacción tiene que abrirse acá
     public void conciliarPagosPendientesPeriodicamente() {
         try {
             int resueltos = conciliarPendientes();
@@ -399,24 +412,33 @@ public class PagoServiceImpl implements PagoService {
     @Transactional
     public Pago modificar(Integer idPago, String estado, Float monto, String referencia, String numeroComprobante,
             String nombrePagador, String dniPagador, String motivo) {
-        Pago pago = pagoRepository.findById(idPago).filter(p -> !p.estaAprobado())
-                .orElseThrow(() -> new IllegalArgumentException("Error! El pago no se encuentra pendiente o rechazado."));
+        // Un pago aprobado o rechazado ya no se modifica: solo se resuelve el que está pendiente
+        Pago pago = pagoRepository.findById(idPago).filter(Pago::estaPendiente)
+                .orElseThrow(() -> new IllegalArgumentException("Error! Solo se puede modificar un pago pendiente: el aprobado y el rechazado no se modifican."));
         String nuevoEstado = estado == null ? "" : estado.trim();
         boolean aprobar = EstadoPago.APROBADO.equalsIgnoreCase(nuevoEstado);
         boolean rechazar = EstadoPago.RECHAZADO.equalsIgnoreCase(nuevoEstado);
         if (!aprobar && !rechazar) {
             throw RespuestaFormularioUtil.armarCampoInvalido("estado", "Error! Debe marcar el pago como aprobado o rechazado.");
         }
+        if (rechazar) {
+            // Rechazar solo pide el motivo: no hay cobro ni comprobante que registrar
+            String motivoLimpio = motivo == null ? "" : motivo.trim();
+            if (motivoLimpio.isEmpty()) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("motivo", "Error! Debe completar el motivo del rechazo.");
+            }
+            rechazar(pago, motivoLimpio);
+            return pago;
+        }
         String referenciaLimpia = referencia == null || referencia.isBlank() ? null : referencia.trim().toUpperCase();
         String comprobanteLimpio = numeroComprobante == null || numeroComprobante.isBlank() ? null : numeroComprobante.trim();
         if (monto == null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("monto", "Error! El monto es obligatorio.");
         }
-        // Una transferencia siempre lleva su número de comprobante. Un pago de MODO, al acreditarlo, lleva el código de
-        // referencia y el número de comprobante: son la prueba de que el administrador verificó el cobro en MODO. Al
-        // rechazarlo no hay cobro que probar, así que son opcionales (si se completan, se validan igual).
+        // Acreditar una transferencia pide su número de comprobante. Acreditar un pago de MODO pide el código de referencia, el
+        // número de comprobante y el nombre y el DNI del pagador: son la prueba de que el administrador verificó el cobro en MODO.
         if (pago.esDeModo()) {
-            if (aprobar && (referenciaLimpia == null || comprobanteLimpio == null)) {
+            if (referenciaLimpia == null || comprobanteLimpio == null) {
                 throw new IllegalArgumentException(
                         "Error! Debe completar el código de referencia y el número de comprobante de MODO para acreditar el pago.");
             }
@@ -429,12 +451,11 @@ public class PagoServiceImpl implements PagoService {
         }
         validarMonto(monto);
         validarNumeroComprobante(comprobanteLimpio, pago.getMetodoPago().getNombre(), pago);
-        if (aprobar) {
-            validarMontoNoSuperaLaDeuda(pago.getInscripcion(), monto);
-        }
+        validarMontoNoSuperaLaDeuda(pago.getInscripcion(), monto);
+        validarNoCancelada(pago.getInscripcion());
         String nombre = nombrePagador == null ? "" : nombrePagador.trim();
         String dni = dniPagador == null ? "" : dniPagador.trim();
-        if (aprobar && pago.esDeModo() && (nombre.isEmpty() || !dni.matches("\\d{7,8}"))) {
+        if (pago.esDeModo() && (nombre.isEmpty() || !dni.matches("\\d{7,8}"))) {
             throw new IllegalArgumentException(
                     MensajeErrorUtil.armarFormatoInvalido("El nombre o el DNI del pagador", "nombre completo y DNI de 7 u 8 números"));
         }
@@ -442,13 +463,7 @@ public class PagoServiceImpl implements PagoService {
         if (referenciaLimpia != null) {
             pago.setCodigoReferencia(referenciaLimpia);
         }
-        if (comprobanteLimpio != null) {
-            pago.setNumeroComprobante(comprobanteLimpio);
-        }
-        if (rechazar) {
-            rechazar(pago, motivo == null || motivo.isBlank() ? "Rechazado por el administrador." : motivo.trim());
-            return pago;
-        }
+        pago.setNumeroComprobante(comprobanteLimpio);
         Usuario usuario = pago.getInscripcion().getAlumno().getUsuario();
         // El medio de pago ya antepone el nombre del método: acá solo se agrega el detalle
         String detalleAnterior = pago.getDetalleMetodoPago();
@@ -475,8 +490,33 @@ public class PagoServiceImpl implements PagoService {
      * La habilitación de la inscripción ocupa un cupo de la cohorte: si ya no queda, no se puede pagar. (Si el pago
      * online ya se cobró cuando se aprueba, la inscripción se habilita igual: no se puede rechazar un pago acreditado.)
      */
+    /** Una inscripción cancelada no se paga: ya no hay un lugar reservado para ella. */
+    private static void validarNoCancelada(Inscripcion inscripcion) {
+        if (inscripcion.estaCancelada()) {
+            throw new IllegalArgumentException("Error! La inscripción fue cancelada: no se puede pagar.");
+        }
+    }
+
+    /**
+     * Toma el bloqueo de la cohorte de la inscripción y recarga la inscripción de la base, para decidir con el estado real: dos
+     * operaciones sobre la misma cohorte (dos pagos por el último lugar, o el aviso de MODO y la tarea periódica sobre el mismo
+     * pago) se hacen una después de la otra. Se bloquea antes de leer para no trabajar con datos viejos.
+     */
+    private void bloquearCohorteDeLaInscripcion(Integer idInscripcion) {
+        inscripcionRepository.buscarIdCohorte(idInscripcion).ifPresent(cohorteRepository::buscarPorIdConBloqueo);
+        inscripcionRepository.findById(idInscripcion).ifPresent(this::recargar);
+    }
+
+    /** Vuelca los cambios pendientes y vuelve a leer la entidad de la base. */
+    private void recargar(Object entidad) {
+        entityManager.flush();
+        entityManager.refresh(entidad);
+    }
+
     private void validarCupo(Inscripcion inscripcion) {
-        if (!inscripcion.getCohorte().tieneCupo()) {
+        var cohorte = inscripcion.getCohorte();
+        if (!inscripcion.ocupaCupo() && cohorte.getCupoMaximo() != null
+                && inscripcionRepository.contarQueOcupanCupo(cohorte) >= cohorte.getCupoMaximo()) {
             throw new IllegalArgumentException(
                     "Error! La cohorte alcanzó su cupo máximo: no se puede pagar esta inscripción.");
         }
@@ -484,12 +524,13 @@ public class PagoServiceImpl implements PagoService {
 
     /** Reglas comunes de CU-51 y CU-52: arma el pago de la inscripción y crea la solicitud en la plataforma. */
     private SolicitudPago iniciar(Inscripcion inscripcion, Float montoEsperado) {
+        validarNoCancelada(inscripcion);
         if (inscripcion.tienePagoAprobado()) {
-            throw new IllegalArgumentException("Error! " + (inscripcion.estaHabilitada()
+            throw new IllegalArgumentException("Error! " + (inscripcion.fueHabilitada()
                     ? "El pago de esta inscripción ya está aprobado."
                     : "La inscripción ya tiene un pago aprobado que no cubre el precio: el resto lo acredita el administrador."));
         }
-        if (inscripcion.estaHabilitada()) {
+        if (inscripcion.fueHabilitada()) {
             throw new IllegalArgumentException("Error! La inscripción no tiene un pago pendiente.");
         }
         validarCupo(inscripcion);
@@ -501,16 +542,25 @@ public class PagoServiceImpl implements PagoService {
                 return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(), true);
             }
             if (existente.estaPendiente()) {
-                // Hay un pago en curso: se retoma su solicitud en lugar de crear otra
+                // Hay un pago en curso. Vencida su solicitud, se está verificando con MODO: no se abre otra mientras ese pago pueda cobrarse
+                if (estaVerificando(existente)) {
+                    throw estaVerificandoElPago();
+                }
+                // Dentro del plazo se retoma su solicitud (el mismo QR) en lugar de crear otra
                 PasarelaPagoService.Resultado enCurso = pasarela.consultarPago(existente.getIdSolicitudPago());
+                if (enCurso.estado() == PasarelaPagoService.Estado.PROCESANDO) {
+                    throw estaVerificandoElPago();
+                }
                 if (enCurso.estado() == PasarelaPagoService.Estado.PENDIENTE && enCurso.solicitud() != null) {
                     validarMontoEsperado(montoEsperado, existente.getMonto());
                     return new SolicitudPago(existente.getIdPago(), existente.getIdSolicitudPago(), false);
                 }
             }
         }
-        // Un pago rechazado se reutiliza (CU-52); si no hay ninguno, se registra uno nuevo
-        Pago pago = existente != null && existente.estaRechazado() ? existente : null;
+        // Un pago ya iniciado se puede continuar (arriba) aunque la inscripción haya cerrado, pero desde el cierre no se inicia uno nuevo
+        if (inscripcion.getCohorte().inscripcionCerrada()) {
+            throw new IllegalArgumentException("Error! La inscripción a esta cohorte ya cerró: no se puede iniciar un pago nuevo.");
+        }
 
         Descuento descuento = calcularDescuento(inscripcion).orElse(null);
         float precio = inscripcion.getCurso().getPrecio();
@@ -525,16 +575,10 @@ public class PagoServiceImpl implements PagoService {
                     + ").");
         }
 
+        // Cada intento es un pago nuevo: los rechazados quedan con su solicitud y su motivo, para poder rastrear cualquier aviso tardío de MODO
         String idExterno = "IDN-" + UUID.randomUUID();
-        if (pago == null) {
-            pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.MODO), inscripcion, idExterno, monto);
-        }
-        pago.setEstadoPago(estado(EstadoPago.PENDIENTE));
-        pago.setMetodoPago(metodo(MetodoPago.MODO));
-        pago.setIdIntencionExterna(idExterno);
-        pago.setMonto(monto);
+        Pago pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.MODO), inscripcion, idExterno, monto);
         pago.setDescuento(descuento);
-        limpiarResultado(pago);
         pago.setUltimaModificacion(ahora);
         pago = pagoRepository.save(pago);
         inscripcion.getPagos().add(pago);
@@ -545,7 +589,23 @@ public class PagoServiceImpl implements PagoService {
                 usuario.getDni());
         pago.setIdSolicitudPago(solicitud.id());
         pagoRepository.save(pago);
+        // Con el pago en curso la inscripción pasa a «Pago en curso» y reserva su lugar hasta que se resuelva
+        inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PAGO_EN_CURSO));
+        inscripcion.setUltimaModificacion(ahora);
+        inscripcionRepository.save(inscripcion);
         return new SolicitudPago(pago.getIdPago(), solicitud.id(), false);
+    }
+
+    /** El mensaje de un pago que MODO todavía no resolvió: no se puede pagar de nuevo hasta que informe cómo terminó. */
+    private static IllegalArgumentException estaVerificandoElPago() {
+        return new IllegalArgumentException(
+                "Error! Estamos verificando tu pago con MODO. Aguardá unos minutos y revisá el resultado en Mis pagos.");
+    }
+
+    @Override
+    public boolean estaVerificando(Pago pago) {
+        return pago.estaPendiente() && pago.esDeModo()
+                && pago.getFechaCreacion().plusSeconds(pasarela.vigenciaSolicitudSegundos()).isBefore(LocalDateTime.now());
     }
 
     /**
@@ -556,7 +616,7 @@ public class PagoServiceImpl implements PagoService {
      */
     private SolicitudPago habilitarSinPago(Inscripcion inscripcion, Descuento descuento) {
         LocalDateTime ahora = LocalDateTime.now();
-        inscripcion.habilitar(ahora);
+        inscripcion.habilitar(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.HABILITADA), ahora);
         inscripcion.setUltimaModificacion(ahora);
         inscripcionRepository.save(inscripcion);
         if (descuento != null) {
@@ -567,36 +627,60 @@ public class PagoServiceImpl implements PagoService {
     }
 
     /**
-     * Resuelve un pago online pendiente: consulta a la plataforma y lo aprueba o rechaza según informe; si sigue
-     * pendiente y venció el plazo de confirmación, lo rechaza.
+     * Resuelve un pago online pendiente consultando a MODO. Solo se decide con una respuesta real de MODO; si no responde, el pago sigue pendiente
+     * (conserva el lugar de la inscripción) y se vuelve a consultar en la corrida siguiente:
+     * <ul>
+     * <li>Accepted: se aprueba. Rejected: se rechaza. Processing: se espera, hay un pago en vuelo.</li>
+     * <li>Created o Scanned: nadie está pagando. Pasado el vencimiento de la solicitud más {@link #MARGEN_MINUTOS} minutos (MODO no acepta pagos
+     * vencidos, y el margen cubre la demora con que se actualiza su estado), se rechaza por vencimiento.</li>
+     * </ul>
      */
     private void conciliar(Pago pago) {
         if (!pago.estaPendiente() || !pago.esDeModo() || pago.getIdSolicitudPago() == null) {
             return;
         }
-        PasarelaPagoService.Resultado resultado = null;
+        PasarelaPagoService.Resultado resultado;
         try {
             resultado = pasarela.consultarPago(pago.getIdSolicitudPago());
         } catch (RuntimeException e) {
             REGISTRO.warn("No se pudo consultar el pago {} en la plataforma: {}", pago.getIdPago(), e.getMessage());
+            return; // sin respuesta no se decide nada
         }
-        if (resultado != null && resultado.estado() == PasarelaPagoService.Estado.APROBADO) {
-            aplicarDatosDeLaPlataforma(pago, resultado);
-            Usuario usuario = pago.getInscripcion().getAlumno().getUsuario();
-            aprobar(pago, resultado.nombrePagador() != null ? resultado.nombrePagador() : usuario.getNombreCompleto(),
-                    resultado.dniPagador() != null ? resultado.dniPagador() : usuario.getDni());
-            return;
+        if (resultado.estado() != PasarelaPagoService.Estado.PROCESANDO) {
+            // Se va a resolver el pago: se toma el bloqueo de la cohorte y se vuelve a mirar el pago, por si otro proceso (el aviso
+            // de MODO, la tarea periódica o el administrador) ya lo resolvió mientras se consultaba
+            bloquearCohorteDeLaInscripcion(pago.getInscripcion().getIdInscripcion());
+            recargar(pago);
+            if (!pago.estaPendiente()) {
+                return;
+            }
         }
-        if (resultado != null && resultado.estado() == PasarelaPagoService.Estado.RECHAZADO) {
-            aplicarDatosDeLaPlataforma(pago, resultado);
-            rechazar(pago, resultado.motivoError() != null ? resultado.motivoError() : "El pago fue rechazado.");
-            return;
-        }
-        LocalDateTime inicio = pago.getUltimaModificacion() != null ? pago.getUltimaModificacion() : pago.getFechaCreacion();
-        if (LocalDateTime.now().isAfter(inicio.plusMinutes(plazoConfirmacionMinutos()))) {
-            rechazar(pago, "El pago no se confirmó dentro del plazo de " + plazoConfirmacionMinutos() + " minutos.");
+        switch (resultado.estado()) {
+            case APROBADO -> {
+                aplicarDatosDeLaPlataforma(pago, resultado);
+                Usuario usuario = pago.getInscripcion().getAlumno().getUsuario();
+                aprobar(pago, resultado.nombrePagador() != null ? resultado.nombrePagador() : usuario.getNombreCompleto(),
+                        resultado.dniPagador() != null ? resultado.dniPagador() : usuario.getDni());
+            }
+            case RECHAZADO -> {
+                aplicarDatosDeLaPlataforma(pago, resultado);
+                rechazar(pago, resultado.motivoError() != null ? resultado.motivoError() : "El pago fue rechazado.");
+            }
+            case PROCESANDO -> {
+                // El pago está en vuelo: se espera a que MODO lo resuelva
+            }
+            case PENDIENTE -> {
+                LocalDateTime vencimiento = resultado.vencimiento() != null ? resultado.vencimiento()
+                        : pago.getFechaCreacion().plusSeconds(pasarela.vigenciaSolicitudSegundos());
+                if (LocalDateTime.now().isAfter(vencimiento.plusMinutes(MARGEN_MINUTOS))) {
+                    rechazar(pago, "El pago no se realizó dentro del plazo de " + plazoConfirmacionMinutos() + " minutos.");
+                }
+            }
         }
     }
+
+    /** Minutos que se esperan después del vencimiento de la solicitud antes de darla por no pagada (el estado de MODO se actualiza de forma asíncrona). */
+    private static final int MARGEN_MINUTOS = 2;
 
     private void aplicarDatosDeLaPlataforma(Pago pago, PasarelaPagoService.Resultado resultado) {
         pago.setDetalleMetodoPago(resultado.medioPago());
@@ -615,12 +699,14 @@ public class PagoServiceImpl implements PagoService {
         pago.setEstadoPago(estado(EstadoPago.APROBADO));
         pago.setFechaAprobacion(ahora);
         pago.setUltimaModificacion(ahora);
-        pago.setDetalleErrorOperacion(null);
+        pago.setMotivoRechazo(null);
         Inscripcion inscripcion = pago.getInscripcion();
         // Solo se habilita cuando lo pagado cubre el precio del curso: un pago menor queda aprobado, pero la
         // inscripción sigue pendiente. Primera habilitación: ocupa un cupo y se calcula el vencimiento del acceso.
         if (cubreElPrecio(inscripcion)) {
-            inscripcion.habilitar(ahora);
+            inscripcion.habilitar(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.HABILITADA), ahora);
+        } else if (inscripcion.estaConPagoEnCurso()) {
+            inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
         }
         inscripcion.setUltimaModificacion(ahora);
         inscripcionRepository.save(inscripcion);
@@ -634,31 +720,29 @@ public class PagoServiceImpl implements PagoService {
         comprobanteService.emitir(pago, nombrePagador, dniPagador);
     }
 
+    /** Motivo con el que se rechaza un pago pendiente cuando se aprueba otro de la misma inscripción. */
+    static final String MOTIVO_OTRO_PAGO_APROBADO = "Se aprobó otro pago de esta inscripción.";
+
     /** Rechaza los pagos pendientes de la inscripción (menos {@code excepto}): otro pago se aprobó y estos ya no corresponden. */
     private void rechazarPendientes(Inscripcion inscripcion, Pago excepto) {
         for (Pago otro : new ArrayList<>(inscripcion.getPagos())) {
             if (otro != excepto && otro.estaPendiente()) {
-                rechazar(otro, null);
+                rechazar(otro, MOTIVO_OTRO_PAGO_APROBADO);
             }
         }
     }
 
     private void rechazar(Pago pago, String motivo) {
         pago.setEstadoPago(estado(EstadoPago.RECHAZADO));
-        pago.setDetalleErrorOperacion(motivo);
+        pago.setMotivoRechazo(motivo);
         pago.setUltimaModificacion(LocalDateTime.now());
         pagoRepository.save(pago);
-    }
-
-    /** Deja el pago sin los datos del intento anterior, para reutilizar su registro. */
-    private void limpiarResultado(Pago pago) {
-        pago.setIdSolicitudPago(null);
-        pago.setCodigoReferencia(null);
-        pago.setNumeroComprobante(null);
-        pago.setUltimosDigitosTarjeta(null);
-        pago.setDetalleMetodoPago(null);
-        pago.setDetalleErrorOperacion(null);
-        pago.setFechaAprobacion(null);
+        // Sin otro pago en curso, la inscripción vuelve a «Pendiente de pago» y libera el lugar que reservaba
+        Inscripcion inscripcion = pago.getInscripcion();
+        if (inscripcion.estaConPagoEnCurso() && inscripcion.getPagos().stream().noneMatch(Pago::estaPendiente)) {
+            inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
+            inscripcionRepository.save(inscripcion);
+        }
     }
 
     private void validarMonto(Float monto) {

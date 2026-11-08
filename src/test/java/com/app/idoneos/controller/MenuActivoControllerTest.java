@@ -80,10 +80,10 @@ class MenuActivoControllerTest {
         marca("/programa/buscar?cursoId=" + cursoId, "Programas");
         marca("/participante/buscar?cursoId=" + cursoId, "Participantes");
         marca("/recurso/buscar?cursoId=" + cursoId, "Recursos");
-        marca("/termino/buscar?cursoId=" + cursoId, "Glosario");
-        marca("/termino/buscarPorTema/" + temaId, "Glosario");
-        marca("/consulta/buscar?cursoId=" + cursoId, "Foros");
-        marca("/consulta/buscarPorTema/" + temaId, "Foros");
+        marca("/glosario/buscar?cursoId=" + cursoId, "Glosario");
+        marca("/glosario/buscarPorTema/" + temaId, "Glosario");
+        marca("/foro/buscar?cursoId=" + cursoId, "Foros");
+        marca("/foro/buscarPorTema/" + temaId, "Foros");
         materialRepository.findAll().stream().filter(m -> m.getCurso().getIdCurso() == cursoId).findFirst()
                 .ifPresent(m -> {
                     try {

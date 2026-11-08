@@ -86,8 +86,8 @@
                                 </td>
                                 <td>
                                     <span class="pn-insignia"
-                                          th:classappend="${i.estado == 'Finalizado'} ? 'pn-insignia-verde' : (${i.estado == 'En Progreso'} ? 'pn-insignia-azul' : 'pn-insignia-gris')"
-                                          th:text="${i.estado}">En Progreso</span>
+                                          th:classappend="${i.estado == 'Finalizado'} ? 'pn-insignia-verde' : (${i.estado == 'En progreso'} ? 'pn-insignia-azul' : 'pn-insignia-gris')"
+                                          th:text="${i.estado}">En progreso</span>
                                 </td>
                                 <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>

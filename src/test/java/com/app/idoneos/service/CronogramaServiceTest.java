@@ -59,12 +59,41 @@ class CronogramaServiceTest {
         return curso;
     }
 
+
+    @Autowired
+    private com.app.idoneos.repository.EstadoCohorteRepository estadoCohorteRepository;
+
+    /**
+     * La semilla deja cohortes activas en los programas. Estas pruebas miran la mecánica del cronograma sin las reglas de cohorte activa
+     * (que tienen sus propias pruebas), así que dejan las cohortes del programa pendientes de contenido.
+     */
+    private Programa sinCohortesActivas(Programa programa) {
+        var pendiente = estadoCohorteRepository.findByNombre(com.app.idoneos.model.EstadoCohorte.PENDIENTE).orElseThrow();
+        programa.getCohortes().forEach(cohorte -> cohorte.setEstadoCohorte(pendiente));
+        return programa;
+    }
+
     private Programa macro() {
-        return curso("Macroeconomía de Coyuntura").getProgramaVigente();
+        return sinCohortesActivas(curso("Macroeconomía de Coyuntura").getProgramaVigente());
     }
 
     private Programa mercado() {
-        return curso("Mercado de Capitales Argentino").getProgramaVigente();
+        return sinCohortesActivas(curso("Mercado de Capitales Argentino").getProgramaVigente());
+    }
+
+    @Test
+    @DisplayName("Con cohortes activas, el cronograma tiene que asignar toda la duración del curso")
+    void conCohorteActivaLaSumaCierraConLaDelCurso() {
+        Programa programa = curso("Macroeconomía de Coyuntura").getProgramaVigente();
+        assertTrue(programa.tieneCohortesActivas(), "la semilla deja cohortes activas en el programa");
+        List<Integer> temas = ids(programa);
+        List<Integer> antes = semanas(programa);
+
+        String error = mensaje(() -> cronogramaService.modificar(fausto(), programa.getIdPrograma(), temas, List.of("1", "1", "1")));
+
+        assertTrue(error.contains("No se puede modificar el cronograma del programa"), error);
+        assertTrue(error.contains("asigna 3 días y el curso dura"), error);
+        assertEquals(antes, semanas(programa));
     }
 
     private Docente docente(String correo) {

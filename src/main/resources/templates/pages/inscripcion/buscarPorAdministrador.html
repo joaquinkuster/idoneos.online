@@ -24,7 +24,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/inscripcion/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de inscripciones</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="inscripción encontrada" data-plural="inscripciones encontradas"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' inscripción encontrada' : ' inscripciones encontradas')}">0 inscripciones encontradas</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/inscripcion/darDeBajaMasiva" data-elementos="inscripciones"
                             data-termino-uno="inscripción" data-termino-varios="inscripciones">Dar de baja seleccionado/s</button>
@@ -43,25 +44,29 @@
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todas"></th>
                                 <th data-col="Alumno" data-campo="alumno" data-filtro="texto">Alumno</th>
                                 <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
-                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="lista">Cohorte</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="lista" data-oculta>Cohorte</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
-                                <th data-col="Certificado" data-campo="certificado" data-filtro="texto">Certificado</th>
+                                <th data-col="Avance" data-campo="avance" data-filtro="lista" data-sin-busqueda>Avance</th>
+                                <th data-col="Certificado" data-campo="certificado" data-filtro="texto" data-oculta>Certificado</th>
+                                <th data-col="Observaciones" data-campo="observaciones" data-filtro="texto" data-oculta>Observaciones</th>
                                 <th data-col="Fecha de vencimiento" data-campo="fechaVencimiento" data-filtro="fecha">Fecha de vencimiento</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="i : ${inscripciones}" data-fila
+                            <tr th:each="i : ${inscripciones}" data-fila th:classappend="${i.baja} ? 'pn-fila-baja'"
                                 th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
                                 th:data-f-curso="${i.curso.nombre}"
                                 th:data-f-cohorte="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}"
-                                th:data-f-estado="${i.estadoAcceso}"
+                                th:data-f-estado="${i.nombreEstado}"
+                                th:data-f-avance="${i.nombreAvance}"
+                                th:data-f-observaciones="${i.observaciones != null ? i.observaciones : ''}"
                                 th:data-f-certificado="${i.certificadoVigente != null ? i.certificadoVigente.numero : ''}"
                                 th:data-f-fechavencimiento="${i.fechaVencimientoAcceso != null ? #temporals.format(i.fechaVencimientoAcceso, 'yyyy-MM-dd') : ''}"
                                 th:data-f-fechacreacion="${#temporals.format(i.fechaCreacion, 'yyyy-MM-dd HH:mm')}" data-dependencias="0">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
-                                    th:value="${i.idInscripcion}"></td>
+                                    th:value="${i.idInscripcion}" th:disabled="${i.esInmutable()}"></td>
                                 <td>
                                     <span class="pn-celda-principal pn-truncar" th:text="${i.alumno.usuario.nombreCompleto}">Valentina Ruiz</span>
                                     <span class="pn-celda-secundaria d-block" th:text="${'DNI ' + i.alumno.usuario.dni}">DNI 30123456</span>
@@ -70,25 +75,30 @@
                                 <td><span class="pn-truncar" th:text="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}">Programa · Mayo 2026</span></td>
                                 <td>
                                     <span class="pn-insignia"
-                                          th:classappend="${i.estadoAcceso == 'Vigente'} ? 'pn-insignia-verde' : (${i.estadoAcceso == 'Programada'} ? 'pn-insignia-azul' : (${i.estadoAcceso == 'Pendiente de pago'} ? 'pn-insignia-dorada' : 'pn-insignia-roja'))"
-                                          th:text="${i.estadoAcceso}">Vigente</span>
+                                          th:classappend="${i.nombreEstado == 'Acceso habilitado'} ? 'pn-insignia-verde' : (${i.nombreEstado == 'Pago en curso'} ? 'pn-insignia-azul' : (${i.nombreEstado == 'Pendiente de pago'} ? 'pn-insignia-dorada' : (${i.nombreEstado == 'Acceso suspendido' or i.nombreEstado == 'Acceso vencido' or i.nombreEstado == 'Dada de baja'} ? 'pn-insignia-gris' : 'pn-insignia-roja')))"
+                                          th:text="${i.nombreEstado}">Habilitada</span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${i.nombreAvance == 'Finalizado'} ? 'pn-insignia-verde' : (${i.nombreAvance == 'Sin avance'} ? 'pn-insignia-gris' : 'pn-insignia-azul')"
+                                          th:text="${i.nombreAvance}">En progreso</span>
                                 </td>
                                 <td th:text="${i.certificadoVigente != null ? i.certificadoVigente.numero : '—'}">—</td>
+                                <td><th:block th:replace="~{fragments/components/textoLargo :: texto(${i.observaciones}, 25)}"></th:block></td>
                                 <td th:text="${i.fechaVencimientoAcceso != null ? #temporals.format(i.fechaVencimientoAcceso, 'dd/MM/yyyy') : '—'}">01/01/2027</td>
                                 <td th:text="${#temporals.format(i.fechaCreacion, 'dd/MM/yyyy HH:mm')}">01/10/2026 10:30</td>
                                 <td>
-                                    <div class="pn-acciones">
+                                    <div class="pn-acciones" th:unless="${i.esInmutable()}">
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:data-bs-target="'#modalModificarInscripcion' + ${i.idInscripcion}"
                                                 th:data-modal-url="@{'/inscripcion/modificar/' + ${i.idInscripcion}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalBajaInscripcion"
                                                 th:data-baja-accion="@{'/inscripcion/darDeBaja/' + ${i.idInscripcion}}"
                                                 th:data-baja-pregunta="'¿Confirmas dar de baja la inscripción de ' + ${i.alumno.usuario.nombreCompleto} + ' a «' + ${i.curso.nombre} + '»?'">Dar de baja</button>
                                         <!-- Otras opciones, solo en las inscripciones a las que corresponden -->
-                                        <div class="dropdown" th:if="${i.estadoAcceso == 'Pendiente de pago' or i.certificadoVigente != null}">
+                                        <div class="dropdown" th:if="${(!i.fueHabilitada() and !i.estaCancelada()) or i.certificadoVigente != null}">
                                             <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
                                                     aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                <li th:if="${i.estadoAcceso == 'Pendiente de pago'}"><a class="dropdown-item"
+                                                <li th:if="${(!i.fueHabilitada() and !i.estaCancelada())}"><a class="dropdown-item"
                                                     th:href="@{/pago/buscar(registrarPara=${i.idInscripcion})}">Registrar pago</a></li>
                                                 <li th:if="${i.certificadoVigente != null}"><button type="button" class="dropdown-item" th:data-bs-target="'#modalCertificado' + ${i.idInscripcion}"
                                                 th:data-modal-url="@{'/inscripcion/modalCertificado/' + ${i.idInscripcion}}">Corregir datos del certificado</button></li>
@@ -97,7 +107,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-user-graduate', 'No se encontraron inscripciones', 'Ninguna inscripción coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(11, 'fa-user-graduate', 'No se encontraron inscripciones', 'Ninguna inscripción coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>
@@ -113,6 +123,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>
@@ -132,7 +143,7 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="alta" data-resumen-nuevo="nueva"
+                <form th:action="@{/inscripcion/registrar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Inscripción" data-modo="alta" data-resumen-nuevo="nueva" data-resumen-nombre-campo="alumnoId|data-alumno"
                       data-contexto='[{"etiqueta":"Curso","campo":"cohorteId","atributo":"data-curso"},{"etiqueta":"Programa","campo":"cohorteId","atributo":"data-programa"},{"etiqueta":"Cohorte","campo":"cohorteId","atributo":"data-cohorte"}]' novalidate>
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Alumno y cohorte</span></span><span class="pn-pasos-linea"></span>
@@ -149,7 +160,7 @@
                             <label class="pn-etiqueta">Alumno <span class="pn-obligatorio">*</span></label>
                             <select name="alumnoId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el alumno.">
                                 <option value="">Alumno</option>
-                                <option th:each="a : ${alumnos}" th:value="${a.idAlumno}"
+                                <option th:each="a : ${alumnos}" th:value="${a.idAlumno}" th:data-alumno="${a.usuario.nombreCompleto}"
                                         th:data-desc-nombre="${descuentosPorAlumno.get(a.idAlumno) != null ? descuentosPorAlumno.get(a.idAlumno).nombre : ''}"
                                         th:data-desc-pct="${descuentosPorAlumno.get(a.idAlumno) != null ? descuentosPorAlumno.get(a.idAlumno).porcentaje : 0}"
                                         th:text="${a.usuario.nombreCompleto + ' - DNI ' + a.usuario.dni}">Valentina Ruiz - DNI 30123456</option>

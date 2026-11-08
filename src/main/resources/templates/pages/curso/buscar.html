@@ -105,7 +105,7 @@
                             <th:block th:replace="~{fragments/components/groupHeader :: pendientes(${#lists.size(pendientes)})}"></th:block>
                             <div class="pn-grupo-cuerpo wf-cards-grid">
                                 <th:block th:each="p : ${pendientes}">
-                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${p.curso},
+                                    <th:block th:replace="~{pages/curso/card :: card(${p.curso},
                                 ${programasPorCurso != null and programasPorCurso.containsKey(p.curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(p.curso.idCurso)) ? programasPorCurso.get(p.curso.idCurso).get(0).cantidadTemas : 0},
                                 ${p.dias == 0 ? 'Abre hoy' : (p.dias == 1 ? 'Abre mañana' : 'Abre en ' + p.dias + ' días')},
                                 '/curso/acceder/' + ${p.curso.idCurso} + '?cohorteId=' + ${p.cohorte.idCohorte}, 'Completar contenido', null, null)}"></th:block>
@@ -116,7 +116,7 @@
                             <th:block th:replace="~{fragments/components/groupHeader :: carta(${grupo.categoria}, ${cursosPorCategoria.getOrDefault(grupo.categoria.idCategoria, 0L)})}"></th:block>
                             <div class="pn-grupo-cuerpo wf-cards-grid">
                                 <th:block th:each="curso : ${grupo.filas}">
-                                    <th:block th:replace="~{fragments/components/cardCurso :: card(${curso},
+                                    <th:block th:replace="~{pages/curso/card :: card(${curso},
                                 ${programasPorCurso != null and programasPorCurso.containsKey(curso.idCurso) and !#lists.isEmpty(programasPorCurso.get(curso.idCurso)) ? programasPorCurso.get(curso.idCurso).get(0).cantidadTemas : 0},
                                 ${cursosConInscripcionAbierta != null and cursosConInscripcionAbierta.contains(curso.idCurso) ? 'Inscripción abierta' : null},
                                 '/curso/acceder/' + ${curso.idCurso}, 'Acceder al curso',

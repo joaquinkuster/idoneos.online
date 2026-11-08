@@ -1,4 +1,4 @@
-/* Ventana de intereses del alumno (fragments/components/modalIntereses.html): usa la estructura y el ancho de las ventanas de los ABM
+/* Ventana de intereses del alumno (pages/intereses/formulario.html): usa la estructura y el ancho de las ventanas de los ABM
    (pn-modal); aquí solo van los chips de categoría. */
 .ia-chips {
     display: flex;

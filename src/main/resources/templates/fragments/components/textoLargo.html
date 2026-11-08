@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Texto de una celda: entero si cabe en el límite de caracteres; si no, se corta y los puntos suspensivos son un enlace que abre
+     el texto completo en un globo (core/textoLargo.js). Sin texto: un guion. -->
+<th:block th:fragment="texto(texto, limite)">
+    <span class="text-muted" th:if="${texto == null or #strings.isEmpty(texto)}">—</span>
+    <th:block th:if="${texto != null and #strings.length(texto) <= limite}" th:text="${texto}"></th:block>
+    <th:block th:if="${texto != null and #strings.length(texto) > limite}"><span th:text="${@textosVista.cortar(texto, limite)}"></span><a href="#" role="button" class="pn-texto-mas" data-texto-completo th:attr="data-bs-content=${texto}" aria-label="Ver el texto completo">…</a></th:block>
+</th:block>
+</body>
+</html>

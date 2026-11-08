@@ -21,7 +21,7 @@ public class RespuestaFormularioUtil {
 
     private static final Logger REGISTRO = LoggerFactory.getLogger(RespuestaFormularioUtil.class);
 
-    private static final String MENSAJE_GENERICO = "Error! Ocurrió un error inesperado. Intente nuevamente.";
+    private static final String MENSAJE_GENERICO = "Error! Ocurrió un error inesperado. Intentá nuevamente.";
 
     /**
      * Arma la respuesta JSON de una operación de formulario que se realizó con éxito.
@@ -31,6 +31,16 @@ public class RespuestaFormularioUtil {
      */
     public static ResponseEntity<Map<String, String>> armarRespuestaExitosa(String mensaje) {
         return ResponseEntity.ok(Map.of("mensaje", mensaje));
+    }
+
+    /**
+     * Arma la respuesta JSON de una operación que lleva directo a otra página, sin alerta de éxito.
+     *
+     * @param destino La dirección a la que se redirige.
+     * @return Una respuesta HTTP 200 solo con el destino.
+     */
+    public static ResponseEntity<Map<String, String>> armarRespuestaDeRedireccion(String destino) {
+        return ResponseEntity.ok(Map.of("destino", destino));
     }
 
     /**

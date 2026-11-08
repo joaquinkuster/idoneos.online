@@ -112,6 +112,7 @@ import com.app.idoneos.repository.UsuarioRepository;
 import com.app.idoneos.repository.VideoClonRepository;
 import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.util.DuracionUtil;
+import com.app.idoneos.util.MotivoPagoUtil;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,6 +182,20 @@ public class SemillaService {
 
     @Autowired
     private EstadoPagoRepository estadoPagoRepository;
+
+    @Autowired
+    private com.app.idoneos.repository.EstadoInscripcionRepository estadoInscripcionRepository;
+
+    @Autowired
+    private com.app.idoneos.repository.EstadoAvanceRepository estadoAvanceRepository;
+
+    private com.app.idoneos.model.EstadoInscripcion estadoInscripcion(String nombre) {
+        return estadoInscripcionRepository.findByNombre(nombre).orElseThrow();
+    }
+
+    private com.app.idoneos.model.EstadoAvance estadoAvance(String nombre) {
+        return estadoAvanceRepository.findByNombre(nombre).orElseThrow();
+    }
 
     @Autowired
     private EstadoCohorteRepository estadoCohorteRepository;
@@ -361,9 +376,18 @@ public class SemillaService {
         EstadoClaseEnVivo claseProgramada = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Programada"));
         EstadoClaseEnVivo claseEnVivoAhora = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo(EstadoClaseEnVivo.EN_VIVO));
         EstadoClaseEnVivo claseFinalizada = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Finalizada"));
-        estadoCohorteRepository.save(new EstadoCohorte(EstadoCohorte.PENDIENTE));
-        estadoCohorteRepository.save(new EstadoCohorte(EstadoCohorte.ACTIVA));
-        estadoCohorteRepository.save(new EstadoCohorte(EstadoCohorte.CANCELADA));
+        for (String nombre : new String[] {EstadoCohorte.PENDIENTE, EstadoCohorte.PROXIMA, EstadoCohorte.ABIERTA, EstadoCohorte.CERRADA,
+                EstadoCohorte.EN_DICTADO, EstadoCohorte.DICTADO_FINALIZADO, EstadoCohorte.CURSADA_FINALIZADA, EstadoCohorte.CANCELADA}) {
+            estadoCohorteRepository.save(new EstadoCohorte(nombre));
+        }
+        for (String nombre : new String[] {com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO,
+                com.app.idoneos.model.EstadoInscripcion.PAGO_EN_CURSO, com.app.idoneos.model.EstadoInscripcion.HABILITADA,
+                com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA, com.app.idoneos.model.EstadoInscripcion.VENCIDA,
+                com.app.idoneos.model.EstadoInscripcion.CANCELADA, com.app.idoneos.model.EstadoInscripcion.DADA_DE_BAJA}) {
+            estadoInscripcionRepository.save(new com.app.idoneos.model.EstadoInscripcion(nombre));
+        }
+        estadoAvanceRepository.save(new com.app.idoneos.model.EstadoAvance(com.app.idoneos.model.EstadoAvance.EN_PROGRESO));
+        estadoAvanceRepository.save(new com.app.idoneos.model.EstadoAvance(com.app.idoneos.model.EstadoAvance.FINALIZADO));
         EstadoPago pagoPendiente = estadoPagoRepository.save(new EstadoPago(EstadoPago.PENDIENTE));
         EstadoPago pagoAprobado = estadoPagoRepository.save(new EstadoPago(EstadoPago.APROBADO));
         EstadoPago pagoRechazado = estadoPagoRepository.save(new EstadoPago(EstadoPago.RECHAZADO));
@@ -591,12 +615,12 @@ public class SemillaService {
                 "TRF-000451", null, ahora.minusDays(1));
         // Curso con costo: la inscripción queda pendiente de pago hasta que se apruebe el pago
         Inscripcion pendienteDePago = crearInscripcion(abierta4, lucia, ahora, null);
-        pendienteDePago.setHabilitado(false);
-        // el vencimiento provisorio del alta se recalcula cuando se habilite
+        pendienteDePago.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
+        pendienteDePago.setFechaVencimientoAcceso(null); // el vencimiento se calcula cuando se habilite
         inscripcionRepository.save(pendienteDePago);
         // Su pago con MODO fue rechazado: puede reintentarlo (CU-52) o lo puede acreditar el administrador (CU-54)
         registrarPago(pendienteDePago, pagoRechazado, pagoModo, "Tarjeta de crédito Visa", "0008", null,
-                "INSUFFICIENT_FUNDS", ahora.minusHours(3));
+                MotivoPagoUtil.traducir("INSUFFICIENT_FUNDS"), ahora.minusHours(3));
 
         // Curso 5: Análisis Técnico Bursátil (en vivo + grabada), con cohorte próxima
         DocenteCurso titular5 = crearCurso("Análisis Técnico Bursátil",
@@ -629,6 +653,7 @@ public class SemillaService {
         Inscripcion inscripcionVencida = crearInscripcion(finalizada5, martin, ahora, null);
         inscripcionVencida.setFechaCreacion(ahora.minusDays(215));
         inscripcionVencida.setFechaVencimientoAcceso(ahora.minusDays(50));
+        inscripcionVencida.setEstadoAvance(estadoAvance(com.app.idoneos.model.EstadoAvance.FINALIZADO)); // ya tiene su certificado
         inscripcionRepository.save(inscripcionVencida);
         registrarPago(inscripcionVencida, pagoAprobado, pagoModo, "Tarjeta de crédito Mastercard", "5290", "QRX7F9G5", null,
                 ahora.minusDays(214));
@@ -737,6 +762,22 @@ public class SemillaService {
 
         completarElContenidoDeLosProgramas(ahora);
         dejarIncompletosLaMayoriaDeLosCursosAbiertos(ahora);
+        actualizarEstadosDeLasCohortes(ahora);
+    }
+
+    /**
+     * Deja cada cohorte que sigue el calendario (no pendiente ni cancelada) en el estado que le corresponde por sus fechas y por si le quedan
+     * inscripciones en juego. Se hace al final, cuando ya están todas las inscripciones; después lo mantiene la tarea periódica.
+     */
+    private void actualizarEstadosDeLasCohortes(LocalDateTime ahora) {
+        for (Cohorte cohorte : cohorteRepository.findAll()) {
+            if (cohorte.esPendiente() || cohorte.esCancelada()) {
+                continue;
+            }
+            boolean enJuego = inscripcionRepository.contarEnJuego(cohorte, ahora) > 0;
+            cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(cohorte.calcularEstado(ahora, enJuego)).orElseThrow());
+            cohorteRepository.save(cohorte);
+        }
     }
 
     /** Los cursos con inscripción abierta que crea la semilla, en orden: de dos de cada tres se deja el diseño incompleto. */
@@ -1031,7 +1072,7 @@ public class SemillaService {
     private Cohorte crearCohorte(Programa programa, LocalDateTime inicioInscripcion, LocalDateTime finInscripcion,
             LocalDateTime inicioDictado, LocalDateTime finDictado, int semanasAcceso, Integer cupoMaximo) {
         return crearCohorteConEstado(programa.getCurso(), programa, inicioInscripcion, finInscripcion, inicioDictado, finDictado,
-                semanasAcceso, cupoMaximo, EstadoCohorte.ACTIVA);
+                semanasAcceso, cupoMaximo, null);
     }
 
     private Cohorte crearCohorteConEstado(Curso curso, Programa programa, LocalDateTime inicioInscripcion,
@@ -1042,7 +1083,9 @@ public class SemillaService {
         cohorte.setFechaInicioDictado(inicioDictado);
         cohorte.setFechaFinDictado(finDictado);
         cohorte.setCupoMaximo(cupoMaximo);
-        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(estado).orElseThrow());
+        // Sin estado indicado: la cohorte sigue el calendario. Se la crea como próxima y al final de la semilla se la deja en el estado
+        // que le corresponde por sus fechas y sus inscripciones (ver actualizarEstadosDeLasCohortes)
+        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(estado != null ? estado : EstadoCohorte.PROXIMA).orElseThrow());
         return cohorteRepository.save(cohorte);
     }
 
@@ -1064,7 +1107,7 @@ public class SemillaService {
         } else {
             pago.setCodigoReferencia(referencia);
         }
-        pago.setDetalleErrorOperacion(motivoError);
+        pago.setMotivoRechazo(motivoError);
         pago.setFechaCreacion(fecha);
         pago.setUltimaModificacion(fecha);
         boolean aprobado = EstadoPago.APROBADO.equals(estado.getNombre());
@@ -1082,7 +1125,8 @@ public class SemillaService {
 
     private Inscripcion crearInscripcion(Cohorte cohorte, Alumno alumno, LocalDateTime ahora, Tema temaCompletada) {
         Inscripcion inscripcion = new Inscripcion(cohorte, alumno, ahora.plusDays(cohorte.getAccesoDias()));
-        inscripcion.setHabilitado(true);
+        inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.HABILITADA));
+        inscripcion.setEstadoAvance(estadoAvance(com.app.idoneos.model.EstadoAvance.EN_PROGRESO));
         inscripcion = inscripcionRepository.save(inscripcion);
         if (temaCompletada != null) {
             Progreso progreso = new Progreso(temaCompletada, inscripcion);

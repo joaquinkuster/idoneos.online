@@ -50,7 +50,7 @@ class InscripcionConSesionControllerTest {
     private Cohorte cohorteAbierta(String curso) {
         Integer idPrograma = programaService.buscarPorCurso(cursoService.buscarPorNombre(curso).orElseThrow())
                 .get(0).getIdPrograma();
-        return cohorteService.buscarConFiltros(idPrograma, null, "Abierta", null, null, "recientes", null).get(0);
+        return cohorteService.buscarConFiltros(idPrograma, null, com.app.idoneos.model.EstadoCohorte.ABIERTA, null, null, "recientes", null).get(0);
     }
 
     private void borrarInscripcionesDe(Cohorte cohorte, String correo) {

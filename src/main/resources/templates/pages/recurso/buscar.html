@@ -36,7 +36,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/recurso/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de recursos</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="recurso encontrado" data-plural="recursos encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' recurso encontrado' : ' recursos encontrados')}">0 recursos encontrados</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/recurso/darDeBajaMasiva" data-elementos="recursos"
                             data-termino-uno="elemento asociado" data-termino-varios="elementos asociados">Dar de baja seleccionado/s</button>
@@ -59,8 +60,8 @@
                                 <th data-col="Tipo" data-campo="tipo" data-filtro="lista" data-sin-busqueda>Tipo</th>
                                 <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
                                 <th data-col="Docente" data-campo="docente" data-filtro="lista">Docente</th>
-                                <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visibilidad</th>
-                                <th data-col="Biblioteca" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Biblioteca</th>
+                                <th data-col="Visible para alumnos" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visible para alumnos</th>
+                                <th data-col="Compartido con docentes" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Compartido con docentes</th>
                                 <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -68,17 +69,19 @@
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'"
-                                th:attr="data-dependencias=${otrosUsosPorMaterial != null ? otrosUsosPorMaterial.getOrDefault(m.idTemaRecurso, 0L) : 0}">
+                                th:attr="data-ver-url=${!m.baja} ? @{'/recurso/ver/' + ${m.idTemaRecurso}}, data-dependencias=${otrosUsosPorMaterial != null ? otrosUsosPorMaterial.getOrDefault(m.idTemaRecurso, 0L) : 0}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>
                                 <td>
-                                    <span class="pn-celda-principal pn-truncar" th:text="${m.titulo}">Clase 3</span>
+                                    <a class="pn-celda-principal pn-truncar pn-enlace-ver" th:if="${!m.baja}" title="Ver el recurso"
+                                       th:href="@{'/recurso/ver/' + ${m.idTemaRecurso}}" th:text="${m.titulo}">Clase 3</a>
+                                    <span class="pn-celda-principal pn-truncar" th:if="${m.baja}" th:text="${m.titulo}">Clase 3</span>
                                     <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
                                 </td>
                                 <td><span class="pn-truncar" th:text="${m.tema.titulo}">Renta fija y bonos</span></td>
                                 <td>
                                     <span class="ac-tipo-celda">
-                                        <th:block th:replace="~{fragments/components/iconRecurso :: icon(${m.tipo}, 'ac-recurso-icon-chico')}"></th:block>
+                                        <th:block th:replace="~{pages/recurso/icon :: icon(${m.tipo}, 'ac-recurso-icon-chico')}"></th:block>
                                         <span th:text="${m.tipo}">Grabación</span>
                                     </span>
                                 </td>
@@ -90,13 +93,12 @@
                                 </td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${m.recurso.privado} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
-                                          th:text="${m.recurso.privado} ? 'Privado' : 'Público'">Privado</span>
+                                          th:text="${m.recurso.privado} ? 'No' : 'Sí'">No</span>
                                 </td>
                                 <td th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</td>
                                 <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <a th:href="@{'/recurso/ver/' + ${m.idTemaRecurso}}" class="pn-btn pn-btn-ver pn-btn-chico" th:if="${!m.baja}">Ver</a>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
                                                 th:data-bs-target="'#modalModificarMaterial' + ${m.idTemaRecurso}"
                                                 th:data-modal-url="@{'/recurso/modificar/' + ${m.idTemaRecurso}}">Modificar</button>
@@ -126,6 +128,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>
@@ -158,7 +161,7 @@
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
             <h4>Datos del recurso</h4>
-            <p>Tipo, tema, título y visibilidad</p>
+            <p>Tipo, tema, título y si es visible para alumnos</p>
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo">
@@ -191,7 +194,7 @@
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-4 pn-campo">
-                            <label class="pn-etiqueta">Visibilidad</label>
+                            <label class="pn-etiqueta">Visible para alumnos</label>
                             <select name="oculto" class="pn-input">
                                 <option value="false">Publicado</option>
                                 <option value="true">Oculto</option>
@@ -321,5 +324,6 @@
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/core/curso.js}"></script>
 <script th:src="@{/js/pages/recurso/recurso.js}"></script>
+<script th:src="@{/js/core/abrirModal.js}"></script>
 </body>
 </html>

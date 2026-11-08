@@ -36,6 +36,7 @@
                                         <th data-col="Monto" data-campo="monto" data-filtro="numero">Monto</th>
                                         <th data-col="Medio de pago" data-campo="medioDePago" data-filtro="lista">Medio de pago</th>
                                         <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                        <th data-col="Motivo del rechazo" data-campo="motivo" data-filtro="texto">Motivo del rechazo</th>
                                         <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha" data-orden-inicial="desc">Fecha de creación</th>
                                         <th>Acciones</th>
                                     </tr>
@@ -55,24 +56,27 @@
                                                   th:classappend="${p.estaAprobado()} ? 'pn-insignia-verde' : (${p.estaPendiente()} ? 'pn-insignia-dorada' : 'pn-insignia-roja')"
                                                   th:text="${p.estadoPago.nombre}">Aprobado</span>
                                         </td>
+                                        <td><th:block th:replace="~{fragments/components/textoLargo :: texto(${p.motivoRechazo}, 25)}"></th:block></td>
                                         <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">13/10/2026 10:00</td>
                                         <td>
                                             <div class="pn-acciones">
-                                                <button type="button" class="btn btn-secondary btn-sm pn-btn-motivo" data-motivo-pago
-                                                        th:if="${p.estaRechazado() and p.detalleErrorOperacion != null}"
-                                                        th:attr="data-bs-content=${p.detalleErrorOperacion}">Ver motivo</button>
-                                                <button type="button" class="pn-btn pn-btn-primario pn-btn-chico" data-pagar
-                                                        th:if="${p.estaRechazado() and !p.inscripcion.estaHabilitada() and !p.inscripcion.esInactivo()}"
+                                                <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-pagar
+                                                        th:if="${p.estaRechazado() and p.inscripcion.requierePago() and p.inscripcion.pagoEnCurso == null and !p.inscripcion.esInactivo() and !p.inscripcion.cohorte.inscripcionCerrada()}"
                                                         th:data-url="@{'/pago/reintentar/' + ${p.idPago}}"
-                                                        th:data-inscripcion="${p.inscripcion.idInscripcion}">Reintentar</button>
+                                                        th:data-inscripcion="${p.inscripcion.idInscripcion}">Reintentar pago</button>
                                                 <a class="pn-btn pn-btn-ver pn-btn-chico" target="_blank" rel="noopener"
                                                    th:if="${p.estaAprobado() and p.comprobanteVigente != null}"
                                                    th:href="@{'/pago/comprobante/' + ${p.idPago}}">Generar comprobante</a>
-                                                <span class="pn-celda-secundaria" th:if="${p.estaPendiente()}">Esperando confirmación</span>
+                                                <th:block th:if="${p.estaPendiente()}">
+                                                    <span class="pn-celda-secundaria" th:if="${@pagoServiceImpl.estaVerificando(p)}">Verificando tu pago…</span>
+                                                    <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-pagar th:unless="${@pagoServiceImpl.estaVerificando(p)}"
+                                                            th:data-url="@{'/pago/pagar/' + ${p.inscripcion.idInscripcion}}"
+                                                            th:data-inscripcion="${p.inscripcion.idInscripcion}">Continuar con el pago</button>
+                                                </th:block>
                                             </div>
                                         </td>
                                     </tr>
-                                    <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-credit-card', 'Todavía no hay pagos', 'Cuando te inscribas a un curso con costo y lo pagues, vas a ver acá el pago y su comprobante.')}"></tr>
+                                    <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-credit-card', 'Todavía no hay pagos', 'Cuando te inscribas a un curso con costo y lo pagues, vas a ver acá el pago y su comprobante.')}"></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -103,8 +107,8 @@
     <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
     <script th:src="@{/js/core/validacion.js}"></script>
     <script th:src="@{/js/core/tabla.js}"></script>
+    <script th:src="@{/js/core/textoLargo.js}"></script>
     <script th:src="@{/js/core/panel.js}"></script>
     <script th:src="@{/js/pages/pago/pago.js}"></script>
-    <script th:src="@{/js/pages/pago/motivo.js}"></script>
 </body>
 </html>

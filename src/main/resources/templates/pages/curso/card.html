@@ -15,7 +15,7 @@
      th:data-f-categoriaid="${c.categoria.idCategoria}" th:data-f-nivelid="${c.nivel != null ? c.nivel.idNivel : ''}"
      th:data-f-docenteid="${#strings.listJoin(c.equipoDocente.![docente.idDocente], '|')}"
      th:data-f-modalidadid="${#strings.listJoin(c.modalidades.![idModalidad], '|')}"
-     th:attr="data-f-estado=${inscripcion != null ? inscripcion.estado : null}, data-f-acceso=${inscripcion != null ? inscripcion.estadoAcceso : null}"
+     th:attr="data-f-estadoinscripcion=${inscripcion != null ? inscripcion.nombreEstado : null}, data-f-avance=${inscripcion != null ? inscripcion.nombreAvance : null}"
      th:data-f-precio="${c.precio != null && c.precio <= 0 ? 'gratis' : 'pago'}"
      th:data-o-nombre="${c.nombre}"
      th:data-o-recientes="${(c.fechaCreacion != null ? #temporals.format(c.fechaCreacion, 'yyyyMMdd') : '') + #numbers.formatInteger(c.idCurso, 8, 'NONE')}">
@@ -68,15 +68,22 @@
             th:text="${inscripcion.fechaVencimientoAcceso != null ? 'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy') : 'El acceso empieza al pagar'}">Acceso hasta 01/01/2027</span>
     </div>
     <div class="cc-acciones">
-      <a th:if="${inscripcion == null or inscripcion.estadoAcceso == 'Vigente'}" th:href="@{${url}}" class="cc-boton" th:text="${texto}">Ver ficha del curso</a>
+      <a th:if="${inscripcion == null or inscripcion.puedeAccederAhora()}" th:href="@{${url}}" class="cc-boton" th:text="${texto}">Ver ficha del curso</a>
       <!-- Alumno con el pago pendiente: el botón lleva a la caja y se estira sobre toda la card -->
-      <a th:if="${inscripcion != null and inscripcion.estadoAcceso == 'Pendiente de pago'}" class="cc-boton"
-         th:href="@{'/pago/caja/' + ${inscripcion.idInscripcion}}" title="Ir a la caja para pagar la inscripción">Pagar</a>
+      <!-- Con un pago en curso: Continuar con el pago; vencida su solicitud, se está verificando con MODO y no se puede pagar de nuevo -->
+      <span th:if="${inscripcion != null and inscripcion.requierePago() and inscripcion.pagoEnCurso != null and @pagoServiceImpl.estaVerificando(inscripcion.pagoEnCurso)}"
+            class="pn-celda-secundaria cc-verificando">Verificando tu pago…</span>
+      <!-- Cerrada la inscripción y sin un pago en curso ya no se puede pagar (en un momento se cancela sola) -->
+      <span th:if="${inscripcion != null and inscripcion.requierePago() and inscripcion.pagoEnCurso == null and inscripcion.cohorte.inscripcionCerrada()}"
+            class="cc-boton cc-boton-fijo cc-boton-inactivo" aria-disabled="true" title="La inscripción a esta cohorte ya cerró">Inscripción cerrada</span>
+      <a th:if="${inscripcion != null and inscripcion.requierePago() and !(inscripcion.pagoEnCurso != null and @pagoServiceImpl.estaVerificando(inscripcion.pagoEnCurso)) and !(inscripcion.pagoEnCurso == null and inscripcion.cohorte.inscripcionCerrada())}" class="cc-boton"
+         th:href="@{'/pago/caja/' + ${inscripcion.idInscripcion}}" title="Ir a la caja para pagar la inscripción"
+         th:text="${inscripcion.pagoEnCurso != null ? 'Continuar con el pago' : 'Realizar pago'}">Realizar pago</a>
       <!-- Alumno sin acceso (dictado sin comenzar o acceso vencido) -->
-      <span th:if="${inscripcion != null and inscripcion.estadoAcceso != 'Vigente' and inscripcion.estadoAcceso != 'Pendiente de pago'}"
+      <span th:if="${inscripcion != null and !inscripcion.puedeAccederAhora() and !inscripcion.requierePago()}"
             class="cc-boton cc-boton-fijo cc-boton-inactivo" aria-disabled="true"
-            th:title="${inscripcion.estadoAcceso == 'Programada' ? 'El dictado todavía no comenzó' : 'Tu acceso venció'}"
-            th:text="${inscripcion.estadoAcceso == 'Programada' ? 'Comienza el ' + #temporals.format(inscripcion.cohorte.fechaInicioDictado, 'dd/MM/yyyy') : 'Acceso vencido'}">Acceso vencido</span>
+            th:title="${inscripcion.esperaElDictado() ? 'El dictado todavía no comenzó' : (inscripcion.nombreEstado == 'Acceso suspendido' ? 'Tu acceso está suspendido' : (inscripcion.estaCancelada() ? 'La inscripción fue cancelada' : 'Tu acceso venció'))}"
+            th:text="${inscripcion.esperaElDictado() ? 'Comienza el ' + #temporals.format(inscripcion.cohorte.fechaInicioDictado, 'dd/MM/yyyy') : (inscripcion.nombreEstado == 'Acceso suspendido' ? 'Acceso suspendido' : (inscripcion.estaCancelada() ? 'Inscripción cancelada' : 'Acceso vencido'))}">Acceso vencido</span>
       <div class="dropdown cc-opciones" th:if="${menu != null}">
         <button type="button" class="ac-menu-boton" data-bs-toggle="dropdown" aria-expanded="false"
                 data-bs-popper-config='{"strategy":"fixed"}' aria-label="Opciones del curso"><i class="fa-solid fa-ellipsis-vertical"></i></button>

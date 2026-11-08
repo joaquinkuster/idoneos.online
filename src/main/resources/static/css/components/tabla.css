@@ -173,6 +173,24 @@
     color: var(--pn-texto);
 }
 
+/* Fila que abre su vista al hacer clic (data-ver-url); el título es el enlace accesible */
+tr[data-ver-url] {
+    cursor: pointer;
+}
+
+/* Como el título de una consulta del foro: enlace en negrita con el color de "ver"; se subraya al pasar el mouse por el título o por la fila */
+a.pn-enlace-ver {
+    font-weight: 700;
+    color: var(--pn-ver);
+    text-decoration: none;
+}
+
+tr[data-ver-url]:hover a.pn-enlace-ver,
+a.pn-enlace-ver:hover,
+a.pn-enlace-ver:focus-visible {
+    text-decoration: underline;
+}
+
 /* Limita el largo de un texto en las celdas de las tablas: al llegar al límite corta con "..." (el texto completo se ve
    al pasar el mouse; panel.js completa el title). Tamaños: pn-truncar-corto (12), por defecto (16) y pn-truncar-largo (20)
    caracteres aproximados (los renglones de las tablas no se parten). Se usa sobre un span dentro de la celda: <span class="pn-truncar">texto</span> */
@@ -302,4 +320,18 @@
     padding: 0 8px;
     font-weight: 600;
     color: #334155;
+}
+
+/* Celda con una insignia y, a su derecha, un dato chico en gris centrado verticalmente (por ejemplo, «0 de 30») */
+.pn-celda-con-detalle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.pn-celda-detalle {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--pn-texto-suave);
+    white-space: nowrap;
 }

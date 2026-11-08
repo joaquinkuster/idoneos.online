@@ -97,3 +97,14 @@
     font-size: 14px;
     color: var(--pn-texto-suave);
 }
+
+/* El menú de tres puntos abierto de un tema o de una actividad queda por encima de la tarjeta que sigue */
+.ac-tema,
+.ac-actividad {
+    position: relative;
+}
+
+.ac-tema:has(.dropdown-menu.show),
+.ac-actividad:has(.dropdown-menu.show) {
+    z-index: 20;
+}

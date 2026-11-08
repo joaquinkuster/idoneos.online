@@ -59,7 +59,7 @@ public class RecordatorioCohorteServiceImpl implements RecordatorioCohorteServic
         }
         Cohorte cohorte = cohorteRepository.findById(idCohorte == null ? -1 : idCohorte).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra disponible."));
-        if (!"Próxima".equals(cohorte.getEstado())) {
+        if (!cohorte.estaProxima()) {
             throw new IllegalArgumentException("Error! Solo se puede pedir un recordatorio de una cohorte próxima.");
         }
         RecordatorioCohorte recordatorio = recordatorioRepository.findByAlumnoAndCohorte(alumno, cohorte)
@@ -109,7 +109,7 @@ public class RecordatorioCohorteServiceImpl implements RecordatorioCohorteServic
         for (RecordatorioCohorte recordatorio : vigentes) {
             Cohorte cohorte = recordatorio.getCohorte();
             // Avisa solo mientras la cohorte siga próxima (si ya abrió la inscripción, el alumno la ve abierta en el catálogo) y una sola vez
-            boolean proxima = !cohorte.esInactivo() && "Próxima".equals(cohorte.getEstado());
+            boolean proxima = !cohorte.esInactivo() && cohorte.estaProxima();
             boolean llegoElMomento = !ahora.isBefore(cohorte.getFechaInicioInscripcion().minusDays(dias));
             if (!proxima || !llegoElMomento || notificacionRepository.existsByUsuarioAndCohorteAndTipoNotificacion(
                     recordatorio.getAlumno().getUsuario(), cohorte, tipo)) {

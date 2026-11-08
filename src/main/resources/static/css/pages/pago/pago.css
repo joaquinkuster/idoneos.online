@@ -1,27 +1,3 @@
-/* Botón mientras se prepara el pago (pago.js): el mismo anillo dorado */
-@keyframes pago-giro {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.cargando {
-    cursor: progress;
-}
-
-.cargando .pago-giro {
-    display: inline-block;
-    width: 14px;
-    height: 14px;
-    margin-right: 8px;
-    vertical-align: -2px;
-    box-sizing: border-box;
-    border: 2px solid rgba(255, 255, 255, 0.35);
-    border-top-color: #D4A03D;
-    border-radius: 50%;
-    animation: pago-giro 0.9s linear infinite;
-}
-
 /* Resultado del pago (retorno del sitio de MODO) */
 .retorno-icono {
     font-size: 44px;
@@ -39,6 +15,30 @@
     margin-top: 18px;
 }
 
+
+/* «Esperando el pago…»: los tres puntos aparecen y desaparecen en orden, sin mover la etiqueta (cada uno ya tiene su lugar) */
+@keyframes pago-punto {
+    0%, 10% { opacity: 0; }
+    25%, 75% { opacity: 1; }
+    90%, 100% { opacity: 0; }
+}
+
+.pago-puntos i {
+    font-style: normal;
+    opacity: 0;
+    animation: pago-punto 1.5s ease-in-out infinite;
+}
+
+.pago-puntos i:nth-child(2) { animation-delay: 0.25s; }
+.pago-puntos i:nth-child(3) { animation-delay: 0.5s; }
+
 @media (prefers-reduced-motion: reduce) {
-    .cargando .pago-giro { animation-duration: 2.4s; }
+    .pago-puntos i { animation: none; opacity: 1; }
+}
+
+/* En Mis pagos la etiqueta ocupa el alto del botón chico que reemplaza (30 px) */
+.pn-acciones [data-pago-etiqueta] {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
 }

@@ -151,7 +151,7 @@ class GestionDeCursosControllerTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("CU-11: \"Mis cohortes\" del docente trae todas sus cohortes y las filtra en la pantalla, aunque llegue un filtro por la URL")
     void docenteFiltraSusCohortesEnLaPantalla() throws Exception {
-        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1").param("estado", "Finalizada"))
+        mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1").param("estado", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA))
                 .andExpect(status().isOk())
                 .andExpect(view().name("pages/cohorte/buscarPorDocente"))
                 .andExpect(content().string(org.hamcrest.Matchers.allOf(

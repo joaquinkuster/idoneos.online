@@ -229,6 +229,15 @@ public interface RecursoService extends CrudService<TemaRecurso> {
     void darDeBajaVariosEnBiblioteca(List<Integer> ids, Docente docente);
 
     /**
+     * Da de baja varios recursos de la biblioteca a la vez, todos o ninguno, como administrador (de cualquier docente). Mientras
+     * ningún tema los use.
+     *
+     * @param ids los identificadores de los recursos.
+     * @throws IllegalArgumentException si alguno no se puede dar de baja.
+     */
+    void darDeBajaVariosComoAdministrador(List<Integer> ids);
+
+    /**
      * Da de baja un recurso de la biblioteca. Solo su dueño, y mientras ningún tema lo use.
      *
      * @param idRecurso el identificador del recurso.

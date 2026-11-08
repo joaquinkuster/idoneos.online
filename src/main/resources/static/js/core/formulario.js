@@ -14,7 +14,7 @@
 (function () {
     'use strict';
 
-    var MENSAJE_INESPERADO = 'Error! Ocurrió un error inesperado. Intente nuevamente.';
+    var MENSAJE_INESPERADO = 'Error! Ocurrió un error inesperado. Intentá nuevamente.';
 
     function alertaDe(formulario) {
         // Las alertas van debajo del formulario, justo antes de los botones; sin botones, justo antes del formulario
@@ -69,8 +69,10 @@
             var esJson = (respuesta.headers.get('content-type') || '').indexOf('json') !== -1;
             var datos = esJson ? await respuesta.json() : {};
 
-            if (respuesta.ok && datos.mensaje) {
-                await window.mostrarExito(datos.mensaje);
+            if (respuesta.ok && (datos.mensaje || datos.destino)) {
+                if (datos.mensaje) {
+                    await window.mostrarExito(datos.mensaje);
+                }
                 // Al final del alta de un recurso: ¿se publica en la biblioteca digital?
                 if (datos.publicarId && window.preguntarPublicarRecurso) {
                     await window.preguntarPublicarRecurso(datos.publicarId);
@@ -95,7 +97,7 @@
                 && window.PanelValidacion.irAlError(formulario, texto, datos.campo);
             if (!marcado) { mostrarError(formulario, texto); }
         } catch (error) {
-            mostrarError(formulario, 'Error! No se pudo conectar con el servidor. Intente nuevamente.');
+            mostrarError(formulario, 'Error! No se pudo conectar con el servidor. Intentá nuevamente.');
         }
         if (boton) {
             boton.disabled = false;

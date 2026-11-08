@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyFloat;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -53,6 +54,9 @@ class PasarelaPagoModoServiceImplTest {
     /** Los parámetros de MODO que lee la pasarela: cada prueba puede cambiarlos. */
     private Map<String, String> valores;
 
+    /** El plazo de confirmación del pago (en minutos) que informan los parámetros; nulo: el valor por defecto. */
+    private Integer plazoMinutos;
+
     private PasarelaPagoModoServiceImpl pasarela(String usuario, String clave, String urlPublica) {
         valores = new HashMap<>();
         valores.put(Parametro.MODO_URL_API, BASE);
@@ -68,6 +72,9 @@ class PasarelaPagoModoServiceImplTest {
         when(parametros.obtenerDecimal(eq(Parametro.MODO_MONTO_MINIMO), anyFloat()))
                 .thenAnswer(invocacion -> valores.containsKey(Parametro.MODO_MONTO_MINIMO)
                         ? Float.parseFloat(valores.get(Parametro.MODO_MONTO_MINIMO)) : invocacion.<Float>getArgument(1));
+        plazoMinutos = null;
+        when(parametros.obtenerEntero(eq(Parametro.PLAZO_CONFIRMACION_PAGO), anyInt()))
+                .thenAnswer(invocacion -> plazoMinutos != null ? plazoMinutos : invocacion.<Integer>getArgument(1));
         RestClient.Builder constructor = RestClient.builder();
         servidor = MockRestServiceServer.bindTo(constructor).build();
         return new PasarelaPagoModoServiceImpl(constructor, parametros);
@@ -249,7 +256,7 @@ class PasarelaPagoModoServiceImplTest {
         PasarelaPagoService.Resultado resultado = modo.consultarPago("b3c97b14");
 
         assertEquals(PasarelaPagoService.Estado.RECHAZADO, resultado.estado());
-        assertEquals("INSUFFICIENT_FUNDS: fondos insuficientes", resultado.motivoError());
+        assertEquals("Fondos insuficientes.", resultado.motivoError());
         assertEquals("Tarjeta de débito Visa", resultado.medioPago());
     }
 
@@ -260,7 +267,9 @@ class PasarelaPagoModoServiceImplTest {
         esperarToken(TOKEN);
         servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data")).andRespond(withStatus(HttpStatus.BAD_GATEWAY));
 
-        assertThrows(IllegalStateException.class, () -> modo.consultarPago("b3c97b14"));
+        // El mensaje sigue la convención del sistema, así que el usuario lo ve (una IllegalStateException se reemplazaría por el genérico)
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class, () -> modo.consultarPago("b3c97b14"));
+        assertEquals("Error! No se pudo consultar el pago en MODO. Intentá nuevamente en unos minutos.", error.getMessage());
     }
 
     @Test
@@ -332,5 +341,56 @@ class PasarelaPagoModoServiceImplTest {
         valores.put(Parametro.MODO_MONTO_MINIMO, "0.01");
 
         assertEquals(0.01f, modo.montoMinimo());
+    }
+
+    @Test
+    @DisplayName("El vencimiento de la solicitud viaja en UTC con la «Z» (sin zona, MODO lo leería desfasado)")
+    void enviaElVencimientoEnUtc() {
+        PasarelaPagoModoServiceImpl modo = pasarela("usuario", "clave", "");
+        esperarToken(TOKEN);
+        servidor.expect(requestTo(BASE + "/v2/payment-requests/"))
+                .andExpect(jsonPath("$.expiration_date").value(org.hamcrest.Matchers.matchesPattern("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z")))
+                .andRespond(withSuccess(SOLICITUD, MediaType.APPLICATION_JSON));
+
+        modo.crearSolicitud("IDN-1", 100f, "Prueba", "Ana Pérez", "ana@correo.com", "30111222");
+
+        servidor.verify();
+    }
+
+    @Test
+    @DisplayName("La vigencia de la solicitud es el plazo (entre 5 y 10 minutos) más 10 segundos, sin pasar de los 10 minutos de MODO")
+    void vigenciaDeLaSolicitud() {
+        PasarelaPagoModoServiceImpl modo = pasarela("usuario", "clave", "");
+
+        assertEquals(600, modo.vigenciaSolicitudSegundos()); // por defecto, 10 minutos (tope de MODO)
+        plazoMinutos = 5;
+        assertEquals(310, modo.vigenciaSolicitudSegundos()); // el colchón evita que MODO lo lea como 4:59 y rechace la solicitud
+        plazoMinutos = 7;
+        assertEquals(430, modo.vigenciaSolicitudSegundos());
+        plazoMinutos = 3; // menos de 5: se toma 5
+        assertEquals(310, modo.vigenciaSolicitudSegundos());
+        plazoMinutos = 99; // más de 10: se toma 10
+        assertEquals(600, modo.vigenciaSolicitudSegundos());
+    }
+
+    @Test
+    @DisplayName("Processing es un pago en vuelo; Created y Scanned, una solicitud que nadie está pagando; ambos traen el vencimiento")
+    void interpretaLosEstadosDeModo() {
+        java.time.LocalDateTime vencimiento = java.time.LocalDateTime.ofInstant(java.time.Instant.parse("2026-10-13T08:58:39.773Z"),
+                java.time.ZoneId.systemDefault());
+        String[][] casos = {{"CREATED", "PENDIENTE"}, {"SCANNED", "PENDIENTE"}, {"PROCESSING", "PROCESANDO"}};
+
+        for (String[] caso : casos) {
+            PasarelaPagoModoServiceImpl modo = pasarela("usuario", "clave", "");
+            esperarToken(TOKEN);
+            servidor.expect(requestTo(BASE + "/v2/payment-requests/b3c97b14/data"))
+                    .andRespond(withSuccess(SOLICITUD.replace("CREATED", caso[0]).replace("}", ",\"transaction_data\":{},\"transactions\":[]}"),
+                            MediaType.APPLICATION_JSON));
+
+            PasarelaPagoService.Resultado resultado = modo.consultarPago("b3c97b14");
+
+            assertEquals(PasarelaPagoService.Estado.valueOf(caso[1]), resultado.estado(), caso[0]);
+            assertEquals(vencimiento, resultado.vencimiento(), caso[0]);
+        }
     }
 }

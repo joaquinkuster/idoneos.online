@@ -24,7 +24,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/descuento/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de descuentos</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="descuento encontrado" data-plural="descuentos encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' descuento encontrado' : ' descuentos encontrados')}">0 descuentos encontrados</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/descuento/darDeBajaMasiva" data-elementos="descuentos"
                             data-termino-uno="inscripción con el descuento aplicado" data-termino-varios="inscripciones con el descuento aplicado">Dar de baja seleccionado/s</button>
@@ -61,7 +62,14 @@
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${d.nombre}">Descuento por segundo curso</span></td>
                                 <td th:text="${#numbers.formatDecimal(d.porcentaje, 1, 'POINT', (d.porcentaje % 1 == 0 ? 0 : 2), 'COMMA') + '%'}">15%</td>
                                 <td th:text="${#temporals.format(d.vigenciaDesde, 'dd/MM/yyyy') + ' al ' + #temporals.format(d.vigenciaHasta, 'dd/MM/yyyy')}">01/09/2026 al 30/11/2026</td>
-                                <td th:text="${d.cantidadUsada + ' de ' + d.cantidadLimite}">0 de 50</td>
+                                <td>
+                                    <span class="pn-celda-con-detalle">
+                                        <span class="pn-insignia" th:unless="${d.baja}"
+                                              th:classappend="${d.cantidadUsada >= d.cantidadLimite} ? 'pn-insignia-roja' : 'pn-insignia-verde'"
+                                              th:text="${d.cantidadUsada >= d.cantidadLimite} ? 'Agotado' : 'Disponible'">Disponible</span>
+                                        <span class="pn-celda-detalle" th:text="${d.cantidadUsada + ' de ' + d.cantidadLimite}">0 de 50</span>
+                                    </span>
+                                </td>
                                 <td th:text="${d.cursosRequeridos > 0 ? 'Haber comprado ' + d.cursosRequeridos + (d.cursosRequeridos == 1 ? ' curso' : ' cursos') : 'Sin condición'}">Sin condición</td>
                                 <td>
                                     <span class="pn-insignia"
@@ -101,6 +109,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>

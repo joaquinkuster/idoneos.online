@@ -57,6 +57,13 @@ public class Programa {
     private String descripcion;
 
     /**
+     * Programa del que se derivó esta versión («Versión 3, a partir de Versión 2»), o {@code null} si se empezó en blanco o es la primera.
+     */
+    @ManyToOne
+    @JoinColumn(name = "idProgramaAnterior", nullable = true)
+    private Programa programaAnterior;
+
+    /**
      * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
      */
     @Column(name = "fechaCreacion", nullable = false)
@@ -392,7 +399,7 @@ public class Programa {
     public Cohorte getCohorteDestacada() {
         // Las cohortes pendientes o canceladas no se muestran: todavía no tienen contenido completo o ya no lo tendrán
         List<Cohorte> vigentes = cohortes.stream().filter(cohorte -> !cohorte.getBaja() && cohorte.esActiva()).toList();
-        for (String estado : List.of("En dictado", "Abierta")) {
+        for (String estado : List.of(EstadoCohorte.EN_DICTADO, EstadoCohorte.ABIERTA)) {
             Cohorte elegida = vigentes.stream().filter(cohorte -> estado.equals(cohorte.getEstado()))
                     .max(Comparator.comparingInt(Cohorte::getIdCohorte)).orElse(null);
             if (elegida != null) {

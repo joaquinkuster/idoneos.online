@@ -61,8 +61,8 @@ public class Cohorte {
     private Programa programa;
 
     /**
-     * Relación con EstadoCohorte: Pendiente, Activa o Cancelada. Una cohorte sin estado (por ejemplo, una que todavía no se
-     * guardó) se considera Activa.
+     * Relación con EstadoCohorte, el estado guardado de la cohorte. Una cohorte sin estado (por ejemplo, una que todavía no se guardó) se considera
+     * activa y su estado se calcula por las fechas.
      */
     @ManyToOne
     @JoinColumn(name = "idEstadoCohorte", nullable = false)
@@ -232,68 +232,133 @@ public class Cohorte {
     }
 
     /**
-     * Indica si la cohorte está activa: tiene el contenido completo y sigue el calendario de inscripción y dictado.
+     * Indica si la cohorte tiene el contenido completo y sigue el calendario: no está pendiente de contenido ni cancelada.
      *
-     * @return {@code true} si el estado de la cohorte es Activa (o todavía no tiene estado).
+     * @return {@code true} si no es Pendiente de contenido ni Cancelada (o todavía no tiene estado).
      */
     public boolean esActiva() {
         return !esPendiente() && !esCancelada();
     }
 
     /**
-     * Calcula el estado de la cohorte: Pendiente o Cancelada, y si está activa, el que resulta de sus fechas: Próxima,
-     * Abierta (con inscripción abierta), En dictado o Finalizada.
+     * Calcula en qué estado debería estar la cohorte según sus fechas y si todavía hay inscripciones en juego (sin tocar el estado guardado).
+     * Una cohorte pendiente o cancelada no sigue el calendario: conserva ese estado.
+     * <ul>
+     * <li>Antes de la inscripción: Inscripción próxima. Durante la inscripción: Inscripción abierta (manda aunque el dictado ya haya empezado).</li>
+     * <li>Con dictado: Inscripción cerrada hasta que empieza, En dictado mientras dura y Dictado finalizado después.</li>
+     * <li>Sin dictado: Inscripción cerrada.</li>
+     * <li>Terminado el dictado (o sin dictado) y sin ninguna inscripción en juego: Cursada finalizada.</li>
+     * </ul>
      *
-     * @return El estado de la cohorte.
+     * @param ahora                    El momento de referencia.
+     * @param hayInscripcionesEnJuego  Si queda alguna inscripción pendiente de pago, con un pago en curso o con el acceso por vencer.
+     * @return El nombre del estado.
      */
-    public String getEstado() {
+    public String calcularEstado(LocalDateTime ahora, boolean hayInscripcionesEnJuego) {
         if (esPendiente()) {
             return EstadoCohorte.PENDIENTE;
         }
         if (esCancelada()) {
             return EstadoCohorte.CANCELADA;
         }
-        LocalDateTime ahora = LocalDateTime.now();
         if (ahora.isBefore(fechaInicioInscripcion)) {
-            return "Próxima";
+            return EstadoCohorte.PROXIMA;
         }
         if (!ahora.isAfter(fechaFinInscripcion)) {
-            return "Abierta";
+            return EstadoCohorte.ABIERTA;
         }
-        LocalDateTime fin = fechaFinDictado != null ? fechaFinDictado : fechaFinInscripcion.plusDays(accesoDias);
-        return ahora.isAfter(fin) ? "Finalizada" : "En dictado";
+        boolean conDictado = fechaInicioDictado != null;
+        if (conDictado && ahora.isBefore(fechaInicioDictado)) {
+            return EstadoCohorte.CERRADA;
+        }
+        LocalDateTime finDictado = fechaFinDictado != null ? fechaFinDictado : fechaFinInscripcion.plusDays(accesoDias);
+        if (conDictado && !ahora.isAfter(finDictado)) {
+            return EstadoCohorte.EN_DICTADO;
+        }
+        if (!hayInscripcionesEnJuego) {
+            return EstadoCohorte.CURSADA_FINALIZADA;
+        }
+        return conDictado ? EstadoCohorte.DICTADO_FINALIZADO : EstadoCohorte.CERRADA;
+    }
+
+    /**
+     * Calcula el estado según las fechas y las inscripciones cargadas en la cohorte (ver {@link #calcularEstado(LocalDateTime, boolean)}).
+     *
+     * @param ahora El momento de referencia.
+     * @return El nombre del estado.
+     */
+    public String calcularEstado(LocalDateTime ahora) {
+        return calcularEstado(ahora, inscripciones.stream().anyMatch(inscripcion -> inscripcion.sigueEnJuego(ahora)));
+    }
+
+    /**
+     * Obtiene el estado de la cohorte: el guardado o, si todavía no tiene (una cohorte nueva sin guardar), el que resulta de sus fechas.
+     *
+     * @return El nombre del estado.
+     */
+    public String getEstado() {
+        return estadoCohorte != null ? estadoCohorte.getNombre() : calcularEstado(LocalDateTime.now());
     }
 
     /**
      * Obtiene el nombre con el que se reconoce la cohorte en los selectores: el mes y el año en que comienza (el del
      * dictado o, si no tiene, el de la inscripción) y su estado.
      *
-     * @return Por ejemplo "Marzo 2026 (En dictado)".
+     * @return Por ejemplo "Marzo 2026 (En dictado)" o "Marzo 2026 (Inscripción abierta)".
      */
     public String getEtiqueta() {
-        LocalDateTime inicio = fechaInicioDictado != null ? fechaInicioDictado : fechaInicioInscripcion;
-        String mes = inicio.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.of("es", "AR"));
-        return mes.substring(0, 1).toUpperCase() + mes.substring(1) + " " + inicio.getYear() + " (" + getEstado() + ")";
+        return getMesAnio() + " (" + getEstado() + ")";
     }
 
     /**
-     * Verifica si la cohorte tiene la inscripción abierta.
+     * Obtiene el mes y el año en que comienza la cohorte (el del dictado o, si no tiene, el de la inscripción).
+     *
+     * @return Por ejemplo "Marzo 2026".
+     */
+    public String getMesAnio() {
+        LocalDateTime inicio = fechaInicioDictado != null ? fechaInicioDictado : fechaInicioInscripcion;
+        String mes = inicio.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.of("es", "AR"));
+        return mes.substring(0, 1).toUpperCase() + mes.substring(1) + " " + inicio.getYear();
+    }
+
+    /**
+     * Verifica si la cohorte tiene la inscripción abierta (se lee de las fechas, no del estado guardado, que puede ir un minuto atrasado).
      *
      * @return {@code true} si la inscripción está abierta.
      */
     public boolean estaAbierta() {
-        return "Abierta".equals(getEstado());
+        LocalDateTime ahora = LocalDateTime.now();
+        return esActiva() && !ahora.isBefore(fechaInicioInscripcion) && !ahora.isAfter(fechaFinInscripcion);
     }
 
     /**
-     * Verifica si la cohorte está activa: es próxima, tiene la inscripción abierta o está en dictado, y todavía no terminó. Los
-     * alumnos de una cohorte así cursan (o van a cursar) los temas del programa. Una cohorte pendiente, cancelada o finalizada no
-     * cuenta: todavía no tiene alumnos ni los va a tener, o ya terminó.
+     * Verifica si la inscripción a la cohorte todavía no abrió (se lee de las fechas).
      *
-     * @return {@code true} si la cohorte está activa y no está finalizada.
+     * @return {@code true} si la cohorte está activa y la inscripción abre más adelante.
+     */
+    public boolean estaProxima() {
+        return esActiva() && LocalDateTime.now().isBefore(fechaInicioInscripcion);
+    }
+
+    /**
+     * Verifica si la inscripción a la cohorte ya terminó: pasó su fecha de fin de inscripción. Desde ese momento no se puede iniciar ni registrar
+     * un pago nuevo, y las inscripciones que siguen pendientes de pago se cancelan.
+     *
+     * @return {@code true} si ya pasó el fin de la inscripción.
+     */
+    public boolean inscripcionCerrada() {
+        return fechaFinInscripcion != null && LocalDateTime.now().isAfter(fechaFinInscripcion);
+    }
+
+    /**
+     * Verifica si la cohorte está en marcha: tiene el contenido completo y todavía no terminó la cursada. Los alumnos de una cohorte así cursan
+     * (o van a cursar) los temas del programa. Una cohorte pendiente, cancelada o con la cursada finalizada no cuenta: todavía no tiene alumnos ni
+     * los va a tener, o ya terminó.
+     *
+     * @return {@code true} si la cohorte está en marcha.
      */
     public boolean estaActiva() {
-        return !baja && esActiva() && !"Finalizada".equals(getEstado());
+        return !baja && esActiva() && !EstadoCohorte.CURSADA_FINALIZADA.equals(getEstado());
     }
 
     /**
@@ -315,13 +380,14 @@ public class Cohorte {
     }
 
     /**
-     * Cuenta los cupos ocupados: las inscripciones activas que ya están habilitadas (pagas, sin costo o dadas de alta
-     * por el administrador). Una inscripción pendiente de pago todavía no ocupa cupo.
+     * Cuenta los cupos ocupados: las inscripciones activas que ya están habilitadas (pagas, sin costo o dadas de alta por el administrador), las
+     * suspendidas (conservan su lugar) y las que tienen un pago online en curso, que reservan el lugar hasta que el pago se resuelva. Una
+     * inscripción pendiente de pago sin pago en curso, o cancelada, no ocupa cupo.
      *
      * @return La cantidad de cupos ocupados.
      */
     public int getCuposOcupados() {
-        return (int) inscripciones.stream().filter(inscripcion -> !inscripcion.getBaja() && inscripcion.estaHabilitada())
+        return (int) inscripciones.stream().filter(inscripcion -> !inscripcion.getBaja() && inscripcion.ocupaCupo())
                 .count();
     }
 

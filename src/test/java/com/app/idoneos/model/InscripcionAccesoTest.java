@@ -12,7 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * Pruebas unitarias del estado de acceso de la inscripción (CU-44) y de las fechas que calcula el modelo (CU-45, CU-47).
+ * Pruebas unitarias de los estados de la inscripción (CU-44) y de las fechas que calcula el modelo (CU-45, CU-47).
  */
 class InscripcionAccesoTest {
 
@@ -22,61 +22,128 @@ class InscripcionAccesoTest {
     private Cohorte cohorte;
     private Inscripcion inscripcion;
 
+    private static EstadoInscripcion estado(String nombre) {
+        return new EstadoInscripcion(nombre);
+    }
+
     /** Cohorte sin fechas de dictado, de 12 semanas de acceso, y una inscripción habilitada que vence en 12 semanas. */
     @BeforeEach
     void armar() {
         programa = new Programa(null, "Programa 2026");
         cohorte = new Cohorte(programa, ahora.minusDays(10), ahora.plusDays(20), 84);
         inscripcion = new Inscripcion(cohorte, null, ahora.plusWeeks(12));
-        inscripcion.setHabilitado(true);
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.HABILITADA));
     }
 
     @Test
-    @DisplayName("Vigente: habilitada, sin vencer y sin dictado pendiente")
-    void vigente() {
-        assertEquals(Inscripcion.ACCESO_VIGENTE, inscripcion.getEstadoAcceso(ahora));
+    @DisplayName("Acceso habilitado: tiene acceso mientras no venza y el dictado haya comenzado")
+    void accesoHabilitado() {
+        assertEquals(EstadoInscripcion.HABILITADA, inscripcion.getNombreEstado());
+        assertTrue(inscripcion.tieneAcceso(ahora));
+        assertTrue(inscripcion.puedeAccederAhora(ahora));
+        assertFalse(inscripcion.esperaElDictado(ahora));
+        assertTrue(inscripcion.fueHabilitada());
     }
 
     @Test
     @DisplayName("Pendiente de pago: no está habilitada")
     void pendienteDePago() {
-        inscripcion.setHabilitado(false);
-        assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, inscripcion.getEstadoAcceso(ahora));
-        assertFalse(inscripcion.estaHabilitada());
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.PENDIENTE_DE_PAGO));
+        assertEquals(EstadoInscripcion.PENDIENTE_DE_PAGO, inscripcion.getNombreEstado());
+        assertFalse(inscripcion.fueHabilitada());
+        assertFalse(inscripcion.ocupaCupo());
+        assertTrue(inscripcion.requierePago());
+    }
+
+    @Test
+    @DisplayName("Pago en curso: sin acceso todavía, pero reserva el cupo")
+    void pagoEnCurso() {
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.PAGO_EN_CURSO));
+        assertEquals(EstadoInscripcion.PAGO_EN_CURSO, inscripcion.getNombreEstado());
+        assertFalse(inscripcion.tieneAcceso());
+        assertTrue(inscripcion.ocupaCupo());
+        assertTrue(inscripcion.requierePago());
+    }
+
+    @Test
+    @DisplayName("Acceso suspendido: no tiene acceso, pero conserva su habilitación y su cupo")
+    void suspendida() {
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.SUSPENDIDA));
+        assertEquals(EstadoInscripcion.SUSPENDIDA, inscripcion.getNombreEstado());
+        assertFalse(inscripcion.tieneAcceso());
+        assertTrue(inscripcion.fueHabilitada());
+        assertTrue(inscripcion.ocupaCupo());
+        assertFalse(inscripcion.requierePago());
+    }
+
+    @Test
+    @DisplayName("Acceso vencido: ya no tiene acceso, no está habilitada, conserva el cupo y no se puede cobrar")
+    void vencida() {
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.VENCIDA));
+        assertEquals(EstadoInscripcion.VENCIDA, inscripcion.getNombreEstado());
+        assertTrue(inscripcion.estaVencida());
+        assertFalse(inscripcion.tieneAcceso());
+        assertTrue(inscripcion.fueHabilitada());
+        assertTrue(inscripcion.ocupaCupo());
+        assertFalse(inscripcion.requierePago());
+    }
+
+    @Test
+    @DisplayName("Con la fecha de vencimiento pasada ya no tiene acceso, aunque el estado todavía no se haya actualizado")
+    void sinAccesoConElVencimientoPasado() {
+        inscripcion.setFechaVencimientoAcceso(ahora.minusDays(1));
+        assertEquals(EstadoInscripcion.HABILITADA, inscripcion.getNombreEstado());
+        assertTrue(inscripcion.vencimientoPasado(ahora));
+        assertFalse(inscripcion.tieneAcceso(ahora));
+        assertFalse(inscripcion.puedeAccederAhora(ahora));
+    }
+
+    @Test
+    @DisplayName("Cancelada por falta de pago: no tiene acceso ni ocupa cupo, no se le puede cobrar y es un estado final")
+    void cancelada() {
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.CANCELADA));
+        assertEquals(EstadoInscripcion.CANCELADA, inscripcion.getNombreEstado());
+        assertFalse(inscripcion.tieneAcceso());
+        assertFalse(inscripcion.ocupaCupo());
+        assertFalse(inscripcion.requierePago());
+        assertTrue(inscripcion.esInmutable());
     }
 
     @Test
     @DisplayName("Una inscripción sin dato de habilitación se considera habilitada")
     void habilitacionSinDato() {
-        inscripcion.setHabilitado(null);
-        assertTrue(inscripcion.estaHabilitada());
-        assertEquals(Inscripcion.ACCESO_VIGENTE, inscripcion.getEstadoAcceso(ahora));
+        inscripcion.setEstadoInscripcion(null);
+        assertTrue(inscripcion.fueHabilitada());
+        assertTrue(inscripcion.puedeAccederAhora(ahora));
+        assertEquals(EstadoInscripcion.HABILITADA, inscripcion.getNombreEstado());
     }
 
     @Test
-    @DisplayName("Programada: habilitada, pero el dictado de la cohorte todavía no comenzó")
-    void programada() {
+    @DisplayName("Espera el dictado: tiene el acceso habilitado, pero el dictado de la cohorte todavía no comenzó")
+    void esperaElDictado() {
         cohorte.setFechaInicioDictado(ahora.plusDays(25));
-        assertEquals(Inscripcion.ACCESO_PROGRAMADA, inscripcion.getEstadoAcceso(ahora));
+        assertTrue(inscripcion.esperaElDictado(ahora));
+        assertFalse(inscripcion.puedeAccederAhora(ahora));
         cohorte.setFechaInicioDictado(ahora.minusDays(1));
-        assertEquals(Inscripcion.ACCESO_VIGENTE, inscripcion.getEstadoAcceso(ahora));
+        assertTrue(inscripcion.puedeAccederAhora(ahora));
     }
 
     @Test
-    @DisplayName("Vencida: pasó la fecha de vencimiento; si falta pagar, no tiene vencimiento y está pendiente de pago")
-    void vencida() {
-        inscripcion.setFechaVencimientoAcceso(ahora.minusDays(1));
-        assertEquals(Inscripcion.ACCESO_VENCIDA, inscripcion.getEstadoAcceso(ahora));
-        inscripcion.setHabilitado(false);
-        inscripcion.setFechaVencimientoAcceso(null);
-        assertEquals(Inscripcion.ACCESO_PENDIENTE_DE_PAGO, inscripcion.getEstadoAcceso(ahora));
-    }
-
-    @Test
-    @DisplayName("Dada de baja: tiene prioridad sobre el resto de los estados")
+    @DisplayName("Dada de baja: tiene prioridad sobre el resto de los estados y es un estado final")
     void dadaDeBaja() {
         inscripcion.marcarInactivo();
-        assertEquals(Inscripcion.ACCESO_DADA_DE_BAJA, inscripcion.getEstadoAcceso(ahora));
+        assertEquals(EstadoInscripcion.DADA_DE_BAJA, inscripcion.getNombreEstado());
+        assertTrue(inscripcion.estaDadaDeBaja());
+        assertTrue(inscripcion.esInmutable());
+    }
+
+    @Test
+    @DisplayName("Se puede cancelar por falta de pago la pendiente sin pago en curso, aunque tenga un pago parcial aprobado")
+    void seCancelaConUnPagoParcial() {
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.PENDIENTE_DE_PAGO));
+        assertTrue(inscripcion.sePuedeCancelarPorFaltaDePago());
+        inscripcion.setEstadoInscripcion(estado(EstadoInscripcion.PAGO_EN_CURSO));
+        assertFalse(inscripcion.sePuedeCancelarPorFaltaDePago());
     }
 
     @Test

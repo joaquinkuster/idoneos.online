@@ -80,8 +80,8 @@ class AccederCursoControllerTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/tema/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/programa/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("/recurso/buscar"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("/termino/buscar"))))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("/consulta/buscar"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/glosario/buscar"))))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/foro/buscar"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar tema"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-menu-tema"))))
                 .andExpect(content().string(Matchers.containsString("nb-enlace\">Inicio<")))
@@ -98,11 +98,12 @@ class AccederCursoControllerTest {
     void alumnoVeElCajonDelCronograma() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("id=\"cajonCronograma\"")))
-                .andExpect(content().string(Matchers.containsString("ac-cajon-semana")))
-                .andExpect(content().string(Matchers.containsString("data-cajon-alternar")))
-                .andExpect(content().string(Matchers.containsString("ac-cajon-barra")))
-                .andExpect(content().string(Matchers.containsString("ac-cajon-leyenda")))
+                .andExpect(content().string(Matchers.containsString("id=\"drawerCronograma\"")))
+                .andExpect(content().string(Matchers.containsString("ac-drawer-semana")))
+                .andExpect(content().string(Matchers.containsString("data-drawer-alternar")))
+                .andExpect(content().string(Matchers.containsString("ac-drawer-barra")))
+                .andExpect(content().string(Matchers.containsString("ac-drawer-leyenda")))
+                .andExpect(content().string(Matchers.containsString("Autoevaluaciones pendientes")))
                 .andExpect(content().string(Matchers.anyOf(Matchers.containsString("Al día"),
                         Matchers.containsString("de atraso"))));
     }
@@ -120,7 +121,7 @@ class AccederCursoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("20 días de atraso")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Al día"))))
-                .andExpect(content().string(Matchers.containsString("ac-cajon-actual")))
+                .andExpect(content().string(Matchers.containsString("ac-drawer-actual")))
                 .andExpect(content().string(Matchers.containsString("Hoy (día actual)")));
     }
 

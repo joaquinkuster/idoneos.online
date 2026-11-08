@@ -97,7 +97,7 @@ class ConsultaControllerTest {
     void listadoDeForos() throws Exception {
         int curso = idCurso("Mercado de Capitales Argentino");
 
-        mockMvc.perform(get("/consulta/buscar").param("cursoId", String.valueOf(curso)))
+        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(curso)))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Listado de foros")))
                 .andExpect(content().string(Matchers.containsString("Foro 1")))
@@ -105,12 +105,12 @@ class ConsultaControllerTest {
                 .andExpect(content().string(Matchers.containsString("Foro 3")))
                 .andExpect(content().string(Matchers.containsString("1 consulta")))
                 .andExpect(content().string(Matchers.containsString("Sin consultas")))
-                .andExpect(content().string(Matchers.containsString("/consulta/buscarPorTema/" + primera())))
+                .andExpect(content().string(Matchers.containsString("/foro/buscarPorTema/" + primera())))
                 .andExpect(content().string(Matchers.containsString("Ver detalle")))
                 .andExpect(content().string(Matchers.containsString("data-filtro=")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")));
         // el tema que llega por la URL solo se elige en el campo: el listado sigue completo (se filtra en la pantalla)
-        mockMvc.perform(get("/consulta/buscar").param("cursoId", String.valueOf(curso)).param("temaId",
+        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(curso)).param("temaId",
                 String.valueOf(segunda())))
                 .andExpect(content().string(Matchers.containsString("Foro 2")))
                 .andExpect(content().string(Matchers.containsString("Foro 3")));
@@ -120,7 +120,7 @@ class ConsultaControllerTest {
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El administrador también ve el listado de foros de cualquier curso")
     void listadoParaElAdministrador() throws Exception {
-        mockMvc.perform(get("/consulta/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
+        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isOk()).andExpect(content().string(Matchers.containsString("Foro 1")));
     }
 
@@ -128,7 +128,7 @@ class ConsultaControllerTest {
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("Un docente que no participa en el curso no puede listar sus foros: vuelve a Mis cursos")
     void listadoDeDocenteAjeno() throws Exception {
-        mockMvc.perform(get("/consulta/buscar").param("cursoId", String.valueOf(idCurso("Macroeconomía de Coyuntura"))))
+        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(idCurso("Macroeconomía de Coyuntura"))))
                 .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/curso/buscar"));
     }
 
@@ -136,7 +136,7 @@ class ConsultaControllerTest {
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El alumno no accede al listado de foros del curso")
     void listadoNoEsParaAlumnos() throws Exception {
-        mockMvc.perform(get("/consulta/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
+        mockMvc.perform(get("/foro/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isForbidden());
     }
 
@@ -146,7 +146,7 @@ class ConsultaControllerTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El docente ve las consultas del foro, con las que están sin responder, y no puede consultar")
     void vistaDelDocente() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + segunda()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + segunda()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Foro 2")))
                 .andExpect(content().string(Matchers.containsString("Renta fija y bonos")))
@@ -163,7 +163,7 @@ class ConsultaControllerTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Dar de baja"))))
                 .andExpect(content().string(Matchers.containsString("name=\"desde\"")))
                 .andExpect(content().string(Matchers.containsString("name=\"hasta\"")));
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()))
                 .andExpect(content().string(Matchers.containsString("matrícula para operar")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Sin responder"))));
     }
@@ -172,15 +172,15 @@ class ConsultaControllerTest {
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("La búsqueda filtra por texto y por rango de fechas")
     void busqueda() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()).param("texto", "matricula"))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()).param("texto", "matricula"))
                 .andExpect(content().string(Matchers.containsString("matrícula para operar")));
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()).param("texto", "zzz"))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()).param("texto", "zzz"))
                 .andExpect(content().string(Matchers.containsString("No se encontraron consultas")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("matrícula para operar"))));
         // la consulta del tema 1 es de hace 3 días
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()).param("desde", java.time.LocalDate.now().minusDays(1).toString()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()).param("desde", java.time.LocalDate.now().minusDays(1).toString()))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("matrícula para operar"))));
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()).param("desde", "").param("hasta", ""))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()).param("desde", "").param("hasta", ""))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("matrícula para operar")));
     }
@@ -193,7 +193,7 @@ class ConsultaControllerTest {
         for (int i = 1; i <= 11; i++) {
             consultaRepository.save(new ConsultaForo(tema, inscripcionDeValentina(), "Consulta número " + i));
         }
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()))
                 .andExpect(content().string(Matchers.containsString("data-tabla")))
                 .andExpect(content().string(Matchers.containsString("data-por-pagina")))
                 .andExpect(content().string(Matchers.containsString("data-paginador")))
@@ -205,7 +205,7 @@ class ConsultaControllerTest {
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El alumno ve el foro de un tema habilitado y puede registrar una consulta")
     void vistaDelAlumno() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + segunda()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + segunda()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Registrar consulta")))
                 .andExpect(content().string(Matchers.containsString("modalNuevaConsulta")))
@@ -218,14 +218,14 @@ class ConsultaControllerTest {
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El alumno no ve el foro de un tema bloqueado ni sus consultas")
     void alumnoConTemaBloqueada() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + tercera())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/foro/buscarPorTema/" + tercera())).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = "martin.gomez@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El alumno cuyo dictado todavía no comenzó no ve el foro ni sus consultas")
     void alumnoConDictadoSinComenzar() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera())).andExpect(status().isForbidden());
         mockMvc.perform(get("/consulta/ver/" + consultaDe(primera()).getIdConsulta())).andExpect(status().isForbidden());
     }
 
@@ -235,8 +235,8 @@ class ConsultaControllerTest {
     void docenteAjenoEInexistente() throws Exception {
         int ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios").getIdTema();
 
-        mockMvc.perform(get("/consulta/buscarPorTema/" + ajena)).andExpect(status().isForbidden());
-        mockMvc.perform(get("/consulta/buscarPorTema/999999")).andExpect(status().isNotFound());
+        mockMvc.perform(get("/foro/buscarPorTema/" + ajena)).andExpect(status().isForbidden());
+        mockMvc.perform(get("/foro/buscarPorTema/999999")).andExpect(status().isNotFound());
         mockMvc.perform(get("/consulta/ver/999999")).andExpect(status().isNotFound());
     }
 
@@ -244,7 +244,7 @@ class ConsultaControllerTest {
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("El administrador ve el foro con la baja de cada consulta, sin poder consultar")
     void vistaDelAdministrador() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera()))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("/consulta/darDeBaja/" + consultaDe(primera()).getIdConsulta())))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Registrar consulta"))));
@@ -253,7 +253,7 @@ class ConsultaControllerTest {
     @Test
     @DisplayName("Sin sesión se pide iniciar sesión")
     void sinSesion() throws Exception {
-        mockMvc.perform(get("/consulta/buscarPorTema/" + primera())).andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/foro/buscarPorTema/" + primera())).andExpect(status().is3xxRedirection());
     }
 
     // ------------------------------------------------------------------ Detalle de una consulta
@@ -363,7 +363,7 @@ class ConsultaControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("application/json"))
                 .andExpect(jsonPath("$.mensaje").value("Consulta registrada con éxito."));
-        mockMvc.perform(get("/consulta/buscarPorTema/" + segunda())).andExpect(content().string(Matchers.containsString("Nueva duda")));
+        mockMvc.perform(get("/foro/buscarPorTema/" + segunda())).andExpect(content().string(Matchers.containsString("Nueva duda")));
 
         mockMvc.perform(post("/consulta/registrar").param("temaId", String.valueOf(segunda())).param("texto", " "))
                 .andExpect(status().isBadRequest())
@@ -388,7 +388,7 @@ class ConsultaControllerTest {
         mockMvc.perform(post("/respuesta/registrar").param("consultaId", String.valueOf(id)).param("texto", ""))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("Debe completar el texto de la respuesta.")));
-        mockMvc.perform(get("/consulta/buscarPorTema/" + segunda()))
+        mockMvc.perform(get("/foro/buscarPorTema/" + segunda()))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Sin responder"))));
     }
 
@@ -403,7 +403,7 @@ class ConsultaControllerTest {
                 .andExpect(jsonPath("$.mensaje").value("Respuesta dada de baja con éxito."));
         mockMvc.perform(post("/consulta/darDeBaja/" + consulta.getIdConsulta())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Consulta dada de baja con éxito."))
-                .andExpect(jsonPath("$.destino").value("/consulta/buscarPorTema/" + primera()));
+                .andExpect(jsonPath("$.destino").value("/foro/buscarPorTema/" + primera()));
         // la consulta dada de baja ya no tiene página propia
         mockMvc.perform(get("/consulta/ver/" + consulta.getIdConsulta())).andExpect(status().isNotFound());
         mockMvc.perform(post("/consulta/darDeBaja/" + consulta.getIdConsulta())).andExpect(status().isBadRequest())
@@ -454,9 +454,9 @@ class ConsultaControllerTest {
 
         mockMvc.perform(get("/curso/acceder/" + curso))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("/consulta/buscar?cursoId=" + curso)))
-                .andExpect(content().string(Matchers.containsString("/consulta/buscar?cursoId=" + curso + "&amp;temaId=" + primera())))
-                .andExpect(content().string(Matchers.containsString("/consulta/buscarPorTema/" + primera())))
+                .andExpect(content().string(Matchers.containsString("/foro/buscar?cursoId=" + curso)))
+                .andExpect(content().string(Matchers.containsString("/foro/buscar?cursoId=" + curso + "&amp;temaId=" + primera())))
+                .andExpect(content().string(Matchers.containsString("/foro/buscarPorTema/" + primera())))
                 .andExpect(content().string(Matchers.containsString("Foro de consultas")));
     }
 
@@ -466,8 +466,8 @@ class ConsultaControllerTest {
     void enlacesDelAlumno() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDeValentina().getIdInscripcion()))
                 .andExpect(status().isOk())
-                .andExpect(content().string(Matchers.containsString("/consulta/buscarPorTema/" + primera())))
-                .andExpect(content().string(Matchers.containsString("/consulta/buscarPorTema/" + segunda())))
-                .andExpect(content().string(Matchers.not(Matchers.containsString("/consulta/buscar"))));
+                .andExpect(content().string(Matchers.containsString("/foro/buscarPorTema/" + primera())))
+                .andExpect(content().string(Matchers.containsString("/foro/buscarPorTema/" + segunda())))
+                .andExpect(content().string(Matchers.not(Matchers.containsString("/foro/buscar"))));
     }
 }

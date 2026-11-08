@@ -55,5 +55,6 @@
             <form id="formularioCerrarSesion" th:action="@{/logout}" method="post" class="d-none"></form>
         </div>
     </div>
-    <th:block th:replace="~{fragments/components/modalIntereses :: bloque}"></th:block>
+    <th:block th:replace="~{pages/intereses/formulario :: bloque}"></th:block>
+    <th:block th:replace="~{fragments/components/asistente :: bloque}"></th:block>
 </div>

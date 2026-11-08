@@ -69,7 +69,7 @@ public class InscripcionController {
 
     /**
      * CU-02: Lista los cursos en los que el alumno está inscripto, con su progreso general,
-     * filtrando por nombre del curso y estado de la inscripción (En Progreso o Finalizado).
+     * filtrando por nombre del curso, estado de la inscripción y avance.
      *
      * @param busqueda           Parte del nombre del curso.
      * @param estado             Estado de la inscripción.
@@ -105,7 +105,19 @@ public class InscripcionController {
                 return "pages/inscripcion/buscarPorAlumno :: filas"; // solo las cards de la página pedida
             }
             model.addAttribute("busqueda", busqueda);
-            model.addAttribute("estadoSeleccionado", estado);
+            // En los filtros solo se ofrecen los estados que tienen las inscripciones del alumno (en el orden del ciclo de vida)
+            List<String> ordenEstados = List.of(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO,
+                    com.app.idoneos.model.EstadoInscripcion.PAGO_EN_CURSO, com.app.idoneos.model.EstadoInscripcion.HABILITADA,
+                    com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA, com.app.idoneos.model.EstadoInscripcion.VENCIDA,
+                    com.app.idoneos.model.EstadoInscripcion.CANCELADA);
+            List<String> ordenAvances = List.of(Inscripcion.AVANCE_SIN_AVANCE, com.app.idoneos.model.EstadoAvance.EN_PROGRESO,
+                    com.app.idoneos.model.EstadoAvance.FINALIZADO);
+            model.addAttribute("estadosDisponibles", ordenEstados.stream()
+                    .filter(e -> todas.stream().anyMatch(i -> e.equals(i.getNombreEstado()))).toList());
+            model.addAttribute("avancesDisponibles", ordenAvances.stream()
+                    .filter(e -> todas.stream().anyMatch(i -> e.equals(i.getNombreAvance()))).toList());
+            model.addAttribute("estadoInscripcionSeleccionado", request.getParameter("estadoInscripcion"));
+            model.addAttribute("avanceSeleccionado", request.getParameter("avance"));
             model.addAttribute("titulo", "Mis cursos | Idóneos Online");
             return "pages/inscripcion/buscarPorAlumno";
         } catch (Exception e) {
@@ -128,7 +140,8 @@ public class InscripcionController {
         if (!((Usuario) authentication.getPrincipal()).esAdministradorActivo()) {
             return buscarPorAlumno(busqueda, estado, model, authentication, redirectAttributes, request);
         }
-        List<Inscripcion> inscripciones = inscripcionService.buscarConFiltros(null, null, null);
+        // Con las dadas de baja: siguen en el listado (sin acciones) para poder ver sus observaciones
+        List<Inscripcion> inscripciones = inscripcionService.buscarTodasConBajas();
         // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
         PaginacionUtil.Pagina<Inscripcion> pagina = Filtros.tabla.paginar(inscripciones, request.getParameterMap());
         PaginacionUtil.cargarEnModelo(model, pagina);
@@ -222,12 +235,14 @@ public class InscripcionController {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             Inscripcion inscripcion = inscripcionService.inscribir(usuario.getAlumno(), cohorteId, terminos);
-            String curso = inscripcion.getCurso().getNombre();
-            String mensaje = inscripcion.estaHabilitada()
-                    ? "Te inscribiste a «" + curso + "». Ya podés acceder desde Mis cursos."
-                    : "Te inscribiste a «" + curso + "». Para acceder al contenido tenés que completar el pago.";
-            return RespuestaFormularioUtil.armarRespuestaExitosa(mensaje, inscripcion.estaHabilitada() ? "/inscripcion/buscar"
-                    : "/pago/caja/" + inscripcion.getIdInscripcion());
+            if (!inscripcion.fueHabilitada()) {
+                // Con costo: sin alerta de éxito (sugeriría que el lugar está asegurado); la caja avisa que falta el pago
+                return RespuestaFormularioUtil.armarRespuestaDeRedireccion(
+                        "/pago/caja/" + inscripcion.getIdInscripcion() + "?inscripcionNueva");
+            }
+            return RespuestaFormularioUtil.armarRespuestaExitosa(
+                    "Te inscribiste a «" + inscripcion.getCurso().getNombre() + "». Ya podés acceder desde Mis cursos.",
+                    "/inscripcion/buscar");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
@@ -250,8 +265,8 @@ public class InscripcionController {
             Inscripcion inscripcion = inscripcionService.registrar(alumnoId, cohorteId, terminos);
             String mensaje = "Inscripción de " + inscripcion.getAlumno().getUsuario().getNombreCompleto()
                     + " a «" + inscripcion.getCurso().getNombre() + "» registrada con éxito."
-                    + (inscripcion.estaHabilitada() ? "" : " Queda pendiente de pago: registrá ahora su pago.");
-            return inscripcion.estaHabilitada() ? RespuestaFormularioUtil.armarRespuestaExitosa(mensaje)
+                    + (inscripcion.fueHabilitada() ? "" : " Queda pendiente de pago: registrá ahora su pago.");
+            return inscripcion.fueHabilitada() ? RespuestaFormularioUtil.armarRespuestaExitosa(mensaje)
                     : RespuestaFormularioUtil.armarRespuestaExitosa(mensaje, "/pago/buscar?registrarPara=" + inscripcion.getIdInscripcion());
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
@@ -261,21 +276,19 @@ public class InscripcionController {
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * CU-47: El administrador modifica las observaciones, la habilitación y el vencimiento del acceso. Responde en JSON.
+     * CU-47: El administrador modifica las observaciones y la suspensión del acceso (el vencimiento no se modifica). Responde en JSON.
      *
      * @param id            Identificador de la inscripción.
      * @param observaciones Las observaciones (opcional).
-     * @param habilitada    Si el acceso está habilitado.
-     * @param vencimiento   El último día de acceso.
+     * @param habilitada    {@code false} suspende el acceso y {@code true} lo reactiva.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "observaciones", required = false) String observaciones,
-            @RequestParam(value = "habilitada", required = false) Boolean habilitada,
-            @RequestParam(value = "vencimiento", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate vencimiento) {
+            @RequestParam(value = "habilitada", required = false) Boolean habilitada) {
         try {
-            inscripcionService.modificar(id, observaciones, habilitada, vencimiento);
+            inscripcionService.modificar(id, observaciones, habilitada);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Inscripción actualizada con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
@@ -370,7 +383,10 @@ public class InscripcionController {
                 new FiltroUtil.Columna<Inscripcion>("curso", FiltroUtil.Tipo.LISTA, i -> i.getCurso().getNombre()),
                 new FiltroUtil.Columna<Inscripcion>("cohorte", FiltroUtil.Tipo.LISTA,
                         i -> i.getCohorte().getPrograma().getNombre() + " · " + i.getCohorte().getEtiqueta()),
-                new FiltroUtil.Columna<Inscripcion>("estado", FiltroUtil.Tipo.LISTA, Inscripcion::getEstadoAcceso),
+                new FiltroUtil.Columna<Inscripcion>("estado", FiltroUtil.Tipo.LISTA, Inscripcion::getNombreEstado),
+                new FiltroUtil.Columna<Inscripcion>("avance", FiltroUtil.Tipo.LISTA, Inscripcion::getNombreAvance),
+                new FiltroUtil.Columna<Inscripcion>("observaciones", FiltroUtil.Tipo.TEXTO,
+                        i -> i.getObservaciones() == null ? "" : i.getObservaciones()),
                 new FiltroUtil.Columna<Inscripcion>("certificado", FiltroUtil.Tipo.TEXTO,
                         i -> i.getCertificadoVigente() == null ? "" : i.getCertificadoVigente().getNumero()),
                 new FiltroUtil.Columna<Inscripcion>("fechaVencimiento", FiltroUtil.Tipo.FECHA,
@@ -385,8 +401,8 @@ public class InscripcionController {
                         i -> i.getCurso().getNombre() + " " + (i.getCurso().getDescripcion() == null ? "" : i.getCurso().getDescripcion())),
                 new FiltroUtil.Columna<Inscripcion>("categoriaId", FiltroUtil.Tipo.LISTA,
                         i -> String.valueOf(i.getCurso().getCategoria().getIdCategoria())),
-                new FiltroUtil.Columna<Inscripcion>("estado", FiltroUtil.Tipo.LISTA, Inscripcion::getEstado),
-                new FiltroUtil.Columna<Inscripcion>("acceso", FiltroUtil.Tipo.LISTA, Inscripcion::getEstadoAcceso)),
+                new FiltroUtil.Columna<Inscripcion>("estadoInscripcion", FiltroUtil.Tipo.LISTA, Inscripcion::getNombreEstado),
+                new FiltroUtil.Columna<Inscripcion>("avance", FiltroUtil.Tipo.LISTA, Inscripcion::getNombreAvance)),
                 i -> false);
     }
 }

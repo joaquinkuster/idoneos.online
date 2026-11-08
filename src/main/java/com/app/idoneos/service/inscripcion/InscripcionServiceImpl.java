@@ -45,6 +45,20 @@ public class InscripcionServiceImpl implements InscripcionService {
     private InscripcionRepository inscripcionRepository;
 
     @Autowired
+    private com.app.idoneos.repository.EstadoInscripcionRepository estadoInscripcionRepository;
+
+    @Autowired
+    private com.app.idoneos.repository.EstadoAvanceRepository estadoAvanceRepository;
+
+    private com.app.idoneos.model.EstadoInscripcion estadoInscripcion(String nombre) {
+        return estadoInscripcionRepository.findByNombre(nombre).orElseThrow();
+    }
+
+    private com.app.idoneos.model.EstadoAvance estadoAvance(String nombre) {
+        return estadoAvanceRepository.findByNombre(nombre).orElseThrow();
+    }
+
+    @Autowired
     private CohorteRepository cohorteRepository;
 
     @Autowired
@@ -106,7 +120,7 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     /**
      * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
-     * y por el estado de la inscripción (En Progreso o Finalizado).
+     * y por el estado de la inscripción (En progreso o Finalizado).
      *
      * @param alumno el alumno dueño de las inscripciones
      * @param nombreCurso parte del nombre del curso (opcional)
@@ -139,7 +153,7 @@ public class InscripcionServiceImpl implements InscripcionService {
                 .filter(i -> i.getAlumno().getIdAlumno() == alumno.getIdAlumno())
                 .orElseThrow(() -> new IllegalArgumentException("Error! No tenés una inscripción vigente a este curso."));
         Cohorte cohorte = inscripcion.getCohorte();
-        if (Boolean.FALSE.equals(inscripcion.getHabilitado()) || cohorte.esInactivo()) {
+        if (!inscripcion.tieneAcceso() || cohorte.esInactivo()) {
             throw new IllegalArgumentException("Error! Tu inscripción a este curso no está habilitada.");
         }
         LocalDateTime ahora = LocalDateTime.now();
@@ -169,14 +183,20 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     @Override
-    public List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estadoAcceso) {
+    public List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estado) {
         String criterio = TextoUtil.normalizar(alumno);
-        LocalDateTime ahora = LocalDateTime.now();
         return inscripcionRepository.findByBajaFalse().stream()
                 .filter(i -> cursoId == null || i.getCurso().getIdCurso() == cursoId)
-                .filter(i -> estadoAcceso == null || estadoAcceso.isBlank()
-                        || i.getEstadoAcceso(ahora).equalsIgnoreCase(estadoAcceso.trim()))
+                .filter(i -> estado == null || estado.isBlank() || i.getNombreEstado().equalsIgnoreCase(estado.trim()))
                 .filter(i -> criterio.isEmpty() || datosDelAlumno(i.getAlumno()).contains(criterio))
+                .sorted(Comparator.comparing(Inscripcion::getFechaCreacion)
+                        .thenComparingInt(Inscripcion::getIdInscripcion).reversed())
+                .toList();
+    }
+
+    @Override
+    public List<Inscripcion> buscarTodasConBajas() {
+        return inscripcionRepository.findAll().stream()
                 .sorted(Comparator.comparing(Inscripcion::getFechaCreacion)
                         .thenComparingInt(Inscripcion::getIdInscripcion).reversed())
                 .toList();
@@ -220,6 +240,67 @@ public class InscripcionServiceImpl implements InscripcionService {
         return inscripcion;
     }
 
+    // ---------------------------------------------------------------- Cierre de la inscripción
+
+    private static final org.slf4j.Logger REGISTRO = org.slf4j.LoggerFactory.getLogger(InscripcionServiceImpl.class);
+
+    @Override
+    @Transactional
+    public int cancelarPendientesDeInscripcionCerrada() {
+        LocalDateTime ahora = LocalDateTime.now();
+        com.app.idoneos.model.EstadoInscripcion cancelada = estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.CANCELADA);
+        String nota = "Cancelada automáticamente: terminó la inscripción sin que se pagara.";
+        int canceladas = 0;
+        for (Inscripcion inscripcion : inscripcionRepository.buscarDeCohortesConLaInscripcionCerrada(
+                com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO, ahora)) {
+            if (!inscripcion.sePuedeCancelarPorFaltaDePago()) {
+                continue;
+            }
+            inscripcion.setEstadoInscripcion(cancelada);
+            inscripcion.setUltimaModificacion(ahora);
+            String anteriores = inscripcion.getObservaciones();
+            inscripcion.setObservaciones(anteriores == null || anteriores.isBlank() ? nota
+                    : (anteriores.length() + nota.length() + 1 <= LONGITUD_OBSERVACIONES ? anteriores + " " + nota : anteriores));
+            inscripcionRepository.save(inscripcion);
+            canceladas++;
+        }
+        return canceladas;
+    }
+
+    @Override
+    @Transactional
+    public int vencerAccesos() {
+        LocalDateTime ahora = LocalDateTime.now();
+        com.app.idoneos.model.EstadoInscripcion vencida = estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.VENCIDA);
+        int vencidas = 0;
+        for (Inscripcion inscripcion : inscripcionRepository.buscarConElAccesoVencido(
+                List.of(com.app.idoneos.model.EstadoInscripcion.HABILITADA, com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA), ahora)) {
+            inscripcion.setEstadoInscripcion(vencida);
+            inscripcion.setUltimaModificacion(ahora);
+            inscripcionRepository.save(inscripcion);
+            vencidas++;
+        }
+        return vencidas;
+    }
+
+    /** Cada minuto actualiza los estados que dependen de una fecha: cancela las pendientes de pago de una inscripción cerrada y vence los accesos. */
+    @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60_000, initialDelay = 90_000)
+    @Transactional // las llamadas internas no pasan por el proxy: la transacción se abre acá
+    public void actualizarEstadosPeriodicamente() {
+        try {
+            int canceladas = cancelarPendientesDeInscripcionCerrada();
+            if (canceladas > 0) {
+                REGISTRO.info("Inscripciones canceladas por falta de pago: {}", canceladas);
+            }
+            int vencidas = vencerAccesos();
+            if (vencidas > 0) {
+                REGISTRO.info("Inscripciones con el acceso vencido: {}", vencidas);
+            }
+        } catch (RuntimeException e) {
+            REGISTRO.warn("No se pudieron actualizar los estados de las inscripciones", e);
+        }
+    }
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
@@ -235,44 +316,33 @@ public class InscripcionServiceImpl implements InscripcionService {
 
     @Override
     @Transactional
-    public Inscripcion modificar(Integer idInscripcion, String observaciones, Boolean habilitada,
-            LocalDate vencimiento) {
+    public Inscripcion modificar(Integer idInscripcion, String observaciones, Boolean habilitada) {
         Inscripcion inscripcion = inscripcionRepository.findById(idInscripcion).filter(i -> !i.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La inscripción no se encuentra activa."));
-        // El vencimiento del acceso es obligatorio (mientras no se habilita es provisorio: se recalcula al habilitarla)
-        if (vencimiento == null) {
-            throw RespuestaFormularioUtil.armarCampoInvalido("fechaVencimientoAcceso", "Error! La fecha de vencimiento del acceso es obligatoria.");
+        // Cancelada por falta de pago y Dada de baja son estados finales: no admiten ningún cambio
+        if (inscripcion.esInmutable()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la inscripción de",
+                    inscripcion.getAlumno().getUsuario().getNombreCompleto(),
+                    inscripcion.estaCancelada() ? "está cancelada por falta de pago" : "está dada de baja", ""));
         }
         String observacionesLimpias = observaciones == null || observaciones.isBlank() ? null : observaciones.trim();
         if (observacionesLimpias != null && observacionesLimpias.length() > LONGITUD_OBSERVACIONES) {
             throw RespuestaFormularioUtil.armarCampoInvalido("observaciones", MensajeErrorUtil.armarDemasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
         LocalDateTime ahora = LocalDateTime.now();
-        LocalDate vencimientoAnterior = inscripcion.getFechaVencimientoAcceso() == null ? null
-                : inscripcion.getFechaVencimientoAcceso().toLocalDate();
-        if (vencimiento != null) {
-            LocalDateTime minimo = inscripcion.getVencimientoMinimo();
-            if (vencimiento.isBefore(minimo.toLocalDate())) {
-                throw RespuestaFormularioUtil.armarCampoInvalido("fechaVencimientoAcceso", "Error! La fecha de vencimiento del acceso no puede ser anterior al "
-                        + minimo.format(FORMATO_FECHA) + ", que resulta de la duración del cronograma del programa.");
-            }
-        }
         if (habilitada != null) {
-            if (habilitada && !inscripcion.estaHabilitada()) {
-                // Un curso con costo solo se habilita si lo pagado cubre su precio
-                validarPagosCubrenElPrecio(inscripcion);
-                // Primera habilitación: ocupa un cupo y se calcula el vencimiento del acceso
-                if (!inscripcion.getCohorte().tieneCupo()) {
-                    throw new IllegalArgumentException("Error! La cohorte alcanzó su cupo máximo.");
-                }
-                inscripcion.habilitar(ahora);
-            } else {
-                inscripcion.setHabilitado(habilitada);
+            if (habilitada && !inscripcion.fueHabilitada() && !inscripcion.estaSuspendida()) {
+                // El acceso se habilita solo al aprobarse el pago (o al inscribirse en un curso sin costo)
+                throw new IllegalArgumentException(
+                        "Error! No se puede habilitar una inscripción pendiente de pago: se habilita al aprobarse el pago.");
+            } else if (habilitada && inscripcion.estaSuspendida()) {
+                // Reactivar: conservó su pago y su cupo; vuelve a estar habilitada, o vencida si su fecha ya pasó
+                inscripcion.setEstadoInscripcion(estadoInscripcion(inscripcion.vencimientoPasado(ahora)
+                        ? com.app.idoneos.model.EstadoInscripcion.VENCIDA : com.app.idoneos.model.EstadoInscripcion.HABILITADA));
+            } else if (!habilitada && inscripcion.tieneAcceso(ahora)) {
+                // Suspender: solo se suspende lo que estaba habilitado
+                inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA));
             }
-        }
-        // Si no cambió el día, se conserva el momento exacto; si cambió, el acceso dura hasta el final de ese día
-        if (vencimiento != null && !vencimiento.equals(vencimientoAnterior)) {
-            inscripcion.setFechaVencimientoAcceso(vencimiento.atTime(23, 59, 59));
         }
         inscripcion.setObservaciones(observacionesLimpias);
         inscripcion.setUltimaModificacion(ahora);
@@ -300,6 +370,10 @@ public class InscripcionServiceImpl implements InscripcionService {
         if (alumno != null && inscripcion.getAlumno().getIdAlumno() != alumno.getIdAlumno()) {
             throw new IllegalArgumentException("Error! La inscripción no te pertenece.");
         }
+        if (inscripcion.esInmutable()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("la inscripción de",
+                    inscripcion.getAlumno().getUsuario().getNombreCompleto(), "está cancelada por falta de pago, un estado final", ""));
+        }
         String motivoLimpio = motivo == null || motivo.isBlank() ? null : motivo.trim();
         if (motivoLimpio != null && motivoLimpio.length() > LONGITUD_MOTIVO) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarDemasiadoLargo("El motivo", LONGITUD_MOTIVO, "caracteres"));
@@ -311,6 +385,7 @@ public class InscripcionServiceImpl implements InscripcionService {
                     ? anterior + " | " + nota : nota);
         }
         inscripcion.marcarInactivo();
+        inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.DADA_DE_BAJA));
         inscripcion.setUltimaModificacion(LocalDateTime.now());
         // El certificado y los intentos se dan de baja; los progresos quedan sin acceso con la inscripción y las
         // consultas de foro se muestran de forma anónima (ConsultaForo.getAutor)
@@ -336,19 +411,6 @@ public class InscripcionServiceImpl implements InscripcionService {
     }
 
     /**
-     * El administrador no puede habilitar a mano una inscripción de un curso con costo si no tiene pagos aprobados o
-     * si lo aprobado no llega al precio del curso (con el descuento del pago, si tuvo).
-     */
-    private void validarPagosCubrenElPrecio(Inscripcion inscripcion) {
-        if (!pagoService.cubreElPrecio(inscripcion)) {
-            throw new IllegalArgumentException("Error! No se puede habilitar la inscripción: "
-                    + (inscripcion.tienePagoAprobado() ? "los pagos aprobados no llegan al precio del curso"
-                            : "no tiene ningún pago aprobado")
-                    + ". Registrá o acreditá el pago primero.");
-        }
-    }
-
-    /**
      * Reglas comunes de CU-45 y CU-46: valida la cohorte, la ventana de inscripción, el cupo, la inscripción
      * duplicada y los términos, y registra la inscripción con su progreso inicial.
      */
@@ -359,14 +421,15 @@ public class InscripcionServiceImpl implements InscripcionService {
         // El alumno que llega del usuario con sesión está desconectado de Hibernate: se trabaja con el alumno de la base
         Alumno alumno = alumnoRepository.findById(solicitante.getIdAlumno())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El alumno no se encuentra activo."));
-        Cohorte cohorte = cohorteRepository.findById(idCohorte)
+        // Se bloquea la cohorte: el cupo se cuenta en la base mientras nadie más lo cambia
+        Cohorte cohorte = cohorteRepository.buscarPorIdConBloqueo(idCohorte)
                 .filter(c -> !c.esInactivo() && !c.getPrograma().esInactivo() && !c.getPrograma().getCurso().esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra disponible."));
         LocalDateTime ahora = LocalDateTime.now();
         if (!cohorte.estaAbierta()) {
             throw new IllegalArgumentException("Error! La inscripción a esta cohorte ya no está habilitada.");
         }
-        if (cohorte.getCupoDisponible() != null && cohorte.getCupoDisponible() == 0) {
+        if (cohorte.getCupoMaximo() != null && inscripcionRepository.contarQueOcupanCupo(cohorte) >= cohorte.getCupoMaximo()) {
             throw new IllegalArgumentException("Error! La cohorte alcanzó su cupo máximo.");
         }
         if (inscripcionRepository.existsByCohorteAndAlumnoAndBajaFalse(cohorte, alumno)) {
@@ -380,9 +443,10 @@ public class InscripcionServiceImpl implements InscripcionService {
         // uno con costo, cuando se apruebe el pago (o se habilite sin costo, o el administrador la dé de alta)
         Inscripcion inscripcion = new Inscripcion(cohorte, alumno, null);
         inscripcion.setFechaCreacion(ahora);
-        inscripcion.setHabilitado(false);
+        inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
+        inscripcion.setEstadoAvance(estadoAvance(com.app.idoneos.model.EstadoAvance.EN_PROGRESO));
         if (cohorte.getPrograma().getCurso().getPrecio() <= 0) {
-            inscripcion.habilitar(ahora);
+            inscripcion.habilitar(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.HABILITADA), ahora);
         }
         inscripcion = inscripcionRepository.save(inscripcion);
         cohorte.getInscripciones().add(inscripcion);

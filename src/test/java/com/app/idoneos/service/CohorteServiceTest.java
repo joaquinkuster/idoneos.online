@@ -65,9 +65,9 @@ class CohorteServiceTest {
     void buscarCohortesPorEstado() {
         Integer idPrograma = programaDe("Mercado de Capitales Argentino").getIdPrograma();
 
-        assertEquals(1, cohorteService.buscarConFiltros(idPrograma, null, "Abierta", null, null, "recientes", null).size());
+        assertEquals(1, cohorteService.buscarConFiltros(idPrograma, null, com.app.idoneos.model.EstadoCohorte.ABIERTA, null, null, "recientes", null).size());
         assertEquals(1, cohorteService.buscarConFiltros(idPrograma, null, "En dictado", null, null, "recientes", null).size());
-        assertEquals(1, cohorteService.buscarConFiltros(idPrograma, null, "Finalizada", null, null, "recientes", null).size());
+        assertEquals(1, cohorteService.buscarConFiltros(idPrograma, null, com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA, null, null, "recientes", null).size());
         assertEquals(3, cohorteService.buscarConFiltros(idPrograma, null, null, null, null, "recientes", null).size());
     }
 
@@ -81,7 +81,7 @@ class CohorteServiceTest {
 
         assertEquals(25, cohorte.getCupoMaximo());
         assertNull(cohorte.getFechaInicioDictado());
-        assertEquals("Próxima", cohorte.getEstado());
+        assertEquals(com.app.idoneos.model.EstadoCohorte.PROXIMA, cohorte.getEstado());
     }
 
     @Test
@@ -217,7 +217,7 @@ class CohorteServiceTest {
                 programa.getCurso().getDuracionDias(), null);
 
         assertTrue(cohorte.esPendiente());
-        assertEquals("Pendiente", cohorte.getEstado());
+        assertEquals(com.app.idoneos.model.EstadoCohorte.PENDIENTE, cohorte.getEstado());
     }
 
     @Test
@@ -327,18 +327,18 @@ class CohorteServiceTest {
     @Test
     @DisplayName("CU-11: filtra las cohortes pendientes y las canceladas, distintas de las dadas de baja")
     void buscarCohortesPendientesYCanceladas() {
-        assertTrue(!cohorteService.buscarConFiltros(null, null, "Pendiente", null, null, "recientes", null).isEmpty());
-        assertTrue(cohorteService.buscarConFiltros(null, null, "Pendiente", null, null, "recientes", null).stream()
+        assertTrue(!cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.PENDIENTE, null, null, "recientes", null).isEmpty());
+        assertTrue(cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.PENDIENTE, null, null, "recientes", null).stream()
                 .allMatch(Cohorte::esPendiente));
-        assertTrue(!cohorteService.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).isEmpty());
-        assertTrue(cohorteService.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).stream()
+        assertTrue(!cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.CANCELADA, null, null, "recientes", null).isEmpty());
+        assertTrue(cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.CANCELADA, null, null, "recientes", null).stream()
                 .allMatch(Cohorte::esCancelada));
     }
 
     @Test
     @DisplayName("CU-13: una cohorte cancelada no se modifica")
     void modificarCohorteCancelada() {
-        Cohorte cancelada = cohorteService.buscarConFiltros(null, null, "Cancelada", null, null, "recientes", null).get(0);
+        Cohorte cancelada = cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.CANCELADA, null, null, "recientes", null).get(0);
 
         IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
                 () -> cohorteService.modificar(cancelada.getIdCohorte(), INICIO, INICIO.plusDays(30), null, 84, null));
@@ -348,7 +348,7 @@ class CohorteServiceTest {
     @Test
     @DisplayName("CU-13: modifica una cohorte sin inscripciones")
     void modificarCohorteSinInscripciones() {
-        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
+        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         int duracion = cohorte.getPrograma().getDuracionTotalDias();
 
         Cohorte modificada = cohorteService.modificar(cohorte.getIdCohorte(), INICIO, INICIO.plusDays(20), null, duracion + 2, 40);
@@ -361,7 +361,7 @@ class CohorteServiceTest {
     @Test
     @DisplayName("CU-13: no modifica una cohorte con inscripciones activas")
     void modificarCohorteConInscripciones() {
-        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", "Abierta");
+        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         assertTrue(cohorte.getCantidadInscriptos() > 0);
 
         assertThrows(IllegalArgumentException.class, () -> cohorteService.modificar(cohorte.getIdCohorte(),
@@ -371,7 +371,7 @@ class CohorteServiceTest {
     @Test
     @DisplayName("CU-14: no da de baja una cohorte con inscripciones activas")
     void darDeBajaCohorteConInscripciones() {
-        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", "Abierta");
+        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.ABIERTA);
 
         assertThrows(IllegalArgumentException.class, () -> cohorteService.darDeBaja(cohorte.getIdCohorte()));
     }
@@ -388,7 +388,7 @@ class CohorteServiceTest {
     @Test
     @DisplayName("CU-14: da de baja una cohorte y la desvincula de los docentes que la tienen como contexto de trabajo")
     void darDeBajaCohorteDesvinculaAlDocente() {
-        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", "Finalizada");
+        Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA);
         Docente fausto = docenteService.buscarHabilitados().stream()
                 .filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online")).findFirst().orElseThrow();
         cohorteService.cambiarContextoDeTrabajo(cohorte, fausto);
@@ -403,7 +403,7 @@ class CohorteServiceTest {
     @Test
     @DisplayName("CU-11: el docente cambia su contexto de trabajo solo en los cursos en los que participa")
     void cambiarContextoDeTrabajo() {
-        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", "Abierta");
+        Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         List<Docente> docentes = docenteService.buscarHabilitados();
         Docente fausto = docentes.stream().filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online"))
                 .findFirst().orElseThrow();
@@ -418,7 +418,7 @@ class CohorteServiceTest {
     @DisplayName("CU-11: ordena por inicio de inscripción más reciente o por curso, con las dadas de baja al final")
     void ordenarCohortes() {
         Integer idPrograma = programaDe("Mercado de Capitales Argentino").getIdPrograma();
-        Cohorte finalizada = cohorte("Mercado de Capitales Argentino", "Finalizada");
+        Cohorte finalizada = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA);
         cohorteService.darDeBaja(finalizada.getIdCohorte());
 
         List<Cohorte> recientes = cohorteService.buscarConFiltros(idPrograma, null, null, null, null, "recientes", null);

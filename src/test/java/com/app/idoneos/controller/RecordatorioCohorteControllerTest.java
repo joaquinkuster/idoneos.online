@@ -65,7 +65,7 @@ class RecordatorioCohorteControllerTest {
     }
 
     private Cohorte proxima() {
-        return tecnico().getCohortes().stream().filter(c -> !c.getBaja() && "Próxima".equals(c.getEstado())).findFirst().orElseThrow();
+        return tecnico().getCohortes().stream().filter(c -> !c.getBaja() && com.app.idoneos.model.EstadoCohorte.PROXIMA.equals(c.getEstado())).findFirst().orElseThrow();
     }
 
     private Alumno alumna() {
@@ -109,7 +109,7 @@ class RecordatorioCohorteControllerTest {
     @DisplayName("Solo se puede pedir el recordatorio de una cohorte próxima")
     void soloCohortesProximas() throws Exception {
         Cohorte abierta = cursoRepository.findAll().stream().flatMap(c -> c.getCohortes().stream())
-                .filter(c -> !c.getBaja() && "Abierta".equals(c.getEstado())).findFirst().orElseThrow();
+                .filter(c -> !c.getBaja() && com.app.idoneos.model.EstadoCohorte.ABIERTA.equals(c.getEstado())).findFirst().orElseThrow();
 
         mockMvc.perform(post("/recordatorio/recordar/" + abierta.getIdCohorte())).andExpect(status().isBadRequest());
         mockMvc.perform(post("/recordatorio/recordar/999999")).andExpect(status().isBadRequest());

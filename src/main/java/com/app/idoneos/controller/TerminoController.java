@@ -16,7 +16,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -33,7 +32,7 @@ import com.app.idoneos.service.tema.TemaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
 /**
- * Controlador del glosario (MOD-F-02): CU-32 Buscar término (GET /termino/buscar y GET /termino/buscarPorTema/{temaId}),
+ * Controlador del glosario (MOD-F-02): CU-32 Buscar término (GET /glosario/buscar y GET /glosario/buscarPorTema/{temaId}),
  * CU-33 Registrar término (POST /termino/registrar), CU-34 Modificar término (POST /termino/modificar/{id}) y CU-35
  * Dar de baja término (POST /termino/darDeBaja/{id}).
  *
@@ -43,7 +42,6 @@ import com.app.idoneos.util.RespuestaFormularioUtil;
  * habilitada.
  */
 @Controller
-@RequestMapping("/termino")
 public class TerminoController {
 
     @Autowired
@@ -68,7 +66,7 @@ public class TerminoController {
      * @param redirectAttributes Atributos para mensajes de redirección.
      * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
      */
-    @GetMapping("/buscar")
+    @GetMapping("/glosario/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -111,7 +109,7 @@ public class TerminoController {
      * @param authentication           La autenticación actual.
      * @return La vista del glosario.
      */
-    @GetMapping("/buscarPorTema/{temaId}")
+    @GetMapping("/glosario/buscarPorTema/{temaId}")
     public String ver(@PathVariable("temaId") Integer temaId,
             @RequestParam(value = "texto", required = false) String texto,
             @RequestParam(value = "buscar", required = false) String buscar,
@@ -192,7 +190,7 @@ public class TerminoController {
      * @param authentication       La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/registrar")
+    @PostMapping("/termino/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "termino", required = false) String termino,
@@ -218,7 +216,7 @@ public class TerminoController {
      * @param authentication       La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/modificar/{id}")
+    @PostMapping("/termino/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "termino", required = false) String termino,
             @RequestParam(value = "definicion", required = false) String definicion, Authentication authentication) {
@@ -240,7 +238,7 @@ public class TerminoController {
      * @param authentication La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
-    @PostMapping("/darDeBaja/{id}")
+    @PostMapping("/termino/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -263,7 +261,7 @@ public class TerminoController {
      * @param authentication   La autenticación actual.
      * @return El fragmento con la ventana.
      */
-    @GetMapping("/modificar/{id}")
+    @GetMapping("/termino/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         TerminoGlosario t = terminoGlosarioService.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Error! El término no se encuentra disponible."));

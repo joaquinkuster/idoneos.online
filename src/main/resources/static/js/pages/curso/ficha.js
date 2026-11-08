@@ -17,7 +17,7 @@
 
     function pintar() {
         var o = opcion();
-        var abierta = o.getAttribute('data-estado') === 'Abierta';
+        var abierta = o.getAttribute('data-abierta') === 'true';
         apoyo.textContent = abierta
             ? 'Inscripción hasta el ' + o.getAttribute('data-hasta') + ' · ' + o.getAttribute('data-cupos')
             : 'La inscripción abre el ' + o.getAttribute('data-abre');
@@ -44,12 +44,12 @@
             var respuesta = await fetch(url, { method: 'POST', headers: { 'Accept': 'application/json' }, credentials: 'same-origin' });
             var resultado = await respuesta.json();
             if (!respuesta.ok || !resultado.mensaje) {
-                await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intente nuevamente.');
+                await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.');
                 return false;
             }
             return true;
         } catch (error) {
-            await window.mostrarError('Error! No se pudo conectar con el servidor. Intente nuevamente.');
+            await window.mostrarError('Error! No se pudo conectar con el servidor. Intentá nuevamente.');
             return false;
         }
     }

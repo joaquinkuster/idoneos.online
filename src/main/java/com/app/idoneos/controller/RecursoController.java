@@ -127,7 +127,8 @@ public class RecursoController {
             }
 
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-            PaginacionUtil.Pagina<TemaRecurso> pagina = Filtros.tabla.paginar(materiales, request.getParameterMap());
+            PaginacionUtil.Pagina<TemaRecurso> pagina = Filtros.tabla.paginarMostrando(materiales, request.getParameterMap(),
+                    m -> accion != null && materialId != null && m.getIdTemaRecurso() == materialId);
             PaginacionUtil.cargarEnModelo(model, pagina);
             // Cuántos otros temas usan el recurso de cada material de la página: si hay alguno no se modifica ni se da de baja
             Map<Integer, Long> otrosUsosPorMaterial = new java.util.HashMap<>();
@@ -531,7 +532,7 @@ public class RecursoController {
                 new FiltroUtil.Columna<TemaRecurso>("autor", FiltroUtil.Tipo.TEXTO, TemaRecurso::getAutor),
                 new FiltroUtil.Columna<TemaRecurso>("docente", FiltroUtil.Tipo.LISTA, m -> m.getRecurso().getDocente().getUsuario().getNombreCompleto()),
                 new FiltroUtil.Columna<TemaRecurso>("visibilidad", FiltroUtil.Tipo.LISTA, m -> m.getOculto() ? "Oculto" : "Publicado"),
-                new FiltroUtil.Columna<TemaRecurso>("biblioteca", FiltroUtil.Tipo.LISTA, m -> m.getRecurso().getPrivado() ? "Privado" : "Público"),
+                new FiltroUtil.Columna<TemaRecurso>("biblioteca", FiltroUtil.Tipo.LISTA, m -> m.getRecurso().getPrivado() ? "No" : "Sí"),
                 new FiltroUtil.Columna<TemaRecurso>("generadoPorIa", FiltroUtil.Tipo.LISTA,
                         m -> m.getRecurso().getGeneradoPorIa() ? "Sí" : "No"),
                 new FiltroUtil.Columna<TemaRecurso>("fechaCreacion", FiltroUtil.Tipo.FECHA,

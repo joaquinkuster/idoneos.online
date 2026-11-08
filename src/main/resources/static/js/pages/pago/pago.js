@@ -30,22 +30,34 @@
                 });
             })
             .catch(function () {
-                return { ok: false, datos: { error: 'Error! No se pudo conectar con el servidor. Intente nuevamente.' } };
+                return { ok: false, datos: { error: 'Error! No se pudo conectar con el servidor. Intentá nuevamente.' } };
             });
     }
 
-    /** Mientras se prepara el pago, el propio botón muestra la espera (sin cartel encima) y no admite otro clic. */
+    /**
+     * Mientras se prepara el pago o se espera a que se haga, el botón se oculta y en su lugar queda una etiqueta (no una acción),
+     * como «Verificando tu pago…» en Mis pagos, con tres puntos que aparecen y desaparecen en orden.
+     */
+    function mostrarEtiqueta(boton, texto) {
+        var etiqueta = boton.parentNode.querySelector('[data-pago-etiqueta]');
+        if (!etiqueta) {
+            etiqueta = document.createElement('span');
+            etiqueta.setAttribute('data-pago-etiqueta', '');
+            etiqueta.className = 'pn-celda-secundaria' + (boton.classList.contains('caja-boton') ? ' caja-verificando' : '');
+            boton.parentNode.insertBefore(etiqueta, boton.nextSibling);
+        }
+        etiqueta.innerHTML = texto + '<span class="pago-puntos" aria-hidden="true"><i>.</i><i>.</i><i>.</i></span>';
+        boton.hidden = true;
+    }
+
     function esperando(boton, activo) {
         if (!boton) { return; }
         if (activo) {
-            boton.dataset.textoOriginal = boton.textContent;
-            boton.disabled = true;
-            boton.classList.add('cargando');
-            boton.innerHTML = '<span class="pago-giro" aria-hidden="true"></span>Preparando el pago…';
+            mostrarEtiqueta(boton, 'Preparando el pago');
         } else {
-            boton.disabled = false;
-            boton.classList.remove('cargando');
-            if (boton.dataset.textoOriginal !== undefined) { boton.textContent = boton.dataset.textoOriginal; }
+            var etiqueta = boton.parentNode.querySelector('[data-pago-etiqueta]');
+            if (etiqueta) { etiqueta.remove(); }
+            boton.hidden = false;
         }
     }
 
@@ -58,10 +70,7 @@
 
     /** Espera el pago hecho en la pestaña de MODO: cuando se resuelve (o se cierra esa pestaña) la página original reacciona. */
     function seguirPago(boton, pestania, idPago) {
-        boton.dataset.textoOriginal = boton.dataset.textoOriginal || boton.textContent;
-        boton.disabled = true;
-        boton.classList.add('cargando');
-        boton.innerHTML = '<span class="pago-giro" aria-hidden="true"></span>Esperando el pago en MODO…';
+        mostrarEtiqueta(boton, 'Esperando el pago');
         var consulta = setInterval(function () {
             if (pestania.closed) {
                 // Cerró la pestaña de MODO: puede haber pagado justo antes, así que se consulta una vez más antes de rendirse
@@ -94,7 +103,7 @@
                 if (pestania) { pestania.close(); }
                 esperando(boton, false);
                 return window.mostrarAviso({ tipo: 'error', titulo: r.datos.recargar ? 'El monto cambió' : 'No se pudo iniciar el pago',
-                    texto: r.datos.error || 'Intente nuevamente.' }).then(function () {
+                    texto: r.datos.error || 'Intentá nuevamente.' }).then(function () {
                     // Con el monto cambiado, la caja se recarga para mostrar el total actual
                     if (r.datos.recargar) { window.location.reload(); }
                 });
@@ -108,7 +117,7 @@
             if (!datos.urlCheckout) {
                 if (pestania) { pestania.close(); }
                 esperando(boton, false);
-                return window.mostrarAviso({ tipo: 'error', titulo: 'No se pudo iniciar el pago', texto: 'Intente nuevamente en unos minutos.' });
+                return window.mostrarAviso({ tipo: 'error', titulo: 'No se pudo iniciar el pago', texto: 'Intentá nuevamente en unos minutos.' });
             }
             // El pago se completa en el sitio de MODO, en la pestaña nueva
             if (!pestania) {

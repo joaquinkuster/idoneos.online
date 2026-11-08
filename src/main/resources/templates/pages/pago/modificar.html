@@ -53,87 +53,95 @@
                                 <p class="pn-resumen-nota" data-caja-nota hidden></p>
                             </div>
                         </div>
-<p class="small text-muted mb-3" th:if="${p.detalleErrorOperacion != null}">
-                            Motivo del rechazo: <span th:text="${p.detalleErrorOperacion}">Motivo</span>
-                        </p>
 </div>
         </div>
     </div>
     <div class="pn-paso" data-grupo="Datos del pago">
         <div class="pn-seccion-titulo">
             <h4>Datos del pago</h4>
-            <p>Estado, monto, comprobante, pagador y motivo del rechazo</p>
+            <p>Acreditá el pago con los datos de su comprobante o rechazalo con su motivo</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo">
-                                <div class="pn-etiqueta-con-ayuda">
-                                    <label class="pn-etiqueta">Estado <span class="pn-obligatorio">*</span></label>
-                                    <button type="button" class="cn-ayuda" th:if="${p.esDeModo()}" aria-expanded="false" title="Ayuda"
-                                            aria-label="Antes de acreditar un pago de MODO" th:data-ayuda-destino="'ayudaModo' + ${p.idPago}"><i class="fa-solid fa-circle-info"></i></button>
-                                </div>
-                                <select name="estado" class="pn-input" required>
-                                    <option value="Aprobado">Aprobado (acreditar)</option>
-                                    <option value="Rechazado" th:selected="${p.estaRechazado()}">Rechazado</option>
-                                </select>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-md-6 pn-campo" data-resumen-etiqueta="Monto">
-                                <label class="pn-etiqueta">Monto <span class="pn-obligatorio">*</span> <span class="pn-etiqueta-ayuda">(hasta el total a pagar)</span></label>
-                                <input type="number" name="monto" data-resumen-formato="moneda" class="pn-input" min="0.01" step="0.01"
-                                       th:with="d=${detalles.get(p.inscripcion.idInscripcion)}"
-                                       th:value="${#numbers.formatDecimal(d.total > 0 ? d.total : p.monto, 1, 'NONE', 2, 'POINT')}" required>
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<div class="col-12 ayuda-desplegable" th:if="${p.esDeModo()}" th:id="'ayudaModo' + ${p.idPago}">
-                                <div class="ayuda-desplegable-interior">
-                                    <div class="cn-info">
-                                        <span>Antes de acreditar un pago de MODO, verificá en el panel de MODO que se haya cobrado. Al aprobarlo hay que indicar el nombre y el DNI del pagador, que van en el comprobante.</span>
-                                    </div>
-                                </div>
-                            </div>
-<th:block th:if="${p.esDeModo()}">
-<div class="col-md-6 pn-campo" th:if="${p.esDeModo()}">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Código de referencia de MODO
-                                        <span class="pn-obligatorio" data-ref-obligatorio hidden>*</span><span data-ref-opcional>(opcional)</span></label>
-                                    <span class="pn-contador" th:text="${#strings.length(p.codigoReferencia != null ? p.codigoReferencia : '') + ' / 12'}">0 / 12</span>
-                                </div>
-                                <input type="text" name="referencia" class="pn-input" maxlength="12" data-ref-modo data-contador th:value="${p.codigoReferencia}">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-</th:block>
-<div class="pn-campo" th:classappend="${p.esDeModo()} ? 'col-md-6' : 'col-12'">
-                                <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">
-                                        <th:block th:if="${!p.esDeModo()}">Número de comprobante de la transferencia <span class="pn-obligatorio">*</span></th:block>
-                                        <th:block th:if="${p.esDeModo()}">Número de comprobante de MODO
-                                            <span class="pn-obligatorio" data-ref-obligatorio hidden>*</span><span data-ref-opcional>(opcional)</span></th:block>
-                                    </label>
-                                    <span class="pn-contador" th:text="${#strings.length(p.numeroComprobante != null ? p.numeroComprobante : '') + ' / 100'}">0 / 100</span>
-                                </div>
-                                <input type="text" name="numeroComprobante" class="pn-input" maxlength="100" data-contador
-                                       th:value="${p.numeroComprobante}" th:required="${!p.esDeModo()}">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
-<th:block th:if="${p.esDeModo()}">
-<div class="col-md-8 pn-campo">
-                                    <label class="pn-etiqueta">Nombre del pagador <span class="pn-obligatorio">*</span></label>
-                                    <input type="text" name="nombrePagador" class="pn-input" maxlength="100"
-                                           th:value="${p.inscripcion.alumno.usuario.nombreCompleto}">
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-<div class="col-md-4 pn-campo">
-                                    <label class="pn-etiqueta">DNI del pagador <span class="pn-obligatorio">*</span></label>
-                                    <input type="text" name="dniPagador" class="pn-input" maxlength="8" inputmode="numeric"
-                                           th:value="${p.inscripcion.alumno.usuario.dni}">
-                                    <div class="pn-ayuda-error"></div>
-                                </div>
-</th:block>
-<div class="col-12 pn-campo">
-                                <label class="pn-etiqueta">Motivo (si se rechaza)</label>
-                                <input type="text" name="motivo" class="pn-input" maxlength="200" placeholder="Motivo del rechazo">
-                                <div class="pn-ayuda-error"></div>
-                            </div>
+            <div class="col-md-6 pn-campo" th:attr="data-resumen-original=${p.estadoPago.nombre}">
+                <div class="pn-etiqueta-con-ayuda">
+                    <label class="pn-etiqueta">Estado <span class="pn-obligatorio">*</span></label>
+                    <button type="button" class="cn-ayuda" th:if="${p.esDeModo()}" aria-expanded="false" title="Ayuda"
+                            aria-label="Antes de acreditar un pago de MODO" th:data-ayuda-destino="'ayudaModo' + ${p.idPago}"><i class="fa-solid fa-circle-info"></i></button>
+                </div>
+                <select name="estado" class="pn-input" required data-estado-pago>
+                    <option value="Aprobado">Aprobado (acreditar)</option>
+                    <option value="Rechazado">Rechazado</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo" data-solo-estado="Aprobado" data-resumen-etiqueta="Monto"
+                 th:attr="data-resumen-original=${#numbers.formatDecimal(p.monto, 1, 'NONE', 2, 'POINT')}">
+                <label class="pn-etiqueta">Monto <span class="pn-obligatorio">*</span> <span class="pn-etiqueta-ayuda">(hasta el total a pagar)</span></label>
+                <input type="number" name="monto" data-resumen-formato="moneda" class="pn-input" min="0.01" step="0.01"
+                       th:with="d=${detalles.get(p.inscripcion.idInscripcion)}"
+                       th:value="${#numbers.formatDecimal(d.total > 0 ? d.total : p.monto, 1, 'NONE', 2, 'POINT')}" required>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 ayuda-desplegable" th:if="${p.esDeModo()}" th:id="'ayudaModo' + ${p.idPago}">
+                <div class="ayuda-desplegable-interior">
+                    <div class="cn-info">
+                        <span>Antes de acreditar un pago de MODO, verificá en el panel de MODO que se haya cobrado. Al acreditarlo hay que indicar el código de referencia, el número de comprobante y el nombre y el DNI del pagador, que van en el comprobante.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acreditar: los datos del comprobante. Van en su propia rama del resumen (data-resumen-derivado) -->
+            <th:block th:if="${p.esDeModo()}">
+                <div class="col-md-6 pn-campo" data-solo-estado="Aprobado" data-resumen-derivado="Comprobante">
+                    <div class="pn-etiqueta-fila">
+                        <label class="pn-etiqueta">Código de referencia de MODO <span class="pn-obligatorio">*</span></label>
+                        <span class="pn-contador" th:text="${#strings.length(p.codigoReferencia != null ? p.codigoReferencia : '') + ' / 12'}">0 / 12</span>
+                    </div>
+                    <input type="text" name="referencia" class="pn-input" maxlength="12" required data-contador th:value="${p.codigoReferencia}">
+                    <div class="pn-ayuda-error"></div>
+                </div>
+                <div class="col-md-6 pn-campo" data-solo-estado="Aprobado" data-resumen-derivado="Comprobante" data-resumen-derivado-titulo>
+                    <div class="pn-etiqueta-fila">
+                        <label class="pn-etiqueta">Número de comprobante de MODO <span class="pn-obligatorio">*</span></label>
+                        <span class="pn-contador" th:text="${#strings.length(p.numeroComprobante != null ? p.numeroComprobante : '') + ' / 100'}">0 / 100</span>
+                    </div>
+                    <input type="text" name="numeroComprobante" class="pn-input" maxlength="100" required data-contador th:value="${p.numeroComprobante}">
+                    <div class="pn-ayuda-error"></div>
+                </div>
+                <div class="col-md-8 pn-campo" data-solo-estado="Aprobado" data-resumen-derivado="Comprobante">
+                    <label class="pn-etiqueta">Nombre del pagador <span class="pn-obligatorio">*</span></label>
+                    <input type="text" name="nombrePagador" class="pn-input" maxlength="100" required
+                           th:value="${p.inscripcion.alumno.usuario.nombreCompleto}">
+                    <div class="pn-ayuda-error"></div>
+                </div>
+                <div class="col-md-4 pn-campo" data-solo-estado="Aprobado" data-resumen-derivado="Comprobante">
+                    <label class="pn-etiqueta">DNI del pagador <span class="pn-obligatorio">*</span></label>
+                    <input type="text" name="dniPagador" class="pn-input" maxlength="8" inputmode="numeric" required
+                           th:value="${p.inscripcion.alumno.usuario.dni}">
+                    <div class="pn-ayuda-error"></div>
+                </div>
+            </th:block>
+            <th:block th:unless="${p.esDeModo()}">
+                <div class="col-12 pn-campo" data-solo-estado="Aprobado" data-resumen-derivado="Comprobante" data-resumen-derivado-titulo>
+                    <div class="pn-etiqueta-fila">
+                        <label class="pn-etiqueta">Número de comprobante de la transferencia <span class="pn-obligatorio">*</span></label>
+                        <span class="pn-contador" th:text="${#strings.length(p.numeroComprobante != null ? p.numeroComprobante : '') + ' / 100'}">0 / 100</span>
+                    </div>
+                    <input type="text" name="numeroComprobante" class="pn-input" maxlength="100" required data-contador th:value="${p.numeroComprobante}">
+                    <div class="pn-ayuda-error"></div>
+                </div>
+            </th:block>
+
+            <!-- Rechazar: solo el motivo -->
+            <div class="col-12 pn-campo" data-solo-estado="Rechazado">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Motivo del rechazo <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador">0 / 200</span>
+                </div>
+                <input type="text" name="motivo" class="pn-input" maxlength="200" placeholder="Motivo del rechazo" required data-contador
+                       data-mensaje-obligatorio="Debe completar el motivo del rechazo.">
+                <div class="pn-ayuda-error"></div>
+            </div>
         </div>
     </div>
     <div class="pn-paso">

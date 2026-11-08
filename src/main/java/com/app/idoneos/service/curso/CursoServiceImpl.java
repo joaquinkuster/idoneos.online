@@ -261,7 +261,7 @@ public class CursoServiceImpl implements CursoService {
         return curso.getProgramas().stream()
                 .filter(programa -> !programa.esInactivo())
                 .flatMap(programa -> programa.getCohortes().stream())
-                .filter(cohorte -> !cohorte.esInactivo() && "Próxima".equals(cohorte.getEstado()))
+                .filter(cohorte -> !cohorte.esInactivo() && cohorte.estaProxima())
                 .sorted(Comparator.comparing(Cohorte::getFechaInicioInscripcion))
                 .toList();
     }

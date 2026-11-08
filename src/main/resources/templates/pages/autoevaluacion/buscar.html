@@ -38,7 +38,8 @@
             <section class="pn-card" data-tabla data-tabla-servidor="/autoevaluacion/buscar" th:attr="data-opciones=${tablaOpciones}">
                 <div class="pn-lista-cabecera">
                     <h2 class="pn-lista-titulo">Listado de autoevaluaciones</h2>
-                    <span class="pn-seleccionados" data-seleccionados>0 de 0 seleccionados</span>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="autoevaluación encontrada" data-plural="autoevaluaciones encontradas"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' autoevaluación encontrada' : ' autoevaluaciones encontradas')}">0 autoevaluaciones encontradas</span>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/autoevaluacion/darDeBajaMasiva" data-elementos="autoevaluaciones"
                             data-termino-uno="intento registrado" data-termino-varios="intentos registrados">Dar de baja seleccionado/s</button>
@@ -63,7 +64,7 @@
                                 <th data-col="Preguntas" data-campo="preguntas" data-filtro="numero">Preguntas</th>
                                 <th data-col="Nota mínima" data-campo="nota" data-filtro="numero">Nota mínima</th>
                                 <th data-col="Intentos permitidos" data-campo="intentos" data-filtro="texto">Intentos permitidos</th>
-                                <th data-col="Visibilidad" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visibilidad</th>
+                                <th data-col="Visible para alumnos" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visible para alumnos</th>
                                 <th data-col="Apertura" data-campo="apertura" data-filtro="fecha">Apertura</th>
                                 <th data-col="Cierre" data-campo="cierre" data-filtro="fecha">Cierre</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
@@ -116,6 +117,7 @@
                             <option value="0">Todo</option>
                         </select>
                         <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
                 </div>

@@ -5,8 +5,8 @@
 <form th:fragment="formulario(autoevaluacion, bloqueado)"
       th:action="@{${autoevaluacion == null ? '/autoevaluacion/registrar' : '/autoevaluacion/modificar/' + autoevaluacion.idAutoevaluacion}}"
       method="post" class="form-ajax" data-validar data-pasos data-resumen="Autoevaluación" data-autoevaluacion-formulario
-      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
-      th:attr="data-modo=${autoevaluacion == null ? 'alta' : 'modificacion'}, data-resumen-nuevo=${autoevaluacion == null ? 'nueva' : null}, data-resumen-titulo=${autoevaluacion != null ? '(' + autoevaluacion.nombre + ')' : null}, data-ctx-curso=${curso.nombre}"
+      data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"},{"etiqueta":"Tema","campo":"temaId","atributo":"data-tema"},{"etiqueta":"Tema","atributoForm":"data-ctx-tema"}]'
+      th:attr="data-modo=${autoevaluacion == null ? 'alta' : 'modificacion'}, data-resumen-nuevo=${autoevaluacion == null ? 'nueva' : null}, data-resumen-titulo=${autoevaluacion != null ? '(' + autoevaluacion.nombre + ')' : null}, data-ctx-curso=${curso.nombre}, data-ctx-tema=${autoevaluacion != null ? autoevaluacion.tema.titulo : null}"
       novalidate>
 
     <div class="pn-pasos pn-pasos-nombrados">
@@ -23,11 +23,11 @@
             <p>Tema, nombre y configuración del cuestionario</p>
         </div>
         <div class="row g-3">
-            <div class="col-md-6 pn-campo" th:if="${autoevaluacion == null}">
+            <div class="col-md-6 pn-campo" th:if="${autoevaluacion == null}" data-resumen-omitir>
                 <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
                 <select name="temaId" class="pn-input" required data-autoevaluacion-tema data-sin-busqueda
                         data-mensaje-obligatorio="Debe seleccionar el tema.">
-                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}"
+                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:data-tema="${uc.tema.titulo}"
                             th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}"
                             th:text="${uc.numeroOrden + '. ' + uc.tema.titulo}">1. Introducción</option>
                 </select>
@@ -118,7 +118,7 @@
                 <small class="text-muted">Si no, mientras rinde el alumno solo accede al cuestionario. El tiempo corre siempre.</small>
             </div>
             <div class="col-md-6 pn-campo">
-                <label class="pn-etiqueta">Visible para los alumnos</label>
+                <label class="pn-etiqueta">Visible para alumnos</label>
                 <select name="oculto" class="pn-input" data-sin-busqueda>
                     <option value="false" th:selected="${autoevaluacion == null or !autoevaluacion.oculto}">Sí</option>
                     <option value="true" th:selected="${autoevaluacion != null and autoevaluacion.oculto}">No (oculta)</option>

@@ -10,6 +10,9 @@
 /* Con pestañas, estas hacen de borde inferior de la card */
 .ac-cabecera-simple:has(.ac-curso-navbar) {
     padding-bottom: 0;
+    /* Los menús desplegables de las pestañas quedan por encima de las tarjetas que siguen (card de diseño, tablas) */
+    position: relative;
+    z-index: 30;
 }
 
 .ac-cabecera-simple .ac-curso-navbar {

@@ -75,12 +75,19 @@ class PagoControllerTest {
         pasarela = new PasarelaPagoMockeada(pasarelaMock);
     }
 
+    /** Inicia el pago de Lucía con MODO y lo deja pendiente: el pago rechazado de la semilla ya no se modifica. */
+    private Pago pagoPendienteDeLucia() {
+        pasarela.dejarPendiente();
+        Inscripcion lucia = pendienteDeLucia();
+        return pagoService.consultarEstado(pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno()).idPago(), lucia.getAlumno());
+    }
+
     private Inscripcion pendienteDeLucia() {
-        return inscripcionService.buscarConFiltros(null, LUCIA, Inscripcion.ACCESO_PENDIENTE_DE_PAGO).get(0);
+        return inscripcionService.buscarConFiltros(null, LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO).get(0);
     }
 
     private Pago pagoAprobadoDe(String correo) {
-        return inscripcionService.buscarConFiltros(null, correo, Inscripcion.ACCESO_VIGENTE).get(0).getPagoAprobado();
+        return inscripcionService.buscarConFiltros(null, correo, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0).getPagoAprobado();
     }
 
     // ---------- CU-50 Buscar pago ----------
@@ -95,7 +102,7 @@ class PagoControllerTest {
                 .andExpect(model().attribute("pagos", org.hamcrest.Matchers.hasSize(7)))
                 .andExpect(content().string(containsString("data-filtro-front")))
                 .andExpect(content().string(containsString("COMP-")))
-                .andExpect(content().string(containsString("INSUFFICIENT_FUNDS")))
+                .andExpect(content().string(containsString("Fondos insuficientes")))
                 .andExpect(content().string(containsString("modalRegistrarPago")))
                 .andExpect(content().string(containsString("modalModificarPago")))
                 .andExpect(content().string(containsString("0000003100012345678901"))) // el CBU de la institución
@@ -152,7 +159,7 @@ class PagoControllerTest {
                 .andExpect(model().attribute("pagos", org.hamcrest.Matchers.hasSize(2)))
                 .andExpect(content().string(containsString("Reintentar")))
                 .andExpect(content().string(containsString("data-pagar")))
-                .andExpect(content().string(containsString("INSUFFICIENT_FUNDS")))
+                .andExpect(content().string(containsString("Fondos insuficientes")))
                 .andExpect(content().string(containsString("/pago/comprobante/")));
     }
 
@@ -171,7 +178,7 @@ class PagoControllerTest {
     void misCursosOfrecePagar() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("/pago/caja/")))
-                .andExpect(content().string(containsString(">Pagar</a>")))
+                .andExpect(content().string(containsString(">Realizar pago</a>")))
                 .andExpect(content().string(containsString("/pago/buscar")));
     }
 
@@ -223,7 +230,7 @@ class PagoControllerTest {
         Inscripcion lucia = pendienteDeLucia();
 
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
-                .andExpect(content().string(containsString(">Pagar</a>")))
+                .andExpect(content().string(containsString(">Realizar pago</a>")))
                 .andExpect(content().string(not(containsString("Pagar $"))));
         // la caja ofrece habilitar el acceso, sin cobrar nada
         mockMvc.perform(get("/pago/caja/" + lucia.getIdInscripcion())).andExpect(status().isOk())
@@ -232,7 +239,7 @@ class PagoControllerTest {
                 .andExpect(jsonPath("$.aprobado").value(true))
                 .andExpect(jsonPath("$.idPago").value(org.hamcrest.Matchers.nullValue()));
 
-        assertTrue(lucia.estaHabilitada());
+        assertTrue(lucia.fueHabilitada());
     }
 
     @Test
@@ -248,7 +255,7 @@ class PagoControllerTest {
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-51: no se paga una inscripción que ya está paga")
     void noPagaDosVeces() throws Exception {
-        Inscripcion pagada = inscripcionService.buscarConFiltros(null, MARTIN, Inscripcion.ACCESO_VIGENTE).get(0);
+        Inscripcion pagada = inscripcionService.buscarConFiltros(null, MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0);
 
         mockMvc.perform(post("/pago/pagar/" + pagada.getIdInscripcion())).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(containsString("ya está aprobado")));
@@ -263,14 +270,15 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-52: el alumno reintenta su pago rechazado, que vuelve a quedar pendiente con el mismo registro")
+    @DisplayName("CU-52: el alumno reintenta su pago rechazado, que queda como estaba, y se crea un pago nuevo en curso")
     void reintentar() throws Exception {
         Pago rechazado = pendienteDeLucia().getPagoSinAprobar();
 
         mockMvc.perform(post("/pago/reintentar/" + rechazado.getIdPago())).andExpect(status().isOk())
-                .andExpect(jsonPath("$.idPago").value(rechazado.getIdPago()));
+                .andExpect(jsonPath("$.idPago").value(org.hamcrest.Matchers.not(rechazado.getIdPago())));
 
-        assertTrue(rechazado.estaPendiente());
+        assertTrue(rechazado.estaRechazado());
+        assertTrue(pendienteDeLucia().getPagoEnCurso() != null);
     }
 
     @Test
@@ -299,7 +307,7 @@ class PagoControllerTest {
         pasarela.aprobarTodo();
         mockMvc.perform(get("/pago/estado/" + idPago)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.estado").value("Aprobado"));
-        assertTrue(lucia.estaHabilitada());
+        assertTrue(lucia.fueHabilitada());
     }
 
     @Test
@@ -361,7 +369,7 @@ class PagoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(containsString("Lucía Fernández")));
 
-        assertTrue(lucia.estaHabilitada());
+        assertTrue(lucia.fueHabilitada());
         assertEquals("TRF-555111", lucia.getPagoAprobado().getNumeroComprobante());
     }
 
@@ -405,7 +413,7 @@ class PagoControllerTest {
     @DisplayName("CU-54: el administrador acredita un pago de MODO que no se confirmó")
     void modificar() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
-        Pago rechazado = lucia.getPagoSinAprobar();
+        Pago rechazado = pagoPendienteDeLucia();
 
         mockMvc.perform(post("/pago/modificar/" + rechazado.getIdPago()).param("estado", "Aprobado").param("monto", "72000")
                 .param("referencia", "QRTEST001").param("numeroComprobante", "123456789012345678901234567890").param("nombrePagador", "Lucía Fernández").param("dniPagador", "40123456"))
@@ -413,14 +421,14 @@ class PagoControllerTest {
                 .andExpect(jsonPath("$.mensaje").value(containsString("Pago acreditado")));
 
         assertTrue(rechazado.estaAprobado());
-        assertTrue(lucia.estaHabilitada());
+        assertTrue(lucia.fueHabilitada());
     }
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
     @DisplayName("CU-54: rechaza datos inválidos y los pagos que ya están aprobados")
     void modificarPagoInvalido() throws Exception {
-        Pago rechazado = pendienteDeLucia().getPagoSinAprobar();
+        Pago rechazado = pagoPendienteDeLucia();
         // acreditar un pago de MODO exige el código de referencia y, después, el nombre y el DNI del pagador
         mockMvc.perform(post("/pago/modificar/" + rechazado.getIdPago()).param("estado", "Aprobado").param("monto", "72000"))
                 .andExpect(status().isBadRequest())
@@ -431,9 +439,9 @@ class PagoControllerTest {
                 .andExpect(jsonPath("$.error").value(containsString("nombre o el DNI")));
 
         Pago aprobado = pagoAprobadoDe(MARTIN);
-        mockMvc.perform(post("/pago/modificar/" + aprobado.getIdPago()).param("estado", "Rechazado").param("monto", "100"))
+        mockMvc.perform(post("/pago/modificar/" + aprobado.getIdPago()).param("estado", "Rechazado").param("motivo", "Motivo"))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value(containsString("pendiente o rechazado")));
+                .andExpect(jsonPath("$.error").value(containsString("pago pendiente")));
     }
 
     @Test
