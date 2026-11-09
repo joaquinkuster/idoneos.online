@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Paso «Índice» de los formularios de recursos (alta y modificación, en los cursos y en la biblioteca): el índice del documento PDF se arma
+         solo y se puede corregir. El paso arranca oculto: static/js/components/indiceDocumento.js lo muestra cuando el recurso es un PDF.
+         urlIndice: de dónde se pide el índice ya guardado (al modificar), o nulo en el alta.
+         estadoOcr: el estado del reconocimiento de texto (OCR) del archivo actual («Pendiente», «Procesando», «Listo» o «Error»), o nulo. -->
+    <div th:fragment="paso(urlIndice, estadoOcr)" class="pn-paso" data-grupo="Índice" data-paso-indice hidden th:attr="data-indice-url=${urlIndice}, data-ocr-estado=${estadoOcr}, data-ocr-disponible=${@ocrServiceImpl.estaDisponible()}">
+        <div class="pn-seccion-titulo">
+            <h4>Índice del documento</h4>
+            <p>Se arma solo a partir del PDF. Podés corregirlo si hace falta</p>
+        </div>
+        <input type="hidden" name="indiceJson" data-indice-json disabled>
+        <div data-indice-contenido></div>
+        <span class="visually-hidden" data-resumen-linea="Índice" data-indice-resumen></span>
+    </div>
+</body>
+
+</html>

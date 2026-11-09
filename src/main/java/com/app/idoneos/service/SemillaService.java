@@ -150,6 +150,9 @@ public class SemillaService {
      */
     private static final String CLAVE_DE_PRUEBA = "123456";
 
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -217,6 +220,9 @@ public class SemillaService {
 
     @Autowired
     private EstadoGeneracionRepository estadoGeneracionRepository;
+
+    @Autowired
+    private com.app.idoneos.repository.EstadoOCRRepository estadoOcrRepository;
 
     @Autowired
     private EstadoEnvioRepository estadoEnvioRepository;
@@ -367,6 +373,10 @@ public class SemillaService {
         for (String estado : List.of(EstadoGeneracion.PENDIENTE, EstadoGeneracion.GENERANDO, EstadoGeneracion.GENERADO,
                 EstadoGeneracion.ERROR)) {
             estadoGeneracionRepository.save(new EstadoGeneracion(estado));
+        }
+        for (String estado : List.of(com.app.idoneos.model.EstadoOCR.PENDIENTE, com.app.idoneos.model.EstadoOCR.PROCESANDO,
+                com.app.idoneos.model.EstadoOCR.LISTO, com.app.idoneos.model.EstadoOCR.ERROR)) {
+            estadoOcrRepository.save(new com.app.idoneos.model.EstadoOCR(estado));
         }
         for (String estado : List.of(EstadoEnvio.PENDIENTE, EstadoEnvio.ENVIADO, EstadoEnvio.ERROR)) {
             estadoEnvioRepository.save(new EstadoEnvio(estado));
@@ -777,6 +787,10 @@ public class SemillaService {
      */
     private void pasarAPendientesLasCohortesConContenidoIncompleto(LocalDateTime ahora) {
         int plazo = Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO;
+        // La semilla corre en una sola transacción y agrega materiales y evaluaciones por los repositorios: las listas de cada tema quedaron
+        // desactualizadas. Se vuelve a leer todo de la base para juzgar el contenido por lo que realmente tiene.
+        entityManager.flush();
+        entityManager.clear();
         for (Cohorte cohorte : cohorteRepository.findByBajaFalse()) {
             if (cohorte.esPendiente() || cohorte.esCancelada() || cohorte.getPrograma() == null
                     || !inscripcionRepository.findByCohorteAndBajaFalse(cohorte).isEmpty() // se cuentan en la base: la lista de la cohorte puede estar desactualizada

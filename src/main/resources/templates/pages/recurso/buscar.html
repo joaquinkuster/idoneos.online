@@ -156,6 +156,7 @@
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item d-none"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Índice</span></span><span class="pn-pasos-linea d-none"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
     <div class="pn-paso" data-grupo="Datos">
@@ -290,6 +291,8 @@
                         </div>
         </div>
     </div>
+    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(null, null)}"></th:block>
+
     <div class="pn-paso">
         <div class="pn-seccion-titulo">
             <h4>Resumen</h4>
@@ -324,6 +327,7 @@
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/core/curso.js}"></script>
+<script th:src="@{/js/components/indiceDocumento.js}"></script>
 <script th:src="@{/js/pages/recurso/recurso.js}"></script>
 <script th:src="@{/js/core/abrirModal.js}"></script>
 </body>

@@ -49,29 +49,9 @@
                 </div>
 
                 <!-- PDF: visor de páginas -->
-                <div th:case="'pdf'" class="mv-visor" data-visor-pdf th:attr="data-url=@{${urlArchivo}}">
-                    <div class="mv-lienzo">
-                        <div class="mv-desplazable">
-                            <canvas class="mv-pagina" aria-label="Página del documento"></canvas>
-                        </div>
-                        <div class="mv-estado mv-estado-skeleton" data-visor-estado role="status"><span class="visually-hidden">Cargando…</span></div>
-                    </div>
-                    <div class="mv-barra">
-                        <button type="button" class="mv-boton" data-visor-anterior aria-label="Página anterior"><i class="fa-solid fa-chevron-left"></i></button>
-                        <span class="mv-paginas">
-                            <input type="number" min="1" value="1" data-visor-pagina aria-label="Número de página">
-                            <span>de <span data-visor-total>–</span></span>
-                        </span>
-                        <button type="button" class="mv-boton" data-visor-siguiente aria-label="Página siguiente"><i class="fa-solid fa-chevron-right"></i></button>
-                        <span class="mv-espacio"></span>
-                        <span class="mv-zoom">
-                            <button type="button" class="mv-boton" data-visor-alejar aria-label="Alejar" title="Alejar (-)"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                            <button type="button" class="mv-zoom-valor" data-visor-zoom aria-label="Volver al 100%" title="Volver al 100% (0)">100%</button>
-                            <button type="button" class="mv-boton" data-visor-acercar aria-label="Acercar" title="Acercar (+)"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                        </span>
-                        <button type="button" class="mv-boton" data-visor-pantalla-completa aria-label="Pantalla completa" title="Pantalla completa"><i class="fa-solid fa-expand"></i></button>
-                    </div>
-                </div>
+                <th:block th:case="'pdf'">
+                    <th:block th:replace="~{pages/recurso/visorPdf :: visor(${urlArchivo}, null)}"></th:block>
+                </th:block>
 
                 <!-- Sin archivo -->
                 <div th:case="*" class="mv-sin-vista">

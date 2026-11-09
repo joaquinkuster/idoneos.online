@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+
+<body>
+    <!-- Visor de PDF (static/js/pages/recurso/visor.js): panel lateral con las miniaturas y el índice, la página con su capa de texto, y la barra con
+         la paginación, el buscador, el zoom y la pantalla completa. Lo usan la vista del recurso y la de la biblioteca digital.
+         urlArchivo: la dirección desde la que se pide el archivo.
+         urlResaltados: la dirección de las anotaciones del alumno (lápiz, marcador y goma), o nulo si quien mira no es un alumno. -->
+    <div th:fragment="visor(urlArchivo, urlResaltados)" class="mv-visor" data-visor-pdf
+         th:attr="data-url=@{${urlArchivo}}, data-url-indice=@{${#strings.replace(urlArchivo, '/archivo/', '/indice/')}}, data-url-resaltados=${urlResaltados != null} ? @{${urlResaltados}} : null">
+        <div class="mv-cuerpo">
+            <aside class="mv-lateral" data-visor-lateral hidden>
+                <div class="mv-pestanas" data-visor-pestanas role="tablist">
+                    <button type="button" class="activa" data-visor-pestana="miniaturas">Miniaturas</button>
+                    <button type="button" data-visor-pestana="indice">Índice</button>
+                </div>
+                <div class="mv-lista" data-visor-miniaturas></div>
+                <div class="mv-lista" data-visor-indice hidden></div>
+            </aside>
+            <div class="mv-lienzo">
+                <div class="mv-desplazable">
+                    <div class="mv-hoja">
+                        <canvas class="mv-pagina" aria-label="Página del documento"></canvas>
+                        <div class="mv-texto" data-visor-texto aria-hidden="true"></div>
+                        <canvas class="mv-trazos" data-visor-trazos aria-hidden="true" th:if="${urlResaltados != null}"></canvas>
+                    </div>
+                </div>
+                <div class="mv-estado mv-estado-skeleton" data-visor-estado role="status"><span class="visually-hidden">Cargando…</span></div>
+            </div>
+            <!-- Herramientas de anotación (solo el alumno): lápiz, marcador y goma, con su tamaño y su color -->
+            <aside class="mv-herramientas" data-visor-herramientas th:if="${urlResaltados != null}" hidden>
+                <div>
+                    <span class="mv-etiqueta">Herramienta</span>
+                    <div class="mv-fila-herramientas">
+                        <button type="button" class="mv-herramienta" data-visor-herramienta="lapiz" aria-label="Lápiz" title="Lápiz"><i class="fa-solid fa-pencil"></i></button>
+                        <button type="button" class="mv-herramienta activa" data-visor-herramienta="marcador" aria-label="Marcador" title="Marcador"><i class="fa-solid fa-highlighter"></i></button>
+                        <button type="button" class="mv-herramienta" data-visor-herramienta="goma" aria-label="Goma" title="Goma"><i class="fa-solid fa-eraser"></i></button>
+                    </div>
+                </div>
+                <div>
+                    <span class="mv-etiqueta">Tamaño</span>
+                    <div class="mv-tamanios" data-visor-tamanios></div>
+                </div>
+                <div>
+                    <span class="mv-etiqueta">Color</span>
+                    <div class="mv-colores" data-visor-colores></div>
+                </div>
+                <p class="mv-guardado" data-visor-guardado>Tus anotaciones se guardan solas y son solo tuyas.</p>
+            </aside>
+        </div>
+        <div class="mv-barra">
+            <button type="button" class="mv-boton" data-visor-lateral-boton aria-label="Miniaturas e índice" aria-expanded="false" title="Miniaturas e índice"><i class="fa-solid fa-table-list"></i></button>
+            <button type="button" class="mv-boton" data-visor-anterior aria-label="Página anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <span class="mv-paginas">
+                <input type="number" min="1" value="1" data-visor-pagina aria-label="Número de página">
+                <span>de <span data-visor-total>–</span></span>
+            </span>
+            <button type="button" class="mv-boton" data-visor-siguiente aria-label="Página siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+            <span class="mv-buscar">
+                <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                <input type="search" placeholder="Buscar en el documento" data-visor-buscar aria-label="Buscar en el documento" autocomplete="off">
+                <small data-visor-contador aria-live="polite"></small>
+                <button type="button" class="mv-boton mv-boton-chico" data-visor-resultado-anterior aria-label="Resultado anterior" title="Resultado anterior (Mayús + Enter)" disabled><i class="fa-solid fa-chevron-up"></i></button>
+                <button type="button" class="mv-boton mv-boton-chico" data-visor-resultado-siguiente aria-label="Resultado siguiente" title="Resultado siguiente (Enter)" disabled><i class="fa-solid fa-chevron-down"></i></button>
+            </span>
+            <span class="mv-espacio"></span>
+            <span class="mv-zoom">
+                <button type="button" class="mv-boton" data-visor-alejar aria-label="Alejar" title="Alejar (-)"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                <button type="button" class="mv-zoom-valor" data-visor-zoom aria-label="Volver al 100%" title="Volver al 100% (0)">100%</button>
+                <button type="button" class="mv-boton" data-visor-acercar aria-label="Acercar" title="Acercar (+)"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+            </span>
+            <button type="button" class="mv-boton" data-visor-anotar aria-label="Anotar" aria-pressed="false" title="Anotar (lápiz, marcador y goma)" th:if="${urlResaltados != null}" hidden><i class="fa-solid fa-highlighter"></i></button>
+            <button type="button" class="mv-boton" data-visor-pantalla-completa aria-label="Pantalla completa" title="Pantalla completa"><i class="fa-solid fa-expand"></i></button>
+        </div>
+    </div>
+</body>
+
+</html>

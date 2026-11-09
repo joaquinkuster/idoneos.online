@@ -34,6 +34,8 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.recurso.RecursoService;
+import com.app.idoneos.service.indice.IndiceRecursoService;
+import com.app.idoneos.service.ocr.OcrService;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.util.FiltroUtil;
 import com.app.idoneos.util.ManejadorArchivosUtil;
@@ -50,6 +52,12 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping("/biblioteca")
 public class BibliotecaController {
+
+    @Autowired
+    private IndiceRecursoService indiceService;
+
+    @Autowired
+    private OcrService ocrService;
 
     @Autowired
     private RecursoService recursoService;
@@ -234,6 +242,33 @@ public class BibliotecaController {
         return "pages/biblioteca/modificar :: modal(r=${r}, usos=${usos})";
     }
 
+    /**
+     * Entrega el índice del documento (las entradas con su página) al visor y a los formularios.
+     *
+     * @param id             Identificador del recurso.
+     * @param authentication La autenticación actual.
+     * @return Las entradas del índice, o una lista vacía si no tiene.
+     */
+    @GetMapping("/indice/{id}")
+    public ResponseEntity<List<IndiceRecursoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
+        Recurso recurso = recursoService.buscarRecursoPorId(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!recursoService.puedeVerEnBiblioteca(recurso, (Usuario) authentication.getPrincipal())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(recurso));
+    }
+
+    /** Guarda el índice que llegó con el formulario; si se cambió el archivo y no llegó un índice nuevo, el anterior ya no sirve y se borra. */
+    private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
+        String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
+        indiceService.reemplazar(recurso, json);
+        // Un PDF escaneado se pone en la cola del OCR (en segundo plano) para que se pueda buscar su texto
+        if (archivo != null && !archivo.isEmpty()) {
+            ocrService.encolarSiHaceFalta(recurso);
+        }
+    }
+
     // ---------------------------------------------------------------- Creaciones
 
     /**
@@ -253,6 +288,7 @@ public class BibliotecaController {
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
             @RequestParam(value = "terminos", defaultValue = "false") boolean terminos,
+            @RequestParam(value = "indiceJson", required = false) String indiceJson,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
         try {
             Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
@@ -260,6 +296,7 @@ public class BibliotecaController {
                     new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo, terminos);
+            guardarIndice(recurso, indiceJson, archivo);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso '" + recurso.getTitulo() + "' registrado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
@@ -283,6 +320,7 @@ public class BibliotecaController {
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
+            @RequestParam(value = "indiceJson", required = false) String indiceJson,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
         try {
             Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
@@ -290,6 +328,7 @@ public class BibliotecaController {
                     new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo);
+            recursoService.buscarRecursoPorId(id).ifPresent(r -> guardarIndice(r, indiceJson, archivo));
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

@@ -71,6 +71,13 @@ public class Bibliografia {
     private Long tamanioBytes;
 
     /**
+     * Estado del reconocimiento de texto (OCR) del archivo. Es nulo si el archivo no necesita OCR (lo habitual).
+     */
+    @ManyToOne
+    @JoinColumn(name = "idEstadoOCR")
+    private EstadoOCR estadoOcr;
+
+    /**
      * Extensión del archivo. Es opcional.
      */
     @Column(name = "extension", nullable = true, length = 10)

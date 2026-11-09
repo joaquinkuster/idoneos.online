@@ -199,9 +199,11 @@
         modal.addEventListener('show.bs.modal', function () { iniciarMultiselect(modal); });
     });
 
-    // Formularios por pasos
+    // Formularios por pasos. Un paso puede ocultarse (atributo hidden en el .pn-paso): se salta al avanzar y retroceder, y su punto del
+    // indicador desaparece. El que lo oculta o lo muestra llama a formulario.pasos.refrescar().
     function iniciarPasos(formulario) {
         var pasos = Array.prototype.slice.call(formulario.querySelectorAll('.pn-paso'));
+        var items = Array.prototype.slice.call(formulario.querySelectorAll('.pn-pasos-item'));
         var puntos = Array.prototype.slice.call(formulario.querySelectorAll('.pn-pasos-punto'));
         var lineas = Array.prototype.slice.call(formulario.querySelectorAll('.pn-pasos-linea'));
         var anterior = formulario.querySelector('[data-paso-anterior]');
@@ -209,33 +211,52 @@
         var guardarBtn = formulario.querySelector('[data-paso-guardar]');
         var actual = 0;
 
+        function visible(i) { return !pasos[i].hidden; }
+        function posicion(i) { var n = 0; for (var k = 0; k < i; k++) { if (visible(k)) { n++; } } return n; }
+        function ultimoVisible() { for (var i = pasos.length - 1; i >= 0; i--) { if (visible(i)) { return i; } } return 0; }
+        function siguienteVisible(i) { for (var k = i + 1; k < pasos.length; k++) { if (visible(k)) { return k; } } return i; }
+        function anteriorVisible(i) { for (var k = i - 1; k >= 0; k--) { if (visible(k)) { return k; } } return i; }
+        function hayVisibleDespues(i) { return siguienteVisible(i) !== i; }
+
         function mostrar(indice) {
             actual = Math.min(Math.max(indice, 0), pasos.length - 1);
+            if (!visible(actual)) { actual = hayVisibleDespues(actual) ? siguienteVisible(actual) : anteriorVisible(actual); }
+            var posActual = posicion(actual);
             pasos.forEach(function (p, i) { p.classList.toggle('activo', i === actual); });
             puntos.forEach(function (p, i) {
+                var visibleI = visible(i);
+                var completo = visibleI && posicion(i) < posActual;
+                if (items[i]) { items[i].classList.toggle('d-none', !visibleI); }
                 p.classList.toggle('activo', i === actual);
-                p.classList.toggle('completo', i < actual);
-                p.innerHTML = i < actual ? '<i class="fa-solid fa-check"></i>' : String(i + 1);
+                p.classList.toggle('completo', completo);
+                p.innerHTML = completo ? '<i class="fa-solid fa-check"></i>' : String(posicion(i) + 1);
             });
-            lineas.forEach(function (l, i) { l.classList.toggle('completa', i < actual); });
+            lineas.forEach(function (l, i) {
+                l.classList.toggle('d-none', !(visible(i) && hayVisibleDespues(i)));
+                l.classList.toggle('completa', visible(i) && posicion(i) < posActual);
+            });
             // Los menús de los selectores que quedaron abiertos en otro paso se cierran
             formulario.querySelectorAll('select.tomselected').forEach(function (s) { if (s.tomselect) { s.tomselect.close(); } });
-            if (anterior) { anterior.style.visibility = actual === 0 ? 'hidden' : 'visible'; }
-            if (siguiente) { siguiente.classList.toggle('d-none', actual === pasos.length - 1); }
-            if (guardarBtn) { guardarBtn.classList.toggle('d-none', actual !== pasos.length - 1); }
+            var ultimo = ultimoVisible();
+            if (anterior) { anterior.style.visibility = posActual === 0 ? 'hidden' : 'visible'; }
+            if (siguiente) { siguiente.classList.toggle('d-none', actual === ultimo); }
+            if (guardarBtn) { guardarBtn.classList.toggle('d-none', actual !== ultimo); }
         }
 
-        formulario.pasos = { mostrar: mostrar, cantidad: pasos.length, actual: function () { return actual; } };
+        formulario.pasos = {
+            mostrar: mostrar, cantidad: pasos.length, actual: function () { return actual; },
+            refrescar: function () { mostrar(actual); }
+        };
 
-        if (anterior) { anterior.addEventListener('click', function () { mostrar(actual - 1); }); }
+        if (anterior) { anterior.addEventListener('click', function () { mostrar(anteriorVisible(actual)); }); }
         if (siguiente) {
             siguiente.addEventListener('click', function () {
-                if (validarContenedor(pasos[actual], formulario, actual + 1)) { mostrar(actual + 1); }
+                if (validarContenedor(pasos[actual], formulario, actual + 1)) { mostrar(siguienteVisible(actual)); }
             });
         }
         // Enter dentro de un campo avanza al paso siguiente en lugar de enviar el formulario incompleto
         formulario.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter' && actual < pasos.length - 1 && e.target.tagName !== 'TEXTAREA') {
+            if (e.key === 'Enter' && actual < ultimoVisible() && e.target.tagName !== 'TEXTAREA') {
                 e.preventDefault();
                 if (siguiente) { siguiente.click(); }
             }

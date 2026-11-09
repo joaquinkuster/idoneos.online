@@ -17,6 +17,7 @@
     <div class="pn-pasos pn-pasos-nombrados">
         <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Contenido</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item d-none"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Índice</span></span><span class="pn-pasos-linea d-none"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
     <!-- Si otros temas usan el mismo recurso, el formulario queda deshabilitado y se avisa debajo -->
@@ -130,6 +131,8 @@
                             </div>
         </div>
     </div>
+    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(@{'/biblioteca/indice/' + ${r.idRecurso}}, ${r.estadoOcr != null ? r.estadoOcr.nombre : null})}"></th:block>
+
     <div class="pn-paso">
         <div class="pn-seccion-titulo">
             <h4>Resumen</h4>

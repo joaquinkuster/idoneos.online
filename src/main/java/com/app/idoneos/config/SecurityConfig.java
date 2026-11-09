@@ -123,7 +123,7 @@ public class SecurityConfig {
                         .requestMatchers("/interes/**").hasRole("Alumno")
                         // Mi biblioteca: los recursos del docente
                         // Explorar y ver los recursos: el docente (los públicos y los suyos) y el administrador (todos); dar de baja, también ambos
-                        .requestMatchers(HttpMethod.GET, "/biblioteca/buscar", "/biblioteca/explorar", "/biblioteca/ver/*", "/biblioteca/archivo/*")
+                        .requestMatchers(HttpMethod.GET, "/biblioteca/buscar", "/biblioteca/explorar", "/biblioteca/ver/*", "/biblioteca/archivo/*", "/biblioteca/indice/*")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/biblioteca/darDeBaja/*", "/biblioteca/darDeBajaMasiva").hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/biblioteca/**").hasRole("Docente")
@@ -143,7 +143,9 @@ public class SecurityConfig {
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/programa/**").hasRole("Docente")
                         // Abrir el archivo de un material: cualquier usuario con sesión (el servicio controla el acceso)
-                        .requestMatchers(HttpMethod.GET, "/recurso/archivo/*", "/recurso/ver/*").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/recurso/archivo/*", "/recurso/ver/*", "/recurso/indice/*", "/recurso/resaltados/*").authenticated()
+                        // Las anotaciones del alumno sobre un documento: solo las hace y las ve el propio alumno
+                        .requestMatchers(HttpMethod.POST, "/recurso/resaltados/*/*").hasRole("Alumno")
                         // CU-28 a CU-31: ABM de materiales (el docente gestiona; el administrador busca y da de baja)
                         .requestMatchers(HttpMethod.GET, "/recurso/buscar").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/recurso/darDeBaja/*", "/recurso/darDeBajaMasiva")

@@ -183,3 +183,392 @@
 .mv-sin-vista p {
     margin: 0 0 18px;
 }
+
+/* ---------------------------------------------------------------- Visor de PDF: panel lateral, buscador y capa de texto */
+.mv-cuerpo {
+    display: flex;
+    align-items: stretch;
+    min-width: 0;
+}
+
+.mv-cuerpo > .mv-lienzo {
+    flex: 1;
+    min-width: 0;
+}
+
+.mv-barra {
+    flex-wrap: wrap;
+}
+
+.mv-lateral {
+    flex: none;
+    width: 208px;
+    display: flex;
+    flex-direction: column;
+    max-height: 78vh;
+    background: #FFFFFF;
+    border-right: 1px solid var(--pn-borde);
+}
+
+.mv-lateral[hidden] {
+    display: none;
+}
+
+.mv-pestanas {
+    display: flex;
+    border-bottom: 1px solid var(--pn-borde);
+}
+
+.mv-pestanas button {
+    flex: 1;
+    padding: 10px 0;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.mv-pestanas button.activa {
+    color: var(--pn-navy, #0F233D);
+    border-bottom-color: #D4A03D;
+}
+
+.mv-lista {
+    flex: 1;
+    min-height: 0;
+    padding: 10px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
+}
+
+.mv-lista[hidden] {
+    display: none;
+}
+
+.mv-mini {
+    display: block;
+    width: 100%;
+    margin: 0 0 14px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--pn-texto-suave);
+    font-size: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mv-mini canvas {
+    display: block;
+    margin: 0 auto 4px;
+    max-width: 100%;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+}
+
+.mv-mini.activa {
+    color: var(--pn-navy, #0F233D);
+    font-weight: 700;
+}
+
+.mv-mini.activa canvas {
+    border-color: #D4A03D;
+    box-shadow: 0 0 0 1px #D4A03D;
+}
+
+.mv-ind {
+    display: flex;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #334155;
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.mv-ind:hover:not(:disabled) {
+    background: #F1F5F9;
+}
+
+.mv-ind:disabled {
+    cursor: default;
+}
+
+.mv-ind > span {
+    flex: 1;
+    min-width: 0;
+}
+
+.mv-ind small {
+    color: #94A3B8;
+}
+
+.mv-ind.n0 {
+    font-weight: 700;
+    color: var(--pn-navy, #0F233D);
+}
+
+.mv-ind.activa {
+    background: #FEF3C7;
+    color: #7A4E0B;
+}
+
+.mv-vacio-lista {
+    margin: 4px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.mv-boton.activo {
+    background: #EEF4FA;
+    color: #244A72;
+}
+
+.mv-boton-chico {
+    width: 26px;
+    height: 26px;
+    font-size: 12px;
+}
+
+.mv-buscar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 34px;
+    padding: 0 4px 0 12px;
+    background: #FFFFFF;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 17px;
+    color: var(--pn-texto-suave);
+}
+
+.mv-buscar:focus-within {
+    border-color: var(--pn-gold, #D4A03D);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
+}
+
+.mv-buscar input {
+    width: 150px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--pn-texto);
+    font-size: 14px;
+}
+
+.mv-buscar small {
+    min-width: 0;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+/* La página y su capa de texto: transparente, solo ubica los resaltados */
+.mv-hoja {
+    position: relative;
+    flex-shrink: 0;
+    margin: auto;
+}
+
+.mv-hoja[hidden] {
+    display: none;
+}
+
+.mv-texto {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    line-height: 1;
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+}
+
+.mv-texto span {
+    position: absolute;
+    white-space: pre;
+    letter-spacing: 0;
+    color: transparent;
+    transform-origin: 0 0;
+}
+
+.mv-texto mark {
+    background: rgba(250, 204, 21, 0.5);
+    color: transparent;
+    border-radius: 2px;
+}
+
+.mv-texto mark.mv-actual {
+    background: rgba(245, 158, 11, 0.7);
+}
+
+.mv-visor:fullscreen .mv-cuerpo {
+    flex: 1;
+    min-height: 0;
+}
+
+.mv-visor:fullscreen .mv-lateral {
+    max-height: none;
+}
+
+@media (max-width: 700px) {
+    .mv-lateral {
+        width: 150px;
+    }
+
+    .mv-buscar input {
+        width: 90px;
+    }
+}
+
+/* ---------------------------------------------------------------- Visor de PDF: anotaciones del alumno */
+.mv-trazos {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    touch-action: none;
+    pointer-events: none;
+}
+
+.mv-hoja.anotando .mv-trazos {
+    pointer-events: auto;
+    cursor: crosshair;
+}
+
+.mv-hoja.anotando.mv-borrando .mv-trazos {
+    cursor: cell;
+}
+
+.mv-herramientas {
+    flex: none;
+    width: 152px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-height: 78vh;
+    padding: 14px 14px;
+    overflow-y: auto;
+    background: #FFFFFF;
+    border-left: 1px solid var(--pn-borde);
+}
+
+.mv-herramientas[hidden] {
+    display: none;
+}
+
+.mv-etiqueta {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.mv-fila-herramientas {
+    display: flex;
+    gap: 6px;
+}
+
+.mv-herramienta {
+    flex: 1;
+    height: 36px;
+    padding: 0;
+    border: 1px solid #CBD5E1;
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: #475569;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.mv-herramienta:hover {
+    border-color: #0F233D;
+}
+
+.mv-herramienta.activa {
+    background: #EEF4FA;
+    border-color: #5E82BC;
+    color: #244A72;
+}
+
+.mv-tamanios {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mv-tamanios button {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    background: transparent;
+    cursor: pointer;
+}
+
+.mv-tamanios button i {
+    display: block;
+    border-radius: 50%;
+    background: #64748B;
+}
+
+.mv-tamanios button.activa {
+    background: #EEF4FA;
+    border-color: #5E82BC;
+}
+
+.mv-colores {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.mv-colores button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 2px solid #FFFFFF;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px #CBD5E1;
+    cursor: pointer;
+}
+
+.mv-colores button.activo {
+    box-shadow: 0 0 0 2px #0F233D;
+}
+
+.mv-guardado {
+    margin: auto 0 0;
+    font-size: 11.5px;
+    line-height: 1.4;
+    color: var(--pn-texto-suave);
+}
+
+.mv-visor:fullscreen .mv-herramientas {
+    max-height: none;
+}
+
+@media (max-width: 700px) {
+    .mv-herramientas {
+        width: 120px;
+    }
+}
+
+.mv-boton[hidden] {
+    display: none;
+}

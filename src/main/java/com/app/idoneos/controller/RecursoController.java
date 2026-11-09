@@ -29,6 +29,10 @@ import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.recurso.RecursoService;
+import com.app.idoneos.service.indice.IndiceRecursoService;
+import com.app.idoneos.service.resaltado.ResaltadoAlumnoService;
+import com.app.idoneos.service.ocr.OcrService;
+import com.app.idoneos.model.Recurso;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.app.idoneos.util.RespuestaFormularioUtil;
@@ -55,6 +59,15 @@ import jakarta.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping("/recurso")
 public class RecursoController {
+
+    @Autowired
+    private IndiceRecursoService indiceService;
+
+    @Autowired
+    private OcrService ocrService;
+
+    @Autowired
+    private ResaltadoAlumnoService resaltadoService;
 
     @Autowired
     private PanelCursoComponent panel;
@@ -237,6 +250,82 @@ public class RecursoController {
                 .body(new FileSystemResource(archivo));
     }
 
+    /**
+     * Entrega el índice del documento (las entradas con su página) al visor y a los formularios. Lo puede pedir quien puede abrir el material.
+     *
+     * @param id             Identificador del material.
+     * @param authentication La autenticación actual.
+     * @return Las entradas del índice, o una lista vacía si no tiene.
+     */
+    @GetMapping("/indice/{id}")
+    public ResponseEntity<List<IndiceRecursoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
+        TemaRecurso material = materialService.buscarPorId(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!materialService.puedeAcceder(material, (Usuario) authentication.getPrincipal())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(material.getRecurso()));
+    }
+
+    /**
+     * Las anotaciones (lápiz y marcador) que el alumno hizo sobre el documento, una entrada por página. Son solo suyas: para cualquier otro
+     * usuario la lista viene vacía.
+     *
+     * @param id             Identificador del material.
+     * @param authentication La autenticación actual.
+     * @return Las páginas anotadas con sus trazos.
+     */
+    @GetMapping("/resaltados/{id}")
+    public ResponseEntity<List<ResaltadoAlumnoService.Pagina>> resaltados(@PathVariable("id") Integer id, Authentication authentication) {
+        TemaRecurso material = materialService.buscarPorId(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Usuario usuario = (Usuario) authentication.getPrincipal();
+        if (!materialService.puedeAcceder(material, usuario)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+        List<ResaltadoAlumnoService.Pagina> paginas = usuario.esAlumnoActivo() && usuario.getAlumno() != null
+                ? resaltadoService.buscar(usuario.getAlumno(), material.getRecurso()) : List.of();
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(paginas);
+    }
+
+    /**
+     * Guarda las anotaciones del alumno en una página del documento, reemplazando las anteriores. Responde en JSON.
+     *
+     * @param id             Identificador del material.
+     * @param pagina         La página (la primera es la 1).
+     * @param trazos         Los trazos de la página, como un JSON ({@code []} borra las anotaciones de la página).
+     * @param authentication La autenticación actual.
+     * @return Una respuesta con el resultado.
+     */
+    @PostMapping("/resaltados/{id}/{pagina}")
+    public ResponseEntity<Map<String, String>> guardarResaltados(@PathVariable("id") Integer id, @PathVariable("pagina") Integer pagina,
+            @RequestParam(value = "trazos", required = false) String trazos, Authentication authentication) {
+        try {
+            TemaRecurso material = materialService.buscarPorId(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            if (!materialService.puedeAcceder(material, usuario) || usuario.getAlumno() == null) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+            resaltadoService.guardar(usuario.getAlumno(), material.getRecurso(), pagina, trazos);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Anotaciones guardadas.");
+        } catch (ResponseStatusException e) {
+            throw e;
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /** Guarda el índice que llegó con el formulario; si se cambió el archivo y no llegó un índice nuevo, el anterior ya no sirve y se borra. */
+    private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
+        String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
+        indiceService.reemplazar(recurso, json);
+        // Un PDF escaneado se pone en la cola del OCR (en segundo plano) para que se pueda buscar su texto
+        if (archivo != null && !archivo.isEmpty()) {
+            ocrService.encolarSiHaceFalta(recurso);
+        }
+    }
+
     // ---------------------------------------------------------------- Creaciones
 
     /**
@@ -269,6 +358,7 @@ public class RecursoController {
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "terminos", defaultValue = "false") boolean terminos,
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
+            @RequestParam(value = "indiceJson", required = false) String indiceJson,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -276,6 +366,7 @@ public class RecursoController {
                     new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo, terminos);
+            guardarIndice(material.getRecurso(), indiceJson, archivo);
             // Se muestra cómo quedó dentro del curso: el panel del curso con el tema del material expandido
             Programa vigente = material.getTema().getCurso().getProgramaVigente();
             String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
@@ -419,6 +510,7 @@ public class RecursoController {
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
+            @RequestParam(value = "indiceJson", required = false) String indiceJson,
             @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -426,6 +518,7 @@ public class RecursoController {
                     new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo);
+            materialService.buscarPorId(id).ifPresent(m -> guardarIndice(m.getRecurso(), indiceJson, archivo));
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

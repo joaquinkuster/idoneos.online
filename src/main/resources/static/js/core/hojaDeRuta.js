@@ -112,6 +112,8 @@
         var esAlta = formulario.getAttribute('data-modo') !== 'modificacion';
         var nombre = formulario.getAttribute('data-resumen') || 'Registro';
         var original = leer(formulario);
+        // Lo que se carga después de abrir el formulario (por ejemplo, el índice guardado de un documento) puede fijar de nuevo el «antes»
+        formulario.hojaDeRuta = { fijarOriginal: function () { original = leer(formulario); } };
         var definicionContexto = [];
         try { definicionContexto = JSON.parse(formulario.getAttribute('data-contexto') || '[]'); } catch (e) { definicionContexto = []; }
 

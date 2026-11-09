@@ -214,6 +214,44 @@ public class Recurso {
     }
 
     /**
+     * Obtiene el estado del reconocimiento de texto (OCR) del archivo del recurso (de un material de lectura o de una bibliografía).
+     *
+     * @return El estado, o {@code null} si el archivo no necesita OCR.
+     */
+    public EstadoOCR getEstadoOcr() {
+        if (materialLectura != null) {
+            return materialLectura.getEstadoOcr();
+        }
+        return bibliografia == null ? null : bibliografia.getEstadoOcr();
+    }
+
+    /**
+     * Cambia el estado del OCR del archivo del recurso (solo lo tienen los materiales de lectura y las bibliografías).
+     *
+     * @param estado El estado, o {@code null} si el archivo no necesita OCR.
+     */
+    public void setEstadoOcr(EstadoOCR estado) {
+        if (materialLectura != null) {
+            materialLectura.setEstadoOcr(estado);
+        } else if (bibliografia != null) {
+            bibliografia.setEstadoOcr(estado);
+        }
+    }
+
+    /**
+     * Actualiza el tamaño del archivo del recurso (por ejemplo, cuando el OCR lo reemplaza por la versión con texto).
+     *
+     * @param bytes El tamaño nuevo, en bytes.
+     */
+    public void actualizarTamanioBytes(long bytes) {
+        if (materialLectura != null) {
+            materialLectura.setTamanioBytes(bytes);
+        } else if (bibliografia != null) {
+            bibliografia.setTamanioBytes(bytes);
+        }
+    }
+
+    /**
      * Obtiene el autor del recurso (de un material de lectura o de una bibliografía).
      *
      * @return El autor, o {@code null} si el recurso no lo tiene.

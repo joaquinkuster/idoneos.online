@@ -1,0 +1,101 @@
+/* Paso «Índice» de los formularios de recursos: la lista editable de títulos y páginas del documento. */
+.indice-barra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 10px;
+}
+
+.indice-lista {
+    max-height: 260px;
+    overflow-y: auto;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 10px;
+    scrollbar-width: thin;
+}
+
+.indice-vacio {
+    padding: 22px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.indice-fila {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-bottom: 1px solid #F1F5F9;
+    font-size: 13px;
+}
+
+.indice-fila:last-child {
+    border-bottom: 0;
+}
+
+.indice-fila:hover {
+    background: #F8FAFC;
+}
+
+.indice-n1 .indice-titulo {
+    font-weight: 700;
+}
+
+.indice-n2 {
+    padding-left: 30px;
+}
+
+.indice-n3 {
+    padding-left: 50px;
+}
+
+.indice-titulo {
+    flex: 1;
+    min-width: 0;
+    padding: 3px 4px;
+    border-radius: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: text;
+}
+
+.indice-titulo:hover {
+    background: #EEF4FA;
+}
+
+.indice-editar {
+    flex: 1;
+    min-width: 0;
+    padding: 3px 6px;
+    font-size: 13px;
+    border: 1px solid var(--pn-gold, #D4A03D);
+    border-radius: 6px;
+    outline: none;
+}
+
+.indice-pagina {
+    width: 62px;
+    padding: 2px 6px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    color: #475569;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 999px;
+}
+
+.indice-icono {
+    display: flex;
+    padding: 2px;
+    border: 0;
+    background: transparent;
+    color: #94A3B8;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.indice-icono:hover {
+    color: var(--pn-navy, #0F233D);
+}
