@@ -114,8 +114,14 @@ public class ProgramaController {
             Map<String, Object> datos = new LinkedHashMap<>();
             datos.put("cursoId", curso.getIdCurso());
             datos.put("duracionDias", curso.getDuracionDias());
+            datos.put("minimoTemas", programaService.buscarMinimoDeContenido());
             datos.put("temas", temasJson);
             datos.put("columnas", cursoService.buscarColumnasDeContenido(curso));
+            // Las cohortes pendientes de contenido a las que se asigna el programa que se registre (si el curso tiene sus datos completos)
+            datos.put("cohortesPendientes", !curso.getFaltantesDeDatosAcademicos().isEmpty() ? List.of()
+                    : curso.getCohortes().stream().filter(c -> !c.getBaja() && c.esPendiente() && !c.tienePrograma() && c.getCantidadInscriptos() == 0)
+                            .sorted(java.util.Comparator.comparing(com.app.idoneos.model.Cohorte::getFechaInicioInscripcion))
+                            .map(com.app.idoneos.model.Cohorte::getMesAnio).toList());
             model.addAttribute("datos", datos);
             model.addAttribute("abrirModal", !esAdministrador && (nuevo != null || editar != null) ? "modalPrograma" : null);
             model.addAttribute("programaAEditar", editar);
@@ -160,48 +166,6 @@ public class ProgramaController {
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
-    }
-
-    /**
-     * CU-16 y CU-17: Guarda de una vez los programas nuevos y los modificados de la ventana de programas. Responde en JSON.
-     *
-     * @param cursoId Identificador del curso.
-     * @param cambios Los programas nuevos y modificados, como una lista JSON de {id, origenId, nombre, descripcion}.
-     * @param authentication    La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y, si falta asignar la duración, la alerta que lo propone) o el error.
-     */
-    @PostMapping("/guardar")
-    public ResponseEntity<Map<String, String>> guardar(
-            @RequestParam(value = "cursoId", required = false) Integer cursoId,
-            @RequestParam(value = "cambios", required = false) String cambios, Authentication authentication) {
-        try {
-            Usuario usuario = (Usuario) authentication.getPrincipal();
-            List<ProgramaService.CambioDePrograma> lista = new java.util.ArrayList<>();
-            if (cambios != null && !cambios.isBlank()) {
-                List<Map<String, Object>> filas = new com.fasterxml.jackson.databind.ObjectMapper().readValue(cambios,
-                        new com.fasterxml.jackson.core.type.TypeReference<List<Map<String, Object>>>() { });
-                for (Map<String, Object> fila : filas) {
-                    Object id = fila.get("id");
-                    Object origen = fila.get("origenId");
-                    lista.add(new ProgramaService.CambioDePrograma(id instanceof Number n ? n.intValue() : null,
-                            origen instanceof Number n ? n.intValue() : null, texto(fila.get("nombre")),
-                            texto(fila.get("descripcion"))));
-                }
-            }
-            int cantidad = programaService.guardarCambios(usuario.getDocente(), cursoId, lista);
-            String mensaje = cantidad == 1 ? "Programa guardado correctamente." : cantidad + " programas guardados correctamente.";
-            if (lista.stream().anyMatch(c -> c.id() == null)) {
-                // Alerta guía: registrar los temas, si todavía no llegan al mínimo, o armar el cronograma
-                return panel.exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente());
-            }
-            return RespuestaFormularioUtil.armarRespuestaExitosa(mensaje);
-        } catch (Exception e) {
-            return RespuestaFormularioUtil.armarRespuestaConError(e);
-        }
-    }
-
-    private static String texto(Object valor) {
-        return valor == null ? null : valor.toString();
     }
 
     // ---------------------------------------------------------------- Modificaciones
@@ -299,6 +263,9 @@ public class ProgramaController {
         public static final FiltroUtil<Programa> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Programa>("nombre", FiltroUtil.Tipo.TEXTO, Programa::getNombre),
                 new FiltroUtil.Columna<Programa>("descripcion", FiltroUtil.Tipo.TEXTO, Programa::getDescripcion),
+                new FiltroUtil.Columna<Programa>("anterior", FiltroUtil.Tipo.TEXTO,
+                        p -> p.getProgramaAnterior() == null ? null : p.getProgramaAnterior().getNombre()),
+                new FiltroUtil.Columna<Programa>("temas", FiltroUtil.Tipo.NUMERO, p -> String.valueOf(p.getCantidadTemas())),
                 new FiltroUtil.Columna<Programa>("ultimaModificacion", FiltroUtil.Tipo.FECHA, p -> FiltroUtil.formatearFechaHora(p.getUltimaModificacion())),
                 new FiltroUtil.Columna<Programa>("fechaCreacion", FiltroUtil.Tipo.FECHA, p -> FiltroUtil.formatearFechaHora(p.getFechaCreacion()))),
                 Programa::getBaja);

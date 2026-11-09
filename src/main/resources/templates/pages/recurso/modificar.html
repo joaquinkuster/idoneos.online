@@ -139,18 +139,18 @@
     </div>
     </fieldset>
 
-    <div class="pn-aviso pn-aviso-dorado" th:if="${!esDuenio}">
+    <div class="pn-alerta pn-alerta-dorado" th:if="${!esDuenio}">
         El recurso pertenece a otro docente: solo su dueño puede <strong>modificarlo</strong>. Si ya no lo necesitás, podés darlo de baja de tu tema.
     </div>
-    <div class="pn-aviso pn-aviso-dorado" th:if="${esDuenio and otrosUsos > 0}">
+    <div class="pn-alerta pn-alerta-dorado" th:if="${esDuenio and otrosUsos > 0}">
         El recurso tiene <strong th:text="${otrosUsos + (otrosUsos == 1 ? ' otro tema asociado' : ' otros temas asociados')}">2 otros temas asociados</strong>: no se puede <strong>modificar</strong> mientras siga en uso, porque el cambio afectaría a quienes ya lo usan.
     </div>
 
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente th:disabled="${bloqueado}">Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar th:disabled="${bloqueado}">Confirmar cambios</button>
     </div>
 </form>
                 </div>

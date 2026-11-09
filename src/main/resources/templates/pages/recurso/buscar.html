@@ -58,10 +58,10 @@
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
                                 <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
                                 <th data-col="Tipo" data-campo="tipo" data-filtro="lista" data-sin-busqueda>Tipo</th>
-                                <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
+                                <th data-col="Autor" data-oculta data-campo="autor" data-filtro="texto">Autor</th>
                                 <th data-col="Docente" data-campo="docente" data-filtro="lista">Docente</th>
                                 <th data-col="Visible para alumnos" data-campo="visibilidad" data-filtro="lista" data-sin-busqueda>Visible para alumnos</th>
-                                <th data-col="Compartido con docentes" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Compartido con docentes</th>
+                                <th data-col="Compartido con docentes" data-oculta data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Compartido con docentes</th>
                                 <th data-col="Generado por IA" data-campo="generadoPorIa" data-filtro="lista" data-sin-busqueda>Generado por IA</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
@@ -180,8 +180,9 @@
                             <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
                                 <option value="">Seleccionar tema</option>
                                 <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}"
-                                        th:text="${'Tema ' + uc.numeroOrden + ' · ' + uc.tema.titulo}"
-                                        th:data-tema="${uc.tema.titulo}">Tema 1</option>
+                                        th:text="${uc.tema.titulo}"
+                                        th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}"
+                                        th:data-tema="${uc.tema.titulo}">Tema</option>
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
@@ -300,7 +301,7 @@
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y subir</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
     </div>
 </form>
             </div>

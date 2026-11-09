@@ -397,3 +397,8 @@ button.cc-boton {
     margin-top: 16px;
     font-size: 14px; /* el del botón de la card */
 }
+
+/* El texto de ayuda que aparece bajo el curso en el alta de cohortes no ocupa lugar mientras está vacío */
+#cohCursoInfo:empty {
+    display: none;
+}

@@ -54,6 +54,13 @@ public class ProgramaServiceImpl implements ProgramaService {
     @org.springframework.context.annotation.Lazy
     private com.app.idoneos.service.temacronograma.TemaCronogramaService temaCronogramaService;
 
+    @Autowired
+    @org.springframework.context.annotation.Lazy
+    private com.app.idoneos.service.cohorte.CohorteService cohorteService;
+
+    @Autowired
+    private com.app.idoneos.repository.CohorteRepository cohorteRepository;
+
     // ---------------------------------------------------------------- Lecturas
 
     /**
@@ -146,7 +153,7 @@ public class ProgramaServiceImpl implements ProgramaService {
             String descripcion, List<Integer> temaIds, List<String> dias) {
         Curso curso = cursoRepository.findById(cursoId == null ? -1 : cursoId).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
-        DocenteCurso participacion = obtenerParticipacion(curso, docente);
+        obtenerParticipacion(curso, docente);
         Programa origen = null;
         if (programaOrigenId != null) {
             origen = programaRepository.findById(programaOrigenId)
@@ -156,8 +163,19 @@ public class ProgramaServiceImpl implements ProgramaService {
         }
         // Sin nombre, la versión se llama "Versión N": las que tuvo el curso (incluidas las dadas de baja) más una
         String nombreFinal = nombre == null || nombre.isBlank() ? "Versión " + (curso.getProgramas().size() + 1) : validarNombre(nombre);
+        // Un programa nunca está incompleto: nace con su cronograma entero (o copiando el de un programa, que ya lo tiene) y con el curso listo
+        if (!curso.getFaltantesDeDatosAcademicos().isEmpty()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("registrar", "el programa", nombreFinal,
+                    "el curso todavía no tiene completos sus datos (" + String.join(", ", curso.getFaltantesDeDatosAcademicos()).toLowerCase() + ")",
+                    "Completá los datos del curso antes."));
+        }
+        if (temaIds == null && origen == null) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("registrar", "el programa", nombreFinal,
+                    "no tiene cronograma", "Elegí los temas y repartí entre ellos la duración del curso."));
+        }
         Programa programa = new Programa(curso, nombreFinal);
         programa.setDescripcion(validarDescripcion(descripcion));
+        programa.setProgramaAnterior(origen);
         programa = programaRepository.save(programa);
         curso.getProgramas().add(programa);
 
@@ -170,15 +188,22 @@ public class ProgramaServiceImpl implements ProgramaService {
             }
         }
         if (temaIds != null) {
-            temaCronogramaService.modificar(docente, programa.getIdPrograma(), temaIds, dias);
+            temaCronogramaService.definirDeProgramaNuevo(docente, programa.getIdPrograma(), temaIds, dias);
         }
-        // Si la cohorte de trabajo del docente es pendiente y todavía no tiene programa, el que acaba de registrar queda asignado
-        Cohorte cohorte = participacion == null ? null : participacion.getCohorteDeTrabajo();
-        if (cohorte != null && cohorte.esPendiente() && !cohorte.tienePrograma() && cohorte.getCantidadInscriptos() == 0) {
-            cohorte.setPrograma(programa);
-            cohorte.setUltimaModificacion(LocalDateTime.now());
-        }
+        asignarALasCohortesPendientes(programa, docente);
         return programa;
+    }
+
+    /**
+     * Una cohorte nunca tiene un programa incompleto, así que las cohortes pendientes de contenido del curso no tienen programa: el que
+     * acaba de registrarse (que siempre está completo) queda asignado a todas ellas y pasan a inscripción próxima.
+     */
+    private void asignarALasCohortesPendientes(Programa programa, Docente docente) {
+        for (Cohorte cohorte : cohorteRepository.findByCursoAndBajaFalse(programa.getCurso())) {
+            if (cohorte.esPendiente() && !cohorte.tienePrograma() && cohorte.getCantidadInscriptos() == 0) {
+                cohorteService.asignarPrograma(cohorte.getIdCohorte(), programa.getIdPrograma(), docente);
+            }
+        }
     }
 
     // ---------------------------------------------------------------- Modificaciones
@@ -209,33 +234,6 @@ public class ProgramaServiceImpl implements ProgramaService {
     }
 
     /**
-     * Guarda de una vez los programas nuevos y los modificados de un curso: o se guardan todos o ninguno.
-     */
-    @Override
-    @Transactional
-    public int guardarCambios(Docente docente, Integer cursoId, List<CambioDePrograma> cambios) {
-        if (cambios == null || cambios.isEmpty()) {
-            throw new IllegalArgumentException("Error! No hay cambios para guardar.");
-        }
-        int cantidad = 0;
-        for (CambioDePrograma cambio : cambios) {
-            try {
-                if (cambio.id() == null) {
-                    registrar(docente, cursoId, cambio.origenId(), cambio.nombre(), cambio.descripcion());
-                } else {
-                    modificar(cambio.id(), docente, cambio.nombre(), cambio.descripcion());
-                }
-                cantidad++;
-            } catch (IllegalArgumentException e) {
-                // Se indica de qué programa es el error y no se guarda ninguno (la transacción se revierte)
-                String nombre = cambio.nombre() == null || cambio.nombre().isBlank() ? "(sin nombre)" : "«" + cambio.nombre().trim() + "»";
-                throw new IllegalArgumentException("Error! Programa " + nombre + ": " + e.getMessage().replaceFirst("^Error! ", ""));
-            }
-        }
-        return cantidad;
-    }
-
-    /**
      * CU-17: Modifica los datos de un programa sin inscripciones activas.
      */
     @Override
@@ -243,11 +241,9 @@ public class ProgramaServiceImpl implements ProgramaService {
     public Programa modificar(Integer id, Docente docente, String nombre, String descripcion) {
         Programa programa = buscarActivo(id);
         obtenerParticipacion(programa.getCurso(), docente);
-        if (programa.getCantidadInscripcionesActivas() > 0) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el programa", programa.getNombre(),
-                    "tiene " + MensajeErrorUtil.formatearCantidad(programa.getCantidadInscripcionesActivas(),
-                            "inscripción activa asociada", "inscripciones activas asociadas"),
-                    MensajeErrorUtil.LO_QUE_EL_ALUMNO_VIO_Y_PAGO));
+        if (programa.estaCongelado()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.bloqueoPorPublicacion("el programa", programa.getNombre(),
+                    programa.getMotivoDeCongelado(), MensajeErrorUtil.CIERRE_DISENO));
         }
         programa.setNombre(validarNombre(nombre));
         programa.setDescripcion(validarDescripcion(descripcion));
@@ -369,9 +365,6 @@ public class ProgramaServiceImpl implements ProgramaService {
     @Override
     public Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<Integer> materialesQuitados,
             Collection<Integer> temasQuitadas) {
-        if (!programa.tieneCohortesActivas()) {
-            return Optional.empty();
-        }
         int minimo = buscarMinimoDeContenido();
         int antes = programa.getCantidadTemasConMaterialPublicado();
         int despues = programa.cantidadTemasConMaterialPublicadoSin(materialesQuitados, temasQuitadas);
@@ -392,9 +385,6 @@ public class ProgramaServiceImpl implements ProgramaService {
      */
     @Override
     public Optional<Bloqueo> verificarMinimoDeTemas(Programa programa, Collection<Integer> temasQuitadas) {
-        if (!programa.tieneCohortesActivas()) {
-            return Optional.empty();
-        }
         int minimo = buscarMinimoDeContenido();
         int antes = programa.getCantidadTemas();
         int despues = (int) programa.getCronogramaOrdenado().stream()
@@ -429,9 +419,8 @@ public class ProgramaServiceImpl implements ProgramaService {
      */
     @Override
     public Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<Integer> materialesQuitados) {
-        boolean enCurso = tema.getProgramasQueLaIncluyen().stream()
-                .anyMatch(programa -> programa.tieneCohortesActivas() || programa.getCantidadInscripcionesActivas() > 0);
-        if (!enCurso) {
+        // Un programa nunca queda incompleto: alcanza con que algún programa incluya el tema
+        if (tema.getProgramasQueLaIncluyen().isEmpty()) {
             return Optional.empty();
         }
         var curso = tema.getCurso();

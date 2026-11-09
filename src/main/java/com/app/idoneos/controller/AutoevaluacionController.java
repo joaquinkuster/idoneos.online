@@ -103,7 +103,7 @@ public class AutoevaluacionController {
             boolean esAdministrador = contexto.esAdministrador();
             Docente docente = esAdministrador ? null : usuario.getDocente();
             Programa programa = contexto.programa();
-            List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
+            List<TemaCronograma> temas = panel.temasDelCursoEnOrden(contexto);
             // Listado completo: los filtros se aplican en la pantalla
             List<Autoevaluacion> autoevaluaciones = autoevaluacionService.buscarConFiltros(cursoId, null, null, false, docente);
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
@@ -156,17 +156,16 @@ public class AutoevaluacionController {
                     .stream().map(u -> String.valueOf(u.getIdTema())).toList()));
         }
 
-        // Los pools que se ofrecen, agrupados por el tema a la que pertenecen (en el orden del cronograma)
-        List<GrupoDePools> gruposDePools = new ArrayList<>();
+        // Los pools del curso, ordenados por el tema al que pertenecen (en el orden de los temas); el formulario muestra primero los del tema elegido
+        Map<Integer, Integer> ordenDeLosTemas = new LinkedHashMap<>();
         for (TemaCronograma cronograma : temas) {
-            List<Pool> deLaTema = pools.stream()
-                    .filter(p -> p.getTema().getIdTema() == cronograma.getTema().getIdTema()).toList();
-            if (!deLaTema.isEmpty()) {
-                gruposDePools.add(new GrupoDePools(cronograma.getNumeroOrden(), cronograma.getTema().getTitulo(), deLaTema));
-            }
+            ordenDeLosTemas.put(cronograma.getTema().getIdTema(), ordenDeLosTemas.size());
         }
+        List<Pool> poolsOrdenados = pools.stream().sorted(java.util.Comparator
+                .comparingInt((Pool p) -> ordenDeLosTemas.getOrDefault(p.getTema().getIdTema(), Integer.MAX_VALUE))
+                .thenComparing(Pool::getNombre)).toList();
+        model.addAttribute("poolsDelCurso", poolsOrdenados);
         model.addAttribute("temasPorPool", temasPorPool);
-        model.addAttribute("gruposDePools", gruposDePools);
     }
 
     /**
@@ -185,8 +184,7 @@ public class AutoevaluacionController {
         Integer cursoId = a.getTema().getCurso().getIdCurso();
         ContextoCurso contexto = panel.contextoDelPanel(cursoId, usuario);
         Docente docente = contexto.esAdministrador() ? null : usuario.getDocente();
-        Programa programa = contexto.programa();
-        List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
+        List<TemaCronograma> temas = panel.temasDelCursoEnOrden(contexto);
         cargarPoolsDelFormulario(model, poolService.buscarConFiltros(cursoId, null, null, false, docente), temas);
         model.addAttribute("curso", contexto.curso());
         model.addAttribute("temas", temas);

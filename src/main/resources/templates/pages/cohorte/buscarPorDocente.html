@@ -64,7 +64,8 @@
                                         th:data-o-curso="${coh.curso.nombre}"
                                         th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
-                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div></td>
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div>
+                                    <span class="pn-marca-estado" th:if="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}">(Por defecto)</span></td>
                                 <td>
                                             <span class="pn-insignia"
                                                   th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Inscripción abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Pendiente de contenido'} ? 'pn-insignia-dorada' : (${coh.estado == 'Inscripción próxima'} ? 'pn-insignia-violeta' : (${coh.estado == 'Cancelada por falta de contenido'} ? 'pn-insignia-roja' : 'pn-insignia-gris')))))"
@@ -88,7 +89,8 @@
                                 <td>
                                             <div class="pn-acciones" th:if="${programasDelCurso.containsKey(coh.idCohorte)}">
                                                 <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
-                                                        th:data-bs-target="'#modalAsignarPrograma' + ${coh.idCohorte}">Asignar programa</button>
+                                                        th:data-bs-target="'#modalAsignarPrograma' + ${coh.idCohorte}"
+                                                        >Asignar programa</button>
                                             </div>
                                             <span th:unless="${programasDelCurso.containsKey(coh.idCohorte)}" class="pn-celda-secundaria">—</span>
                                         </td>

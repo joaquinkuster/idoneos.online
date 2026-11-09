@@ -71,7 +71,7 @@ public interface AutoevaluacionService extends CrudService<Autoevaluacion> {
     /**
      * Obtiene los temas cuyos autoevaluaciones pueden usar un pool: la propia y las que vienen después en el
      * cronograma de los programas que incluyen el tema del pool. Una autoevaluación puede combinar pools de su tema y de
-     * los temas anteriores (para un examen del tema, un repaso o una evaluación final), nunca de las posteriores.
+     * cualquier otro tema del curso (para un examen del tema, un repaso o una evaluación final).
      *
      * @param pool el pool
      * @return los temas que pueden usarlo, la propia primero

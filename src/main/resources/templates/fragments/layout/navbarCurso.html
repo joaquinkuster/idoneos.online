@@ -19,25 +19,23 @@
                         Plan de estudios <i class="fa-solid fa-chevron-down"></i>
                     </button>
                     <div class="ac-navbar-menu" data-navbar-menu hidden>
-                        <a th:href="${'/programa/buscar?cursoId=' + curso.idCurso}"><strong>Programas</strong></a>
+                        <a th:href="${'/tema/buscar?cursoId=' + curso.idCurso}"><strong>Temas</strong></a>
+                        <a th:href="${'/programa/buscar?cursoId=' + curso.idCurso}" th:if="${nivel >= 3}"><strong>Programas</strong></a>
                         <a th:href="${'/cronograma/buscar?cursoId=' + curso.idCurso}" th:if="${nivel >= 4}">Cronogramas</a>
                     </div>
                 </div>
 
-                <div class="ac-navbar-item-mas" th:if="${nivel >= 3}">
+                <div class="ac-navbar-item-mas" th:if="${nivel >= 2}">
                     <button type="button" class="ac-navbar-item" data-navbar-mas aria-expanded="false" aria-haspopup="true">
                         Contenido <i class="fa-solid fa-chevron-down"></i>
                     </button>
                     <div class="ac-navbar-menu" data-navbar-menu hidden>
-                        <a th:href="${'/tema/buscar?cursoId=' + curso.idCurso}"><strong>Temas</strong></a>
-                        <th:block th:if="${nivel >= 5}">
-                            <a th:href="${urlBase + '?seccion=clases'}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
-                            <a th:href="${'/recurso/buscar?cursoId=' + curso.idCurso}">Recursos</a>
-                            <a th:href="${'/pool/buscar?cursoId=' + curso.idCurso}">Pools</a>
-                            <a th:href="${'/autoevaluacion/buscar?cursoId=' + curso.idCurso}">Autoevaluaciones</a>
-                            <a th:href="${'/glosario/buscar?cursoId=' + curso.idCurso}">Glosario</a>
-                            <a th:href="${'/foro/buscar?cursoId=' + curso.idCurso}">Foros</a>
-                        </th:block>
+                        <a th:href="${'/recurso/buscar?cursoId=' + curso.idCurso}"><strong>Recursos</strong></a>
+                        <a th:href="${urlBase + '?seccion=clases'}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
+                        <a th:href="${'/pool/buscar?cursoId=' + curso.idCurso}">Pools</a>
+                        <a th:href="${'/autoevaluacion/buscar?cursoId=' + curso.idCurso}">Autoevaluaciones</a>
+                        <a th:href="${'/glosario/buscar?cursoId=' + curso.idCurso}">Glosario</a>
+                        <a th:href="${'/foro/buscar?cursoId=' + curso.idCurso}">Foros</a>
                     </div>
                 </div>
 

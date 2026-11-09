@@ -112,6 +112,11 @@ public class CategoriaServiceImpl implements CategoriaService {
         return inscripcionRepository.contarPorCategoria(categoria);
     }
 
+    @Override
+    public boolean tieneCursosConCohortesPublicadas(Categoria categoria) {
+        return cursoRepository.findByCategoriaAndBajaFalse(categoria).stream().anyMatch(com.app.idoneos.model.Curso::tieneCohortesPublicadas);
+    }
+
     // ---------------------------------------------------------------- Creaciones
 
     /**
@@ -186,11 +191,9 @@ public class CategoriaServiceImpl implements CategoriaService {
     public Categoria modificar(Integer idCategoria, String nombre, String descripcion) {
         Categoria categoria = categoriaRepository.findById(idCategoria).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra activa."));
-        long inscripcionesActivas = contarInscripcionesActivas(categoria);
-        if (inscripcionesActivas > 0) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la categoría", categoria.getNombre(),
-                    "tiene " + MensajeErrorUtil.formatearCantidad(inscripcionesActivas, "inscripción activa asociada",
-                            "inscripciones activas asociadas"), ""));
+        if (tieneCursosConCohortesPublicadas(categoria)) {
+            throw new IllegalArgumentException(MensajeErrorUtil.bloqueoPorPublicacion("la categoría", categoria.getNombre(),
+                    "hay cursos con cohortes publicadas en el catálogo", MensajeErrorUtil.CIERRE_DISENO));
         }
         if (nombre == null || nombre.isBlank()) {
             throw RespuestaFormularioUtil.armarCampoInvalido("nombre", "Error! El nombre de la categoría no puede quedar vacío.");

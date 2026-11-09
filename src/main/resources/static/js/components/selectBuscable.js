@@ -97,9 +97,20 @@
             var buscado = normalizar(filtro);
             lista.innerHTML = '';
             visibles = [];
+            var grupoActual = null;
             Array.prototype.forEach.call(select.options, function (opcion) {
                 if (opcion.value === '' || opcion.hidden) { return; }
                 if (buscado && normalizar(opcion.textContent).indexOf(buscado) < 0) { return; }
+                // Las opciones de un <optgroup> se muestran bajo el nombre de su grupo
+                var grupo = opcion.parentElement && opcion.parentElement.tagName === 'OPTGROUP' ? opcion.parentElement.label : null;
+                if (grupo && grupo !== grupoActual) {
+                    var encabezado = document.createElement('li');
+                    encabezado.className = 'sb-grupo';
+                    encabezado.setAttribute('role', 'presentation');
+                    encabezado.textContent = grupo;
+                    lista.appendChild(encabezado);
+                }
+                grupoActual = grupo;
                 var item = document.createElement('li');
                 item.className = 'sb-opcion' + (opcion.disabled ? ' sb-opcion-inactiva' : '')
                     + (opcion.selected ? ' sb-opcion-elegida' : '');

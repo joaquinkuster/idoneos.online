@@ -81,33 +81,31 @@
 
     <!-- Docente y administrador: tres grupos (Plan de estudios, Contenido y Dictado) que se despliegan al tocar su título; el primer
          ítem de cada uno es la entidad (Programas, Temas, Cohortes). Al docente el menú se le habilita de a poco, según el paso del
-         diseño en que está su cohorte (nivelMenu): Programas desde el paso 2, Temas desde el 3, Cronogramas desde el 4 y todo el
-         contenido de los temas desde el 5. Lo de la cohorte (participantes, progreso, intentos y calificaciones) se habilita cuando
+         diseño en que está su cohorte (nivelMenu): el Plan de estudios (Temas) y el Contenido (Recursos y demás) desde el paso 2, los
+         Programas desde el 3 y los Cronogramas con el diseño completo. Lo de la cohorte (participantes, progreso, intentos y calificaciones) se habilita cuando
          deja de estar pendiente. Lo que todavía no corresponde no se muestra. -->
     <th:block th:if="${esDocente == true or esAdministrador == true}"
               th:with="nivel=${nivelMenu != null ? nivelMenu : 5}, pendiente=${cohortePendiente != null and cohortePendiente}, guia=${nivelMenu != null}">
         <th:block th:if="${nivel >= 2}">
             <div th:replace="~{fragments/layout/sidebar :: grupo('Plan de estudios')}"></div>
-            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/programa/buscar?cursoId=' + ${curso.idCurso}, 'Programas', ${activo}, 'programas', true, ${guia and nivel == 2})}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/tema/buscar?cursoId=' + ${curso.idCurso}, 'Temas', ${activo}, 'temas', true, ${guia and nivel == 2})}"></a>
+            <th:block th:if="${nivel >= 3}">
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/programa/buscar?cursoId=' + ${curso.idCurso}, 'Programas', ${activo}, 'programas', true, ${guia and nivel == 3})}"></a>
+            </th:block>
             <th:block th:if="${nivel >= 4}">
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/cronograma/buscar?cursoId=' + ${curso.idCurso}, 'Cronogramas', ${activo}, 'cronograma', false, ${guia and nivel == 4})}"></a>
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/cronograma/buscar?cursoId=' + ${curso.idCurso}, 'Cronogramas', ${activo}, 'cronograma', false, false)}"></a>
             </th:block>
-        </th:block>
 
-        <th:block th:if="${nivel >= 3}">
             <div th:replace="~{fragments/layout/sidebar :: grupo('Contenido')}"></div>
-            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/tema/buscar?cursoId=' + ${curso.idCurso}, 'Temas', ${activo}, 'temas', true, ${guia and nivel == 3})}"></a>
-            <th:block th:if="${nivel >= 5}">
-                <!-- Las clases en vivo solo existen en los cursos con esa modalidad -->
-                <th:block th:if="${curso.incluyeModalidad('En vivo')}">
-                    <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${urlBase} + '?seccion=clases', 'Clases en vivo', ${activo}, 'clases', false, ${guia and nivel == 5})}"></a>
-                </th:block>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/recurso/buscar?cursoId=' + ${curso.idCurso}, 'Recursos', ${activo}, 'materiales', false, ${guia and nivel == 5})}"></a>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/pool/buscar?cursoId=' + ${curso.idCurso}, 'Pools', ${activo}, 'pools', false, ${guia and nivel == 5})}"></a>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'Autoevaluaciones', ${activo}, 'autoevaluaciones', false, ${guia and nivel == 5})}"></a>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, ${guia and nivel == 5})}"></a>
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/foro/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, ${guia and nivel == 5})}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/recurso/buscar?cursoId=' + ${curso.idCurso}, 'Recursos', ${activo}, 'materiales', true, false)}"></a>
+            <!-- Las clases en vivo solo existen en los cursos con esa modalidad -->
+            <th:block th:if="${curso.incluyeModalidad('En vivo')}">
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${urlBase} + '?seccion=clases', 'Clases en vivo', ${activo}, 'clases', false, false)}"></a>
             </th:block>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/pool/buscar?cursoId=' + ${curso.idCurso}, 'Pools', ${activo}, 'pools', false, false)}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'Autoevaluaciones', ${activo}, 'autoevaluaciones', false, false)}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, false)}"></a>
+            <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/foro/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, false)}"></a>
         </th:block>
 
         <div th:replace="~{fragments/layout/sidebar :: grupo('Dictado')}"></div>

@@ -25,7 +25,7 @@
     /**
      * Aviso del sistema, con el formato de todas las alertas: círculo de color con el ícono del tipo, título en negrita y
      * texto debajo, sin animación. opciones: tipo ('exito', 'error', 'info' o 'advertencia'), titulo, texto, confirmar
-     * (texto del botón, "Aceptar" por defecto), cancelar (si se indica, muestra también un botón para cerrar) y bloquear
+     * (texto del botón, "Aceptar" por defecto), html (en lugar de texto, para dar formato, por ejemplo una negrita), cancelar (si se indica, muestra también un botón para cerrar) y bloquear
      * (si es true, no se cierra al hacer clic afuera) y claseBoton (para cambiar el estilo del botón principal). Devuelve
      * la promesa de SweetAlert (con isConfirmed).
      */
@@ -34,7 +34,8 @@
         return Swal.fire({
             iconHtml: '<i class="fa-solid ' + tipo.icon + '"></i>',
             title: opciones.titulo,
-            text: opciones.texto,
+            text: opciones.html ? undefined : opciones.texto,
+            html: opciones.html,
             showCancelButton: !!opciones.cancelar,
             reverseButtons: true,
             confirmButtonText: opciones.confirmar || 'Aceptar',

@@ -209,7 +209,10 @@ public class CohorteServiceImpl implements CohorteService {
         validarDatosCohorte(curso, enVivo, fechaInicioInscripcion, fechaFinInscripcion, fechaInicioDictado,
                 accesoDias, cupoMaximo);
 
-        boolean activa = tieneContenidoCompleto(programa);
+        if (programa != null) {
+            validarProgramaCompleto(programa);
+        }
+        boolean activa = programa != null;
         if (!activa) {
             validarPlazoParaCompletarContenido(programa, fechaInicioInscripcion);
         }
@@ -291,20 +294,22 @@ public class CohorteServiceImpl implements CohorteService {
             LocalDate fechaInicioDictado, Integer accesoDias, Integer cupoMaximo) {
         Cohorte cohorte = cohorteRepository.findById(idCohorte).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
-        if (cohorte.esCancelada()) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la cohorte", cohorte.getEtiqueta(),
-                    "está cancelada", ""));
-        }
-        if (cohorte.getCantidadInscriptos() > 0) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "la cohorte", cohorte.getEtiqueta(),
-                    "tiene " + MensajeErrorUtil.formatearCantidad(cohorte.getCantidadInscriptos(), "inscripción activa asociada",
-                            "inscripciones activas asociadas"), ""));
+        // Una cohorte publicada en el catálogo es un compromiso con los alumnos: no se modifica
+        if (cohorte.estaPublicada()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.bloqueoPorPublicacion("la cohorte", cohorte.getEtiqueta(),
+                    cohorte.getMotivoDeBloqueo(), MensajeErrorUtil.CIERRE_COHORTE));
         }
         boolean enVivo = cohorte.getCurso().incluyeModalidad(Modalidad.EN_VIVO);
         validarDatosCohorte(cohorte.getCurso(), enVivo, fechaInicioInscripcion, fechaFinInscripcion,
                 fechaInicioDictado, accesoDias, cupoMaximo);
-        if (cohorte.esPendiente()) {
+        // Una cohorte pendiente, o una cancelada por falta de contenido que vuelve a pendiente con las nuevas fechas, necesita el plazo mínimo
+        // para que el docente complete el contenido antes de abrir la inscripción
+        boolean vuelveAPendiente = cohorte.esCancelada();
+        if (cohorte.esPendiente() || vuelveAPendiente) {
             validarPlazoParaCompletarContenido(cohorte.getPrograma(), fechaInicioInscripcion);
+        }
+        if (vuelveAPendiente) {
+            cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PENDIENTE).orElseThrow());
         }
 
         cohorte.setFechaInicioInscripcion(inicioDelDia(fechaInicioInscripcion));
@@ -334,8 +339,11 @@ public class CohorteServiceImpl implements CohorteService {
         if (docente != null && !cohorte.getCurso().tieneDocente(docente)) {
             throw new IllegalArgumentException("Error! El docente no participa en el curso de la cohorte.");
         }
+        // Asignar el programa finaliza el diseño de la cohorte: no se puede cambiar después
         if (!cohorte.esPendiente()) {
-            throw new IllegalArgumentException("Error! Solo se puede asignar el programa a una cohorte pendiente.");
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("asignar el programa a", "la cohorte", cohorte.getEtiqueta(),
+                    cohorte.esCancelada() ? "está cancelada" : "ya tiene su diseño finalizado y está publicada en el catálogo",
+                    MensajeErrorUtil.COMPROMISO_PUBLICADO + " " + MensajeErrorUtil.CIERRE_COHORTE));
         }
         if (cohorte.getCantidadInscriptos() > 0) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("asignar el programa a", "la cohorte",
@@ -343,10 +351,10 @@ public class CohorteServiceImpl implements CohorteService {
                             "inscripción activa asociada", "inscripciones activas asociadas"), ""));
         }
         Programa programa = programaDelCurso(cohorte.getCurso(), idPrograma);
+        validarProgramaCompleto(programa);
         cohorte.setPrograma(programa);
-        if (tieneContenidoCompleto(programa)) {
-            activar(cohorte, LocalDateTime.now());
-        }
+        // Con su programa completo, la cohorte deja de estar pendiente y pasa a inscripción próxima
+        activar(cohorte, LocalDateTime.now());
         cohorte.setUltimaModificacion(LocalDateTime.now());
         return cohorteRepository.save(cohorte);
     }
@@ -515,7 +523,7 @@ public class CohorteServiceImpl implements CohorteService {
         long inscriptos = cohorte.getCantidadInscriptos();
         if (inscriptos > 0 || clasesActivas > 0) {
             String motivo = (inscriptos > 0
-                    ? MensajeErrorUtil.formatearCantidad(inscriptos, "alumno inscripto activo", "alumnos inscriptos activos") : "")
+                    ? MensajeErrorUtil.formatearCantidad(inscriptos, "inscripción activa asociada", "inscripciones activas asociadas") : "")
                     + (inscriptos > 0 && clasesActivas > 0 ? " y " : "")
                     + (clasesActivas > 0
                             ? MensajeErrorUtil.formatearCantidad(clasesActivas, "clase en vivo activa", "clases en vivo activas") : "");
@@ -572,10 +580,25 @@ public class CohorteServiceImpl implements CohorteService {
     }
 
     /** Un programa está completo si cumple el mínimo de temas con material y, además, su diseño está completo. */
+    @Override
+    public boolean estaCompleto(Programa programa) {
+        return tieneContenidoCompleto(programa);
+    }
+
     private boolean tieneContenidoCompleto(Programa programa) {
         return programa != null && programa.tieneContenidoCompleto(minimoTemasConMaterial())
                 && programa.getCurso().getFaltantesDeDatosAcademicos().isEmpty()
                 && cursoService.estaDisenoCompleto(programa.getCurso(), programa);
+    }
+
+    /** Una cohorte nunca tiene un programa incompleto: sin programa queda pendiente de contenido y con uno, ya está completa. */
+    private void validarProgramaCompleto(Programa programa) {
+        if (!tieneContenidoCompleto(programa)) {
+            List<String> faltantes = faltantesDeContenido(programa);
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("asignar", "el programa", programa.getNombre(),
+                    "todavía no está completo" + (faltantes.isEmpty() ? "" : " (" + String.join("; ", faltantes) + ")"),
+                    "Completá su cronograma y su contenido antes."));
+        }
     }
 
     private Programa programaDelCurso(Curso curso, Integer idPrograma) {

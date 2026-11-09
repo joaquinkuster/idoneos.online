@@ -340,12 +340,17 @@ i {
 /* Helper Grid Classes */
 .row { display: flex; flex-wrap: wrap; margin-right: -12px; margin-left: -12px; }
 
-.g-3 { margin-right: -10px; margin-left: -10px; }
-.g-3 > [class*="col-"] { padding-right: 10px; padding-left: 10px; padding-bottom: 18px; }
+/* g-3: las columnas no llevan relleno ni margen; la separación es solo el gap de 20px (entre filas y entre columnas) */
+.g-3 { margin-right: 0; margin-left: 0; gap: 20px; }
+.g-3 > [class*="col-"] { padding: 0; }
+.g-3 > .col-12 { flex: 0 0 100%; max-width: 100%; }
+.g-3 > .col-md-6, .g-3 > .col-lg-6 { flex: 0 0 calc(50% - 10px); max-width: calc(50% - 10px); }
+.g-3 > .col-md-4 { flex: 0 0 calc((100% - 40px) / 3); max-width: calc((100% - 40px) / 3); }
+.g-3 > .col-md-8 { flex: 0 0 calc((100% - 40px) / 3 * 2 + 20px); max-width: calc((100% - 40px) / 3 * 2 + 20px); }
 .g-4 { margin-right: -14px; margin-left: -14px; }
 .g-4 > [class*="col-"] { padding-right: 14px; padding-left: 14px; padding-bottom: 24px; }
 
-.col-12 { flex: 0 0 100%; max-width: 100%; padding: 0 12px; }
+.col-12 { flex: 0 0 100%; max-width: 100%; }
 
 .col-md-4 { flex: 0 0 33.3333%; max-width: 33.3333%; padding: 0 12px; }
 

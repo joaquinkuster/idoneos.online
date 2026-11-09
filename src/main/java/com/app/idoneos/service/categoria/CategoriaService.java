@@ -40,6 +40,14 @@ public interface CategoriaService extends CrudService<Categoria> {
      */
     long contarInscripcionesActivas(Categoria categoria);
 
+    /**
+     * Indica si algún curso de la categoría tiene cohortes publicadas en el catálogo (en ese caso la categoría no se modifica).
+     *
+     * @param categoria la categoría a consultar
+     * @return {@code true} si hay cursos con cohortes publicadas
+     */
+    boolean tieneCursosConCohortesPublicadas(Categoria categoria);
+
     // ---------------------------------------------------------------- Creaciones
 
     /**

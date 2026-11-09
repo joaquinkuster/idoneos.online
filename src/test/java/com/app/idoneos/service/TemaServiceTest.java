@@ -48,12 +48,7 @@ class TemaServiceTest {
     private DocenteRepository docenteRepository;
 
     private Curso curso(String nombre) {
-        Curso curso = cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
-        // la semilla deja los cronogramas completos: se amplía la duración para poder agregar temas
-        if (curso.getDuracionDias() < 365) {
-            curso.setDuracionDias(365);
-        }
-        return curso;
+        return cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
     }
 
 
@@ -89,24 +84,17 @@ class TemaServiceTest {
     }
 
     @Test
-    @DisplayName("Con cohortes activas no se cambian los días de un tema suelto, no se quita un tema suelto ni se agrega un tema sin contenido")
+    @DisplayName("Un tema que está en un programa no se da de baja: dejaría sin asignar sus días y el programa nunca queda incompleto")
     void conCohorteActivaNoDesajustaLosDias() {
         Programa programa = macroConCohorteActiva();
         Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
         int dias = programa.getDuracionTotalDias();
 
-        String duracion = mensaje(() -> temaService.modificar(tema.getIdTema(), programa.getIdPrograma(), fausto(), tema.getTitulo(),
-                tema.getDescripcion(), tema.getContenido(), programa.getCronogramaOrdenado().get(0).getDuracionDias() + 1));
-        assertTrue(duracion.contains("No se puede modificar la duración del tema"), duracion);
-        assertTrue(duracion.contains("Redistribuí los días desde el cronograma"), duracion);
-
-        String baja = mensaje(() -> temaService.darDeBaja(tema.getIdTema(), programa.getIdPrograma(), fausto()));
+        String baja = mensaje(() -> temaService.darDeBajaPorCurso(tema.getIdTema(), fausto()));
         assertTrue(baja.contains("No se puede dar de baja el tema"), baja);
-        assertTrue(baja.contains("Redistribuí los días desde el cronograma"), baja);
+        assertTrue(baja.contains("Quitalo antes del programa"), baja);
 
-        String nuevo = mensaje(() -> temaService.agregar(fausto(), programa.getIdPrograma(), null, "Tema nuevo", null, "Contenido"));
-        assertTrue(nuevo.contains("No se puede agregar un tema nuevo al programa"), nuevo);
-
+        assertFalse(tema.getBaja());
         assertEquals(dias, programa.getDuracionTotalDias());
     }
 
@@ -127,14 +115,6 @@ class TemaServiceTest {
         return assertThrows(IllegalArgumentException.class, accion).getMessage();
     }
 
-    private Tema agregar(Programa programa, String titulo) {
-        return temaService.agregar(fausto(), programa.getIdPrograma(), null, titulo, null, "Contenido de " + titulo);
-    }
-
-    private List<Integer> ordenes(Programa programa) {
-        return programa.getCronogramaOrdenado().stream().map(TemaCronograma::getNumeroOrden).toList();
-    }
-
     // ------------------------------------------------------------------ CU-19 Buscar tema
 
     @Test
@@ -149,162 +129,6 @@ class TemaServiceTest {
         assertEquals(1, temaService.buscarConFiltros(programa, "RENTA FIJA").size());
         assertEquals(1, temaService.buscarConFiltros(programa, "introduccion").size());
         assertTrue(temaService.buscarConFiltros(programa, "zzz").isEmpty());
-    }
-
-    // ------------------------------------------------------------------ CU-20 Agregar tema
-
-    @Test
-    @DisplayName("CU-20: al agregar un tema se puede indicar cuántos días dura en el cronograma")
-    void agregaTemaConDuracion() {
-        Programa programa = macro().getProgramaVigente();
-        int dias = programa.getDuracionTotalDias();
-
-        Tema nueva = temaService.agregar(fausto(), programa.getIdPrograma(), null, "Tema con duración", null,
-                "Contenido", 14);
-
-        TemaCronograma ultima = programa.getCronogramaOrdenado().get(programa.getCantidadTemas() - 1);
-        assertEquals(nueva.getIdTema(), ultima.getTema().getIdTema());
-        assertEquals(14, ultima.getDuracionDias());
-        assertEquals(dias + 14, programa.getDuracionTotalDias());
-    }
-
-    @Test
-    @DisplayName("CU-20: la duración del tema debe ser mayor a cero y entrar en la duración del curso y en los días de acceso")
-    void validaLaDuracionAlAgregar() {
-        Programa programa = macro().getProgramaVigente();
-        int id = programa.getIdPrograma();
-
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, "Tema uno", null, "Contenido", 0))
-                .contains("La duración en el cronograma no es válida"));
-
-        // la cohorte del programa tiene menos días de acceso que el cronograma con esta duración
-        int acceso = programa.getCohortesActivas().get(0).getAccesoDias();
-        int demasiado = acceso - programa.getDuracionTotalDias() + 1;
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, "Tema dos", null, "Contenido", demasiado))
-                .contains("de acceso de la cohorte"));
-
-        // la duración del curso deja menos días que los pedidos
-        programa.getCurso().setDuracionDias(programa.getDuracionTotalDias() + 5);
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, "Tema tres", null, "Contenido", 6))
-                .contains("puede durar hasta 5 días"));
-        assertNotNull(temaService.agregar(fausto(), id, null, "Tema cuatro", null, "Contenido", 5));
-    }
-
-    @Test
-    @DisplayName("CU-20: con el cronograma lleno no se agregan más temas y el error indica cómo conseguir más tiempo")
-    void noAgregaConElCronogramaLleno() {
-        Programa programa = macro().getProgramaVigente();
-        programa.getCurso().setDuracionDias(programa.getDuracionTotalDias());
-
-        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
-                () -> agregar(programa, "Sin lugar"));
-
-        assertTrue(error.getMessage().startsWith("Error! La duración del cronograma ya alcanzó la duración del curso."));
-        assertTrue(error.getMessage().contains("modificá el cronograma o comunicate con un administrador"));
-    }
-
-    @Test
-    @DisplayName("CU-21: se puede cambiar la duración de un tema en el cronograma de un programa")
-    void modificaLaDuracion() {
-        Programa programa = macro().getProgramaVigente();
-        TemaCronograma primero = programa.getCronogramaOrdenado().get(0);
-        Tema tema = primero.getTema();
-        int total = programa.getDuracionTotalDias();
-        int nueva = primero.getDuracionDias() + 7;
-
-        temaService.modificar(tema.getIdTema(), programa.getIdPrograma(), fausto(), tema.getTitulo(),
-                tema.getDescripcion(), tema.getContenido(), nueva);
-
-        assertEquals(nueva, primero.getDuracionDias());
-        assertEquals(total + 7, programa.getDuracionTotalDias());
-        assertTrue(mensaje(() -> temaService.modificar(tema.getIdTema(), programa.getIdPrograma(), fausto(),
-                tema.getTitulo(), tema.getDescripcion(), tema.getContenido(), 0)).contains("La duración en el cronograma no es válida"));
-        // un tema que no está en el cronograma de ese programa no se puede modificar desde él
-        Tema ajeno = mercado().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
-        assertTrue(mensaje(() -> temaService.modificar(ajeno.getIdTema(), programa.getIdPrograma(), fausto(),
-                ajeno.getTitulo(), ajeno.getDescripcion(), ajeno.getContenido(), 7)).length() > 0);
-    }
-
-    @Test
-    @DisplayName("CU-20: un tema nueva queda al final del cronograma con una semana de duración")
-    void agregaTemaNueva() {
-        Programa programa = macro().getProgramaVigente();
-        int temas = programa.getCantidadTemas();
-        int dias = programa.getDuracionTotalDias();
-
-        Tema nueva = temaService.agregar(fausto(), programa.getIdPrograma(), null, "  Política monetaria avanzada  ", "  ",
-                "  Regímenes cambiarios  ");
-
-        assertTrue(nueva.getIdTema() > 0);
-        assertEquals("Política monetaria avanzada", nueva.getTitulo());
-        assertNull(nueva.getDescripcion());
-        assertEquals("Regímenes cambiarios", nueva.getContenido());
-        assertEquals(temas + 1, programa.getCantidadTemas());
-        assertEquals(dias + 7, programa.getDuracionTotalDias());
-        TemaCronograma ultima = programa.getCronogramaOrdenado().get(temas);
-        assertEquals(nueva.getIdTema(), ultima.getTema().getIdTema());
-        assertEquals(temas + 1, ultima.getNumeroOrden());
-        assertEquals(7, ultima.getDuracionDias());
-    }
-
-    @Test
-    @DisplayName("CU-20: se puede agregar un tema a un programa con inscripciones: solo suma a lo que se pagó")
-    void agregaEnProgramaConInscripciones() {
-        Programa programa = mercado().getProgramaVigente();
-        assertTrue(programa.getCantidadInscripcionesActivas() > 0);
-
-        Tema nueva = agregar(programa, "Tema extra");
-
-        assertEquals(4, programa.getCantidadTemas());
-        assertEquals(4, programa.getCronogramaOrdenado().get(3).getNumeroOrden());
-        assertEquals("Tema extra", nueva.getTitulo());
-    }
-
-    @Test
-    @DisplayName("CU-20: faltan datos, superan el máximo, el título se repite, el programa no está activo o el docente no participa")
-    void validaAlAgregar() {
-        Programa programa = macro().getProgramaVigente();
-        int id = programa.getIdPrograma();
-        String repetido = programa.getCronogramaOrdenado().get(0).getTema().getTitulo();
-
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, "", null, "Contenido"))
-                .contains("Debe completar el título del tema."));
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, "x".repeat(51), null, "Contenido"))
-                .contains("Máximo: 50 caracteres"));
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, "Título", "x".repeat(151), "Contenido"))
-                .contains("Máximo: 150 caracteres"));
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), id, null, repetido.toUpperCase(), null, "Contenido"))
-                .contains("Ya existe un tema con ese título en el curso"));
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), 999999, null, "Título", null, "Contenido"))
-                .contains("El programa no se encuentra activo"));
-        assertTrue(mensaje(() -> temaService.agregar(sebastian(), id, null, "Título", null, "Contenido"))
-                .contains("No participás en este curso"));
-        assertTrue(mensaje(() -> temaService.agregar(null, id, null, "Título", null, "Contenido"))
-                .contains("rol de docente"));
-        assertNotNull(temaService.agregar(fausto(), id, null, "x".repeat(50), "y".repeat(150), "Contenido"));
-    }
-
-    @Test
-    @DisplayName("CU-20: se incorpora un tema de otro programa del curso, al final y con una semana")
-    void incorporaUnaTemaExistente() {
-        Programa original = macro().getProgramaVigente();
-        Tema tema = original.getCronogramaOrdenado().get(0).getTema();
-        Programa nuevo = programaService.registrar(fausto(), macro().getIdCurso(), null, "Programa 2027", null);
-        assertEquals(0, nuevo.getCantidadTemas());
-
-        temaService.agregar(fausto(), nuevo.getIdPrograma(), tema.getIdTema(), null, null, null);
-
-        assertEquals(1, nuevo.getCantidadTemas());
-        assertEquals(tema.getIdTema(), nuevo.getCronogramaOrdenado().get(0).getTema().getIdTema());
-        assertEquals(1, nuevo.getCronogramaOrdenado().get(0).getNumeroOrden());
-        // el tema sigue en el programa anterior y ahora forma parte de los dos
-        assertEquals(2, tema.getProgramasQueLaIncluyen().size());
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), nuevo.getIdPrograma(), tema.getIdTema(), null,
-                null, null)).contains("ya forma parte del cronograma"));
-        // un tema de otro curso no se puede incorporar
-        Tema ajena = mercado().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
-        assertTrue(mensaje(() -> temaService.agregar(fausto(), nuevo.getIdPrograma(), ajena.getIdTema(), null,
-                null, null)).contains("no se encuentra activa en este curso"));
     }
 
     // ------------------------------------------------------------------ CU-21 Modificar tema
@@ -343,86 +167,6 @@ class TemaServiceTest {
                 .contains("El tema no se encuentra activa"));
         // conservar su propio título no es un repetido
         assertNotNull(temaService.modificar(id, fausto(), tema.getTitulo(), null, "Otro contenido"));
-    }
-
-    // ------------------------------------------------------------------ CU-22 Dar de baja tema
-
-    @Test
-    @DisplayName("CU-22: dar de baja un tema del programa la quita del cronograma y renumera las demás; el tema sigue siendo del curso")
-    void daDeBajaYRenumera() {
-        Programa programa = macro().getProgramaVigente();
-        Tema uno = agregar(programa, "Uno");
-        Tema dos = agregar(programa, "Dos");
-        int antes = programa.getCantidadTemas();
-
-        temaService.darDeBaja(uno.getIdTema(), programa.getIdPrograma(), fausto());
-
-        assertEquals(antes - 1, programa.getCantidadTemas());
-        assertFalse(uno.getBaja());
-        assertFalse(dos.getBaja());
-        List<Integer> ordenes = ordenes(programa);
-        assertEquals(java.util.stream.IntStream.rangeClosed(1, antes - 1).boxed().toList(), ordenes);
-        assertEquals(dos.getIdTema(), programa.getCronogramaOrdenado().get(antes - 2).getTema().getIdTema());
-    }
-
-    @Test
-    @DisplayName("CU-22: si el tema sigue en el cronograma de otro programa, solo se quita de este")
-    void conservaLaTemaSiEstaEnOtroPrograma() {
-        Programa original = macro().getProgramaVigente();
-        Tema tema = original.getCronogramaOrdenado().get(0).getTema();
-        Programa nuevo = programaService.registrar(fausto(), macro().getIdCurso(), null, "Programa 2027", null);
-        temaService.agregar(fausto(), nuevo.getIdPrograma(), tema.getIdTema(), null, null, null);
-
-        temaService.darDeBaja(tema.getIdTema(), nuevo.getIdPrograma(), fausto());
-
-        assertFalse(tema.getBaja());
-        assertEquals(0, nuevo.getCantidadTemas());
-        assertTrue(tema.perteneceAlCronograma(original));
-    }
-
-    @Test
-    @DisplayName("CU-22: no se quita si el programa tiene inscripciones activas, si no pertenece al cronograma o sin participar")
-    void validaAlDarDeBaja() {
-        Programa conInscripciones = mercado().getProgramaVigente();
-        Tema deMercado = conInscripciones.getCronogramaOrdenado().get(0).getTema();
-        assertTrue(mensaje(() -> temaService.darDeBaja(deMercado.getIdTema(), conInscripciones.getIdPrograma(),
-                fausto())).contains("No se puede dar de baja el tema"));
-        assertFalse(deMercado.getBaja());
-
-        Programa programa = macro().getProgramaVigente();
-        Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
-        assertTrue(mensaje(() -> temaService.darDeBaja(deMercado.getIdTema(), programa.getIdPrograma(), fausto()))
-                .contains("no pertenece al cronograma de este programa"));
-        assertTrue(mensaje(() -> temaService.darDeBaja(tema.getIdTema(), programa.getIdPrograma(), sebastian()))
-                .contains("No participás en este curso"));
-        assertTrue(mensaje(() -> temaService.darDeBaja(tema.getIdTema(), 999999, fausto()))
-                .contains("El programa no se encuentra activo"));
-        assertTrue(mensaje(() -> temaService.darDeBaja(999999, programa.getIdPrograma(), fausto()))
-                .contains("El tema no se encuentra activa"));
-    }
-
-    @Test
-    @DisplayName("CU-22: la baja masiva da de baja todos los temas o ninguna, también para el administrador")
-    void daDeBajaVarias() {
-        Programa programa = macro().getProgramaVigente();
-        Tema uno = agregar(programa, "Uno");
-        Tema dos = agregar(programa, "Dos");
-        Tema deMercado = mercado().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
-        int id = programa.getIdPrograma();
-
-        // uno de los temas no está en este programa: no se da de baja ninguna
-        assertTrue(mensaje(() -> temaService.darDeBajaVarias(List.of(uno.getIdTema(), deMercado.getIdTema()), id,
-                fausto())).contains("no pertenece al cronograma"));
-        assertFalse(uno.getBaja());
-        assertTrue(mensaje(() -> temaService.darDeBajaVarias(List.of(), id, fausto()))
-                .contains("Debe seleccionar al menos un tema"));
-        assertTrue(mensaje(() -> temaService.darDeBajaVarias(List.of(uno.getIdTema()), id, sebastian()))
-                .contains("No participás en este curso"));
-
-        temaService.darDeBajaVarias(List.of(uno.getIdTema(), dos.getIdTema(), dos.getIdTema()), id, null);
-
-        assertFalse(uno.getBaja());
-        assertFalse(dos.getBaja());
     }
 
     // ------------------------------------------------------------------ Temas del curso
@@ -468,16 +212,13 @@ class TemaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-22: dar de baja un tema del curso lo quita de todos los programas y lo deja dado de baja")
+    @DisplayName("CU-22: dar de baja un tema del curso que no está en ningún programa lo deja dado de baja")
     void daDeBajaUnTemaDelCurso() {
-        Programa programa = macro().getProgramaVigente();
-        Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
-        int antes = programa.getCantidadTemas();
+        Tema tema = temaService.registrar(fausto(), macro().getIdCurso(), "Tema suelto", null, null);
 
         temaService.darDeBajaPorCurso(tema.getIdTema(), fausto());
 
         assertTrue(tema.getBaja());
-        assertEquals(antes - 1, programa.getCantidadTemas());
         assertTrue(mensaje(() -> temaService.darDeBajaPorCurso(tema.getIdTema(), fausto()))
                 .contains("no se encuentra activo"));
     }
@@ -487,9 +228,7 @@ class TemaServiceTest {
     @Test
     @DisplayName("El contenido de un tema es opcional: se puede completar después de registrarlo")
     void registraUnTemaSinContenido() {
-        Programa programa = macro().getProgramaVigente();
-
-        Tema nuevo = temaService.agregar(fausto(), programa.getIdPrograma(), null, "Tema sin contenido", null, null);
+        Tema nuevo = temaService.registrar(fausto(), macro().getIdCurso(), "Tema sin contenido", null, null);
 
         assertNull(nuevo.getContenido());
         Tema completado = temaService.modificar(nuevo.getIdTema(), fausto(), "Tema sin contenido", null, "Ya tiene contenido");

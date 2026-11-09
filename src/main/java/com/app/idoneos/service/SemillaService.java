@@ -329,6 +329,10 @@ public class SemillaService {
     @Autowired
     private RespuestaForoRepository respuestaForoRepository;
 
+    @Autowired
+    @org.springframework.context.annotation.Lazy // evita una dependencia circular con los servicios
+    private com.app.idoneos.service.cohorte.CohorteService cohorteService;
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
@@ -639,7 +643,7 @@ public class SemillaService {
         crearCohorteConEstado(curso5, null, ahora.plusDays(30), ahora.plusDays(60), ahora.plusDays(65), ahora.plusDays(120), 10,
                 null, EstadoCohorte.PENDIENTE);
         // Cohorte cancelada: llegó la fecha de inicio de la inscripción y el contenido no estaba completo
-        crearCohorteConEstado(curso5, programa5, ahora.minusDays(3), ahora.plusDays(25), ahora.plusDays(30), ahora.plusDays(80), 10,
+        crearCohorteConEstado(curso5, null, ahora.minusDays(3), ahora.plusDays(25), ahora.plusDays(30), ahora.plusDays(80), 10,
                 null, EstadoCohorte.CANCELADA);
         // Cohorte en su semana 6 de 6 con Valentina sin completar ningún tema: va atrasada (la primera terminaba en la semana 3)
         Cohorte enDictado5 = crearCohorte(programa5, ahora.minusDays(70), ahora.minusDays(45), ahora.minusDays(40),
@@ -762,7 +766,33 @@ public class SemillaService {
 
         completarElContenidoDeLosProgramas(ahora);
         dejarIncompletosLaMayoriaDeLosCursosAbiertos(ahora);
+        pasarAPendientesLasCohortesConContenidoIncompleto(ahora);
         actualizarEstadosDeLasCohortes(ahora);
+    }
+
+    /**
+     * Una cohorte publicada (inscripción próxima o posterior) siempre tiene su programa completo. Si la semilla dejó alguna con falta de
+     * contenido (del curso, del programa o de sus temas) y todavía sin alumnos, pasa a pendiente de contenido sin programa, con la
+     * inscripción lejos en el futuro, como el resto de los casos incompletos.
+     */
+    private void pasarAPendientesLasCohortesConContenidoIncompleto(LocalDateTime ahora) {
+        int plazo = Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO;
+        for (Cohorte cohorte : cohorteRepository.findByBajaFalse()) {
+            if (cohorte.esPendiente() || cohorte.esCancelada() || cohorte.getPrograma() == null
+                    || !inscripcionRepository.findByCohorteAndBajaFalse(cohorte).isEmpty() // se cuentan en la base: la lista de la cohorte puede estar desactualizada
+                    || cohorteService.faltantesDeContenido(cohorte.getPrograma()).isEmpty()) {
+                continue;
+            }
+            cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PENDIENTE).orElseThrow());
+            cohorte.setPrograma(null);
+            cohorte.setFechaInicioInscripcion(ahora.plusDays(plazo + 30L));
+            cohorte.setFechaFinInscripcion(ahora.plusDays(plazo + 75L));
+            if (cohorte.getFechaInicioDictado() != null) {
+                cohorte.setFechaInicioDictado(ahora.plusDays(plazo + 90L));
+                cohorte.setFechaFinDictado(ahora.plusDays(plazo + 90L + cohorte.getCurso().getDuracionDias() - 1));
+            }
+            cohorteRepository.saveAndFlush(cohorte);
+        }
     }
 
     /**
@@ -784,11 +814,12 @@ public class SemillaService {
     private final List<Curso> cursosAbiertosDeLaSemilla = new java.util.ArrayList<>();
 
     /**
-     * Para poder probar el diseño de curso, deja incompletos dos de cada tres cursos con inscripción abierta (junto con
+     * Para poder probar el diseño de curso, deja pendientes dos de cada tres cursos con inscripción abierta (junto con
      * «Introducción a las Finanzas» y los cursos completos, quedan la mitad y la mitad). Cada uno se queda en una etapa
-     * distinta del diseño: sin objetivos, sin programa, con el cronograma a medio asignar o con contenido a medio cargar.
-     * Como la semilla debe ser coherente, las cohortes de esos cursos pasan a Pendiente, con la inscripción lejos en el
-     * futuro, y no a Abierta.
+     * distinta del diseño: sin datos completos (paso 1), con los temas sin su contenido (paso 2) o con los temas listos pero sin
+     * programa asignado (paso 3, con el programa ya registrado o sin ninguno). Un programa nunca está incompleto y una cohorte pendiente
+     * de contenido nunca tiene programa, así que las cohortes de esos cursos pasan a Pendiente sin programa, con la inscripción lejos en
+     * el futuro, y los programas que no pueden existir en esa etapa se dan de baja.
      */
     private void dejarIncompletosLaMayoriaDeLosCursosAbiertos(LocalDateTime ahora) {
         int etapa = 0;
@@ -802,49 +833,44 @@ public class SemillaService {
             int plazo = Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO;
             for (Cohorte cohorte : cohortes) {
                 cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PENDIENTE).orElseThrow());
+                cohorte.setPrograma(null);
                 cohorte.setFechaInicioInscripcion(ahora.plusDays(plazo + 30L));
                 cohorte.setFechaFinInscripcion(ahora.plusDays(plazo + 75L));
                 if (cohorte.getFechaInicioDictado() != null) {
                     cohorte.setFechaInicioDictado(ahora.plusDays(plazo + 90L));
                     cohorte.setFechaFinDictado(ahora.plusDays(plazo + 90L + curso.getDuracionDias() - 1));
                 }
+                cohorteRepository.saveAndFlush(cohorte);
             }
             switch (etapa % 4) {
                 case 0 -> {
+                    // Paso 1: al curso le faltan datos
                     curso.setObjetivos(null);
                     cursoRepository.save(curso);
                 }
                 case 1 -> {
-                    for (Cohorte cohorte : cohortes) {
-                        cohorte.setPrograma(null);
-                        cohorteRepository.saveAndFlush(cohorte);
-                    }
+                    // Paso 3: los temas están completos y todavía no hay programa
                     for (Programa programa : programas) {
                         programa.marcarInactivo();
                         programaRepository.save(programa);
                     }
                 }
                 case 2 -> {
+                    // Paso 2: a los temas les falta contenido (sin autoevaluación visible), así que tampoco puede haber programa
                     for (Programa programa : programas) {
-                        TemaCronograma primero = temaCronogramaRepository.findByProgramaAndBajaFalse(programa).stream()
-                                .min(java.util.Comparator.comparingInt(TemaCronograma::getNumeroOrden)).orElseThrow();
-                        primero.setDuracionDias(Math.max(1, primero.getDuracionDias() - DuracionUtil.DIAS_POR_SEMANA));
-                        temaCronogramaRepository.save(primero);
+                        for (TemaCronograma cronograma : temaCronogramaRepository.findByProgramaAndBajaFalse(programa)) {
+                            autoevaluacionRepository.findByTemaAndBajaFalse(cronograma.getTema()).forEach(autoevaluacion -> {
+                                autoevaluacion.setOculto(true);
+                                autoevaluacionRepository.save(autoevaluacion);
+                            });
+                        }
+                        programa.marcarInactivo();
+                        programaRepository.save(programa);
                     }
                 }
                 default -> {
-                    for (Programa programa : programas) {
-                        TemaCronograma ultimo = temaCronogramaRepository.findByProgramaAndBajaFalse(programa).stream()
-                                .max(java.util.Comparator.comparingInt(TemaCronograma::getNumeroOrden)).orElseThrow();
-                        autoevaluacionRepository.findByTemaAndBajaFalse(ultimo.getTema()).forEach(autoevaluacion -> {
-                            autoevaluacion.setOculto(true);
-                            autoevaluacionRepository.save(autoevaluacion);
-                        });
-                    }
+                    // Paso 3: los temas están completos y el programa está registrado, pero la cohorte todavía no lo tiene asignado
                 }
-            }
-            for (Cohorte cohorte : cohortes) {
-                cohorteRepository.save(cohorte);
             }
             etapa++;
         }

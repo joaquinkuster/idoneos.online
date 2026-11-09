@@ -83,7 +83,7 @@ public class CronogramaController {
             Programa programa = programasDelCurso.stream().filter(p -> p.getIdPrograma() == (programaId == null ? -1 : programaId))
                     .findFirst().orElse(contexto.programa());
             Cohorte cohorte = esAdministrador ? null : contexto.participacion().getCohorteDeTrabajo();
-            boolean conInscripciones = programa != null && programa.getCantidadInscripcionesActivas() > 0;
+            boolean conInscripciones = programa != null && programa.estaCongelado();
             // Todos los temas activos del curso: se pueden poner en este cronograma, estén o no en otro programa
             List<Tema> temasDelCurso = temaService.buscarPorCurso(curso);
 

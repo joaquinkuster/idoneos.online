@@ -316,6 +316,16 @@ public class Curso {
     }
 
     /**
+     * Indica si el curso tiene alguna cohorte publicada en el catálogo (desde la inscripción próxima en adelante). Con una publicada, el
+     * diseño del curso (datos, programas, cronogramas, temas y categoría) es un compromiso con los alumnos y no se modifica.
+     *
+     * @return {@code true} si hay cohortes publicadas.
+     */
+    public boolean tieneCohortesPublicadas() {
+        return cohortes.stream().anyMatch(Cohorte::estaPublicada);
+    }
+
+    /**
      * Obtiene las cohortes del curso que no están dadas de baja ni canceladas (tengan o no programa), de la más reciente
      * a la más antigua: las que el docente puede elegir como cohorte por defecto.
      *

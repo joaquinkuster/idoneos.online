@@ -120,6 +120,11 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         return temaCronogramaRepository.save(entidad);
     }
 
+    /** El motivo de un bloqueo: si el programa tiene cohortes activas, aclara que el diseño del curso quedaría incompleto. */
+    private String motivo(Programa programa, String detalle) {
+        return programa.tieneCohortesActivas() ? MensajeErrorUtil.motivoDisenoIncompleto(detalle) : detalle;
+    }
+
     // ---------------------------------------------------------------- Modificaciones
 
     /**
@@ -139,6 +144,16 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
     @Override
     @Transactional
     public void modificar(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias) {
+        guardarCronograma(docente, programaId, temaIds, dias, false);
+    }
+
+    @Override
+    @Transactional
+    public void definirDeProgramaNuevo(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias) {
+        guardarCronograma(docente, programaId, temaIds, dias, true);
+    }
+
+    private void guardarCronograma(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias, boolean programaNuevo) {
         Programa programa = programaRepository.findById(programaId == null ? -1 : programaId)
                 .filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El programa no se encuentra activo."));
@@ -150,11 +165,9 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");
         }
-        if (programa.getCantidadInscripcionesActivas() > 0) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
-                    programa.getNombre(), "tiene " + MensajeErrorUtil.formatearCantidad(programa.getCantidadInscripcionesActivas(),
-                            "inscripción activa asociada", "inscripciones activas asociadas"),
-                    MensajeErrorUtil.LO_QUE_EL_ALUMNO_VIO_Y_PAGO));
+        if (!programaNuevo && programa.estaCongelado()) {
+            throw new IllegalArgumentException(MensajeErrorUtil.bloqueoPorPublicacion("el cronograma del programa",
+                    programa.getNombre(), programa.getMotivoDeCongelado(), MensajeErrorUtil.CIERRE_DISENO));
         }
 
         // Se valida todo lo que se recibió antes de cambiar algo
@@ -173,10 +186,18 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         if (total > maximo) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarDemasiadoLargo("El cronograma", maximo, "días"));
         }
-        // Con cohortes activas el diseño debe seguir completo: los días de los temas tienen que sumar la duración del curso
-        if (total != maximo && programa.tieneCohortesActivas()) {
+        // Un programa siempre está completo: tiene como mínimo los temas que exige el sistema
+        int minimoDeTemas = programaService.buscarMinimoDeContenido();
+        if (ids.size() < minimoDeTemas) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
-                    programa.getNombre(), MensajeErrorUtil.motivoDisenoIncompleto("asigna " + DuracionUtil.formatear(total)
+                    programa.getNombre(), "tiene " + MensajeErrorUtil.formatearCantidad(ids.size(), "tema", "temas")
+                            + " y hacen falta al menos " + minimoDeTemas,
+                    "Sumá temas con el contenido completo hasta llegar al mínimo."));
+        }
+        // Los días de los temas tienen que sumar siempre la duración del curso: la define el administrador, ni más ni menos
+        if (total != maximo) {
+            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                    programa.getNombre(), motivo(programa, "asigna " + DuracionUtil.formatear(total)
                             + " y el curso dura " + DuracionUtil.formatear(maximo)),
                     "Asigná entre los temas los " + DuracionUtil.formatear(maximo) + " del curso."));
         }
@@ -206,20 +227,20 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
                                 + String.join(", ", sinAutoevaluacion)),
                         "Registrá una autoevaluación en " + (sinAutoevaluacion.size() == 1 ? "ese tema" : "esos temas") + " antes."));
             }
-            // Un tema que se incorpora al cronograma tiene que traer el contenido completo que pide el diseño del curso
-            Set<Integer> yIncluidos = programa.getTemasCronograma().stream().map(c -> c.getTema().getIdTema()).collect(Collectors.toSet());
-            for (Integer id : ids) {
-                if (yIncluidos.contains(id)) {
-                    continue;
-                }
-                Tema nuevo = temas.get(id);
-                List<String> faltantes = cursoService.buscarContenidoDeTema(programa.getCurso(), nuevo).getFaltantes();
-                if (!faltantes.isEmpty()) {
-                    throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
-                            programa.getNombre(), MensajeErrorUtil.motivoDisenoIncompleto("incorpora el tema «" + nuevo.getTitulo()
-                                    + "», al que le falta contenido (" + String.join(", ", faltantes).toLowerCase() + ")"),
-                            "Completá su contenido antes."));
-                }
+        }
+        // Un tema que se incorpora al cronograma tiene que traer el contenido completo que pide el diseño del curso
+        Set<Integer> yIncluidos = programa.getTemasCronograma().stream().map(c -> c.getTema().getIdTema()).collect(Collectors.toSet());
+        for (Integer id : ids) {
+            if (yIncluidos.contains(id)) {
+                continue;
+            }
+            Tema nuevo = temas.get(id);
+            List<String> faltantes = cursoService.buscarContenidoDeTema(programa.getCurso(), nuevo).getFaltantes();
+            if (!faltantes.isEmpty()) {
+                throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el cronograma del programa",
+                        programa.getNombre(), motivo(programa, "incorpora el tema «" + nuevo.getTitulo()
+                                + "», al que le falta contenido (" + String.join(", ", faltantes).toLowerCase() + ")"),
+                        "Completá su contenido antes."));
             }
         }
 

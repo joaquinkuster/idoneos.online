@@ -139,7 +139,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-65: una autoevaluación combina pools de su tema y de las anteriores (repaso o evaluación final), nunca de las posteriores")
+    @DisplayName("CU-65: una autoevaluación combina pools de su tema y de cualquier otro tema del curso (repaso o evaluación final)")
     void poolsDeTemasAnteriores() {
         // El tema 3 (la última) puede usar los pools de los tres temas
         Autoevaluacion final_ = autoevaluacionService.registrar(fausto(), tercera().getIdTema(),
@@ -152,16 +152,15 @@ class AutoevaluacionServiceTest {
                 solicitud("Repaso de los temas 1 y 2", pool("Renta fija"), pool("Marco regulatorio")));
         assertTrue(repaso.esEvaluacionFinal());
 
-        // Nunca pools de temas posteriores
-        assertError("anteriores del programa, nunca de las posteriores", () -> autoevaluacionService.registrar(
-                fausto(), segunda().getIdTema(), solicitud("Con pool posterior", pool("Renta fija"), pool("Preguntas del tema"))));
-        assertError("nunca de las posteriores", () -> autoevaluacionService.registrar(fausto(),
-                primera().getIdTema(), solicitud("Con pool posterior", pool("Marco regulatorio"), pool("Renta fija"))));
+        // También se pueden usar pools de otros temas del curso, sin importar el orden
+        Autoevaluacion conPoolDeOtroTema = autoevaluacionService.registrar(fausto(), segunda().getIdTema(),
+                solicitud("Con pool de otro tema", pool("Renta fija"), pool("Preguntas del tema")));
+        assertEquals(2, conPoolDeOtroTema.getPoolsActivos().size());
 
-        // Y la lista de temas que pueden usar un pool sigue la misma regla
+        // Y la lista de temas que pueden usar un pool son todos los del curso
         List<Tema> usanElPoolDeLaTema1 = autoevaluacionService.temasQuePuedenUsar(pool("Marco regulatorio"));
         assertEquals(List.of(primera(), segunda(), tercera()), usanElPoolDeLaTema1);
-        assertEquals(List.of(tercera()), autoevaluacionService.temasQuePuedenUsar(pool("Preguntas del tema")));
+        assertEquals(List.of(primera(), segunda(), tercera()), autoevaluacionService.temasQuePuedenUsar(pool("Preguntas del tema")));
     }
 
     @Test

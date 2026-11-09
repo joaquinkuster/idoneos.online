@@ -141,47 +141,13 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
      */
     @Override
     public List<Tema> temasQuePuedenUsar(Pool pool) {
-        Tema delPool = pool.getTema();
-        List<Tema> temas = new ArrayList<>(List.of(delPool));
-        for (Programa programa : delPool.getProgramasQueLaIncluyen()) {
-            for (TemaCronograma cronograma : programa.getCronogramaOrdenado()) {
-                Tema candidata = cronograma.getTema();
-                if (temas.stream().noneMatch(u -> u.getIdTema() == candidata.getIdTema())
-                        && puedeUsarPoolDe(candidata, delPool)) {
-                    temas.add(candidata);
-                }
-            }
-        }
-        return temas;
+        // Una autoevaluación puede usar los pools de cualquier tema del curso: el formulario muestra primero los de su tema
+        return pool.getTema().getCurso().getTemas().stream().filter(tema -> !tema.getBaja()).toList();
     }
 
-    /**
-     * Indica si una autoevaluación de {@code tema} puede usar pools de {@code delPool}: es la mismo tema o viene antes
-     * en el cronograma de algún programa que incluye a ambas, y en ningún programa viene después. Nunca se usan pools de
-     * temas posteriores.
-     */
+    /** Indica si una autoevaluación de {@code tema} puede usar pools de {@code delPool}: alcanza con que sean del mismo curso. */
     private boolean puedeUsarPoolDe(Tema tema, Tema delPool) {
-        if (tema.getIdTema() == delPool.getIdTema()) {
-            return true;
-        }
-        boolean vieneAntes = false;
-        for (Programa programa : tema.getProgramasQueLaIncluyen()) {
-            int ordenDeLaTema = ordenEn(programa, tema);
-            int ordenDelPool = ordenEn(programa, delPool);
-            if (ordenDelPool < 0) {
-                continue;
-            }
-            if (ordenDelPool > ordenDeLaTema) {
-                return false;
-            }
-            vieneAntes = true;
-        }
-        return vieneAntes;
-    }
-
-    private int ordenEn(Programa programa, Tema tema) {
-        return programa.getCronogramaOrdenado().stream().filter(c -> c.getTema().getIdTema() == tema.getIdTema())
-                .mapToInt(TemaCronograma::getNumeroOrden).findFirst().orElse(-1);
+        return tema.getCurso().getIdCurso() == delPool.getCurso().getIdCurso();
     }
 
     // ---------------------------------------------------------------- Creaciones
@@ -377,7 +343,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
      */
     private boolean quedariaSinAutoevaluacionVisible(Tema tema, Set<Integer> quitadas) {
         List<Autoevaluacion> visibles = tema.getAutoevaluacionesPublicadas();
-        return tema.tieneCohortesActivas() && !visibles.isEmpty()
+        return !tema.getProgramasQueLaIncluyen().isEmpty() && !visibles.isEmpty()
                 && visibles.stream().allMatch(a -> quitadas.contains(a.getIdAutoevaluacion()));
     }
 
@@ -411,7 +377,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
             if (!puedeUsarPoolDe(tema, pool.getTema())) {
                 throw RespuestaFormularioUtil.armarCampoInvalido("idsPools", "Error! El pool «" + pool.getNombre()
                         + "» (tema «" + pool.getTema().getTitulo() + "») no puede usarse en esta autoevaluación: solo "
-                        + "se admiten los pools de su tema y de los temas anteriores del programa, nunca de las posteriores.");
+                        + "se admiten los pools de los temas del mismo curso.");
             }
             pools.add(pool);
         }

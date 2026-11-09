@@ -105,7 +105,7 @@ public class RecursoController {
             boolean esAdministrador = contexto.esAdministrador();
             Docente docente = esAdministrador ? null : usuario.getDocente();
             Programa programa = contexto.programa();
-            List<TemaCronograma> temas = programa == null ? List.of() : programa.getCronogramaOrdenado();
+            List<TemaCronograma> temas = panel.temasDelCursoEnOrden(contexto);
             // La grabación solo se ofrece si el curso tiene la modalidad Grabada
             List<TipoRecurso> tiposDeSubida = TipoRecurso.deSubidaManual().stream()
                     .filter(tipo -> tipo != TipoRecurso.GRABACION || contexto.curso().incluyeModalidad(Modalidad.GRABADA))
@@ -280,7 +280,7 @@ public class RecursoController {
             Programa vigente = material.getTema().getCurso().getProgramaVigente();
             String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
                     .filter(u -> u.getTema().getIdTema() == material.getTema().getIdTema())
-                    .map(u -> "?expandir=" + u.getNumeroOrden()).findFirst().orElse("");
+                    .map(u -> "?expandir=" + u.getTema().getIdTema()).findFirst().orElse("");
             // Alerta guía: si todavía falta contenido, propone seguir completándolo
             ResponseEntity<Map<String, String>> respuesta = panel.exitoConContenidoPendiente("Recurso '" + material.getTitulo() + "' subido con éxito.",
                     "/curso/acceder/" + material.getTema().getCurso().getIdCurso() + expandir,
@@ -382,7 +382,7 @@ public class RecursoController {
             Programa vigente = primero.getTema().getCurso().getProgramaVigente();
             String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
                     .filter(u -> u.getTema().getIdTema() == primero.getTema().getIdTema())
-                    .map(u -> "?expandir=" + u.getNumeroOrden()).findFirst().orElse("");
+                    .map(u -> "?expandir=" + u.getTema().getIdTema()).findFirst().orElse("");
             String mensaje = materiales.size() == 1 ? "Recurso '" + primero.getTitulo() + "' registrado en el tema."
                     : materiales.size() + " recursos registrados en el tema.";
             return panel.exitoConContenidoPendiente(mensaje, "/curso/acceder/" + primero.getTema().getCurso().getIdCurso() + expandir,

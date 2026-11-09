@@ -75,29 +75,6 @@ class ProgramaControllerTest {
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("La ventana de programas guarda de una vez los nuevos y los modificados, o ninguno si alguno falla")
-    void guardarVariosProgramas() throws Exception {
-        Curso curso = macro();
-        int existentes = curso.getProgramasActivos().size();
-        String cursoId = String.valueOf(curso.getIdCurso());
-
-        mockMvc.perform(post("/programa/guardar").param("cursoId", cursoId)
-                .param("cambios", "[{\"id\":null,\"nombre\":\"Versión A\",\"descripcion\":\"Uno\"},"
-                        + "{\"id\":null,\"nombre\":\"Versión B\",\"descripcion\":\"\"}]"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensaje").value("2 programas guardados correctamente."));
-        assertEquals(existentes + 2, cursoRepository.findById(curso.getIdCurso()).orElseThrow().getProgramasActivos().size());
-
-        // Con un nombre demasiado largo en uno de los cambios no se guarda ninguno
-        mockMvc.perform(post("/programa/guardar").param("cursoId", cursoId)
-                .param("cambios", "[{\"id\":null,\"nombre\":\"Versión C\"},{\"id\":null,\"nombre\":\"" + "x".repeat(60) + "\"}]"))
-                .andExpect(status().isBadRequest());
-        mockMvc.perform(post("/programa/guardar").param("cursoId", cursoId).param("cambios", "[]"))
-                .andExpect(status().isBadRequest());
-    }
-
     // ------------------------------------------------------------------ Listado
 
     @Test

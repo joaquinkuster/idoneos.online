@@ -55,15 +55,17 @@ class DisenoCursoControllerTest {
     // ------------------------------------------------------------------ Estado del diseño
 
     @Test
-    @DisplayName("El estado del diseño cuenta los temas, mira el programa vigente y lista lo que falta de contenido")
+    @DisplayName("El estado del diseño mira el contenido de los temas del curso, el programa vigente y lista lo que falta")
     void estadoDelDiseno() {
         Curso curso = macro();
 
         CursoService.EstadoDiseno estado = cursoService.calcularEstadoDiseno(curso);
 
         assertEquals(curso.getProgramaVigente().getIdPrograma(), estado.programaVigente().getIdPrograma());
-        assertEquals(curso.getProgramaVigente().getCantidadTemas(), estado.contenido().size());
+        assertEquals(curso.getTemas().stream().filter(t -> !t.getBaja()).count(), estado.contenido().size());
         assertTrue(estado.isTemasCompletos());
+        assertTrue(estado.isProgramaCompleto());
+        assertEquals(4, estado.getPasoActual());
         assertEquals(estado.contenido().stream().filter(c -> !c.getFaltantes().isEmpty()).count(),
                 estado.getTemasIncompletos().size());
         assertTrue(cursoService.buscarColumnasDeContenido(curso).contains("Material"));
@@ -105,12 +107,12 @@ class DisenoCursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Con los datos del curso incompletos el paso actual es el 1, pero el menú se habilita por lo ya hecho (programa y temas)")
+    @DisplayName("Con los datos del curso incompletos el paso actual es el 1, pero el menú se habilita por lo ya hecho (temas y contenido)")
     void menuSeHabilitaPorLoYaHecho() throws Exception {
         Curso curso = macro();
         curso.setObjetivos(null);
         assertEquals(1, cursoService.calcularEstadoDiseno(curso, (com.app.idoneos.model.Cohorte) null).getPasoActual());
-        // la línea de tiempo marca el programa y los temas como hechos: el menú los habilita aunque los datos sigan pendientes
+        // la línea de tiempo marca los temas y el contenido como hechos: el menú habilita los programas aunque los datos sigan pendientes
         assertTrue(cursoService.calcularEstadoDiseno(curso, (com.app.idoneos.model.Cohorte) null).getNivelDeMenu() >= 3);
 
         mockMvc.perform(get("/curso/acceder/" + curso.getIdCurso()))

@@ -29,11 +29,57 @@ public final class MensajeErrorUtil {
         return cantidad + " " + (cantidad == 1 ? singular : plural);
     }
 
+    /** Motivo cuando el bloqueo lo causa el curso al que pertenece el registro (programa, cronograma, tema, categoría). */
+    public static final String MOTIVO_CURSO_PUBLICADO = "el curso tiene cohortes publicadas en el catálogo";
+
+    /** Motivo cuando el registro es el propio curso. */
+    public static final String MOTIVO_PUBLICADO = "tiene cohortes publicadas en el catálogo";
+
+    /** Por qué lo publicado no se toca: es el compromiso de la empresa con los alumnos. */
+    public static final String COMPROMISO_PUBLICADO = "Lo publicado es un compromiso de la empresa con los alumnos que lo consultan o ya se inscribieron, "
+            + "y modificarlo afectaría lo que ellos tuvieron en cuenta al inscribirse.";
+
+    /** Versión corta del compromiso, para el aviso que acompaña a un formulario consultable. */
+    public static final String COMPROMISO_PUBLICADO_CORTO = "Lo publicado es un compromiso de la empresa con los alumnos que lo consultan o ya se inscribieron.";
+
+    private static final String OTRO_DISENO = "Si necesitás otro diseño, solicitá al administrador la baja de la cohorte para crearla de nuevo.";
+
+    /** Cierre del mensaje de error de un curso: lo único que se puede modificar y cómo cambiar el diseño. */
+    public static final String CIERRE_CURSO = "Solo podés modificar el precio, la portada y el equipo docente. " + OTRO_DISENO;
+
+    /** Cierre del mensaje de error de un programa, cronograma, tema o categoría. */
+    public static final String CIERRE_DISENO = OTRO_DISENO;
+
+    /** Cierre del mensaje de error de una cohorte publicada. */
+    public static final String CIERRE_COHORTE = "Si necesitás otro diseño, solicitá al administrador su baja para crearla de nuevo.";
+
+    /** Aviso que acompaña al formulario consultable de un curso publicado (campos bloqueados). */
+    public static final String AVISO_CURSO = COMPROMISO_PUBLICADO_CORTO + " Podés consultar todos sus datos; solo el precio, la portada y el equipo docente se pueden modificar. " + OTRO_DISENO;
+
+    /** Aviso que acompaña al formulario consultable de un programa, tema o categoría de un curso publicado. */
+    public static final String AVISO_DISENO = COMPROMISO_PUBLICADO_CORTO + " Podés consultar todos sus datos. " + OTRO_DISENO;
+
+    /** Aviso que acompaña al formulario consultable de una cohorte publicada. */
+    public static final String AVISO_COHORTE = COMPROMISO_PUBLICADO_CORTO + " Podés consultar todos sus datos. " + CIERRE_COHORTE;
+
     /**
-     * Lo que se aclara cuando no se puede modificar un programa, un tema o un cronograma que ya tiene inscripciones activas: es lo que el
-     * alumno vio y pagó. Es la misma oración en las tres ABM.
+     * Arma el mensaje de error cuando algo no se puede modificar porque el curso tiene cohortes publicadas en el catálogo. Es el único
+     * mensaje de este tipo de toda la aplicación (curso, programa, cronograma, cohorte, tema y categoría).
+     *
+     * @param tipo   El tipo de registro con su artículo, por ejemplo "el curso" o "el cronograma del programa".
+     * @param nombre El nombre del registro.
+     * @param motivo {@link #MOTIVO_PUBLICADO} o {@link #MOTIVO_CURSO_PUBLICADO} (o el de la cohorte).
+     * @param cierre {@link #CIERRE_CURSO}, {@link #CIERRE_DISENO} o {@link #CIERRE_COHORTE}.
+     * @return El mensaje listo para mostrar.
      */
-    public static final String LO_QUE_EL_ALUMNO_VIO_Y_PAGO = "Es lo que el alumno vio y pagó al inscribirse.";
+    public static String bloqueoPorPublicacion(String tipo, String nombre, String motivo, String cierre) {
+        return armarAccionBloqueada("modificar", tipo, nombre, motivo, COMPROMISO_PUBLICADO + " " + cierre);
+    }
+
+    /** Título del aviso de un formulario consultable: «El curso no se puede modificar: tiene cohortes publicadas en el catálogo.» */
+    public static String tituloAviso(String sujeto, String motivo) {
+        return sujeto + " no se puede modificar: " + motivo + ".";
+    }
 
     /**
      * Arma el mensaje de una baja que no se puede realizar, con la estructura
@@ -76,7 +122,7 @@ public final class MensajeErrorUtil {
      * @return El motivo completo, sin punto final.
      */
     public static String motivoDisenoIncompleto(String detalle) {
-        return detalle + " y su curso tiene cohortes activas: el diseño del curso quedaría incompleto";
+        return detalle + " y el programa del curso quedaría incompleto";
     }
 
     /** El valor no tiene el formato esperado. */

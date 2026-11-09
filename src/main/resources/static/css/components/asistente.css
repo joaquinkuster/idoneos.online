@@ -84,7 +84,7 @@
 /* ---------------------------------------------------------------- Carta */
 .as-panel {
     width: min(340px, calc(100vw - 40px));
-    max-height: min(560px, calc(100vh - 110px));
+    max-height: min(600px, calc(100vh - 110px));
     display: flex;
     flex-direction: column;
     background: #fff;
@@ -104,20 +104,14 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Encabezado: la etiqueta dorada con su línea y el saludo en la serif de los títulos, como las cartas del catálogo */
 .as-cabecera {
     flex-shrink: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 10px;
-    padding: 12px 14px;
-    border-bottom: 1px solid var(--pn-borde, #E2E8F0);
+    padding: 18px 16px 12px 20px;
     cursor: pointer;
-}
-
-.as-cab-icono {
-    flex: none;
-    font-size: 22px;
-    color: #B7791F;
 }
 
 .as-cab-textos {
@@ -125,9 +119,30 @@
     min-width: 0;
 }
 
-.as-cab-titulo {
-    font-size: 14px;
+.as-eti {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
     font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8A6B1F;
+}
+
+.as-eti::after {
+    content: '';
+    width: 40px;
+    height: 1px;
+    background: #D4A03D;
+}
+
+.as-cab-titulo {
+    margin-top: 8px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.2;
     color: var(--pn-navy, #0F233D);
 }
 
@@ -137,7 +152,7 @@
     background: none;
     padding: 2px;
     color: var(--pn-texto-suave, #64748B);
-    font-size: 14px;
+    font-size: 16px;
     cursor: pointer;
 }
 
@@ -146,7 +161,7 @@
     flex: 1;
     min-height: 0;
     overflow-y: auto;
-    padding: 6px 8px;
+    padding: 0 14px 6px;
     scrollbar-width: thin;
     scrollbar-color: #CBD5E1 transparent;
 }
@@ -163,35 +178,169 @@
 }
 
 .as-vacio {
-    margin: 10px 8px;
+    margin: 10px 6px;
     font-size: 13px;
     color: var(--pn-texto-suave, #64748B);
     line-height: 1.5;
+    text-align: center;
 }
 
-/* ---------------------------------------------------------------- Ruta: los pendientes como un recorrido */
+.as-ok {
+    width: 56px;
+    height: 56px;
+    margin: 12px auto 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #EAF3DE;
+    color: #3B6D11;
+    font-size: 26px;
+}
+
+/* El contexto: qué son los pendientes de abajo, en negrita y con su cantidad */
+.as-ctx {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 6px 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--pn-borde, #E2E8F0);
+    text-align: left;
+}
+
+.as-ctx > i {
+    color: #B7791F;
+    font-size: 17px;
+}
+
+.as-ctx b {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pn-navy, #0F233D);
+}
+
+.as-ctx-n {
+    margin-left: auto;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #FEF3C7;
+    color: #7A4E0B;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* La tarjeta «Ahora»: el primer pendiente. Neutra si falta más de una semana; dorada de 4 a 7 días; roja con 3 o menos */
+.as-hero {
+    --bd: #CBD5E1;
+    --tx: #64748B;
+    --btn: #0F233D;
+    --btn-borde: #94A3B8;
+    --btn-borde-h: #0F233D;
+    --btn-fondo-h: rgba(15, 35, 61, 0.07);
+    display: block;
+    margin: 0 0 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--bd);
+    border-radius: 12px;
+    background: #fff;
+    color: inherit;
+    text-align: left;
+    text-decoration: none;
+}
+
+.as-hero.media {
+    --bd: #D4A03D;
+    --tx: #7A4E0B;
+    --btn: #7A4E0B;
+    --btn-borde: #D4A03D;
+    --btn-borde-h: #B7791F;
+    --btn-fondo-h: rgba(212, 160, 61, 0.18);
+    background: #FFFAEB;
+}
+
+.as-hero.alta {
+    --bd: #EF4444;
+    --tx: #991B1B;
+    --btn: #991B1B;
+    --btn-borde: #EF4444;
+    --btn-borde-h: #DC2626;
+    --btn-fondo-h: rgba(239, 68, 68, 0.14);
+    background: #FEF6F6;
+}
+
+.as-hero:hover,
+.as-hero:focus-visible {
+    color: inherit;
+    outline: none;
+}
+
+.as-hero:focus-visible {
+    box-shadow: 0 0 0 2px #D4A03D;
+}
+
+.as-hero-cuando {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--tx);
+}
+
+.as-hero-titulo {
+    margin: 4px 0 2px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: var(--pn-navy, #0F233D);
+}
+
+.as-hero-curso {
+    font-size: 12.5px;
+    color: var(--pn-texto-suave, #64748B);
+}
+
+/* El botón es transparente, como Calendario y Tabular: en hover solo se intensifica */
+.as-go {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 12px;
+    padding: 8px 12px;
+    border: 1px solid var(--btn-borde);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--btn);
+    font-size: 13px;
+    font-weight: 700;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.as-hero:hover .as-go,
+.as-go:hover {
+    background: var(--btn-fondo-h);
+    border-color: var(--btn-borde-h);
+}
+
+/* ---------------------------------------------------------------- Ruta: los pasos que siguen, numerados desde el 2 */
 .as-ruta {
     display: flex;
     flex-direction: column;
 }
 
 .as-nodo {
-    --color: #D4A03D;
-    --halo: #FEF3C7;
     display: grid;
     grid-template-columns: 26px minmax(0, 1fr) auto;
-    column-gap: 6px;
+    column-gap: 8px;
     align-items: center;
-    padding: 9px 14px 9px 6px; /* a la derecha queda lugar para que la flecha no pegue con el fondo del hover */
+    padding: 9px 6px;
     border-radius: 10px;
     color: inherit;
+    text-align: left;
     text-decoration: none;
     transition: background 0.15s;
-}
-
-.as-nodo.atrasado {
-    --color: #EF4444;
-    --halo: #FEE2E2;
 }
 
 a.as-nodo:hover,
@@ -205,65 +354,60 @@ a.as-nodo:focus-visible {
     box-shadow: inset 0 0 0 2px #D4A03D;
 }
 
-/* La columna del círculo: la línea pasa por su centro y une un paso con el siguiente */
+/* La columna del número: la línea pasa por su centro y une un paso con el siguiente */
 .as-punto {
     position: relative;
     align-self: stretch;
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding-top: 2px; /* el círculo queda a la altura de la primera fila de la carta (la marca «Ahora» o el título) */
 }
 
-/* La línea cubre toda la carta y se une con el círculo de la siguiente */
 .as-punto::before {
     content: '';
     position: absolute;
     left: 50%;
-    top: -9px;
-    bottom: -9px;
+    top: -12px;
+    bottom: -12px;
     width: 2px;
     margin-left: -1px;
     background: #E2E8F0;
 }
 
-/* La primera arranca en su círculo; la última, si no hay otro círculo, llega hasta la fila de la fecha */
 .as-nodo:first-child .as-punto::before {
-    top: 9px;
+    top: 50%;
 }
 
 .as-nodo:last-child .as-punto::before {
-    bottom: 8px;
+    bottom: 50%;
 }
 
-.as-punto::after {
-    content: '';
+.as-num,
+.as-punto:empty::after {
     position: relative;
     z-index: 1;
-    width: 14px;
-    height: 14px;
+    width: 22px;
+    height: 22px;
     box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #94A3B8;
     border-radius: 50%;
     background: #fff;
-    border: 2px solid #94A3B8;
-    transition: border-color 0.15s, transform 0.15s;
+    color: #475569;
+    font-size: 11px;
+    font-weight: 700;
+    transition: border-color 0.15s, color 0.15s;
 }
 
-a.as-nodo:hover .as-punto::after {
+.as-punto:empty::after {
+    content: '';
+}
+
+a.as-nodo:hover .as-num {
     border-color: #0F233D;
-    transform: scale(1.12);
-}
-
-/* El círculo de la más cercana: relleno, dorado o rojo si faltan 3 días o menos. Al pasar el mouse solo crece, como los demás */
-.as-nodo.urgente .as-punto::after {
-    background: var(--color);
-    border-color: var(--color);
-}
-
-a.as-nodo.urgente:hover .as-punto::after {
-    background: var(--color);
-    border-color: var(--color);
-    transform: scale(1.12);
+    color: #0F233D;
 }
 
 .as-nodo.mas {
@@ -272,18 +416,12 @@ a.as-nodo.urgente:hover .as-punto::after {
     color: #94A3B8;
 }
 
-.as-nodo.mas .as-punto {
-    align-items: center;
-    padding-top: 0;
-}
-
-.as-nodo.mas:last-child .as-punto::before {
-    bottom: 50%;
-}
-
 .as-nodo.mas .as-punto::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
     background: #E2E8F0;
-    border-color: #E2E8F0;
 }
 
 .as-nodo-texto {
@@ -294,39 +432,16 @@ a.as-nodo.urgente:hover .as-punto::after {
     min-width: 0;
 }
 
-/* La etiqueta ocupa el ancho de su texto, no el de la fila */
-.as-ahora {
-    align-self: flex-start;
-    margin-bottom: 3px;
-    padding: 0 8px;
-    border-radius: 999px;
-    background: var(--halo);
-    color: #854F0B;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    line-height: 16px;
-    white-space: nowrap;
-}
-
-.as-nodo.atrasado .as-ahora {
-    color: #991B1B;
-}
-
-/* La carta: título y tres filas (curso, acción, cuándo cierra o abre) */
 .as-nodo-titulo,
-.as-nodo-curso,
-.as-nodo-accion,
-.as-nodo-fecha {
+.as-nodo-curso {
     max-width: 100%;
     line-height: 1.35;
 }
 
 .as-nodo-titulo {
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--pn-texto, #0F172A);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--pn-navy, #0F233D);
 }
 
 .as-nodo-curso {
@@ -334,65 +449,21 @@ a.as-nodo.urgente:hover .as-punto::after {
     color: var(--pn-texto-suave, #64748B);
 }
 
-/* A la derecha, junto a la flecha: una etiqueta, no un enlace */
-.as-derecha {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
+/* A la derecha: la acción, como una píldora con borde */
 .as-nodo-accion {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--pn-texto-suave, #64748B);
+    padding: 3px 10px;
+    border: 1px solid #CBD5E1;
+    border-radius: 999px;
+    color: var(--pn-navy, #0F233D);
+    font-size: 11px;
+    font-weight: 700;
     white-space: nowrap;
-    transition: color 0.15s;
+    transition: background 0.15s, border-color 0.15s;
 }
 
 a.as-nodo:hover .as-nodo-accion {
-    color: var(--pn-navy, #0F233D);
-}
-
-/* El título de la lista da el contexto de los pendientes */
-.as-seccion {
-    padding: 8px 6px 4px;
-    font-size: 13px;
-    font-weight: 700;
-    text-align: left;
-    color: var(--pn-navy, #0F233D);
-}
-
-.as-nodo-fecha {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 12px;
-    color: var(--pn-texto-suave, #64748B);
-}
-
-.as-nodo-fecha i {
-    font-size: 12px;
-}
-
-.as-nodo-fecha.pronto {
-    font-weight: 600;
-    color: #B91C1C;
-}
-
-.as-flecha {
-    margin-right: 2px;
-    color: #94A3B8;
-    font-size: 16px;
-    transition: transform 0.15s, color 0.15s;
-}
-
-.as-nodo.urgente .as-flecha {
-    color: #0F233D;
-}
-
-a.as-nodo:hover .as-flecha {
-    color: #0F233D;
-    transform: translateX(3px);
+    background: #fff;
+    border-color: #0F233D;
 }
 
 .as-sk-linea {
@@ -426,11 +497,12 @@ a.as-nodo:hover .as-flecha {
 
 /* Las acciones rápidas van sin rótulo, como botones con borde */
 .as-chip {
-    padding: 4px 10px;
+    padding: 5px 12px;
     border: 1px solid #CBD5E1;
-    border-radius: var(--boton-radio, 8px);
-    color: var(--pn-texto-suave, #64748B);
+    border-radius: 999px;
+    color: var(--pn-navy, #0F233D);
     font-size: 12px;
+    font-weight: 700;
     text-decoration: none;
 }
 
@@ -438,6 +510,7 @@ button.as-chip {
     background: transparent;
     font: inherit;
     font-size: 12px;
+    font-weight: 700;
     cursor: pointer;
 }
 

@@ -181,6 +181,25 @@ public class Programa {
     }
 
     /**
+     * Indica si el programa ya no se puede modificar: alguna de sus cohortes está publicada en el catálogo. Un programa sin cohortes
+     * publicadas (por ejemplo, uno recién registrado) se puede modificar aunque el curso tenga otras cohortes publicadas con otro programa.
+     *
+     * @return {@code true} si el programa no se puede modificar.
+     */
+    public boolean estaCongelado() {
+        return cohortes.stream().anyMatch(Cohorte::estaPublicada);
+    }
+
+    /**
+     * Por qué el programa no se puede modificar, sin punto final.
+     *
+     * @return El motivo.
+     */
+    public String getMotivoDeCongelado() {
+        return com.app.idoneos.util.MensajeErrorUtil.MOTIVO_PUBLICADO;
+    }
+
+    /**
      * Indica si el programa tiene cohortes que todavía no terminaron (próximas, abiertas o en dictado). Mientras las tenga,
      * cada tema de su cronograma debe conservar al menos una autoevaluación visible: es lo que permite a los alumnos
      * completarla.

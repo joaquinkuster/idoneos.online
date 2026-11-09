@@ -139,7 +139,7 @@ public class TemaController {
             boolean hayNuevos = lista.stream().anyMatch(c -> c.id() == null);
             if (hayNuevos) {
                 // Alerta guía: con el mínimo de temas, el paso siguiente es armar el cronograma (o el que corresponda)
-                return panel.exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente(), true);
+                return panel.exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente());
             }
             return RespuestaFormularioUtil.armarRespuestaExitosa(mensaje);
         } catch (Exception e) {
@@ -154,22 +154,16 @@ public class TemaController {
     // ---------------------------------------------------------------- Bajas
 
     /**
-     * CU-22: Da de baja un tema del cronograma de un programa. Responde en JSON.
+     * CU-22: Da de baja un tema del curso (y lo quita del cronograma de los programas que lo incluyen). Responde en JSON.
      *
-     * @param id         Identificador del tema.
-     * @param programaId Identificador del programa.
-     * @param authentication       La autenticación actual.
+     * @param id             Identificador del tema.
+     * @param authentication La autenticación actual.
      * @return Una respuesta con el mensaje de éxito o el mensaje de error.
      */
     @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id,
-            @RequestParam(value = "programaId", required = false) Integer programaId, Authentication authentication) {
+    public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
-            if (programaId == null) {
-                temaService.darDeBajaPorCurso(id, docenteQueGestiona(authentication));
-            } else {
-                temaService.darDeBaja(id, programaId, docenteQueGestiona(authentication));
-            }
+            temaService.darDeBajaPorCurso(id, docenteQueGestiona(authentication));
             return RespuestaFormularioUtil.armarRespuestaExitosa("Tema dada de baja con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

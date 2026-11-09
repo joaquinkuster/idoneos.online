@@ -168,7 +168,7 @@
 
 .pn-grupo-nombre-fila {
     display: flex;
-    align-items: center;
+    align-items: baseline; /* el conteo comparte la línea de base con el título en todas las cartas */
     flex-wrap: wrap;
     gap: 4px 12px;
     margin: 6px 0 0;
@@ -280,4 +280,10 @@
 /* Dentro de una card del panel (ABM): con el mismo margen lateral que los filtros y la tabla */
 .pn-card > .pn-chips {
     margin: 16px 22px 0;
+}
+
+/* Las cartas destacadas llevan el conteo en una pastilla: ahí se centra */
+.pn-grupo-pendiente .pn-grupo-nombre-fila,
+.pn-grupo-recomendado .pn-grupo-nombre-fila {
+    align-items: center;
 }

@@ -223,6 +223,43 @@ public class Cohorte {
     }
 
     /**
+     * Indica si la cohorte está publicada en el catálogo: desde que entra en inscripción próxima los alumnos la ven y pueden inscribirse
+     * (no cuentan las pendientes de contenido ni las canceladas). Una cohorte publicada es un compromiso con los alumnos y no se modifica.
+     *
+     * @return {@code true} si la cohorte está publicada en el catálogo.
+     */
+    public boolean estaPublicada() {
+        return !baja && !esPendiente() && !esCancelada();
+    }
+
+    /**
+     * Indica si la cohorte no se puede modificar: está publicada en el catálogo.
+     *
+     * @return {@code true} si hay un motivo que impide modificarla.
+     */
+    public boolean estaBloqueada() {
+        return estaPublicada();
+    }
+
+    /**
+     * Por qué la cohorte no se puede modificar, sin punto final (para completar «No se puede modificar la cohorte «X»: …»).
+     *
+     * @return El motivo.
+     */
+    public String getMotivoDeBloqueo() {
+        return "está publicada en el catálogo";
+    }
+
+    /**
+     * Indica si la cohorte está en inscripción próxima: tiene su programa completo y la inscripción todavía no abrió.
+     *
+     * @return {@code true} si el estado de la cohorte es Inscripción próxima.
+     */
+    public boolean esProxima() {
+        return estadoCohorte != null && EstadoCohorte.PROXIMA.equals(estadoCohorte.getNombre());
+    }
+
+    /**
      * Indica si la cohorte fue cancelada porque venció el plazo para completar el contenido sin hacerlo.
      *
      * @return {@code true} si el estado de la cohorte es Cancelada.
@@ -448,12 +485,22 @@ public class Cohorte {
     }
 
     /**
+     * Duración del cronograma de la cohorte, en días: la de su programa o, si todavía no tiene programa (cohorte pendiente de contenido),
+     * la del curso.
+     *
+     * @return La duración en días.
+     */
+    private int getDuracionDelCronograma() {
+        return programa != null ? programa.getDuracionTotalDias() : curso.getDuracionDias();
+    }
+
+    /**
      * Calcula el día del cronograma en el que está la cohorte, entre el primero y el último del programa.
      *
      * @return El día actual del cronograma.
      */
     public int getDiaActual() {
-        return Math.max(1, Math.min(getDiasTranscurridos(), programa.getDuracionTotalDias()));
+        return Math.max(1, Math.min(getDiasTranscurridos(), getDuracionDelCronograma()));
     }
 
     /**
@@ -471,7 +518,7 @@ public class Cohorte {
      * @return {@code true} si el cronograma comenzó y ya transcurrieron todos sus días.
      */
     public boolean haFinalizadoCronograma() {
-        return haComenzadoCronograma() && getDiasTranscurridos() > programa.getDuracionTotalDias();
+        return haComenzadoCronograma() && getDiasTranscurridos() > getDuracionDelCronograma();
     }
 
     /**

@@ -39,4 +39,15 @@ public interface TemaCronogramaService extends CrudService<TemaCronograma> {
      *                                  en el curso, alguna duración no es un entero mayor a cero o algún tema no es válida
      */
     void modificar(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias);
+
+    /**
+     * Arma el cronograma de un programa que se está registrando: es un programa nuevo, sin cohortes, así que no se le aplica el bloqueo por
+     * cohortes publicadas del curso (no se modifica nada de lo que vieron los alumnos).
+     *
+     * @param docente    el docente que lo arma
+     * @param programaId el programa nuevo
+     * @param temaIds    los temas, en orden
+     * @param dias       los días de cada tema
+     */
+    void definirDeProgramaNuevo(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias);
 }

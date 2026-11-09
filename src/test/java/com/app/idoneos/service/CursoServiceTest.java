@@ -185,8 +185,8 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-04: la duración no puede quedar por debajo del cronograma de un programa del curso")
-    void modificarCursoNoPermiteDuracionMenorAlCronograma() {
+    @DisplayName("CU-04: la duración la define el administrador y no cambia con un programa con cohortes activas o con todos sus días repartidos")
+    void modificarCursoNoPermiteCambiarLaDuracionConUnProgramaCompleto() {
         Curso curso = curso("Macroeconomía de Coyuntura");
         int cronograma = curso.getProgramaVigente().getDuracionTotalDias();
         assertTrue(cronograma > 1);
@@ -198,9 +198,10 @@ class CursoServiceTest {
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                         curso.getDocenteTitular().getIdDocente(),
                         curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList()));
-        assertTrue(error.getMessage().contains("no puede ser menor a la duración del cronograma"), error.getMessage());
+        assertTrue(error.getMessage().contains("No se puede modificar la duración del curso"), error.getMessage());
+        assertTrue(error.getMessage().contains("tiene cohortes activas"), error.getMessage());
 
-        // justo en la duración del cronograma, se guarda
+        // con la duración que ya tiene, se guarda
         Curso modificado = cursoService.modificar(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
                 curso.getPrecio(), curso.getCargaHorariaMinutos(), cronograma, null, curso.getCategoria().getIdCategoria(),
                 curso.getNivel().getIdNivel(), curso.getEmiteCertificado(),

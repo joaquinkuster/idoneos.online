@@ -456,11 +456,12 @@ public class CursoServiceImpl implements CursoService {
             List<Integer> idsDocentesAyudantes) {
         Curso curso = buscarActivoPorId(idCurso);
         validarCamposObligatorios(nombre, precio, duracionDias, idCategoria, idsModalidades, idDocenteTitular);
-        if (tieneInscripcionesActivas(curso)
+        // Con cohortes publicadas en el catálogo solo se pueden modificar el precio, la portada y el equipo docente
+        if (curso.tieneCohortesPublicadas()
                 && cambiaDatosRestringidos(curso, nombre, descripcion, cargaHorariaMinutos, duracionDias,
                         idCategoria, idNivel, emiteCertificado, idsModalidades)) {
-            throw new IllegalArgumentException("Error! El curso tiene inscripciones activas: solo pueden modificarse "
-                    + "el precio, el equipo docente y la imagen de portada.");
+            throw new IllegalArgumentException(MensajeErrorUtil.bloqueoPorPublicacion("el curso", curso.getNombre(),
+                    MensajeErrorUtil.MOTIVO_PUBLICADO, MensajeErrorUtil.CIERRE_CURSO));
         }
         Categoria categoria = obtenerCategoriaActiva(idCategoria);
         Nivel nivel = idNivel == null ? curso.getNivel() : obtenerNivel(idNivel);
@@ -516,6 +517,18 @@ public class CursoServiceImpl implements CursoService {
             String objetivos, Integer cargaHorariaMinutos) {
         Curso curso = buscarActivoPorId(idCurso);
         validarAccesoDocente(idCurso, docente);
+        // Con cohortes publicadas en el catálogo los datos del curso son lo que los alumnos ven: ya no se modifican (la portada sí)
+        if (curso.tieneCohortesPublicadas()) {
+            boolean cambia = (idNivel != null && (curso.getNivel() == null || curso.getNivel().getIdNivel() != idNivel))
+                    || (descripcion != null && !Objects.equals(convertirVacioANulo(curso.getDescripcion()), convertirVacioANulo(descripcion)))
+                    || (objetivos != null && !Objects.equals(curso.getObjetivos(), objetivos.trim()))
+                    || (cargaHorariaMinutos != null && !Objects.equals(curso.getCargaHorariaMinutos(), cargaHorariaMinutos));
+            if (cambia) {
+                throw new IllegalArgumentException(MensajeErrorUtil.bloqueoPorPublicacion("el curso", curso.getNombre(),
+                        MensajeErrorUtil.MOTIVO_PUBLICADO, MensajeErrorUtil.CIERRE_CURSO));
+            }
+            return curso;
+        }
         if (idNivel == null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("nivelId", "Error! Elegí el nivel del curso.");
         }
@@ -708,9 +721,20 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    /** La duración del curso no puede quedar por debajo del cronograma de ningún programa vigente del curso. */
+    /**
+     * La duración del curso la define el administrador y no cambia mientras algún programa vigente la tenga repartida por completo o
+     * tenga cohortes activas; y nunca puede quedar por debajo del cronograma de un programa vigente.
+     */
     private void validarDuracionContraCronogramas(Curso curso, Integer duracionDias) {
         for (Programa programa : curso.getProgramas()) {
+            if (!programa.esInactivo() && duracionDias != curso.getDuracionDias()
+                    && (programa.tieneCohortesActivas() || (programa.getCantidadTemas() > 0 && programa.estaDuracionAsignadaCompleta()))) {
+                String motivo = programa.tieneCohortesActivas()
+                        ? "el programa «" + programa.getNombre() + "» tiene cohortes activas"
+                        : "el programa «" + programa.getNombre() + "» ya tiene repartidos sus " + DuracionUtil.formatear(curso.getDuracionDias());
+                throw RespuestaFormularioUtil.armarCampoInvalido("duracion", MensajeErrorUtil.armarAccionBloqueada("modificar",
+                        "la duración del curso", curso.getNombre(), motivo, ""));
+            }
             if (!programa.esInactivo() && programa.getDuracionTotalDias() > duracionDias) {
                 throw RespuestaFormularioUtil.armarCampoInvalido("duracion", "Error! La duración ("
                         + DuracionUtil.formatear(duracionDias) + ") no puede ser menor a la duración del cronograma del programa «"
@@ -944,10 +968,10 @@ public class CursoServiceImpl implements CursoService {
         int minimo = parametroService.obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO);
         int temas = (int) curso.getTemas().stream().filter(tema -> !tema.getBaja()).count();
         Programa vigente = programa;
+        // El contenido es el de los temas del curso (no solo los del programa): primero se arman los temas y después el programa
         List<ContenidoDeTema> contenido = new ArrayList<>();
-        if (vigente != null) {
-            vigente.getCronogramaOrdenado().forEach(cronograma -> contenido.add(buscarContenidoDeTema(curso, cronograma.getTema())));
-        }
+        curso.getTemas().stream().filter(tema -> !tema.getBaja()).sorted(Comparator.comparingInt(Tema::getIdTema))
+                .forEach(tema -> contenido.add(buscarContenidoDeTema(curso, tema)));
         List<Cohorte> pendientes = curso.getCohortes().stream().filter(c -> !c.getBaja() && c.esPendiente()).toList();
         LocalDateTime primera = pendientes.stream().map(Cohorte::getFechaInicioInscripcion).min(Comparator.naturalOrder())
                 .orElse(null);

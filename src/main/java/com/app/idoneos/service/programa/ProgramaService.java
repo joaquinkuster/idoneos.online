@@ -40,8 +40,9 @@ public interface ProgramaService extends CrudService<Programa> {
     // ---------------------------------------------------------------- Creaciones
 
     /**
-     * CU-16: Registra un programa para un curso. Pasa a ser el vigente del curso y el programa por defecto del docente
-     * que lo registra. Si se indica un programa de origen, se copia su cronograma.
+     * CU-16: Registra un programa para un curso, copiando el cronograma de un programa de origen (obligatorio en esta versión: un programa
+     * nunca está incompleto). Pasa a ser el vigente del curso, queda guardado como su programa anterior y se asigna a las cohortes
+     * pendientes de contenido del curso, que pasan a inscripción próxima.
      *
      * @param docente          el docente que registra
      * @param cursoId          el identificador del curso
@@ -56,7 +57,8 @@ public interface ProgramaService extends CrudService<Programa> {
 
     /**
      * CU-16: Registra un programa con su cronograma de una vez (lo arma el asistente de programas: datos, cronograma y
-     * contenido). Si se indican temas, estos y sus días reemplazan al cronograma del programa de origen.
+     * contenido). Si se indican temas, estos y sus días reemplazan al cronograma del programa de origen: los días tienen que sumar la
+     * duración del curso y los temas tienen que tener su contenido completo.
      *
      * @param docente          el docente que registra
      * @param cursoId          el identificador del curso
@@ -70,28 +72,6 @@ public interface ProgramaService extends CrudService<Programa> {
      */
     Programa registrar(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
             String descripcion, List<Integer> temaIds, List<String> dias);
-
-    /**
-     * Un programa nuevo o modificado que llega de la ventana de programas.
-     *
-     * @param id          el identificador del programa ({@code null} si es nuevo)
-     * @param origenId    el programa del que parte uno nuevo (opcional)
-     * @param nombre      el nombre
-     * @param descripcion la descripción (opcional)
-     */
-    record CambioDePrograma(Integer id, Integer origenId, String nombre, String descripcion) {
-    }
-
-    /**
-     * Guarda de una vez los programas nuevos y los modificados de un curso: o se guardan todos o no se guarda ninguno.
-     *
-     * @param docente el docente que guarda (debe participar en el curso)
-     * @param cursoId el identificador del curso
-     * @param cambios los programas nuevos (sin identificador) y los modificados (con identificador)
-     * @return la cantidad de programas registrados y modificados
-     * @throws IllegalArgumentException si algún cambio no es válido; el mensaje nombra el programa
-     */
-    int guardarCambios(Docente docente, Integer cursoId, List<CambioDePrograma> cambios);
 
     // ---------------------------------------------------------------- Modificaciones
 

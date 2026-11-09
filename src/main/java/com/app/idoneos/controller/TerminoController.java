@@ -73,7 +73,7 @@ public class TerminoController {
         try {
             ContextoCurso contexto = panel.contextoDelPanel(cursoId, (Usuario) authentication.getPrincipal());
             Programa programa = contexto.programa();
-            List<TemaCronograma> todas = programa == null ? List.of() : programa.getCronogramaOrdenado();
+            List<TemaCronograma> todas = panel.temasDelCursoEnOrden(contexto);
 
             panel.cargarContexto(model, contexto, "glosario");
             model.addAttribute("temasDelPrograma", todas);

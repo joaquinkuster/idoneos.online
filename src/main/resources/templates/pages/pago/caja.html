@@ -69,10 +69,10 @@
                                 <th:block th:with="enCurso=${inscripcion.pagoEnCurso},
                                                    verificando=${inscripcion.pagoEnCurso != null and @pagoServiceImpl.estaVerificando(inscripcion.pagoEnCurso)},
                                                    rechazado=${inscripcion.pagoEnCurso == null and inscripcion.pagoSinAprobar != null and inscripcion.pagoSinAprobar.estaRechazado()}">
-                                    <div class="pn-aviso pn-aviso-azul" style="margin: 12px 0 0;" th:if="${inscripcionNueva and total > 0}">
+                                    <div class="pn-alerta pn-alerta-azul" style="margin: 12px 0 0;" th:if="${inscripcionNueva and total > 0}">
                                         Tu inscripción está registrada, pero tu lugar no está asegurado hasta que realices el pago.
                                     </div>
-                                    <div class="pn-aviso pn-aviso-dorado" style="margin: 12px 0 0;" th:if="${sinCupo}">
+                                    <div class="pn-alerta pn-alerta-dorado" style="margin: 12px 0 0;" th:if="${sinCupo}">
                                         Por ahora no hay lugares disponibles. Si alguien no completa su pago, se libera uno.
                                     </div>
                                     <button type="button" class="pn-btn pn-btn-primario caja-boton" data-pagar th:unless="${parcial or verificando or sinCupo}"
@@ -84,7 +84,7 @@
                                     <p class="pn-celda-secundaria caja-verificando" th:if="${verificando}">Verificando tu pago…</p>
                                 </th:block>
 
-                                <div class="pn-aviso pn-aviso-dorado mt-3" th:if="${parcial}">
+                                <div class="pn-alerta pn-alerta-dorado mt-3" th:if="${parcial}">
                                                                         Ya se registró un pago de
                                     <strong th:text="${'$ ' + #numbers.formatDecimal(pagado, 1, 'POINT', 0, 'COMMA')}">$ 30.000</strong>
                                     que no cubre el precio. El resto lo acredita el administrador.

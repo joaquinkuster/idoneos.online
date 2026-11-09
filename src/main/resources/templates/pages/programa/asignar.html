@@ -11,14 +11,14 @@
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="pn-modal-cabecera">
-                                    <h3 class="pn-modal-titulo">Asignar programa</h3>
+                                    <h3 class="pn-modal-titulo" >Asignar programa</h3>
                                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                                 </div>
                                 <div class="pn-modal-cuerpo">
                                     <form th:action="@{'/cohorte/asignarPrograma/' + ${coh.idCohorte}}" method="post" class="form-ajax" data-validar novalidate
                                           data-pasos data-resumen="Cohorte" data-modo="modificacion" data-asignar-programa
                                           data-contexto='[{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}]'
-                                          th:attr="data-ctx-curso=${coh.curso.nombre}, data-resumen-nombre=${coh.etiqueta}">
+                                          th:attr="data-ctx-curso=${coh.curso.nombre}, data-resumen-nombre=${coh.etiqueta}, data-cohorte-nombre=${coh.mesAnio}">
                                         <!-- Si se llegó desde el diseño del curso, al terminar se vuelve al inicio del curso -->
                                         <input type="hidden" name="volverAlCurso" value="true" th:if="${volverAlCurso == true}">
                                         <div class="pn-pasos pn-pasos-nombrados">
@@ -35,17 +35,16 @@
                                                     <label class="pn-etiqueta">Programa <span class="pn-obligatorio">*</span></label>
                                                     <select name="programaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Elegí el programa de la cohorte.">
                                                         <option value="">Programa</option>
-                                                        <option th:each="prog : ${programas}" th:value="${prog.idPrograma}" th:text="${prog.nombre + (faltantes.get(prog.idPrograma).isEmpty() ? '' : ' (incompleto)')}"
-                                                                th:title="${#strings.listJoin(faltantes.get(prog.idPrograma), '; ')}"
-                                                                th:selected="${coh.programa != null and coh.programa.idPrograma == prog.idPrograma}"
-                                                                th:attr="data-completo=${faltantes.get(prog.idPrograma).isEmpty()}">Programa</option>
+                                                        <option th:each="prog : ${programas}" th:value="${prog.idPrograma}" th:text="${prog.nombre + (prog.estado == 'Vigente' ? ' (Vigente)' : '')}"
+                                                                th:selected="${prog.estado == 'Vigente'}">Programa</option>
                                                     </select>
                                                     <div class="pn-ayuda-error"></div>
                                                 </div>
-                                                <div class="col-12 pn-campo" data-resumen-etiqueta="Estado de la cohorte">
-                                                    <span class="visually-hidden" data-resumen-linea="Estado de la cohorte" data-estado-valor th:text="${coh.estado}">Pendiente</span>
+                                                <div class="col-12">
+                                                    <div class="pn-aviso">La cohorte pasa a <strong>inscripción próxima</strong>: se habilita para que los alumnos se inscriban en su fecha de inicio.</div>
                                                 </div>
                                             </div>
+                                            <span class="visually-hidden" data-resumen-linea="Estado de la cohorte" data-estado-valor>Inscripción próxima</span>
                                         </div>
                                         <div class="pn-paso">
                                             <div class="pn-seccion-titulo">
@@ -53,9 +52,6 @@
                                                 <p>Estos son los cambios que se van a guardar</p>
                                             </div>
                                             <div class="pn-arbol" data-resumen-arbol></div>
-                                        </div>
-                                        <div class="pn-aviso" data-estado-resultante th:attr="data-estado-actual=${coh.estado}">
-                                            La cohorte sigue <strong>pendiente</strong> hasta que el contenido del programa esté completo.
                                         </div>
                                         <div class="pn-modal-pie">
                                             <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>

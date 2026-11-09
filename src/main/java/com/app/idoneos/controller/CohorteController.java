@@ -99,7 +99,7 @@ public class CohorteController {
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
-        Cohorte cohorte = cohorteService.buscarPorId(id).filter(c -> !c.getBaja() && !c.esCancelada())
+        Cohorte cohorte = cohorteService.buscarPorId(id).filter(c -> !c.getBaja())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra disponible."));
         if (!usuario.esAdministradorActivo() && !cohorte.getCurso().tieneDocente(usuario.getDocente())) {
             throw new IllegalArgumentException("Error! No tenés acceso a esta cohorte.");
@@ -175,8 +175,9 @@ public class CohorteController {
         Set<Integer> cohortesDeTrabajo = new HashSet<>();
         if (soloDeDocente != null) {
             docenteCursoService.buscarPorDocente(soloDeDocente).stream()
-                    .filter(participacion -> participacion.getCohortePorDefecto() != null)
-                    .forEach(participacion -> cohortesDeTrabajo.add(participacion.getCohortePorDefecto().getIdCohorte()));
+                    .map(participacion -> participacion.getCohorteDeTrabajo())
+                    .filter(java.util.Objects::nonNull)
+                    .forEach(cohorte -> cohortesDeTrabajo.add(cohorte.getIdCohorte()));
         }
 
         // Se ve una página por vez: el motor común filtra, ordena y pagina en el servidor
@@ -267,7 +268,6 @@ public class CohorteController {
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "cursoId", required = false) Integer cursoId,
-            @RequestParam(value = "programaId", required = false) Integer programaId,
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
             @RequestParam(value = "fechaFinInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFinInscripcion,
             @RequestParam(value = "fechaInicioDictado", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioDictado,
@@ -278,12 +278,13 @@ public class CohorteController {
             if (cursoId == null) {
                 throw RespuestaFormularioUtil.armarCampoInvalido("cursoId", "Error! Debe seleccionar el curso de la cohorte.");
             }
-            Cohorte cohorte = cohorteService.registrar(cursoId, programaId, fechaInicioInscripcion,
+            // El administrador no elige el programa: la cohorte nace pendiente de contenido y el docente le asigna el suyo
+            Cohorte cohorte = cohorteService.registrar(cursoId, null, fechaInicioInscripcion,
                     fechaFinInscripcion, fechaInicioDictado,
                     accesoDias != null ? accesoDias : accesoConTiempoExtra(cursoService.buscarActivoPorId(cursoId), tiempoExtra),
                     cupoMaximo);
             return RespuestaFormularioUtil.armarRespuestaExitosa(cohorte.esPendiente()
-                    ? "Cohorte registrada como pendiente: se activa cuando el contenido del programa esté completo."
+                    ? "Cohorte registrada como pendiente de contenido: cuando el docente le asigne su programa pasa a inscripción próxima y se habilita para que los alumnos se inscriban en su fecha de inicio."
                     : "Cohorte registrada correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

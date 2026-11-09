@@ -15,9 +15,9 @@
                         <p>Nombre y descripción</p>
                     </div>
                     <form th:action="@{'/categoria/modificar/' + ${cat.idCategoria}}" method="post" class="form-ajax" data-validar novalidate
-                          th:with="bloqueada=${inscripcionesPorCategoria != null and inscripcionesPorCategoria.containsKey(cat.idCategoria) and inscripcionesPorCategoria.get(cat.idCategoria) > 0}">
+                          th:with="bloqueada=${categoriaBloqueada == true}">
                         <fieldset th:disabled="${bloqueada}" class="pn-fieldset-plano">
-                            <div class="pn-campo mb-3">
+                            <div class="pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(cat.nombre) + ' / 50'}">0 / 50</span>
@@ -25,7 +25,7 @@
                                 <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${cat.nombre}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="pn-campo mb-3">
+                            <div class="pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Descripción (opcional)</label>
                                     <span class="pn-contador" th:text="${#strings.length(cat.descripcion != null ? cat.descripcion : '') + ' / 150'}">0 / 150</span>
@@ -34,9 +34,9 @@
                                 <div class="pn-ayuda-error"></div>
                             </div>
                         </fieldset>
-                        <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueada}"
-                             th:with="cantidad=${inscripcionesPorCategoria.get(cat.idCategoria)}">
-                            La categoría tiene <strong th:text="${cantidad + (cantidad == 1 ? ' inscripción activa asociada' : ' inscripciones activas asociadas')}">2 inscripciones activas asociadas</strong>: no se puede modificar. Es lo que el alumno vio y pagó al inscribirse.
+                        <div class="pn-alerta pn-alerta-dorado" th:if="${bloqueada}">
+                            <strong th:text="${'La categoría no se puede modificar: ' + 'hay cursos con cohortes publicadas en el catálogo' + '.'}">La categoría no se puede modificar.</strong>
+                            <span th:text="${@textos.avisoDiseno}">Lo publicado es un compromiso de la empresa.</span>
                         </div>
                         <div class="pn-modal-pie">
                             <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>

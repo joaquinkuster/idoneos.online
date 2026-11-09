@@ -26,7 +26,7 @@
                                 <h4>Datos del certificado</h4>
                                 <p>Nombre y DNI del alumno</p>
                             </div>
-                            <div class="pn-campo mb-3">
+                            <div class="pn-campo">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Nombre del alumno <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(i.certificadoVigente.nombreAlumno) + ' / 100'}">0 / 100</span>
@@ -34,7 +34,7 @@
                                 <input type="text" name="nombre" class="pn-input" maxlength="100" th:value="${i.certificadoVigente.nombreAlumno}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-                            <div class="pn-campo mb-3">
+                            <div class="pn-campo">
                                 <label class="pn-etiqueta">DNI <span class="pn-obligatorio">*</span></label>
                                 <input type="text" name="dni" class="pn-input" maxlength="8" inputmode="numeric" th:value="${i.certificadoVigente.dniAlumno}" required>
                                 <div class="pn-ayuda-error"></div>
@@ -51,7 +51,7 @@
                             <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
                             <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
                             <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-                            <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Corregir</button>
+                            <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
                         </div>
                     </form>
                 </div>

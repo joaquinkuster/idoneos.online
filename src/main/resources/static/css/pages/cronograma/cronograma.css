@@ -267,7 +267,7 @@
     display: flex;
     align-items: center;
     margin: 8px 3px;
-    padding: 0 10px;
+    padding: 10px 10px;
     overflow: hidden;
     font-size: 12px;
     font-weight: 600;
@@ -443,7 +443,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-top: 14px;
     padding: 10px 12px;
     font-size: 13px;
     color: var(--pn-ver);
@@ -502,5 +501,67 @@
     .cn-grilla {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Barra de desplazamiento horizontal del calendario: fina, redondeada y del color de la interfaz */
+.cn-grilla {
+    scrollbar-width: thin;
+    scrollbar-color: #B8C4D6 transparent;
+}
+
+.cn-grilla::-webkit-scrollbar {
+    height: 8px;
+}
+
+.cn-grilla::-webkit-scrollbar-track {
+    background: #EEF2F7;
+    border-radius: 8px;
+}
+
+.cn-grilla::-webkit-scrollbar-thumb {
+    background: #B8C4D6;
+    border-radius: 8px;
+}
+
+.cn-grilla::-webkit-scrollbar-thumb:hover {
+    background: var(--pn-ver);
+}
+
+/* Vista Cronograma: más aire en los paneles y el título con la duración total al mismo nivel */
+#cronograma.pn-prog-editor .cn-panel {
+    padding: 20px;
+}
+
+#cronograma .cn-titulo-fila {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+}
+
+#cronograma .cn-total-fila {
+    margin-left: auto;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+#cronograma .cn-total-fila strong {
+    font-weight: 700;
+    color: var(--pn-texto);
+}
+
+/* La ayuda de la edición se separa 20px de las columnas; el panel de temas disponibles, más ancho que en el asistente */
+#cronograma.pn-prog-editor > .cn-info:not([hidden]) {
+    margin-bottom: 20px;
+}
+
+#cronograma.pn-prog-editor .cn-izq {
+    width: 320px;
+}
+
+@media (max-width: 900px) {
+    #cronograma.pn-prog-editor .cn-izq {
+        width: 100%;
     }
 }

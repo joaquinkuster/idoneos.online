@@ -112,10 +112,8 @@ public class CursoController {
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
         Curso curso = cursoService.buscarActivoPorId(id);
-        ResumenCursos resumen = cursoService.resumir(List.of(curso));
         model.addAttribute("curso", curso);
-        model.addAttribute("bloqueado", resumen.inscripcionesPorCurso().containsKey(curso.getIdCurso())
-                && !resumen.inscripcionesPorCurso().get(curso.getIdCurso()).isEmpty());
+        model.addAttribute("bloqueado", curso.tieneCohortesPublicadas());
         model.addAttribute("categorias", categoriaService.obtenerTodo());
         model.addAttribute("niveles", nivelService.obtenerTodo());
         model.addAttribute("modalidades", modalidadService.obtenerTodo());
@@ -341,7 +339,10 @@ public class CursoController {
             model.addAttribute("programasDelCurso", curso.getProgramasActivos());
             // La cohorte por defecto puede ser cualquiera del curso, también una pendiente que todavía no tiene programa
             model.addAttribute("cohortesDelPrograma", curso.getCohortesDeTrabajo());
+            model.addAttribute("gruposDeCohortes", agruparCohortesPorPrograma(curso));
             model.addAttribute("estadoDiseno", cursoService.calcularEstadoDiseno(curso, cohorte));
+            // Con la inscripción abierta (o con inscripciones) los datos del curso son lo que los alumnos ven: el formulario queda bloqueado
+            model.addAttribute("cursoBloqueado", curso.tieneCohortesPublicadas());
             // Lo que le falta al contenido de cada programa: la ventana de asignar programa avisa en qué estado queda la cohorte
             Map<Integer, List<String>> faltantesPorPrograma = new java.util.HashMap<>();
             if (!esAdministrador) {
@@ -353,26 +354,38 @@ public class CursoController {
             // El programa de una cohorte se elige (o se cambia) mientras esté pendiente y sin inscriptos
             model.addAttribute("puedeAsignarPrograma", !esAdministrador && cohorte != null && cohorte.esPendiente()
                     && cohorte.getCantidadInscriptos() == 0);
-            // Qué temas ya tienen todo su contenido (el docente ve los pendientes expandidos y con su insignia)
-            Map<Integer, Boolean> contenidoCompleto = new java.util.HashMap<>();
-            if (programa != null) {
-                programa.getCronogramaOrdenado().forEach(uc -> contenidoCompleto.put(uc.getTema().getIdTema(),
-                        cursoService.buscarContenidoDeTema(curso, uc.getTema()).getFaltantes().isEmpty()));
-            }
-            model.addAttribute("contenidoCompleto", contenidoCompleto);
-            // Qué le falta a cada tema y, para «Completar contenido», cuál es el primero pendiente y el recurso que sigue
-            Map<Integer, List<String>> faltantesPorTema = new java.util.HashMap<>();
-            com.app.idoneos.model.Tema temaPendiente = null;
+            // Los temas del curso para el acordeón: primero los del programa de la cohorte (con su orden y sus días) y después los demás
+            List<com.app.idoneos.controller.component.FilaDeTema> filas = new java.util.ArrayList<>();
+            java.util.Set<Integer> enPrograma = new java.util.HashSet<>();
             if (programa != null) {
                 for (var uc : programa.getCronogramaOrdenado()) {
-                    List<String> faltantes = cursoService.buscarContenidoDeTema(curso, uc.getTema()).getFaltantes();
-                    faltantesPorTema.put(uc.getTema().getIdTema(), faltantes);
-                    if (temaPendiente == null && !faltantes.isEmpty()) {
-                        temaPendiente = uc.getTema();
-                    }
+                    filas.add(new com.app.idoneos.controller.component.FilaDeTema(uc.getTema(), uc.getNumeroOrden(), uc.getDuracionDias(), true));
+                    enPrograma.add(uc.getTema().getIdTema());
                 }
             }
+            curso.getTemas().stream().filter(t -> !t.getBaja() && !enPrograma.contains(t.getIdTema()))
+                    .sorted(java.util.Comparator.comparingInt(com.app.idoneos.model.Tema::getIdTema))
+                    .forEach(t -> filas.add(new com.app.idoneos.controller.component.FilaDeTema(t, 0, 0, false)));
+            model.addAttribute("filasDeTemas", filas);
+            // Qué temas ya tienen todo su contenido (el docente ve los pendientes expandidos y con su insignia), qué le falta a cada uno y,
+            // para «Completar contenido», cuál es el primero pendiente y el recurso que sigue
+            Map<Integer, Boolean> contenidoCompleto = new java.util.HashMap<>();
+            Map<Integer, List<String>> faltantesPorTema = new java.util.HashMap<>();
+            com.app.idoneos.model.Tema temaPendiente = null;
+            for (var fila : filas) {
+                List<String> faltantes = cursoService.buscarContenidoDeTema(curso, fila.getTema()).getFaltantes();
+                contenidoCompleto.put(fila.getTema().getIdTema(), faltantes.isEmpty());
+                faltantesPorTema.put(fila.getTema().getIdTema(), faltantes);
+                if (temaPendiente == null && !faltantes.isEmpty()) {
+                    temaPendiente = fila.getTema();
+                }
+            }
+            model.addAttribute("contenidoCompleto", contenidoCompleto);
             model.addAttribute("faltantesPorTema", faltantesPorTema);
+            // Lo que falta de cada tema, para mostrarlo como «Material» y «Clase grabada»
+            Map<Integer, String> faltantesTextoPorTema = new java.util.HashMap<>();
+            faltantesPorTema.forEach((idTema, faltantes) -> faltantesTextoPorTema.put(idTema, enumerarFaltantes(faltantes)));
+            model.addAttribute("faltantesTextoPorTema", faltantesTextoPorTema);
             if (temaPendiente != null && !esAdministrador) {
                 model.addAttribute("temaPendiente", temaPendiente);
                 model.addAttribute("siguienteRecurso", cursoService.buscarSiguienteRecurso(curso, programa, temaPendiente));
@@ -391,6 +404,39 @@ public class CursoController {
             return usuario.esAdministradorActivo() && usuario.getDocente() == null ? "redirect:/curso/buscar?vista=cards"
                     : "redirect:/curso/buscar";
         }
+    }
+
+    /** Enumera lo que le falta a un tema entre comillas angulares: «Material», «Material» y «Autoevaluación», «A», «B» y «C». */
+    private static String enumerarFaltantes(List<String> faltantes) {
+        List<String> citados = faltantes.stream().map(f -> "«" + f + "»").toList();
+        if (citados.size() <= 1) {
+            return String.join("", citados);
+        }
+        return String.join(", ", citados.subList(0, citados.size() - 1)) + " y " + citados.get(citados.size() - 1);
+    }
+
+    /**
+     * Las cohortes de trabajo del curso agrupadas por el programa que usan, para el selector de cohorte por defecto: el programa vigente
+     * primero, después los demás del más reciente al más antiguo y, al final, las cohortes que todavía no tienen programa.
+     */
+    private static Map<String, List<com.app.idoneos.model.Cohorte>> agruparCohortesPorPrograma(Curso curso) {
+        List<com.app.idoneos.model.Cohorte> cohortes = curso.getCohortesDeTrabajo();
+        com.app.idoneos.model.Programa vigente = curso.getProgramaVigente();
+        List<com.app.idoneos.model.Programa> programas = cohortes.stream().map(com.app.idoneos.model.Cohorte::getPrograma)
+                .filter(java.util.Objects::nonNull).distinct()
+                .sorted(java.util.Comparator.comparing((com.app.idoneos.model.Programa p) -> vigente == null || p.getIdPrograma() != vigente.getIdPrograma())
+                        .thenComparing(java.util.Comparator.comparingInt(com.app.idoneos.model.Programa::getIdPrograma).reversed()))
+                .toList();
+        Map<String, List<com.app.idoneos.model.Cohorte>> grupos = new java.util.LinkedHashMap<>();
+        for (com.app.idoneos.model.Programa programa : programas) {
+            String etiqueta = programa.getNombre() + (vigente != null && programa.getIdPrograma() == vigente.getIdPrograma() ? " (vigente)" : "");
+            grupos.put(etiqueta, cohortes.stream().filter(c -> c.getPrograma() != null && c.getPrograma().getIdPrograma() == programa.getIdPrograma()).toList());
+        }
+        List<com.app.idoneos.model.Cohorte> sinPrograma = cohortes.stream().filter(c -> c.getPrograma() == null).toList();
+        if (!sinPrograma.isEmpty()) {
+            grupos.put("Sin programa", sinPrograma);
+        }
+        return grupos;
     }
 
     // ---------------------------------------------------------------- Creaciones

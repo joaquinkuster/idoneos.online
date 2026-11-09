@@ -92,7 +92,7 @@ public class PoolController {
 
             Programa programa = contexto.programa();
             panel.cargarContexto(model, contexto, "pools");
-            model.addAttribute("temas", programa == null || esAdministrador ? List.of() : programa.getCronogramaOrdenado());
+            model.addAttribute("temas", esAdministrador ? List.of() : panel.temasDelCursoEnOrden(contexto));
             model.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             model.addAttribute("puedeGestionar", !esAdministrador);
             // Desde «Completar contenido» se llega con ?nuevo&temaId=: se abre sola la ventana para crear el pool de ese tema

@@ -52,7 +52,7 @@ class CronogramaServiceTest {
 
     private Curso curso(String nombre) {
         Curso curso = cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
-        // la semilla deja los cronogramas completos: se amplía la duración para poder agregar temas
+        // la duración la define el administrador: acá se fija en 365 días para trabajar con números redondos
         if (curso.getDuracionDias() < 365) {
             curso.setDuracionDias(365);
         }
@@ -96,6 +96,37 @@ class CronogramaServiceTest {
         assertEquals(antes, semanas(programa));
     }
 
+    @Test
+    @DisplayName("Los días del cronograma suman siempre la duración del curso, también sin cohortes activas")
+    void laSumaCierraSiempreConLaDelCurso() {
+        Programa programa = macro();
+        List<Integer> antes = semanas(programa);
+
+        String error = mensaje(() -> cronogramaService.modificar(fausto(), programa.getIdPrograma(), ids(programa), List.of("1", "1", "1")));
+
+        assertTrue(error.contains("No se puede modificar el cronograma del programa"), error);
+        assertTrue(error.contains("asigna 3 días y el curso dura"), error);
+        assertFalse(error.contains("cohortes activas"), error);
+        assertEquals(antes, semanas(programa));
+    }
+
+    @Test
+    @DisplayName("Un tema al que le falta contenido no se puede incorporar al cronograma")
+    void noIncorporaUnTemaSinContenido() {
+        Programa original = macro();
+        Programa nuevo = programaNuevo(original);
+        Tema sinContenido = temaService.registrar(fausto(), original.getCurso().getIdCurso(), "Tema sin contenido", null, null);
+
+        int primero = ids(nuevo).get(0);
+
+        String error = mensaje(() -> cronogramaService.modificar(fausto(), nuevo.getIdPrograma(),
+                List.of(primero, sinContenido.getIdTema()), dias(nuevo, 1)));
+
+        assertTrue(error.contains("al que le falta contenido"), error);
+        assertTrue(error.contains("Completá su contenido antes"), error);
+        assertEquals(3, nuevo.getCantidadTemas());
+    }
+
     private Docente docente(String correo) {
         return docenteRepository.findAll().stream().filter(d -> d.getUsuario().getCorreo().equals(correo)).findFirst()
                 .orElseThrow();
@@ -113,6 +144,22 @@ class CronogramaServiceTest {
         return programa.getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList();
     }
 
+    /** Reparte la duración del curso: los días indicados para los primeros temas y el resto para el último. */
+    private List<String> dias(Programa programa, int... primeros) {
+        List<String> dias = new java.util.ArrayList<>();
+        int usados = 0;
+        for (int d : primeros) {
+            dias.add(String.valueOf(d));
+            usados += d;
+        }
+        dias.add(String.valueOf(programa.getCurso().getDuracionDias() - usados));
+        return dias;
+    }
+
+    private int duracion(Programa programa) {
+        return programa.getCurso().getDuracionDias();
+    }
+
     private List<Integer> semanas(Programa programa) {
         return programa.getCronogramaOrdenado().stream().map(TemaCronograma::getDuracionDias).toList();
     }
@@ -121,9 +168,9 @@ class CronogramaServiceTest {
         return programa.getCronogramaOrdenado().stream().map(TemaCronograma::getNumeroOrden).toList();
     }
 
-    /** Registra un programa nuevo en el curso del programa dado (queda como el vigente, sin temas). */
+    /** Registra un programa nuevo a partir del dado (queda como el vigente y con el cronograma completo del original: nunca hay programas incompletos). */
     private Programa programaNuevo(Programa deCurso) {
-        return programaService.registrar(fausto(), deCurso.getCurso().getIdCurso(), null, "Programa 2027", null);
+        return programaService.registrar(fausto(), deCurso.getCurso().getIdCurso(), deCurso.getIdPrograma(), "Programa 2027", null);
     }
 
     // ------------------------------------------------------------------ CU-24 Modificar cronograma
@@ -136,12 +183,12 @@ class CronogramaServiceTest {
         assertEquals(3, original.size());
         List<Integer> nuevoOrden = List.of(original.get(2), original.get(0), original.get(1));
 
-        cronogramaService.modificar(fausto(), programa.getIdPrograma(), nuevoOrden, List.of("2", "4", "1"));
+        cronogramaService.modificar(fausto(), programa.getIdPrograma(), nuevoOrden, dias(programa, 2, 4));
 
         assertEquals(nuevoOrden, ids(programa));
-        assertEquals(List.of(2, 4, 1), semanas(programa));
+        assertEquals(List.of(2, 4, duracion(programa) - 6), semanas(programa));
         assertEquals(List.of(1, 2, 3), ordenes(programa));
-        assertEquals(7, programa.getDuracionTotalDias());
+        assertEquals(duracion(programa), programa.getDuracionTotalDias());
         assertNotNull(programa.getUltimaModificacion());
     }
 
@@ -180,31 +227,45 @@ class CronogramaServiceTest {
     @Test
     @DisplayName("CU-24: el cronograma no puede superar las semanas de acceso de una cohorte del programa")
     void noSuperaLasSemanasDeAccesoDeLasCohortes() {
-        Programa programa = macro();
+        Programa programa = curso("Macroeconomía de Coyuntura").getProgramaVigente();
         List<Integer> temas = ids(programa);
         List<Integer> antes = semanas(programa);
         int minimoDeAcceso = programa.getCohortesActivas().stream().mapToInt(c -> c.getAccesoDias()).min().orElseThrow();
+        assertTrue(minimoDeAcceso < duracion(programa), "la semilla deja cohortes con menos días de acceso que la duración del curso");
 
         String error = mensaje(() -> cronogramaService.modificar(fausto(), programa.getIdPrograma(), temas,
-                List.of(String.valueOf(minimoDeAcceso), "1", "1")));
+                dias(programa, 1, 1)));
         assertTrue(error.startsWith("Error! La cohorte «"), error);
         assertTrue(error.endsWith("Modificá la cohorte o acortá el cronograma."), error);
         assertEquals(antes, semanas(programa)); // nada se modificó
     }
 
     @Test
-    @DisplayName("CU-24: se incorpora un tema de otro programa del curso, con las semanas indicadas")
-    void incorporaUnaTemaDeOtroPrograma() {
+    @DisplayName("CU-24: un programa nuevo conserva dos temas del original, con los días indicados, y el original no cambia")
+    void armaUnProgramaConTemasDeOtro() {
         Programa original = macro();
-        int tema = ids(original).get(0);
+        List<Integer> temas = ids(original);
         Programa nuevo = programaNuevo(original);
 
-        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), List.of(tema), List.of("3"));
+        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), List.of(temas.get(0), temas.get(1)), dias(nuevo, 3));
 
-        assertEquals(List.of(tema), ids(nuevo));
-        assertEquals(List.of(3), semanas(nuevo));
-        assertEquals(List.of(1), ordenes(nuevo));
+        assertEquals(List.of(temas.get(0), temas.get(1)), ids(nuevo));
+        assertEquals(List.of(3, duracion(nuevo) - 3), semanas(nuevo));
+        assertEquals(List.of(1, 2), ordenes(nuevo));
         assertEquals(3, original.getCantidadTemas());
+    }
+
+    @Test
+    @DisplayName("CU-24: un programa nunca tiene menos temas que el mínimo del sistema")
+    void noBajaDelMinimoDeTemas() {
+        Programa programa = macro();
+        int minimo = programaService.buscarMinimoDeContenido();
+        List<Integer> uno = ids(programa).subList(0, Math.max(0, minimo - 1));
+        List<String> dias = uno.isEmpty() ? List.of() : dias(programa);
+
+        String error = mensaje(() -> cronogramaService.modificar(fausto(), programa.getIdPrograma(), uno, dias));
+
+        assertTrue(error.contains("hacen falta al menos " + minimo), error);
     }
 
     @Test
@@ -213,41 +274,36 @@ class CronogramaServiceTest {
         Programa original = macro();
         List<Integer> temas = ids(original);
         Programa nuevo = programaNuevo(original);
-        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), List.of(temas.get(0)), List.of("1"));
 
-        // se quita del programa nuevo: sigue en el original
-        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), List.of(), List.of());
-        Tema compartida = original.getCronogramaOrdenado().get(0).getTema();
+        // se quita la tercera del programa nuevo: sigue en el original
+        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), List.of(temas.get(0), temas.get(1)), dias(nuevo, 100));
+        Tema compartida = original.getCronogramaOrdenado().get(2).getTema();
         assertFalse(compartida.getBaja());
-        assertEquals(0, nuevo.getCantidadTemas());
+        assertEquals(2, nuevo.getCantidadTemas());
 
         // se quita la segunda del programa original, donde estaba sola: el tema sigue siendo del curso
         Tema sola = original.getCronogramaOrdenado().get(1).getTema();
         cronogramaService.modificar(fausto(), original.getIdPrograma(),
-                List.of(temas.get(0), temas.get(2)), List.of("1", "1"));
+                List.of(temas.get(0), temas.get(2)), dias(original, 1));
         assertFalse(sola.getBaja());
         assertEquals(List.of(temas.get(0), temas.get(2)), ids(original));
         assertEquals(List.of(1, 2), ordenes(original));
     }
 
     @Test
-    @DisplayName("CU-24: se quita, se reordena y se agrega en una sola operación sin chocar con los números de orden")
+    @DisplayName("CU-24: se quita y se reordena en una sola operación sin chocar con los números de orden")
     void todoJunto() {
         Programa original = macro();
         List<Integer> temas = ids(original);
         Programa nuevo = programaNuevo(original);
-        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), temas, List.of("1", "1", "1"));
-        // un tema más, que queda en el programa original
-        Tema extra = temaService.agregar(fausto(), original.getIdPrograma(), null, "Tema extra", null,
-                "Contenido");
+        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), temas, dias(nuevo, 1, 1));
 
-        // en el programa nuevo: se quita la del medio, se invierten las otras y se agrega la extra
-        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(),
-                List.of(temas.get(2), extra.getIdTema(), temas.get(0)), List.of("5", "2", "3"));
+        // en el programa nuevo: se quita la del medio y se invierten las otras
+        cronogramaService.modificar(fausto(), nuevo.getIdPrograma(), List.of(temas.get(2), temas.get(0)), dias(nuevo, 5));
 
-        assertEquals(List.of(temas.get(2), extra.getIdTema(), temas.get(0)), ids(nuevo));
-        assertEquals(List.of(5, 2, 3), semanas(nuevo));
-        assertEquals(List.of(1, 2, 3), ordenes(nuevo));
+        assertEquals(List.of(temas.get(2), temas.get(0)), ids(nuevo));
+        assertEquals(List.of(5, duracion(nuevo) - 5), semanas(nuevo));
+        assertEquals(List.of(1, 2), ordenes(nuevo));
         // el tema del medio sigue en el programa original: no se dio de baja
         assertFalse(original.getCronogramaOrdenado().stream().anyMatch(c -> c.getTema().getBaja()));
     }
@@ -297,8 +353,8 @@ class CronogramaServiceTest {
         int deOtroCurso = ids(mercado()).get(0);
 
         assertTrue(mensaje(() -> cronogramaService.modificar(fausto(), id,
-                List.of(temas.get(0), deOtroCurso), List.of("1", "1"))).contains("no se encuentra activa en este curso"));
-        assertTrue(mensaje(() -> cronogramaService.modificar(fausto(), id, List.of(999999), List.of("1")))
+                List.of(temas.get(0), deOtroCurso), dias(programa, 1))).contains("no se encuentra activa en este curso"));
+        assertTrue(mensaje(() -> cronogramaService.modificar(fausto(), id, List.of(temas.get(0), 999999), dias(programa, 1)))
                 .contains("no se encuentra activa en este curso"));
         assertTrue(mensaje(() -> cronogramaService.modificar(docente("sebastian.bordato@idoneos.online"), id,
                 temas, List.of("1", "1", "1"))).contains("No participás en este curso"));

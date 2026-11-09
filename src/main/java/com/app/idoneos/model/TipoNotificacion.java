@@ -49,7 +49,7 @@ public class TipoNotificacion {
         return nombre;
     }
 
-    /** Aviso de que una cohorte pendiente pasó a activa. */
+    /** Aviso de que una cohorte pendiente de contenido pasó a inscripción próxima. */
     public static final String COHORTE_ACTIVADA = "Cohorte activada";
 
     /** Aviso de que una cohorte pendiente se canceló. */

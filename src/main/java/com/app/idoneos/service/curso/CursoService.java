@@ -371,9 +371,9 @@ public interface CursoService extends CrudService<Curso> {
      * @param faltantesDeDatos     Lo que falta de los datos del curso (nivel, objetivos, carga horaria).
      * @param cantidadTemas        La cantidad de temas vigentes del curso.
      * @param minimoTemas          El mínimo de temas que exige el sistema.
-     * @param programaVigente      El programa vigente, o {@code null} si el curso no tiene.
+     * @param programaVigente      El programa de la cohorte de trabajo (el vigente del curso sin cohorte), o {@code null} si no tiene.
      * @param duracionAsignada     Si el programa vigente asigna toda la duración del curso.
-     * @param contenido            El contenido de cada tema del programa vigente.
+     * @param contenido            El contenido de cada tema vigente del curso.
      * @param cohortesPendientes   La cantidad de cohortes pendientes del curso.
      * @param primeraInscripcion   El inicio de inscripción más próximo de las cohortes pendientes, o {@code null}.
      */
@@ -381,80 +381,76 @@ public interface CursoService extends CrudService<Curso> {
             boolean duracionAsignada, List<ContenidoDeTema> contenido, int cohortesPendientes,
             LocalDateTime primeraInscripcion) {
 
-        /** Si el docente completó los datos del curso. */
+        /** Si el docente completó los datos del curso (paso 1 del diseño: Datos). */
         public boolean isDatosCompletos() {
             return faltantesDeDatos.isEmpty();
         }
 
-        /** Si el curso tiene el mínimo de temas. */
-        public boolean isTemasCompletos() {
-            return cantidadTemas >= minimoTemas;
+        /** Los temas del curso que ya tienen todo su contenido. */
+        public List<ContenidoDeTema> getTemasConContenido() {
+            return contenido.stream().filter(c -> c.getFaltantes().isEmpty()).toList();
         }
 
-        /** Si el tema del programa vigente que más le falta existe: lo que falta de contenido, uno por tema. */
+        /** Si el curso tiene el mínimo de temas con el contenido completo (paso 2 del diseño: Temas y contenido). */
+        public boolean isTemasCompletos() {
+            return getTemasConContenido().size() >= minimoTemas;
+        }
+
+        /** Cuántos temas con el contenido completo le faltan al curso para llegar al mínimo. */
+        public int getTemasQueFaltan() {
+            return Math.max(0, minimoTemas - getTemasConContenido().size());
+        }
+
+        /** Los temas del curso a los que les falta contenido. */
         public List<ContenidoDeTema> getTemasIncompletos() {
             return contenido.stream().filter(c -> !c.getFaltantes().isEmpty()).toList();
         }
 
-        /** Los números de orden (en el cronograma del programa vigente) de los temas a los que les falta contenido, separados por coma. */
-        public String getOrdenesIncompletos() {
-            if (programaVigente == null) {
-                return "";
-            }
-            java.util.Set<Integer> ids = getTemasIncompletos().stream().map(c -> c.tema().getIdTema())
-                    .collect(java.util.stream.Collectors.toSet());
-            return programaVigente.getCronogramaOrdenado().stream().filter(u -> ids.contains(u.getTema().getIdTema()))
-                    .map(u -> String.valueOf(u.getNumeroOrden())).collect(java.util.stream.Collectors.joining(","));
+        /** Los identificadores de los temas a los que les falta contenido, separados por coma. */
+        public String getIdsIncompletos() {
+            return getTemasIncompletos().stream().map(c -> String.valueOf(c.tema().getIdTema()))
+                    .collect(java.util.stream.Collectors.joining(","));
         }
 
-        /** Si el programa vigente está completo: asigna toda la duración y todos sus temas tienen contenido. */
+        /** Si el programa está completo: asigna toda la duración y todos sus temas tienen su contenido. */
         public boolean isProgramaCompleto() {
-            return programaVigente != null && duracionAsignada && getTemasIncompletos().isEmpty();
+            if (programaVigente == null || !duracionAsignada) {
+                return false;
+            }
+            java.util.Set<Integer> completos = getTemasConContenido().stream().map(c -> c.tema().getIdTema())
+                    .collect(java.util.stream.Collectors.toSet());
+            return programaVigente.getCronogramaOrdenado().stream().allMatch(c -> completos.contains(c.getTema().getIdTema()));
         }
 
         /**
-         * El paso del diseño en el que está la cohorte: 1 datos del curso, 2 programa de la cohorte, 3 temas, 4 cronograma
-         * y 5 contenido; 6 si el diseño está completo.
+         * El paso del diseño en el que está el curso: 1 datos, 2 temas y contenido (los del curso, sin programa todavía) y 3 programa
+         * (el de la cohorte, con su cronograma); 4 si el diseño está completo.
          */
         public int getPasoActual() {
             if (!isDatosCompletos()) {
                 return 1;
             }
-            if (programaVigente == null) {
+            if (!isTemasCompletos()) {
                 return 2;
             }
-            if (!isTemasCompletos()) {
-                return 3;
-            }
-            if (!duracionAsignada) {
-                return 4;
-            }
-            return getTemasIncompletos().isEmpty() ? 6 : 5;
+            return isProgramaCompleto() ? 4 : 3;
         }
 
         /**
-         * Hasta qué parte del menú se habilita: el número del paso en que está la cohorte (el diseño completo habilita
-         * todo, como el paso 5). Programas se habilita en el paso 2, Temas en el 3, Cronogramas en el 4 y todo el contenido
-         * de los temas en el 5.
+         * Hasta qué parte del menú se habilita: el contenido (temas, recursos y demás) desde el paso 2, cuando el curso ya tiene sus datos, y
+         * los programas desde el 3, cuando ya tiene sus temas con contenido.
          */
         public int getNivelDeMenu() {
-            // Cada paso se mira por sí solo, igual que las marcas de la línea de tiempo: si el programa ya está asignado y los temas
-            // cargados, el menú se habilita hasta ahí aunque otro paso anterior (por ejemplo los datos) siga pendiente
-            boolean programa = programaVigente != null;
-            boolean temas = isTemasCompletos();
-            boolean cronograma = programa && duracionAsignada;
+            // Cada paso se mira por sí solo, igual que las marcas de la línea de tiempo
             int nivel = 1;
             if (isDatosCompletos()) {
                 nivel = 2;
             }
-            if (programa) {
+            if (isTemasCompletos()) {
                 nivel = 3;
             }
-            if (programa && temas) {
+            if (isTemasCompletos() && isProgramaCompleto()) {
                 nivel = 4;
-            }
-            if (cronograma && temas) {
-                nivel = 5;
             }
             return nivel;
         }

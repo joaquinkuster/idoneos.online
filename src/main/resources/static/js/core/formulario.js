@@ -10,6 +10,9 @@
  * La alerta es el elemento "alert-formulario" que está justo antes del formulario; si no existe, se crea.
  * Las validaciones propias de cada página se ejecutan primero: si cancelan el envío (preventDefault),
  * este script no hace nada.
+ *
+ * Si el formulario trae data-confirmar-titulo (y data-confirmar-texto o data-confirmar-html, data-confirmar-boton), antes de enviarlo se pide una
+ * confirmación con una alerta de advertencia: es el caso de las acciones que finalizan un diseño y no se pueden deshacer.
  */
 (function () {
     'use strict';
@@ -51,6 +54,18 @@
         if (!formulario || evento.defaultPrevented) {
             return;
         }
+        if (formulario.dataset.confirmarTitulo && !formulario.dataset.confirmado) {
+            evento.preventDefault();
+            window.mostrarAviso({ tipo: 'advertencia', titulo: formulario.dataset.confirmarTitulo, texto: formulario.dataset.confirmarTexto, html: formulario.dataset.confirmarHtml,
+                confirmar: formulario.dataset.confirmarBoton || 'Confirmar', cancelar: 'Cancelar', bloquear: true }).then(function (resultado) {
+                if (resultado.isConfirmed) {
+                    formulario.dataset.confirmado = '1';
+                    formulario.requestSubmit();
+                }
+            });
+            return;
+        }
+        delete formulario.dataset.confirmado;
         evento.preventDefault();
         ocultarError(formulario);
 

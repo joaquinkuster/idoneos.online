@@ -94,7 +94,8 @@ public interface CohorteService extends CrudService<Cohorte> {
     // ---------------------------------------------------------------- Modificaciones
 
     /**
-     * Asigna el programa a una cohorte pendiente. Si el contenido del programa ya está completo, la cohorte pasa a Activa.
+     * Asigna (o cambia) el programa de una cohorte pendiente de contenido o con inscripción próxima, siempre que no tenga inscriptos. El
+     * programa tiene que estar completo: la cohorte pendiente pasa a inscripción próxima.
      *
      * @param idCohorte el identificador de la cohorte
      * @param idPrograma el identificador del programa (debe ser del curso de la cohorte)
@@ -103,6 +104,15 @@ public interface CohorteService extends CrudService<Cohorte> {
      * @throws IllegalArgumentException si la cohorte no está pendiente o el programa no es válido
      */
     Cohorte asignarPrograma(Integer idCohorte, Integer idPrograma, Docente docente);
+
+    /**
+     * Indica si un programa está completo (cronograma con toda la duración del curso, contenido de cada tema y datos académicos del curso). Una
+     * cohorte nunca tiene un programa que no lo esté.
+     *
+     * @param programa el programa (puede ser {@code null})
+     * @return {@code true} si está completo
+     */
+    boolean estaCompleto(Programa programa);
 
     /**
      * Saca de «Pendiente de contenido» a toda cohorte cuyo programa ya tiene el contenido completo (el docente lo completó después de

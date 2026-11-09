@@ -25,8 +25,8 @@
     var titulo = raiz.querySelector('[data-asistente-titulo]');
     var SIN_MOVIMIENTO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var abierto = false;
-    var MAX_TITULO = 15; // los textos largos se cortan con «…» (el completo queda en el title)
-    var MAX_CURSO = 20;
+    var MAX_TITULO = 18; // los textos largos se cortan con «…» (el completo queda en el title)
+    var MAX_CURSO = 24;
     var pedido = 0;
 
     function elemento(etiqueta, clase, texto) {
@@ -104,53 +104,84 @@
         titulo.textContent = pendientes.length ? '¿Por dónde seguimos, ' + datos.nombre + '?' : 'Todo en orden, ' + datos.nombre;
 
         if (pendientes.length) {
-            // El título de la lista da el contexto (qué son estos pendientes); el aviso, si hay, sale al dejar el mouse encima
-            var seccion = elemento('div', 'as-seccion', datos.titulo);
-            if (datos.aviso) { seccion.title = datos.aviso; }
-            cuerpo.appendChild(seccion);
-            var ruta = elemento('div', 'as-ruta');
-            ruta.setAttribute('role', 'list');
-            ruta.setAttribute('aria-label', datos.titulo);
-            pendientes.forEach(function (p, i) {
-                // Cada carta: título y tres filas (curso, cuándo cierra o abre) y a la derecha la acción. Si falta poco, lleva la marca «Cierra pronto»
-                // o «Abre pronto» cuando faltan pocos días (en rojo desde los 3 días)
-                var urgente = p.urgencia === 'alta';
-                var nodo = elemento('a', 'as-nodo' + (p.pronto ? ' urgente' : '') + (p.pronto && urgente ? ' atrasado' : ''));
-                nodo.href = p.url;
-                nodo.setAttribute('role', 'listitem');
-                nodo.setAttribute('aria-label', p.accion + ': ' + p.titulo + '. ' + p.curso + (p.fecha ? '. ' + p.fecha : ''));
-                nodo.appendChild(elemento('span', 'as-punto'));
-                var texto = elemento('span', 'as-nodo-texto');
-                if (p.pronto) { texto.appendChild(elemento('span', 'as-ahora', p.pronto)); }
-                var tituloCarta = elemento('span', 'as-nodo-titulo', recortar(p.titulo, MAX_TITULO));
-                tituloCarta.title = p.titulo;
-                texto.appendChild(tituloCarta);
-                var cursoCarta = elemento('span', 'as-nodo-curso', recortar(p.curso, MAX_CURSO));
-                cursoCarta.title = p.curso;
-                texto.appendChild(cursoCarta);
-                if (p.fecha) {
-                    var fecha = elemento('span', 'as-nodo-fecha' + (urgente ? ' pronto' : ''));
-                    fecha.appendChild(document.createTextNode(p.fecha));
-                    texto.appendChild(fecha);
-                }
-                nodo.appendChild(texto);
-                // A la derecha: la acción, como una etiqueta, y la flecha
-                var derecha = elemento('span', 'as-derecha');
-                derecha.appendChild(elemento('span', 'as-nodo-accion', p.accion));
-                var flecha = elemento('i', 'fa-solid fa-arrow-right as-flecha');
-                flecha.setAttribute('aria-hidden', 'true');
-                derecha.appendChild(flecha);
-                nodo.appendChild(derecha);
-                ruta.appendChild(nodo);
-            });
-            if (datos.total > pendientes.length) {
-                var mas = elemento('div', 'as-nodo mas');
-                mas.appendChild(elemento('span', 'as-punto'));
-                mas.appendChild(elemento('span', 'as-nodo-texto', 'y ' + (datos.total - pendientes.length) + ' más…'));
-                ruta.appendChild(mas);
+            // El contexto: qué son los pendientes de abajo (el aviso, si hay, sale al dejar el mouse encima) y cuántos hay
+            var contexto = elemento('div', 'as-ctx');
+            if (datos.aviso) { contexto.title = datos.aviso; }
+            var iconoCtx = elemento('i', 'fa-solid fa-hourglass-half');
+            iconoCtx.setAttribute('aria-hidden', 'true');
+            contexto.appendChild(iconoCtx);
+            contexto.appendChild(elemento('b', '', datos.titulo));
+            contexto.appendChild(elemento('span', 'as-ctx-n', String(datos.total)));
+            cuerpo.appendChild(contexto);
+
+            // El primer pendiente es la tarjeta «Ahora»: neutra, dorada (faltan 7 días o menos) o roja (3 o menos), con un botón de acción
+            var primero = pendientes[0];
+            var nivel = primero.urgencia === 'alta' ? ' alta' : (primero.urgencia === 'media' ? ' media' : '');
+            var hero = elemento('a', 'as-hero' + nivel);
+            hero.href = primero.url;
+            hero.setAttribute('aria-label', primero.accion + ': ' + primero.titulo + '. ' + primero.curso + (primero.fecha ? '. ' + primero.fecha : ''));
+            if (primero.fecha) {
+                var cuando = elemento('div', 'as-hero-cuando');
+                var reloj = elemento('i', 'fa-regular ' + (nivel ? 'fa-clock' : 'fa-calendar'));
+                reloj.setAttribute('aria-hidden', 'true');
+                cuando.appendChild(reloj);
+                cuando.appendChild(document.createTextNode(primero.fecha));
+                hero.appendChild(cuando);
             }
-            cuerpo.appendChild(ruta);
+            var tituloHero = elemento('div', 'as-hero-titulo', recortar(primero.titulo, 32));
+            tituloHero.title = primero.titulo;
+            hero.appendChild(tituloHero);
+            var cursoHero = elemento('div', 'as-hero-curso', recortar(primero.curso, 40));
+            cursoHero.title = primero.curso;
+            hero.appendChild(cursoHero);
+            var boton = elemento('div', 'as-go');
+            boton.appendChild(elemento('span', '', primero.accion));
+            var flechaHero = elemento('i', 'fa-solid fa-arrow-right');
+            flechaHero.setAttribute('aria-hidden', 'true');
+            boton.appendChild(flechaHero);
+            hero.appendChild(boton);
+            cuerpo.appendChild(hero);
+
+            // Los pasos que siguen, numerados desde el 2
+            var resto = pendientes.slice(1);
+            if (resto.length || datos.total > pendientes.length) {
+                var ruta = elemento('div', 'as-ruta');
+                ruta.setAttribute('role', 'list');
+                ruta.setAttribute('aria-label', datos.titulo);
+                resto.forEach(function (p, i) {
+                    var nodo = elemento('a', 'as-nodo');
+                    nodo.href = p.url;
+                    nodo.setAttribute('role', 'listitem');
+                    nodo.setAttribute('aria-label', p.accion + ': ' + p.titulo + '. ' + p.curso + (p.fecha ? '. ' + p.fecha : ''));
+                    if (p.fecha) { nodo.title = p.fecha; }
+                    var punto = elemento('span', 'as-punto');
+                    punto.appendChild(elemento('span', 'as-num', String(i + 2)));
+                    nodo.appendChild(punto);
+                    var texto = elemento('span', 'as-nodo-texto');
+                    var tituloCarta = elemento('span', 'as-nodo-titulo', recortar(p.titulo, MAX_TITULO + 8));
+                    tituloCarta.title = p.titulo;
+                    texto.appendChild(tituloCarta);
+                    var cursoCarta = elemento('span', 'as-nodo-curso', recortar(p.curso, MAX_CURSO + 8));
+                    cursoCarta.title = p.curso;
+                    texto.appendChild(cursoCarta);
+                    nodo.appendChild(texto);
+                    nodo.appendChild(elemento('span', 'as-nodo-accion', p.accion));
+                    ruta.appendChild(nodo);
+                });
+                if (datos.total > pendientes.length) {
+                    var mas = elemento('div', 'as-nodo mas');
+                    mas.appendChild(elemento('span', 'as-punto'));
+                    mas.appendChild(elemento('span', 'as-nodo-texto', 'y ' + (datos.total - pendientes.length) + ' más…'));
+                    ruta.appendChild(mas);
+                }
+                cuerpo.appendChild(ruta);
+            }
         } else {
+            var ok = elemento('div', 'as-ok');
+            var check = elemento('i', 'fa-solid fa-check');
+            check.setAttribute('aria-hidden', 'true');
+            ok.appendChild(check);
+            cuerpo.appendChild(ok);
             cuerpo.appendChild(elemento('div', 'as-vacio', 'No tenés nada pendiente. Cuando haya algo, te lo muestro acá.'));
         }
         pintarPie(datos.atajos);
@@ -158,7 +189,7 @@
         // Los pasos de la ruta entran con el fundido escalonado de los listados (movimiento.css)
         if (!SIN_MOVIMIENTO) {
             var indice = 0;
-            Array.prototype.forEach.call(cuerpo.querySelectorAll('.as-nodo'), function (el) {
+            Array.prototype.forEach.call(cuerpo.querySelectorAll('.as-hero, .as-nodo'), function (el) {
                 el.style.setProperty('--i', Math.min(indice++, 10));
                 el.classList.add('pn-entra');
                 setTimeout(function () { el.classList.remove('pn-entra'); el.style.removeProperty('--i'); }, 900 + Math.min(indice, 10) * 45);

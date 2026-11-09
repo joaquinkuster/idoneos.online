@@ -69,8 +69,8 @@
                             <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
                             <select class="pn-input" data-selector-tema data-buscable>
                                 <option value="">Seleccionar tema</option>
-                                <option th:each="uc : ${programa != null ? programa.cronogramaOrdenado : {}}" th:value="${uc.tema.idTema}"
-                                        th:text="${'Tema ' + uc.numeroOrden + ' · ' + uc.tema.titulo}">Tema 1</option>
+                                <option th:each="uc : ${filasDeTemas != null ? filasDeTemas : (temas != null ? temas : {})}" th:value="${uc.tema.idTema}"
+                                        th:text="${uc.tema.titulo}">Tema</option>
                             </select>
                             <input type="search" class="pn-input ac-selector-buscar" data-selector-buscar placeholder="Buscar por título, autor o ISBN">
                             <div class="ac-selector-biblioteca" data-selector-biblioteca></div>

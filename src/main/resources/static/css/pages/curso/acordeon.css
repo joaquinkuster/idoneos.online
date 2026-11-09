@@ -108,3 +108,13 @@
 .ac-actividad:has(.dropdown-menu.show) {
     z-index: 20;
 }
+
+/* Separador del acordeón del docente: los temas del curso que no están en el programa de la cohorte */
+.ac-fuera-programa {
+    margin: 10px 0 -4px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--pn-texto-suave);
+}

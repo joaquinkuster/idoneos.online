@@ -53,7 +53,7 @@
     gap: 10px;
     padding: 16px 0;
     border-top: 1px solid var(--pn-borde);
-    margin-top: 16px;
+    margin-top: 20px;
 }
 
 /* Ventanas de baja: el mismo aspecto de las alertas del sistema (460 px, sin franja de título, texto y botones centrados) */
@@ -117,6 +117,28 @@
     margin-bottom: 20px;
 }
 
+/*
+ * Ritmo vertical del cuerpo de los modales: todo lo que se apila (campos, alertas, ayudas) es una fila con 10px arriba y 10px abajo,
+ * es decir 20px entre filas. Las grillas de Bootstrap ya separan sus filas con --bs-gutter-y; los campos sueltos y las alertas
+ * usan la misma medida.
+ */
+.pn-modal-cuerpo .row {
+    --bs-gutter-y: 0; /* sin margin-top en las columnas: la separación entre filas es row-gap */
+    row-gap: 20px;
+}
+
+.pn-modal-cuerpo .row > * {
+    margin-top: 0;
+}
+
+.pn-modal :is(form, fieldset, .pn-paso) > .pn-campo {
+    margin-bottom: 20px;
+}
+
+.pn-modal :is(form, fieldset, .pn-paso) > .pn-campo:last-child {
+    margin-bottom: 0;
+}
+
 .pn-seccion-titulo h4 {
     font-size: 20px;
     font-weight: 700;
@@ -169,7 +191,8 @@
 
 textarea.pn-input {
     height: auto;
-    padding: 10px 12px;
+    padding: 12px;
+    line-height: 1.5;
     resize: vertical;
 }
 
@@ -273,24 +296,50 @@ textarea.pn-input {
     color: var(--pn-texto, inherit);
 }
 
+/* Texto de apoyo de un formulario (sin recuadro): 20px entre filas, como todo lo que se apila en el modal */
 .pn-aviso {
     border-radius: 10px;
-    padding: 10px 14px;
     font-size: 13px;
-    margin-bottom: 16px;
+    margin: 20px 0;
 }
 
-.pn-aviso-dorado {
+.pn-aviso:first-child,
+.row > * > .pn-aviso {
+    margin-top: 0;
+}
+
+.row > * > .pn-aviso:last-child {
+    margin-bottom: 0;
+}
+
+/* Alerta de un formulario: un recuadro de color con su relleno. Variantes: dorada, azul y roja. */
+.pn-alerta {
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    margin: 20px 0;
+}
+
+.pn-alerta:first-child,
+.row > * > .pn-alerta {
+    margin-top: 0;
+}
+
+.row > * > .pn-alerta:last-child {
+    margin-bottom: 0;
+}
+
+.pn-alerta-dorado {
     background: var(--pn-gold-soft);
     color: #92400E;
 }
 
-.pn-aviso-azul {
+.pn-alerta-azul {
     background: #DBEAFE;
     color: #1E40AF;
 }
 
-.pn-aviso-rojo {
+.pn-alerta-rojo {
     background: #FEE2E2;
     color: #991B1B;
 }

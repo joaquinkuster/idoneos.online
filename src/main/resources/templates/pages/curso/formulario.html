@@ -1,6 +1,6 @@
 <!-- Formulario por pasos para registrar (curso == null) o modificar un curso.
-     Parámetros: curso (el curso a modificar o null), bloqueado (true si el curso tiene inscripciones activas y solo
-     pueden modificarse el precio y el equipo docente). -->
+     Parámetros: curso (el curso a modificar o null), bloqueado (true si el curso tiene cohortes publicadas en el catálogo y solo
+     pueden modificarse el precio, la portada y el equipo docente). -->
 <form th:fragment="formulario(curso, bloqueado)"
       th:action="@{${curso == null ? '/curso/registrar' : '/curso/modificar/' + curso.idCurso}}"
       method="post" class="form-ajax" data-validar data-pasos data-validador="curso" data-resumen="Curso"
@@ -119,8 +119,9 @@
         <div class="pn-arbol" data-resumen-arbol></div>
     </div>
 
-    <div class="pn-aviso pn-aviso-dorado" th:if="${bloqueado}">
-        El curso tiene inscripciones activas: solo pueden modificarse el <strong>precio</strong> y el <strong>equipo docente</strong>. El resto es lo que el alumno vio y pagó al inscribirse.
+    <div class="pn-alerta pn-alerta-dorado" th:if="${bloqueado}">
+        <strong th:text="${'El curso no se puede modificar: ' + @textos.motivoPublicado + '.'}">El curso no se puede modificar: tiene cohortes publicadas en el catálogo.</strong>
+        <span th:text="${@textos.avisoCurso}">Lo publicado es un compromiso de la empresa.</span>
     </div>
 
     <div class="pn-modal-pie">

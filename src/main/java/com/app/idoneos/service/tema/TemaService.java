@@ -44,40 +44,6 @@ public interface TemaService extends CrudService<Tema> {
      */
     List<TemaCronograma> buscarConFiltros(Programa programa, String titulo);
 
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * CU-20: Agrega un tema al final del cronograma de un programa activo, con siete días de duración. Puede ser una
-     * tema nueva o una ya existente en otro programa del mismo curso.
-     *
-     * @param docente           el docente que agrega
-     * @param programaId        el identificador del programa
-     * @param temaExistenteId el tema de otro programa que se incorpora (opcional; si se indica se ignoran los datos
-     *                          del tema nueva)
-     * @param titulo            el título del tema nueva
-     * @param descripcion       la descripción del tema nueva (opcional)
-     * @param contenido         el contenido del tema nueva (opcional: se puede completar después)
-     * @return el tema agregado
-     * @throws IllegalArgumentException si el programa no está activo, el docente no participa en el curso, faltan datos
-     *                                  del tema nueva, el título ya existe o el tema a incorporar no es válida
-     */
-    Tema agregar(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
-            String descripcion, String contenido);
-
-    /**
-     * CU-20: Igual que {@link #agregar(Docente, Integer, Integer, String, String, String)}, indicando también
-     * cuántos días ocupa el tema en el cronograma del programa.
-     *
-     * @param duracionDias los días que dura el tema en el cronograma (opcional; si no se indica, los del parámetro
-     *                     {@code cronograma.dias_por_tema_nuevo}, sin pasar de lo que queda hasta la duración del curso)
-     * @return el tema agregado
-     * @throws IllegalArgumentException además de los casos anteriores, si la duración no es válida, supera lo que queda
-     *                                  hasta la duración del curso o deja el cronograma más largo que los días de
-     *                                  acceso de una cohorte del programa
-     */
-    Tema agregar(Docente docente, Integer programaId, Integer temaExistenteId, String titulo,
-            String descripcion, String contenido, Integer duracionDias);
-
     /**
      * Un cambio sobre un tema del curso: el alta de uno nuevo (sin {@code id}) o la modificación de uno existente.
      *
@@ -149,43 +115,7 @@ public interface TemaService extends CrudService<Tema> {
      */
     Tema modificar(Integer id, Docente docente, String titulo, String descripcion, String contenido);
 
-    /**
-     * CU-21: Igual que {@link #modificar(Integer, Docente, String, String, String)}, y cambia además cuántos
-     * días ocupa el tema en el cronograma de un programa. La duración es de ese programa: el tema conserva la que tiene
-     * en los demás.
-     *
-     * @param programaId   el programa cuyo cronograma contiene el tema
-     * @param duracionDias los días que dura el tema en ese cronograma (opcional; si no se indica, se conserva la actual)
-     * @return el tema modificado
-     * @throws IllegalArgumentException además de los casos anteriores, si el tema no pertenece al cronograma del programa
-     *                                  o la duración no es válida
-     */
-    Tema modificar(Integer id, Integer programaId, Docente docente, String titulo, String descripcion,
-            String contenido, Integer duracionDias);
-
     // ---------------------------------------------------------------- Bajas
-
-    /**
-     * CU-22: Da de baja un tema del cronograma de un programa. Si deja de formar parte del cronograma de cualquier
-     * otro programa, el tema queda además dada de baja. Los temas restantes se renumeran sin dejar huecos.
-     *
-     * @param id         el identificador del tema
-     * @param programaId el identificador del programa
-     * @param docente    el docente que da de baja, o {@code null} si lo hace el administrador
-     * @throws IllegalArgumentException si el programa o el tema no están activos, el tema no pertenece al cronograma,
-     *                                  el programa tiene inscripciones activas o el docente no participa en el curso
-     */
-    void darDeBaja(Integer id, Integer programaId, Docente docente);
-
-    /**
-     * CU-22: Da de baja varios temas del cronograma de un programa, todas o ninguna.
-     *
-     * @param ids        los identificadores de los temas
-     * @param programaId el identificador del programa
-     * @param docente    el docente que da de baja, o {@code null} si lo hace el administrador
-     * @throws IllegalArgumentException si no se seleccionó ningún tema o alguna no puede darse de baja
-     */
-    void darDeBajaVarias(List<Integer> ids, Integer programaId, Docente docente);
 
     /**
      * Quita varios temas del cronograma de un programa como parte de la modificación de todo el cronograma (la usa

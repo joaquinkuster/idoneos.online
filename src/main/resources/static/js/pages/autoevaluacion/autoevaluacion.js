@@ -1,63 +1,59 @@
 /**
  * Formulario de autoevaluaciones (CU-65 y CU-66).
  *
- * En el alta, los pools que se ofrecen dependen del tema elegido: los del propio tema y los de los temas
- * anteriores del programa, nunca los de las posteriores. Los pools se muestran agrupados por tema. Cada opción de pool
- * lleva en data-temas los temas que pueden usarla. El selector de pools es un Tom Select que inicia panel.js al abrir
- * la ventana.
+ * Una autoevaluación puede sortear preguntas de los pools de cualquier tema del curso. El selector de pools muestra primero los del tema
+ * de la autoevaluación ("Tu tema") y, abajo, los de los otros temas ("Otros temas"). Cada opción lleva en data-tema-pool el tema al que
+ * pertenece su pool. El selector de pools es un Tom Select que inicia panel.js al abrir la ventana.
  */
 (function () {
     'use strict';
 
-    function filtrarPools(formulario) {
+    function agruparPools(formulario) {
         var tema = formulario.querySelector('[data-autoevaluacion-tema]');
         var pools = formulario.querySelector('select[data-autoevaluacion-pools]');
-        if (!tema || !pools || pools.dataset.filtroListo) {
+        if (!pools || pools.dataset.filtroListo) {
             return;
         }
         pools.dataset.filtroListo = '1';
-        // Todas las opciones con su tema (el optgroup en el que están), en el orden del cronograma
+        // Todas las opciones con el tema de su pool
         var todas = Array.prototype.map.call(pools.options, function (o) {
-            var grupo = o.parentElement && o.parentElement.tagName === 'OPTGROUP' ? o.parentElement.label : '';
-            return { value: o.value, text: o.textContent, grupo: grupo, temas: (o.getAttribute('data-temas') || '').split(',') };
+            return { value: o.value, text: o.textContent, tema: o.getAttribute('data-tema-pool') || '' };
         });
 
-        function aplicar() {
-            var permitidas = todas.filter(function (o) { return o.temas.indexOf(tema.value) >= 0; });
-            var ts = pools.tomselect;
-            if (ts) {
-                var elegidas = ts.items.slice().filter(function (v) {
-                    return permitidas.some(function (o) { return o.value === v; });
-                });
-                ts.settings.lockOptgroupOrder = true;
-                ts.clear(true);
-                ts.clearOptions();
-                ts.clearOptionGroups();
-                permitidas.forEach(function (o) {
-                    if (o.grupo && !ts.optgroups[o.grupo]) { ts.addOptionGroup(o.grupo, { label: o.grupo, value: o.grupo }); }
-                    ts.addOption({ value: o.value, text: o.text, optgroup: o.grupo || undefined });
-                });
-                ts.addItems(elegidas, true);
-                ts.refreshOptions(false);
-            } else {
-                Array.prototype.forEach.call(pools.options, function (o) {
-                    var ok = permitidas.some(function (p) { return p.value === o.value; });
-                    o.hidden = !ok;
-                    o.disabled = !ok;
-                    if (!ok) { o.selected = false; }
-                });
-            }
+        // En el alta el tema se elige en el formulario; al editar es el de la autoevaluación
+        function temaActual() {
+            return tema ? tema.value : (formulario.dataset.temaId || '');
         }
-        tema.addEventListener('change', aplicar);
+
+        function aplicar() {
+            var ts = pools.tomselect;
+            if (!ts) { return; }
+            var actual = temaActual();
+            var propios = todas.filter(function (o) { return actual && o.tema === actual; });
+            var otros = todas.filter(function (o) { return !actual || o.tema !== actual; });
+            var elegidas = ts.items.slice();
+            ts.settings.lockOptgroupOrder = true;
+            ts.clear(true);
+            ts.clearOptions();
+            ts.clearOptionGroups();
+            [['propio', 'Tu tema', propios], ['otros', actual ? 'Otros temas' : 'Pools del curso', otros]].forEach(function (grupo) {
+                if (!grupo[2].length) { return; }
+                ts.addOptionGroup(grupo[0], { label: grupo[1], value: grupo[0] });
+                grupo[2].forEach(function (o) { ts.addOption({ value: o.value, text: o.text, optgroup: grupo[0] }); });
+            });
+            ts.addItems(elegidas, true);
+            ts.refreshOptions(false);
+        }
+        if (tema) { tema.addEventListener('change', aplicar); }
         aplicar();
     }
 
-    // Se inicia todo al cargar la pagina (con las ventanas aun cerradas): asi el selector ya esta armado y filtrado
+    // Se inicia todo al cargar la pagina (con las ventanas aun cerradas): asi el selector ya esta armado y agrupado
     // cuando se abre la ventana y no se ve cargarse despues
     if (window.iniciarMultiselect) { window.iniciarMultiselect(document); }
-    document.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
+    document.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(agruparPools);
     // La ventana de modificación llega después de la carga (core/modalModificar.js)
     document.addEventListener('ventana-cargada', function (e) {
-        e.detail.ventana.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(filtrarPools);
+        e.detail.ventana.querySelectorAll('form[data-autoevaluacion-formulario]').forEach(agruparPools);
     });
 })();

@@ -181,6 +181,7 @@ public class CategoriaController {
                 .orElseThrow(() -> new IllegalArgumentException("Error! La categoría no se encuentra disponible."));
         model.addAttribute("cat", cat);
         model.addAttribute("inscripcionesPorCategoria", Map.of(cat.getIdCategoria(), categoriaService.contarInscripcionesActivas(cat)));
+        model.addAttribute("categoriaBloqueada", categoriaService.tieneCursosConCohortesPublicadas(cat));
         return "pages/categoria/modificar :: modal(cat=${cat})";
     }
 

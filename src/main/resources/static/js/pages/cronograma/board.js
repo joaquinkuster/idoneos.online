@@ -27,7 +27,7 @@
     var PASOS = { dias: 1, semanas: DIAS_POR_SEMANA, meses: DIAS_POR_MES };
     // Unidades que dibuja la grilla: como mínimo las visibles y, al modificar, algunas libres después del último tema
     // para poder estirarla. El máximo que puede sumar un cronograma es un parámetro del sistema (en días).
-    var VISIBLES = { dias: 20, semanas: 20, meses: 12 };
+    var VISIBLES = { dias: 10, semanas: 8, meses: 6 };
     var LIBRES = editable ? { dias: 7, semanas: 6, meses: 2 } : { dias: 0, semanas: 0, meses: 0 };
     var ANCHO_UNIDAD = 26;
     var DIAS_MAXIMOS = parseInt(raiz.dataset.diasMaximos, 10) || 365;
@@ -46,6 +46,15 @@
     var disponibles = raiz.querySelector('[data-disponibles]');
     var buscar = raiz.querySelector('[data-buscar]');
     var selectorEscala = raiz.querySelector('[data-escala]');
+    var balancePorcentaje = raiz.querySelector('[data-prog-balance-porcentaje]');
+    var balanceBarra = raiz.querySelector('[data-prog-balance-barra]');
+    var faltan = raiz.querySelector('[data-prog-faltan]');
+    var PALABRAS = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'];
+    var minimo = parseInt(raiz.dataset.minimo, 10) || 0;
+    var textoMinimo = raiz.querySelector('[data-minimo-texto]');
+    if (textoMinimo && minimo) {
+        textoMinimo.innerHTML = 'El mínimo requerido de temas es <strong>' + minimo + (minimo < PALABRAS.length ? ' (' + PALABRAS[minimo] + ')' : '') + '</strong>.';
+    }
 
     // Escala inicial: la que corresponde a la duración total del cronograma (la calcula el servidor, igual que en el cajón
     // del curso). Después la persona puede elegir otra.
@@ -106,8 +115,10 @@
 
     // La escala inicial según la duración total: días si es corta, semanas si es media y meses si es larga
     function escalaInicial() {
-        var paso = parseInt(raiz.dataset.paso, 10);
-        return paso === DIAS_POR_MES ? 'meses' : (paso === DIAS_POR_SEMANA ? 'semanas' : 'dias');
+        // La unidad más grande con la que el curso ocupa al menos seis columnas
+        if (Math.ceil(DIAS_MAXIMOS / DIAS_POR_MES) >= 6) { return 'meses'; }
+        if (Math.ceil(DIAS_MAXIMOS / DIAS_POR_SEMANA) >= 6) { return 'semanas'; }
+        return 'dias';
     }
 
     function aplicarEscala(nueva) {
@@ -134,31 +145,31 @@
         var columnas = unidades * paso; // una columna por día: las barras son exactas aunque la escala sea mayor
         var ancho = ANCHO_UNIDAD / paso;
         // min-width: si las columnas no entran, todas las filas se ensanchan juntas (y el fondo del encabezado llega hasta el final)
-        var plantilla = '170px repeat(' + columnas + ', minmax(' + ancho + 'px, 1fr));min-width:' + (170 + columnas * ancho) + 'px';
+        // Sin columna de temas: la grilla son solo los días, igual que en el paso Cronograma del asistente de programas
+        var plantilla = 'repeat(' + columnas + ', minmax(' + ancho + 'px, 1fr));min-width:' + (columnas * ancho) + 'px';
         var unidadHoy = diaHoy >= 1 ? Math.ceil(diaHoy / paso) : 0;
 
-        var html = '<div class="cn-fila cn-cabecera-fila" style="grid-template-columns:' + plantilla + '"><div class="cn-celda-temas">Temas</div>';
+        var html = '<div class="cn-fila cn-cabecera-fila" style="grid-template-columns:' + plantilla + '">';
         for (var s = 1; s <= unidades; s++) {
             var clases = (s === unidadHoy ? 'cn-numero-actual' : '') + ((s - 1) * paso + 1 > DIAS_MAXIMOS ? ' cn-fuera' : '');
-            html += '<div' + (clases.trim() ? ' class="' + clases.trim() + '"' : '') + ' style="grid-column:' + ((s - 1) * paso + 2) + ' / span ' + paso + '">' + s + '</div>';
+            html += '<div' + (clases.trim() ? ' class="' + clases.trim() + '"' : '') + ' style="grid-column:' + ((s - 1) * paso + 1) + ' / span ' + paso + '">' + s + '</div>';
         }
         html += '</div>';
         // Línea roja del día actual: una por fila, para que se vea continua
         var lineaActual = diaHoy >= 1 && diaHoy <= columnas
-            ? '<div class="cn-actual" style="grid-column:' + (diaHoy + 1) + '" data-tip="Hoy: día ' + diaHoy + ' de ' + (raiz.dataset.duracion || columnas) + '"></div>' : '';
+            ? '<div class="cn-actual" style="grid-column:' + diaHoy + '" data-tip="Hoy: día ' + diaHoy + ' de ' + (raiz.dataset.duracion || columnas) + '"></div>' : '';
 
         var desde = 1;
         colocadas.forEach(function (c, i) {
             var u = temaDe(c.id);
-            html += '<div class="cn-fila" ' + (editable ? 'draggable="true" ' : '') + 'data-i="' + i + '" style="grid-template-columns:' + plantilla + ';--c:' + u.color + '">'
-                + '<div class="cn-tema" style="grid-row:1;grid-column:1"><span class="cn-numero">' + (i + 1) + '</span>'
-                + '<div class="cn-card"><b>' + escapar(u.titulo) + '</b><small>' + formatear(c.dias) + '</small></div>'
-                + (editable ? '<span class="cn-asa-fila" title="Arrastrar para reordenar"><i class="fa-solid fa-grip-vertical"></i></span>' : '') + '</div>';
-            for (var k = 1; k <= unidades; k++) { html += '<div class="cn-unidad' + ((k - 1) * paso + 1 > DIAS_MAXIMOS ? ' cn-fuera' : '') + '" style="grid-row:1;grid-column:' + ((k - 1) * paso + 2) + ' / span ' + paso + '"></div>'; }
+            html += '<div class="cn-fila" ' + (editable ? 'draggable="true" ' : '') + 'data-i="' + i + '" style="grid-template-columns:' + plantilla + ';--c:' + u.color + '">';
+            for (var k = 1; k <= unidades; k++) { html += '<div class="cn-unidad' + ((k - 1) * paso + 1 > DIAS_MAXIMOS ? ' cn-fuera' : '') + '" style="grid-row:1;grid-column:' + ((k - 1) * paso + 1) + ' / span ' + paso + '"></div>'; }
             var hasta = desde + c.dias - 1;
             var tip = 'Tema ' + (i + 1) + ' · ' + u.titulo + ' · ' + periodo(desde, hasta) + (c.estado ? ' · ' + c.estado : '');
             html += lineaActual;
-            html += '<div class="cn-barra" data-tip="' + escapar(tip).replace(/"/g, '&quot;') + '" style="grid-column:' + (desde + 1) + ' / span ' + c.dias + '">' + escapar(nombreCorto(u.titulo)) + ' · ' + formatear(c.dias)
+            html += '<div class="cn-barra" data-tip="' + escapar(tip).replace(/"/g, '&quot;') + '" style="grid-column:' + desde + ' / span ' + c.dias + '">'
+                + (editable ? '<i class="fa-solid fa-grip-vertical pn-prog-asa" aria-hidden="true"></i>' : '')
+                + '<span class="pn-prog-barra-texto">' + escapar(nombreCorto(u.titulo)) + ' · ' + formatear(c.dias) + '</span>'
                 + (editable ? '<span class="cn-borde" data-i="' + i + '" title="Arrastrar para cambiar la duración"></span>' : '') + '</div></div>';
             desde += c.dias;
         });
@@ -166,6 +177,13 @@
 
         var textoTotal = formatear(total);
         raiz.ownerDocument.querySelectorAll('[data-total]').forEach(function (e) { e.textContent = textoTotal; });
+        if (balancePorcentaje) {
+            var porcentaje = DIAS_MAXIMOS ? Math.round(total / DIAS_MAXIMOS * 100) : 0;
+            balancePorcentaje.textContent = porcentaje + '%';
+            balanceBarra.style.width = Math.min(100, porcentaje) + '%';
+            balanceBarra.parentNode.parentNode.setAttribute('data-estado', total === DIAS_MAXIMOS ? 'completo' : 'parcial');
+            faltan.textContent = '(Faltan ' + Math.max(0, DIAS_MAXIMOS - total) + ' de ' + DIAS_MAXIMOS + ' días)';
+        }
 
         // Vista por temas: al modificar, la duración se escribe con un número y su unidad
         var diaActual = 0;
@@ -205,7 +223,7 @@
             var porTemas = boton.dataset.vista === 'temas';
             raiz.querySelectorAll('[data-vista]').forEach(function (b) { b.classList.toggle('activa', b === boton); });
             grilla.hidden = porTemas;
-            raiz.querySelector('[data-escala-etiqueta]').hidden = porTemas;
+            raiz.querySelector('[data-escala-etiqueta]').classList.toggle('invisible', porTemas); // invisible, no oculta: los botones no se mueven
             var zona = raiz.querySelector('[data-zona]');
             if (zona) { zona.hidden = porTemas; }
             raiz.querySelector('[data-vista-temas]').hidden = !porTemas;
@@ -319,6 +337,18 @@
     });
 
     buscar.addEventListener('input', dibujarDisponibles);
+
+    // Repartir en partes iguales: la duración del curso se divide entre los temas del cronograma (en semanas enteras si se puede)
+    raiz.querySelector('[data-repartir]').addEventListener('click', function () {
+        if (!colocadas.length) { return; }
+        var n = colocadas.length;
+        var unidad = DIAS_MAXIMOS % DIAS_POR_SEMANA === 0 && DIAS_MAXIMOS / DIAS_POR_SEMANA >= n ? DIAS_POR_SEMANA : 1;
+        var unidades = Math.floor(DIAS_MAXIMOS / unidad);
+        var base = Math.floor(unidades / n);
+        var resto = unidades % n;
+        colocadas.forEach(function (c, i) { c.dias = Math.max(1, (base + (i < resto ? 1 : 0)) * unidad); });
+        dibujar();
+    });
 
     // Duración escrita en meses, semanas y días (vista por temas). Nunca baja de un día (simplemente no se deja disminuir más)
     // y lo que pasa del máximo del curso se recorta, sin alertas

@@ -29,9 +29,12 @@
                                 data-url="/cohorte/establecerPorDefecto/{valor}"
                                 th:disabled="${#lists.size(cohortesDelPrograma) < 2}">
                                 <option th:if="${#lists.isEmpty(cohortesDelPrograma)}" value="">Sin cohortes</option>
-                                <option th:each="c : ${cohortesDelPrograma}" th:value="${c.idCohorte}"
-                                    th:text="${c.etiqueta}"
-                                    th:selected="${cohorte != null and cohorte.idCohorte == c.idCohorte}">Marzo 2026 (En dictado)</option>
+                                <!-- Las cohortes se agrupan por el programa que usan (las pendientes de contenido, sin programa, van al final) -->
+                                <optgroup th:each="g : ${gruposDeCohortes}" th:label="${g.key}">
+                                    <option th:each="c : ${g.value}" th:value="${c.idCohorte}"
+                                        th:text="${c.etiqueta}"
+                                        th:selected="${cohorte != null and cohorte.idCohorte == c.idCohorte}">Marzo 2026 (En dictado)</option>
+                                </optgroup>
                             </select>
                         </div>
                         <!-- Programa que se mira en el cronograma: por defecto el de la cohorte por defecto; se puede elegir otro del curso -->
@@ -40,7 +43,7 @@
                             <label class="ac-contexto-etiqueta" for="selectProgramaCronograma">Programa</label>
                             <select id="selectProgramaCronograma" name="programaId" class="ac-contexto-select" data-buscable data-cambia-envia>
                                 <option value="" th:if="${programa == null}" selected>Sin programa</option>
-                                <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}" th:text="${p.nombre}"
+                                <option th:each="p : ${programasDelCurso}" th:value="${p.idPrograma}" th:text="${p.nombre + (p.estado == 'Vigente' ? ' (Vigente)' : '')}"
                                         th:selected="${programa != null and programa.idPrograma == p.idPrograma}">Versión 1</option>
                             </select>
                         </form>

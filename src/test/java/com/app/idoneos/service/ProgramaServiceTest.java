@@ -79,8 +79,59 @@ class ProgramaServiceTest {
         return assertThrows(IllegalArgumentException.class, accion).getMessage();
     }
 
+    /** Registra un programa a partir del origen indicado o, sin origen, del vigente del curso: un programa nunca nace incompleto. */
     private Programa registrar(Curso curso, Integer origen, String nombre) {
-        return programaService.registrar(fausto(), curso.getIdCurso(), origen, nombre, null);
+        Integer desde = origen != null ? origen : curso.getProgramaVigente().getIdPrograma();
+        return programaService.registrar(fausto(), curso.getIdCurso(), desde, nombre, null);
+    }
+
+    @Autowired
+    private com.app.idoneos.service.cohorte.CohorteService cohorteService;
+
+    private com.app.idoneos.model.Cohorte cohortePendienteSinPrograma(Curso curso) {
+        java.time.LocalDate inicio = java.time.LocalDate.now().plusMonths(12);
+        return cohorteService.registrar(curso.getIdCurso(), null, inicio, inicio.plusDays(30), null, curso.getDuracionDias(), null);
+    }
+
+    @Test
+    @DisplayName("CU-16: un programa registrado a partir de otro guarda cuál fue su programa anterior")
+    void guardaElProgramaAnterior() {
+        Programa origen = macro().getProgramaVigente();
+
+        Programa nuevo = registrar(macro(), origen.getIdPrograma(), "Programa 2027");
+        Programa enBlanco = registrar(macro(), null, "Programa en blanco");
+
+        assertEquals(origen.getIdPrograma(), nuevo.getProgramaAnterior().getIdPrograma());
+        assertNull(enBlanco.getProgramaAnterior());
+    }
+
+    @Test
+    @DisplayName("CU-16: el programa registrado completo se asigna a las cohortes pendientes de contenido del curso y las activa")
+    void seAsignaALasCohortesPendientes() {
+        Programa origen = macro().getProgramaVigente();
+        var pendiente = cohortePendienteSinPrograma(macro());
+        assertTrue(pendiente.esPendiente());
+        assertNull(pendiente.getPrograma());
+
+        Programa nuevo = registrar(macro(), origen.getIdPrograma(), "Programa 2027");
+
+        assertEquals(nuevo.getIdPrograma(), pendiente.getPrograma().getIdPrograma());
+        assertFalse(pendiente.esPendiente());
+    }
+
+    @Test
+    @DisplayName("Una cohorte nunca tiene un programa incompleto: un programa vacío no se asigna ni se puede asignar")
+    void unProgramaIncompletoNoSeAsigna() {
+        var pendiente = cohortePendienteSinPrograma(macro());
+
+        Programa vacio = registrar(macro(), null, "Programa vacío");
+
+        assertNull(pendiente.getPrograma());
+        assertTrue(pendiente.esPendiente());
+        String error = mensaje(() -> cohorteService.asignarPrograma(pendiente.getIdCohorte(), vacio.getIdPrograma(), fausto()));
+        assertTrue(error.contains("No se puede asignar el programa «Programa vacío»"), error);
+        assertTrue(error.contains("todavía no está completo"), error);
+        assertNull(pendiente.getPrograma());
     }
 
     // ------------------------------------------------------------------ CU-15 Buscar programa
@@ -281,18 +332,6 @@ class ProgramaServiceTest {
         assertEquals(temas.get(1).getIdTema(), nuevo.getCronogramaOrdenado().get(0).getTema().getIdTema());
         assertEquals(7, nuevo.getCronogramaOrdenado().get(0).getDuracionDias());
         assertEquals(21, nuevo.getDuracionTotalDias());
-    }
-
-    @Test
-    @DisplayName("CU-16: un cronograma vacío no copia el del programa de origen")
-    void cronogramaVacioNoCopiaElDelOrigen() {
-        Programa origen = macro().getProgramaVigente();
-        assertTrue(origen.getCantidadTemas() > 0);
-
-        Programa nuevo = programaService.registrar(fausto(), macro().getIdCurso(), origen.getIdPrograma(),
-                "En blanco", null, List.of(), List.of());
-
-        assertEquals(0, nuevo.getCantidadTemas());
     }
 
     @Test

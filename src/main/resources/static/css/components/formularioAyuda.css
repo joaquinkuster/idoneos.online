@@ -17,16 +17,13 @@
     font-size: 14px;
 }
 
-/* El aviso desplegable dentro de una fila de formulario no deja el espacio entre columnas mientras está cerrado */
-.row > .ayuda-desplegable {
-    margin-top: 0;
-}
-
-/* Cerrado, tampoco deja el espacio inferior que la grilla (.g-3) le da a cada columna; abierto, sí */
-.row.g-3 > .ayuda-desplegable {
+/* El aviso desplegable dentro de una fila de formulario no deja el espacio entre filas mientras está cerrado: el margen negativo
+   cancela el row-gap de 20px; abierto, lo deja */
+.pn-modal-cuerpo .row > .ayuda-desplegable {
+    margin-top: -20px;
     padding-bottom: 0;
 }
 
-.row.g-3 > .ayuda-desplegable.abierto {
-    padding-bottom: 18px;
+.pn-modal-cuerpo .row > .ayuda-desplegable.abierto {
+    margin-top: 0;
 }

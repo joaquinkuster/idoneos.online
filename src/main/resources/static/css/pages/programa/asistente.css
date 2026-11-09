@@ -69,11 +69,11 @@
 .pn-prog-balance-barra i {
     display: block;
     height: 100%;
-    background: #F59E0B;
+    background: #DC2626;
     transition: width 0.15s;
 }
 
-.pn-prog-balance[data-estado="completo"] .pn-prog-balance-barra i { background: #22C55E; }
+.pn-prog-balance[data-estado="completo"] .pn-prog-balance-barra i { background: #15803D; }
 .pn-prog-balance[data-estado="excedido"] .pn-prog-balance-barra i { background: #EF4444; }
 
 .pn-prog-herramientas {
@@ -253,4 +253,242 @@
     .pn-prog-fila {
         grid-template-columns: 130px 1fr;
     }
+}
+
+/* Buscador de temas con su botón Agregar y el de repartir en partes iguales */
+.pn-prog-agregar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.pn-prog-agregar .pn-input {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+/* Un programa con inscripciones se consulta, no se modifica: se ocultan las herramientas de edición */
+.pn-prog-solo-lectura .pn-prog-agregar,
+.pn-prog-solo-lectura [data-programa-origen],
+.pn-prog-solo-lectura [data-prog-incompletos],
+.pn-prog-solo-lectura .pn-prog-quitar,
+.pn-prog-solo-lectura .pn-prog-asa,
+.pn-prog-solo-lectura .pn-prog-borde,
+.pn-prog-solo-lectura [data-paso-guardar] {
+    display: none !important;
+}
+
+/* El asistente usa la grilla y las pestañas de la pantalla del cronograma (cn-*): acá solo se acomodan sus botones */
+/* El tacho es el mismo botón de icono que el del ABM de pools (pl-icon-boton pl-quitar) */
+.pn-prog-quitar {
+    margin-left: 0;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.pn-prog-editor .cn-datos {
+    margin: 4px 0 8px;
+}
+
+.pn-prog-solo-lectura .cn-asa-fila,
+.pn-prog-solo-lectura .cn-borde {
+    display: none !important;
+}
+
+/* El selector de temas ocupa todo el ancho de la fila, junto a sus botones */
+.pn-prog-agregar .sb {
+    flex: 1 1 220px;
+    min-width: 0;
+}
+
+.pn-prog-agregar .sb .pn-input {
+    width: 100%;
+}
+
+/* La escala va a la derecha de las pestañas */
+.pn-prog-editor .cn-cabecera {
+    justify-content: space-between;
+}
+
+.pn-prog-editor .cn-tema {
+    gap: 6px;
+    padding: 8px 6px;
+}
+
+.pn-prog-editor .pn-prog-balance {
+    margin-top: 14px;
+}
+
+.pn-prog-editor .pn-prog-balance .pn-etiqueta-fila {
+    margin-bottom: 6px;
+}
+
+/* La nota del resumen sobre las cohortes asignadas: en gris y separada del árbol */
+.pn-prog-nota-cohortes {
+    margin-top: 20px;
+    color: var(--pn-texto-suave);
+}
+
+/* Paso Cronograma: panel de temas disponibles a la izquierda y cronograma a la derecha */
+.pn-prog-editor .cn-izq {
+    width: 230px;
+}
+
+.pn-prog-editor .cn-columnas {
+    margin-bottom: 14px;
+}
+
+.pn-prog-editor .cn-panel {
+    padding: 12px;
+}
+
+.pn-prog-editor [data-prog-disponibles] {
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.pn-prog-editor .cn-tema {
+    justify-content: center;
+}
+
+.pn-prog-editor .cn-cabecera {
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pn-prog-editor .cn-info {
+    margin-top: 0;
+}
+
+.pn-prog-solo-lectura [data-prog-zona],
+.pn-prog-solo-lectura [data-prog-repartir] {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .pn-prog-editor .cn-izq {
+        width: 100%;
+    }
+}
+
+/* Paso Cronograma: título del panel, botones y barras */
+.pn-prog-titulo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.pn-prog-titulo .cn-panel-titulo {
+    margin: 0;
+}
+
+.pn-prog-balance-valor {
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.pn-prog-balance-valor strong {
+    color: var(--pn-texto);
+}
+
+.pn-prog-herramientas {
+    margin: 14px 0 10px;
+}
+
+.pn-prog-vistas {
+    display: flex;
+    gap: 8px;
+}
+
+.pn-prog-boton {
+    height: 38px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.pn-prog-boton.activa {
+    background: #EEF4FA;
+    border-color: var(--pn-ver);
+    color: var(--pn-ver);
+}
+
+.pn-prog-editor .cn-zona {
+    color: var(--pn-ver);
+    border-color: var(--pn-ver);
+}
+
+.pn-prog-asa {
+    margin-right: 8px;
+    font-size: 11px;
+    opacity: 0.7;
+    cursor: grab;
+}
+
+.pn-prog-barra-texto {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pn-prog-solo-lectura .pn-prog-asa {
+    display: none;
+}
+
+/* Ritmo de 20px entre filas dentro del paso Cronograma */
+.pn-prog-editor > .pn-campo,
+.pn-prog-editor > .ayuda-desplegable.abierto {
+    margin-bottom: 20px;
+}
+
+.pn-prog-editor .cn-der > :not(.pn-ayuda-error):not(:first-child),
+.pn-prog-editor .cn-izq > :not(:first-child) {
+    margin-top: 20px;
+}
+
+.pn-prog-editor .cn-izq > .pn-prog-titulo,
+.pn-prog-editor .cn-der > .pn-prog-balance {
+    margin-bottom: 0;
+}
+
+.pn-prog-editor .cn-buscar,
+.pn-prog-editor .cn-vista-temas,
+.pn-prog-editor .cn-zona {
+    margin-bottom: 0;
+}
+
+.pn-prog-editor .cn-vista-temas,
+.pn-prog-editor .cn-zona {
+    margin-top: 20px;
+}
+
+.pn-prog-editor [data-prog-disponibles] .cn-disponible:last-child {
+    margin-bottom: 0;
+}
+
+/* Recuadro de arrastre: el fondo azulado del cronograma */
+.pn-prog-editor .cn-zona {
+    background: #EEF4FA;
+}
+
+/* Calendario, Tabular y Escala en una misma línea, a la misma altura */
+.pn-prog-editor .cn-cabecera {
+    align-items: center;
+    min-height: 38px;
+}
+
+.pn-prog-editor .cn-escala {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.pn-prog-editor .cn-escala .pn-input {
+    height: 38px;
+    min-width: 120px;
 }

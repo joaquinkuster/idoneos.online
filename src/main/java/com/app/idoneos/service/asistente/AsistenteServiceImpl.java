@@ -163,20 +163,18 @@ public class AsistenteServiceImpl implements AsistenteService {
         String curso = "?cursoId=" + p.curso().getIdCurso();
         return switch (estado.getPasoActual()) {
             case 1 -> new String[] {"Faltan datos del curso", "Completar datos", "/curso/acceder/" + p.curso().getIdCurso() + "?completar=datos"};
-            case 2 -> {
+            case 2 -> estado.cantidadTemas() < estado.minimoTemas()
+                    ? new String[] {"Faltan temas (" + estado.cantidadTemas() + " de " + estado.minimoTemas() + ")", "Registrar tema",
+                            "/tema/buscar" + curso + "&nuevo="}
+                    : new String[] {estado.getTemasQueFaltan() == 1 ? "Falta el contenido de 1 tema"
+                            : "Falta el contenido de " + Math.max(1, estado.getTemasQueFaltan()) + " temas",
+                            "Completar contenido", "/curso/acceder/" + p.curso().getIdCurso() + "?completar=contenido"};
+            case 3 -> {
                 boolean puedeAsignar = p.cohorte().getCantidadInscriptos() == 0 && !p.curso().getProgramasActivos().isEmpty();
                 yield puedeAsignar
                         ? new String[] {"Falta asignar el programa", "Asignar programa",
                                 "/cohorte/buscar" + curso + "&asignar=" + p.cohorte().getIdCohorte() + "&volver=curso"}
                         : new String[] {"Falta registrar el programa", "Registrar programa", "/programa/buscar" + curso + "&nuevo="};
-            }
-            case 3 -> new String[] {"Faltan temas (" + estado.cantidadTemas() + " de " + estado.minimoTemas() + ")", "Registrar tema",
-                    "/tema/buscar" + curso + "&nuevo="};
-            case 4 -> new String[] {"Falta armar el cronograma", "Armar el cronograma", "/cronograma/buscar" + curso};
-            case 5 -> {
-                int faltan = estado.getTemasIncompletos().size();
-                yield new String[] {faltan == 1 ? "Falta el contenido de 1 tema" : "Falta el contenido de " + faltan + " temas",
-                        "Completar contenido", "/curso/acceder/" + p.curso().getIdCurso() + "?completar=contenido"};
             }
             default -> new String[] {"Diseño completo", "Ver curso", "/curso/acceder/" + p.curso().getIdCurso()};
         };
