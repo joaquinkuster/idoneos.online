@@ -32,6 +32,27 @@ Plataforma web de cursos de finanzas, economía y mercado de capitales para Idó
 - PostgreSQL en ejecución; H2 en memoria para las pruebas.
 - Maven.
 
+## Ejecución con Docker
+
+Lo único que hay que instalar es [Docker](https://www.docker.com/). Con un comando se levanta todo (PostgreSQL 16.4, la aplicación con Java 21 y el OCR para los PDF escaneados), con las mismas versiones para todo el equipo:
+
+```
+docker compose up --build
+```
+
+La aplicación queda en http://localhost:8080. La primera vez crea las tablas, ejecuta los scripts de `src/main/resources/schema` (índices y disparadores) y carga la semilla de demostración (usuarios de prueba con clave `123456`: ver `SemillaService`).
+
+| Comando | Qué hace |
+|---|---|
+| `docker compose up --build` | Compila y levanta la base y la aplicación |
+| `docker compose down` | Apaga todo; la base y los archivos subidos se conservan |
+| `docker compose down -v` | Apaga todo y borra la base y los archivos subidos (arranque desde cero) |
+
+Notas:
+- La base queda también en `localhost:5434` (usuario y clave `postgres`) para conectarse con un cliente; usa 5434 para no chocar con un PostgreSQL local.
+- Por defecto el compose recrea las tablas y la semilla en cada arranque (`SPRING_JPA_HIBERNATE_DDL_AUTO=create`). Para conservar los datos entre arranques, cambiar a `none` e `IDONEOS_SEMILLA` a `"false"` en `docker-compose.yml`.
+- Las versiones se fijan en `pom.xml` (Java y Spring Boot), `Dockerfile` (Maven, JDK y sistema del OCR) y `docker-compose.yml` (PostgreSQL y, más adelante, Ollama).
+
 ## Estructura
 
 ```
