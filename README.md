@@ -29,16 +29,9 @@ Plataforma web de cursos de finanzas, economía y mercado de capitales para Idó
 
 - Java 21 y Spring Boot 3.4 (Spring Web, Security, Data JPA, Validation).
 - Thymeleaf, Bootstrap 5.3 y JavaScript sin frameworks.
-- PostgreSQL en ejecución; H2 en memoria para las pruebas.
-- Maven.
-
-## Ejecución
-
-```
-docker compose up --build
-```
-
-Levanta PostgreSQL y la aplicación en http://localhost:8080, con la semilla cargada. `docker compose down` apaga y `docker compose down -v` además borra la base y los archivos subidos. La base queda en el puerto 5434.
+- PostgreSQL 16; H2 en memoria para las pruebas.
+- Maven 3.9.
+- Docker con Compose v2.
 
 ## Estructura
 
@@ -58,18 +51,19 @@ src/main/resources
 
 ## Ejecución local
 
-Requisitos: JDK 21, Maven 3.9 o superior y PostgreSQL.
+Requisito: Docker.
 
-1. Crear la base de datos `idoneos.online` en PostgreSQL. Por defecto la aplicación usa el usuario y la contraseña `postgres` en `localhost:5432`; se pueden cambiar en `src/main/resources/application.properties` o en un perfil `local`.
-2. Ejecutar:
+1. Ejecutar:
 
 ```bash
-mvn spring-boot:run
+docker compose up --build
 ```
 
-3. Abrir http://localhost:8080.
+2. Abrir http://localhost:8080.
 
-Con `idoneos.semilla=true` (valor por defecto) se cargan datos de demostración al iniciar. En un entorno real debe ser `false`.
+Con `IDONEOS_SEMILLA: "true"` (valor por defecto) se cargan datos de demostración al iniciar. En un entorno real debe ser `false`.
+
+`docker compose down` apaga todo y `docker compose down -v` además borra la base y los archivos subidos. La base queda en `localhost:5434`.
 
 ## Usuarios de prueba
 
