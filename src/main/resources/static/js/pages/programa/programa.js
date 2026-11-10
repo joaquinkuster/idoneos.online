@@ -468,7 +468,6 @@
         // El cambio del selector de origen vació el cronograma: se vuelve a cargar el del programa que se edita
         cronograma = programa ? leerCronograma(programa.cronograma) : [];
         ajustado = !!programa;
-        configurarConfirmacion();
         dibujar();
         if (formulario.pasos) { formulario.pasos.mostrar(0); }
         if (window.bootstrap) { window.bootstrap.Modal.getOrCreateInstance(ventana).show(); }
@@ -634,28 +633,8 @@
         return true;
     };
 
-    /** Si el programa nuevo se asigna a cohortes pendientes, guardarlo finaliza su diseño. */
-    function configurarConfirmacion() {
-        var cohortes = !edicion && datos.cohortesPendientes ? datos.cohortesPendientes : [];
-        if (!cohortes.length) {
-            delete formulario.dataset.confirmarTitulo;
-            delete formulario.dataset.confirmarHtml;
-            return;
-        }
-        var nombres = cohortes.map(function (c) { return '«' + esc(c) + '»'; });
-        var lista = nombres.length === 1 ? nombres[0] : nombres.slice(0, -1).join(', ') + ' y ' + nombres[nombres.length - 1];
-        var uno = cohortes.length === 1;
-        formulario.dataset.confirmarTitulo = '¿Deseás finalizar el diseño?';
-        formulario.dataset.confirmarBoton = 'Finalizar diseño';
-        formulario.dataset.confirmarHtml = 'El programa «' + esc(campoNombre.value.trim() || 'sin nombre') + '» se asignará a ' + (uno ? 'la cohorte ' : 'las cohortes ')
-            + lista + ', que ' + (uno ? 'quedará publicada' : 'quedarán publicadas') + ' en el catálogo. Lo publicado es un compromiso de la empresa con los alumnos '
-            + 'que lo consultan o ya se inscribieron, por eso ya no se podrán modificar los datos del curso. '
-            + '<strong>Si te equivocás, solicitá al administrador la baja de la cohorte para crearla de nuevo.</strong>';
-    }
-
     /** Deja en el formulario lo que se envía: la acción (registrar o modificar) y los temas con sus días, en orden. */
     function prepararEnvio() {
-        configurarConfirmacion(); // con el nombre que quedó escrito
         formulario.action = edicion ? formulario.dataset.accionModificar + edicion.id : formulario.dataset.accionAlta;
         formulario.querySelectorAll('[data-generado]').forEach(function (campo) { campo.remove(); });
         cronograma.forEach(function (fila) {

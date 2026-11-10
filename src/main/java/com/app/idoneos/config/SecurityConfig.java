@@ -109,7 +109,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/curso/buscar", "/cohorte/buscar")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/cohorte/cambiarContexto/*", "/cohorte/establecerPorDefecto/*",
-                                "/cohorte/asignarPrograma/*")
+                                "/cohorte/asignarPrograma/*", "/cohorte/finalizarDiseno/*")
                         .hasRole("Docente")
                         // Diseño de curso: el docente lo completa (datos del curso) y el administrador lo consulta
                         .requestMatchers(HttpMethod.POST, "/curso/modificarPorDocente/*").hasRole("Docente")

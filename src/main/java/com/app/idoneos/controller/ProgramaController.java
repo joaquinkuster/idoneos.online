@@ -75,6 +75,21 @@ public class ProgramaController {
             panel.cargarContexto(model, contexto, "programas");
             model.addAttribute("programas", programas);
             model.addAttribute("programasActivos", curso.getProgramasActivos());
+            // Lo que dibuja la vista Versiones: una entrada por programa vigente en el listado, con el programa del que deriva
+            java.time.format.DateTimeFormatter mesAnio = java.time.format.DateTimeFormatter.ofPattern("MMM yyyy", java.util.Locale.of("es", "AR"));
+            List<Map<String, Object>> versiones = new java.util.ArrayList<>();
+            programas.stream().filter(p -> !p.getBaja()).sorted(java.util.Comparator.comparing(Programa::getFechaCreacion)).forEach(p -> {
+                Map<String, Object> version = new LinkedHashMap<>();
+                version.put("id", p.getIdPrograma());
+                version.put("nombre", p.getNombre());
+                version.put("temas", p.getCantidadTemas());
+                version.put("fecha", p.getFechaCreacion().format(mesAnio));
+                version.put("cohortes", p.getCantidadCohortesActivas());
+                version.put("anterior", p.getProgramaAnterior() != null ? p.getProgramaAnterior().getIdPrograma() : null);
+                version.put("vigente", p.esVigente());
+                versiones.add(version);
+            });
+            model.addAttribute("versiones", versiones);
             // Si cada programa está completo y, por tema del curso, el contenido que tiene (para el asistente de programas)
             Map<Integer, Boolean> completos = new HashMap<>();
             programas.forEach(p -> completos.put(p.getIdPrograma(), cursoService.estaDisenoCompleto(curso, p)));

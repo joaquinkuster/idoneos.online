@@ -38,11 +38,88 @@
         return window.mostrarAviso({ tipo: 'exito', titulo: '¡Operación exitosa!', texto: mensaje });
     };
 
+    /**
+     * Alerta guía con dos caminos: si el paso trae una alternativa (siguienteAlternativa y siguienteAlternativaUrl), el segundo botón la sigue.
+     * Devuelve true si se fue a otra pantalla.
+     */
+    window.manejarSiguientePaso = async function (datos) {
+        var respuesta = await window.mostrarAviso({
+            tipo: datos.siguienteTipo || 'info', titulo: datos.siguienteTitulo, texto: datos.siguienteTexto, confirmar: datos.siguienteConfirmar,
+            cancelar: datos.siguienteAlternativa || 'Ahora no', bloquear: !!datos.siguienteAlternativa
+        });
+        if (respuesta.isConfirmed) {
+            await window.irAlSiguientePaso(datos);
+            return true;
+        }
+        if (datos.siguienteAlternativaUrl && respuesta.dismiss === Swal.DismissReason.cancel) {
+            window.location.href = datos.siguienteAlternativaUrl;
+            return true;
+        }
+        return false;
+    };
+
     /** Alerta guía del flujo: después de crear algo, propone el paso siguiente. */
     window.preguntarSiguientePaso = function (titulo, texto, confirmar, tipo) {
         return window.mostrarAviso({ tipo: tipo || 'info', titulo: titulo, texto: texto, confirmar: confirmar, cancelar: 'Ahora no' })
             .then(function (r) { return r.isConfirmed; });
     };
+
+    /** Sigue el paso que se confirmó: si el paso cambia datos (siguientePost), lo envía por POST antes de ir a la pantalla. */
+    window.irAlSiguientePaso = async function (datos) {
+        if (!datos.siguientePost) {
+            window.location.href = datos.siguienteUrl;
+            return;
+        }
+        try {
+            var respuesta = await fetch(datos.siguientePost, {
+                method: 'POST', headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' }, credentials: 'same-origin'
+            });
+            var resultado = await respuesta.json().catch(function () { return {}; });
+            if (respuesta.ok && resultado.mensaje) {
+                await window.mostrarExito(resultado.mensaje);
+                window.location.href = resultado.destino || datos.siguienteUrl;
+                return;
+            }
+            await window.mostrarError(resultado.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.');
+        } catch (e) {
+            await window.mostrarError('Error! No se pudo conectar con el servidor. Intentá nuevamente.');
+        }
+    };
+
+    /** Botón "Nueva versión" del diseño del curso: antes de crear la versión pregunta si hay otros temas por registrar. */
+    document.addEventListener('click', async function (e) {
+        var boton = e.target.closest('[data-nueva-version]');
+        if (!boton) { return; }
+        var respuesta = await window.mostrarAviso({
+            tipo: 'info',
+            titulo: '¿Querés registrar otros temas antes?',
+            texto: 'Si la nueva versión necesita temas que el curso todavía no tiene, registralos ahora. Cada tema nuevo tiene que tener su contenido completo '
+                + 'para poder usarlo en el programa.',
+            confirmar: 'Registrar temas',
+            cancelar: 'No, crear la versión',
+            bloquear: true
+        });
+        window.location.href = respuesta.isConfirmed ? boton.dataset.temasUrl : boton.dataset.programaUrl;
+    });
+
+    /** Botón "Finalizar diseño" del diseño del curso: pregunta y, si el docente acepta, publica la cohorte. */
+    document.addEventListener('click', async function (e) {
+        var boton = e.target.closest('[data-finalizar-diseno]');
+        if (!boton) { return; }
+        var respuesta = await window.mostrarAviso({
+            tipo: 'advertencia',
+            titulo: '¿Deseás finalizar el diseño?',
+            texto: 'La cohorte ' + boton.dataset.cohorteNombre + ' quedará publicada en el catálogo. Lo publicado es un compromiso de la empresa con los alumnos '
+                + 'que lo consultan o ya se inscribieron, por eso ya no se podrán modificar los datos del curso. '
+                + 'Si te equivocás, solicitá al administrador la baja de la cohorte para crearla de nuevo.',
+            confirmar: 'Finalizar diseño',
+            cancelar: 'Cancelar',
+            bloquear: true
+        });
+        if (respuesta.isConfirmed) {
+            await window.irAlSiguientePaso({ siguientePost: '/cohorte/finalizarDiseno/' + boton.dataset.cohorteId, siguienteUrl: '/curso/acceder/' + boton.dataset.cursoId });
+        }
+    });
 
     /** Pregunta, al final del alta de un recurso en un curso. */
     window.preguntarPublicarRecurso = async function (idRecurso) {

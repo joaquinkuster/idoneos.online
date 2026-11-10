@@ -8,7 +8,7 @@
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content">
                                 <div class="pn-modal-cabecera">
-                                    <h3 class="pn-modal-titulo" >Asignar programa</h3>
+                                    <h3 class="pn-modal-titulo" th:text="${coh.tienePrograma() ? 'Cambiar programa' : 'Asignar programa'}">Asignar programa</h3>
                                     <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
                                 </div>
                                 <div class="pn-modal-cuerpo">
@@ -33,7 +33,7 @@
                                                     <select name="programaId" class="pn-input" required data-sin-busqueda data-mensaje-obligatorio="Elegí el programa de la cohorte.">
                                                         <option value="">Programa</option>
                                                         <option th:each="prog : ${programas}" th:value="${prog.idPrograma}" th:text="${prog.nombre + (prog.estado == 'Vigente' ? ' (Vigente)' : '')}"
-                                                                th:selected="${prog.estado == 'Vigente'}">Programa</option>
+                                                                th:selected="${coh.tienePrograma() ? prog.idPrograma == coh.programa.idPrograma : prog.estado == 'Vigente'}">Programa</option>
                                                     </select>
                                                     <div class="pn-ayuda-error"></div>
                                                 </div>

@@ -36,11 +36,26 @@
                     <h2 class="pn-lista-titulo">Listado de programas</h2>
                     <span class="pn-seleccionados" data-total-filtradas data-singular="programa encontrado" data-plural="programas encontrados"
                           th:text="${tablaTotal + (tablaTotal == 1 ? ' programa encontrado' : ' programas encontrados')}">0 programas encontrados</span>
+                    <div class="pn-prog-vistas pv-conmutador" role="tablist" data-conmutador-vista>
+                        <button type="button" class="pn-btn pn-btn-contorno pn-prog-boton activa" data-vista="tabla">Tabla</button>
+                        <button type="button" class="pn-btn pn-btn-contorno pn-prog-boton" data-vista="versiones">Versiones</button>
+                    </div>
                     <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
                             data-url="/programa/darDeBajaMasiva" data-elementos="programas"
                             data-termino-uno="cohorte activa" data-termino-varios="cohortes activas">Dar de baja seleccionado/s</button>
                 </div>
 
+                <div class="pv-vista" data-vista-versiones hidden>
+                    <div class="pv-envoltura" data-versiones-grafico></div>
+                    <div class="cn-leyenda-hoy pv-leyenda">
+                        <p class="cn-hoy"><i class="pv-marca"></i> Con cohortes</p>
+                        <p class="cn-hoy"><i class="pv-marca pv-marca-sin"></i> Sin cohortes</p>
+                        <p class="cn-hoy"><i class="pv-marca pv-marca-vigente"></i> Versión vigente</p>
+                        <p class="cn-hoy"><i class="pv-marca-flecha"></i> Deriva de la versión anterior</p>
+                    </div>
+                </div>
+
+                <div data-vista-tabla>
                 <form th:action="@{/programa/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
                     <a th:href="@{/programa/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
@@ -105,6 +120,7 @@
                         <span data-seleccionados hidden></span>
                     </div>
                     <div class="pn-paginador" data-paginador></div>
+                </div>
                 </div>
             </section>
         </main>
@@ -172,7 +188,7 @@
                                 <select name="programaOrigenId" class="pn-input" data-programa-origen-select>
                                     <option value="">No, empezar en blanco</option>
                                     <option th:each="o : ${programasActivos}" th:value="${o.idPrograma}"
-                                            th:text="${o.nombre + ' (' + o.cantidadTemas + (o.cantidadTemas == 1 ? ' tema)' : ' temas)')}"
+                                            th:text="${o.nombre + (o.esVigente() ? ' · Vigente' : '') + ' (' + o.cantidadTemas + (o.cantidadTemas == 1 ? ' tema)' : ' temas)')}"
                                             th:attr="data-nombre=${o.nombre}, data-cronograma=${#strings.listJoin(o.cronogramaOrdenado.![tema.idTema + ':' + duracionDias], ',')}">Versión 1</option>
                                 </select>
                             </div>
@@ -276,6 +292,10 @@
     window.PROGRAMA_DATOS = /*[[${datos}]]*/ {};
 </script>
 <script th:src="@{/js/components/ayudaDesplegable.js}"></script>
+<script th:inline="javascript">
+    window.PROGRAMA_VERSIONES = /*[[${versiones}]]*/ [];
+</script>
+<script th:src="@{/js/pages/programa/versiones.js}"></script>
 <script th:src="@{/js/pages/programa/programa.js}"></script>
 </body>
 </html>

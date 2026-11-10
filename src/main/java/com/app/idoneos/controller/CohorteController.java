@@ -277,18 +277,43 @@ public class CohorteController {
             }
             Usuario usuario = (Usuario) authentication.getPrincipal();
             Cohorte cohorte = cohorteService.asignarPrograma(id, programaId, usuario.getDocente());
-            String mensaje = cohorte.esPendiente()
-                    ? "Programa asignado. La cohorte sigue pendiente hasta que el contenido del programa esté completo."
-                    : "Programa asignado. La cohorte quedó activa.";
-            // Desde el diseño del curso se vuelve al inicio del curso, donde sigue el diseño
-            if (!volverAlCurso) {
-                return RespuestaFormularioUtil.armarRespuestaExitosa(mensaje);
-            }
-            // Con la alerta del paso que sigue (o "Completaste el diseño"). Si se descarta, igual se vuelve al curso
-            Integer cursoId = cohorte.getCurso().getIdCurso();
+            String mensaje = "Programa asignado a la cohorte. Falta finalizar el diseño para publicarla.";
+            // Después de asignar se pregunta si finaliza el diseño. Si no, lo puede hacer más tarde desde el diseño del curso
             Map<String, String> cuerpo = new java.util.LinkedHashMap<>(
-                    panel.exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente()).getBody());
-            cuerpo.put("destino", "/curso/acceder/" + cursoId);
+                    RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje, TITULO_FINALIZAR_DISENO,
+                            textoFinalizarDiseno(cohorte), "Finalizar diseño", "/curso/acceder/" + cohorte.getCurso().getIdCurso()).getBody());
+            cuerpo.put("siguientePost", "/cohorte/finalizarDiseno/" + cohorte.getIdCohorte());
+            cuerpo.put("siguienteTipo", "advertencia");
+            // Desde el diseño del curso se vuelve al inicio del curso, donde sigue el diseño
+            cuerpo.put("destino", volverAlCurso ? "/curso/acceder/" + cohorte.getCurso().getIdCurso() : null);
+            if (cuerpo.get("destino") == null) {
+                cuerpo.remove("destino");
+            }
+            return ResponseEntity.ok(cuerpo);
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /** Título de la pregunta que se hace después de asignar o registrar un programa. */
+    public static final String TITULO_FINALIZAR_DISENO = "¿Deseás finalizar el diseño?";
+
+    /** Arma el texto de la pregunta de finalizar el diseño: lo publicado es un compromiso con los alumnos. */
+    public static String textoFinalizarDiseno(Cohorte cohorte) {
+        return "La cohorte " + cohorte.getEtiqueta() + " quedará publicada en el catálogo. Lo publicado es un compromiso de la empresa con los alumnos "
+                + "que lo consultan o ya se inscribieron, por eso ya no se podrán modificar los datos del curso. "
+                + "Si te equivocás, solicitá al administrador la baja de la cohorte para crearla de nuevo.";
+    }
+
+    /** POST /cohorte/finalizarDiseno/{id}: Finaliza el diseño de una cohorte pendiente y la publica en el catálogo. */
+    @PostMapping("/finalizarDiseno/{id}")
+    public ResponseEntity<Map<String, String>> finalizarDiseno(@PathVariable("id") Integer id, Authentication authentication) {
+        try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Cohorte cohorte = cohorteService.finalizarDiseno(id, usuario.getDocente());
+            Map<String, String> cuerpo = new java.util.LinkedHashMap<>(
+                    RespuestaFormularioUtil.armarRespuestaExitosa("Diseño finalizado. La cohorte quedó publicada en el catálogo.").getBody());
+            cuerpo.put("destino", "/curso/acceder/" + cohorte.getCurso().getIdCurso());
             return ResponseEntity.ok(cuerpo);
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

@@ -90,7 +90,7 @@
                                             <div class="pn-acciones" th:if="${programasDelCurso.containsKey(coh.idCohorte)}">
                                                 <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal"
                                                         th:data-bs-target="'#modalAsignarPrograma' + ${coh.idCohorte}"
-                                                        >Asignar programa</button>
+                                                         th:text="${coh.tienePrograma() ? 'Cambiar programa' : 'Asignar programa'}">Asignar programa</button>
                                             </div>
                                             <span th:unless="${programasDelCurso.containsKey(coh.idCohorte)}" class="pn-celda-secundaria">—</span>
                                         </td>
@@ -127,7 +127,6 @@
             </th:block>
 
     <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
-    <script th:src="@{/js/pages/programa/asignar.js}"></script>
     <script th:src="@{/js/core/abrirModal.js}"></script>
 </body>
 </html>

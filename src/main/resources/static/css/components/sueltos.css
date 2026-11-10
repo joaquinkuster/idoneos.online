@@ -293,15 +293,9 @@ button.cc-boton {
     color: #64748B;
 }
 
-/* Botón de la card de inscripción de la ficha (Ingresá para inscribirte / sin cohortes). */
-.fx-inscripcion > .fx-boton-inscribir,
-.fx-inscripcion [data-bloque] > .fx-boton-inscribir {
-    margin-top: 14px;
-}
-
-/* Alerta de error del formulario de inscripción de la ficha: separada de la línea de arriba */
+/* En la card de inscripción de la ficha la separación entre elementos la da la grilla de 20px (ficha.css), no los márgenes */
 .fx-inscripcion .alert-formulario {
-    margin-top: 14px;
+    margin: 0 !important;
 }
 
 /* Las cards de la caja llevan aire interno (la card base no tiene padding propio) */

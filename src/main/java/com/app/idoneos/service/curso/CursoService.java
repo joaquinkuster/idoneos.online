@@ -383,14 +383,23 @@ public interface CursoService extends CrudService<Curso> {
             return contenido.stream().filter(c -> c.getFaltantes().isEmpty()).toList();
         }
 
-        /** Indica si el curso tiene el mínimo de temas con el contenido completo (paso 2 del diseño: Temas y contenido). */
+        /**
+         * Indica si el curso cumple el paso 2 del diseño (Temas y contenido). Mientras haya cohortes pendientes se exige que todos los temas tengan su
+         * contenido completo, para que las alertas guíen al docente. Sin cohortes pendientes alcanza con el mínimo de temas completos.
+         */
         public boolean isTemasCompletos() {
+            if (cohortesPendientes > 0) {
+                return cantidadTemas >= minimoTemas && getTemasIncompletos().isEmpty();
+            }
             return getTemasConContenido().size() >= minimoTemas;
         }
 
-        /** Calcula cuántos temas con el contenido completo le faltan al curso para llegar al mínimo. */
+        /** Calcula cuántos temas le faltan al curso para el paso 2: los que no tienen su contenido completo o los que faltan registrar para llegar al mínimo. */
         public int getTemasQueFaltan() {
-            return Math.max(0, minimoTemas - getTemasConContenido().size());
+            if (cohortesPendientes == 0) {
+                return Math.max(0, minimoTemas - getTemasConContenido().size());
+            }
+            return Math.max(getTemasIncompletos().size(), Math.max(0, minimoTemas - cantidadTemas));
         }
 
         /** Obtiene los temas del curso a los que les falta contenido. */

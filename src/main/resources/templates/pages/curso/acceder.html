@@ -43,7 +43,9 @@
                     th:classappend="${cohorte != null} ? (${estadoDiseno.pasoActual == 4} ? 'ec-grupo completo' : 'ec-grupo')"
                     th:with="paso=${estadoDiseno.pasoActual}, completo=${estadoDiseno.pasoActual == 4},
                              datosOk=${estadoDiseno.datosCompletos}, temasOk=${estadoDiseno.temasCompletos}, progOk=${estadoDiseno.programaCompleto},
-                             hechosTemas=${#lists.size(estadoDiseno.temasConContenido)}">
+                             hechosTemas=${#lists.size(estadoDiseno.temasConContenido)},
+                             pendiente=${cohorte != null and cohorte.esPendiente()}, hayOtros=${#lists.size(programasDelCurso) > 1},
+                             botones=${puedeGestionar and cohorte != null and cohorte.esPendiente()}">
                     <th:block th:if="${cohorte == null}">
                         <strong class="ec-titulo">Diseño del curso</strong>
                         <p class="ec-nota">Este curso todavía no tiene cohortes. El administrador las registra; cuando haya una, desde acá preparás su programa y su contenido.</p>
@@ -71,17 +73,17 @@
                                 <span class="ec-punto" th:text="${datosOk ? '✓' : '1'}">1</span><span class="ec-paso-nombre">Datos</span></button>
                             <button type="button" class="ec-paso" data-ec-paso="2" th:classappend="${temasOk} ? 'ok' : (${paso == 2} ? 'cur' : '')">
                                 <span class="ec-punto" th:text="${temasOk ? '✓' : '2'}">2</span><span class="ec-paso-nombre">Temas y contenido</span>
-                                <small th:if="${!temasOk}" th:text="${hechosTemas + '/' + estadoDiseno.minimoTemas}">1/3</small></button>
+                                <small th:if="${!temasOk}" th:text="${hechosTemas + '/' + (estadoDiseno.cantidadTemas > estadoDiseno.minimoTemas ? estadoDiseno.cantidadTemas : estadoDiseno.minimoTemas)}">1/3</small></button>
                             <button type="button" class="ec-paso" data-ec-paso="3" th:classappend="${progOk} ? 'ok' : (${paso == 3} ? 'cur' : '')">
                                 <span class="ec-punto" th:text="${progOk ? '✓' : '3'}">3</span><span class="ec-paso-nombre">Programa</span></button>
                         </div>
 
-                        <div class="ec-detalle" data-ec-detalle th:attr="data-paso-inicial=${completo ? 3 : paso}, data-completo=${completo}">
+                        <div class="ec-detalle" data-ec-detalle th:attr="data-paso-inicial=${completo ? 3 : paso}, data-completo=${completo and !pendiente}">
                             <!-- 1. Datos -->
                             <div data-ec-panel="1" hidden>
                                 <div class="ec-cab"><h4>Datos del curso</h4><span class="ec-chip" th:classappend="${datosOk} ? 'ok' : 'pe'" th:text="${datosOk ? 'Completo' : 'Pendiente'}">Pendiente</span></div>
                                 <p class="ec-nota" th:text="${datosOk ? 'Nivel, objetivos y carga horaria completos.' : 'Faltan: ' + #strings.listJoin(estadoDiseno.faltantesDeDatos, ', ') + '.'}">Detalle</p>
-                                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalModificarCurso"
+                                <button type="button" class="pn-btn pn-btn-primario" th:if="${botones}" data-bs-toggle="modal" data-bs-target="#modalModificarCurso"
                                     th:text="${datosOk ? 'Modificar datos' : 'Completar datos'}">Completar datos</button>
                             </div>
                             <!-- 2. Temas y contenido: los del curso, sin programa todavía -->
@@ -89,7 +91,7 @@
                                 <div class="ec-cab"><h4>Temas y contenido</h4><span class="ec-chip" th:classappend="${!datosOk} ? '' : (${temasOk} ? 'ok' : 'pe')" th:text="${!datosOk ? 'Bloqueado' : (temasOk ? 'Completo' : 'Pendiente')}">Pendiente</span></div>
                                 <p class="ec-nota" th:if="${!datosOk}">Disponible cuando el curso tenga sus datos completos.</p>
                                 <th:block th:if="${datosOk}">
-                                    <p class="ec-nota" th:text="${hechosTemas + ' de ' + estadoDiseno.minimoTemas + (estadoDiseno.minimoTemas == 1 ? ' tema con el contenido completo como mínimo.' : ' temas con el contenido completo como mínimo.')}">1 de 3 temas con el contenido completo como mínimo.</p>
+                                    <p class="ec-nota" th:text="${hechosTemas + ' de ' + (estadoDiseno.cantidadTemas > estadoDiseno.minimoTemas ? estadoDiseno.cantidadTemas : estadoDiseno.minimoTemas) + ' temas con el contenido completo. Todos los temas del curso tienen que estar completos.'}">1 de 3 temas con el contenido completo.</p>
                                     <!-- Lo que le falta al contenido de cada tema del curso -->
                                     <div class="ec-tema" th:each="f : ${filasDeTemas}">
                                         <span class="ec-tema-cuerpo">
@@ -103,13 +105,12 @@
                                         </span>
                                     </div>
                                     <!-- Primero se registran los temas hasta el mínimo. Recién ahí se completa su contenido -->
-                                    <div class="ec-acciones" th:if="${puedeGestionar}">
-                                        <a class="pn-btn pn-btn-primario" th:if="${estadoDiseno.cantidadTemas < estadoDiseno.minimoTemas}"
-                                            th:href="@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar tema</a>
+                                    <div class="ec-acciones" th:if="${botones}">
+                                        <a class="pn-btn" th:classappend="${estadoDiseno.cantidadTemas < estadoDiseno.minimoTemas} ? 'pn-btn-primario' : 'pn-btn-secundario'"
+                                            th:href="@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar otro tema</a>
                                         <button type="button" class="pn-btn pn-btn-primario" data-ec-completar
                                             th:if="${estadoDiseno.cantidadTemas >= estadoDiseno.minimoTemas and !temasOk and temaPendiente != null}"
                                             th:attr="data-ids=${estadoDiseno.idsIncompletos}, data-tema-id=${temaPendiente.idTema}, data-siguiente=${siguienteRecurso != null ? siguienteRecurso.opcion : null}, data-aviso=${siguienteRecurso != null ? siguienteRecurso.aviso : null}">Completar contenido</button>
-                                        <a class="pn-btn pn-btn-secundario" th:href="@{/tema/buscar(cursoId=${curso.idCurso})}" th:if="${estadoDiseno.cantidadTemas > 0}">Temas</a>
                                     </div>
                                 </th:block>
                             </div>
@@ -120,14 +121,21 @@
                                 <th:block th:if="${temasOk}">
                                     <p class="ec-nota" th:if="${progOk}" th:text="${'La cohorte usa el programa «' + programa.nombre + '».'}">Programa</p>
                                     <p class="ec-nota" th:unless="${progOk}">Esta cohorte todavía no tiene programa. Elegí uno del curso o registrá uno nuevo.</p>
-                                    <div class="ec-acciones" th:if="${puedeGestionar}">
-                                        <!-- Lleva al listado de cohortes y abre ahí la ventana de asignar programa de esta cohorte -->
-                                        <a class="pn-btn pn-btn-primario" th:if="${puedeAsignarPrograma and !#lists.isEmpty(programasDelCurso)}"
-                                            th:href="@{/cohorte/buscar(cursoId=${curso.idCurso}, asignar=${cohorte.idCohorte}, volver='curso')}" >Asignar programa</a>
+                                    <div class="ec-acciones" th:if="${puedeGestionar and pendiente}">
+                                        <!-- Con el programa completo y la cohorte pendiente, publicarla es decisión del docente -->
+                                        <button type="button" class="pn-btn pn-btn-primario" data-finalizar-diseno
+                                            th:if="${progOk and cohorte.tienePrograma()}"
+                                            th:attr="data-cohorte-id=${cohorte.idCohorte}, data-curso-id=${curso.idCurso}, data-cohorte-nombre=${cohorte.etiqueta}">Finalizar diseño</button>
+                                        <a class="pn-btn" th:classappend="${progOk} ? 'pn-btn-secundario' : 'pn-btn-primario'"
+                                            th:if="${puedeGestionar and pendiente and puedeAsignarPrograma and !#lists.isEmpty(programasDelCurso) and (!completo or hayOtros)}"
+                                            th:href="@{/cohorte/buscar(cursoId=${curso.idCurso}, asignar=${cohorte.idCohorte}, volver='curso')}"
+                                            th:text="${progOk ? 'Cambiar programa' : 'Asignar programa'}">Asignar programa</a>
                                         <a class="pn-btn pn-btn-primario" th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}"
-                                            th:if="${#lists.isEmpty(programasDelCurso)}">Registrar programa</a>
-                                        <a class="pn-btn pn-btn-secundario" th:href="@{/programa/buscar(cursoId=${curso.idCurso})}"
-                                            th:unless="${#lists.isEmpty(programasDelCurso)}">Programas</a>
+                                            th:if="${botones and #lists.isEmpty(programasDelCurso)}">Registrar programa</a>
+                                        <!-- Antes de crear la versión se pregunta si hay otros temas por registrar -->
+                                        <button type="button" class="pn-btn pn-btn-secundario" data-nueva-version
+                                            th:if="${botones and !completo and !#lists.isEmpty(programasDelCurso)}"
+                                            th:attr="data-temas-url=@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}, data-programa-url=@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}">Nueva versión</button>
                                     </div>
                                 </th:block>
                             </div>
@@ -135,7 +143,7 @@
 
                         <div class="ec-fila ec-pie">
                             <span class="ec-nota" th:if="${cohorte.esPendiente()}"
-                                th:text="${completo ? 'Diseño completo: la cohorte pasa a inscripción próxima y se habilita para que los alumnos se inscriban en su fecha de inicio.' : 'Completá el diseño antes del ' + #temporals.format(cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ', cuando abre la inscripción, o la cohorte se cancela.'}">Nota</span>
+                                th:text="${completo ? 'Diseño completo. Finalizá el diseño para publicar la cohorte en el catálogo.' : 'Completá el diseño antes del ' + #temporals.format(cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ', cuando abre la inscripción, o la cohorte se cancela.'}">Nota</span>
                             <span class="ec-nota" th:unless="${cohorte.esPendiente()}" th:text="${'Estado de la cohorte: ' + #strings.toLowerCase(cohorte.estado) + '.'}">Cohorte en dictado.</span>
                         </div>
                         </div></div>

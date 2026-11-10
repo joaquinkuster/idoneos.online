@@ -406,9 +406,7 @@
             if (respuesta.ok && resultado.mensaje) {
                 await window.mostrarExito(resultado.mensaje);
                 // Alerta guía del paso siguiente (por ejemplo, completar el contenido de los temas pendientes)
-                if (resultado.siguienteUrl && window.preguntarSiguientePaso
-                        && await window.preguntarSiguientePaso(resultado.siguienteTitulo, resultado.siguienteTexto, resultado.siguienteConfirmar, resultado.siguienteTipo)) {
-                    window.location.href = resultado.siguienteUrl;
+                if (resultado.siguienteUrl && window.manejarSiguientePaso && await window.manejarSiguientePaso(resultado)) {
                     return;
                 }
                 window.location.reload();

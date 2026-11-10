@@ -253,9 +253,7 @@
             if (respuesta.ok && datos.mensaje) {
                 modal(selector).hide();
                 await window.mostrarExito(datos.mensaje);
-                if (datos.siguienteUrl && window.preguntarSiguientePaso
-                        && await window.preguntarSiguientePaso(datos.siguienteTitulo, datos.siguienteTexto, datos.siguienteConfirmar, datos.siguienteTipo)) {
-                    window.location.href = datos.siguienteUrl;
+                if (datos.siguienteUrl && window.manejarSiguientePaso && await window.manejarSiguientePaso(datos)) {
                     return;
                 }
                 window.location.href = datos.destino || window.location.href;

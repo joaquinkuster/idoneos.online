@@ -114,19 +114,14 @@ public interface CohorteService extends CrudService<Cohorte> {
     boolean estaCompleto(Programa programa);
 
     /**
-     * Saca de "Pendiente de contenido" a toda cohorte cuyo programa ya tiene el contenido completo (el docente lo completó después de que la cohorte se registrara o se le asignara el programa): pasa al estado que le corresponde por sus fechas.
-     *
-     * @return la cantidad de cohortes que se activaron
-     */
-    int activarPendientesConContenidoCompleto();
-
-    /**
-     * Activa una cohorte pendiente si el diseño de su programa ya está completo (lo mismo que hace la tarea periódica, pero al momento: el docente no tiene que esperar al próximo ciclo para ver el cambio de estado).
+     * Finaliza el diseño de una cohorte pendiente y la publica: sale de Pendiente de contenido y pasa al estado que le corresponde por sus fechas. Publicar es decisión y responsabilidad del docente, por eso nunca se hace sola.
      *
      * @param idCohorte el identificador de la cohorte
-     * @return {@code true} si la cohorte salió de Pendiente de contenido
+     * @param docente el docente que finaliza el diseño, o {@code null} si lo hace el administrador
+     * @return la cohorte ya publicada
+     * @throws IllegalArgumentException si la cohorte no está pendiente, no tiene programa o su programa no está completo
      */
-    boolean activarSiEstaCompleta(Integer idCohorte);
+    Cohorte finalizarDiseno(Integer idCohorte, Docente docente);
 
     /**
      * Mueve de estado las cohortes que ya cumplieron una fecha: Inscripción próxima, abierta, cerrada.

@@ -248,19 +248,20 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("Una cohorte pendiente se activa sola cuando el contenido de su programa queda completo")
-    void activaLasPendientesConContenidoCompleto() {
+    @DisplayName("Una cohorte pendiente con el contenido completo no se publica sola: el docente finaliza el diseño")
+    void finalizaElDisenoSoloPorDecisionDelDocente() {
         Programa incompleto = programaDe("Macroeconomía de Coyuntura");
         Cohorte cohorte = cohorteService.registrar(incompleto.getCurso().getIdCurso(), null, INICIO,
                 INICIO.plusDays(30), null, incompleto.getDuracionTotalDias(), null);
         Programa completo = programaDe("Mercado de Capitales Argentino");
         org.junit.jupiter.api.Assumptions.assumeTrue(cohorteService.faltantesDeContenido(completo).isEmpty());
 
-        // sin programa no se activa. Con uno completo, sí
-        assertEquals(0, cohorteService.activarPendientesConContenidoCompleto());
-        assertTrue(cohorte.esPendiente());
+        // sin programa no se puede finalizar. Con uno completo, la cohorte sigue pendiente hasta que se finaliza
+        assertThrows(IllegalArgumentException.class, () -> cohorteService.finalizarDiseno(cohorte.getIdCohorte(), null));
         cohorte.setPrograma(completo);
-        assertTrue(cohorteService.activarPendientesConContenidoCompleto() >= 1);
+        cohorteService.actualizarCohortesPendientes();
+        assertTrue(cohorte.esPendiente());
+        cohorteService.finalizarDiseno(cohorte.getIdCohorte(), null);
         assertFalse(cohorte.esPendiente());
         assertFalse(cohorte.esCancelada());
     }

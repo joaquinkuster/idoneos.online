@@ -762,6 +762,10 @@ public class SemillaService {
                 cohorteRepository.saveAndFlush(cohorte);
                 continue;
             }
+            // Con el programa completo, la semilla finaliza el diseño por el docente: la cohorte sale de pendiente
+            if (cohorte.esPendiente()) {
+                cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PROXIMA).orElseThrow());
+            }
             boolean enJuego = inscripcionRepository.contarEnJuego(cohorte, ahora) > 0;
             cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(cohorte.calcularEstado(ahora, enJuego)).orElseThrow());
             cohorteRepository.saveAndFlush(cohorte);

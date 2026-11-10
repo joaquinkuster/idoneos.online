@@ -62,10 +62,6 @@ public class PanelCursoComponent {
         if (contexto.esDocente() || contexto.esAdministrador()) {
             com.app.idoneos.model.Cohorte cohorte = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo();
-            // Si el docente acaba de completar el diseño, la cohorte pasa de Pendiente de contenido a Inscripción próxima ya, sin esperar a la tarea periódica
-            if (cohorte != null && cohorte.esPendiente()) {
-                cohorteService.activarSiEstaCompleta(cohorte.getIdCohorte());
-            }
             CursoService.EstadoDiseno estado = cursoService.calcularEstadoDiseno(contexto.curso(), cohorte);
             model.addAttribute("estadoDiseno", estado);
             if (contexto.esDocente()) {
@@ -109,15 +105,31 @@ public class PanelCursoComponent {
             case 3: {
                 boolean puedeAsignar = cohorte != null && cohorte.esPendiente() && cohorte.getCantidadInscriptos() == 0;
                 if (!curso.getProgramasActivos().isEmpty() && puedeAsignar) {
-                    return com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje,
-                            "¿Asignás un programa?", "Ahora la cohorte necesita su programa: elegí uno de los que ya tiene el curso.",
-                            "Asignar programa", "/cohorte/buscar" + id + "&asignar=" + cohorte.getIdCohorte() + "&volver=curso");
+                    java.util.Map<String, String> cuerpo = new java.util.LinkedHashMap<>(
+                            com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje,
+                                    "¿Cómo seguís con el programa?",
+                                    "Ahora la cohorte necesita su programa: asigná uno de los que ya tiene el curso o registrá una versión nueva a partir de los temas creados.",
+                                    "Asignar programa", "/cohorte/buscar" + id + "&asignar=" + cohorte.getIdCohorte() + "&volver=curso").getBody());
+                    cuerpo.put("siguienteAlternativa", "Nueva versión");
+                    cuerpo.put("siguienteAlternativaUrl", "/programa/buscar" + id + "&nuevo=");
+                    return org.springframework.http.ResponseEntity.ok(cuerpo);
                 }
                 return com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje,
                         "¿Registrás el programa?", "Ahora la cohorte necesita su programa: registrá el primero.",
                         "Registrar programa", "/programa/buscar" + id + "&nuevo=");
             }
             default:
+                // Con el programa completo y la cohorte todavía pendiente, publicarla es decisión del docente: se le pregunta
+                if (cohorte != null && cohorte.esPendiente() && cohorte.tienePrograma() && estado.isProgramaCompleto()) {
+                    java.util.Map<String, String> cuerpo = new java.util.LinkedHashMap<>(
+                            com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosaConSiguiente(mensaje,
+                                    com.app.idoneos.controller.CohorteController.TITULO_FINALIZAR_DISENO,
+                                    com.app.idoneos.controller.CohorteController.textoFinalizarDiseno(cohorte), "Finalizar diseño",
+                                    "/curso/acceder/" + cursoId).getBody());
+                    cuerpo.put("siguientePost", "/cohorte/finalizarDiseno/" + cohorte.getIdCohorte());
+                    cuerpo.put("siguienteTipo", "advertencia");
+                    return org.springframework.http.ResponseEntity.ok(cuerpo);
+                }
                 if (!disenoRecienCompleto(cursoId)) {
                     return com.app.idoneos.util.RespuestaFormularioUtil.armarRespuestaExitosa(mensaje);
                 }
@@ -133,15 +145,15 @@ public class PanelCursoComponent {
         }
     }
 
-    /** Describe lo que falta del contenido de los temas para llegar al mínimo, para la alerta guía. */
+    /** Describe lo que falta del contenido de los temas, para la alerta guía. */
     private static String contenidoPendiente(CursoService.EstadoDiseno estado) {
         int faltan = Math.max(1, estado.getTemasQueFaltan());
         return "Todavía " + (faltan == 1 ? "falta completar el contenido de 1 tema" : "faltan completar el contenido de " + faltan + " temas")
-                + " para llegar al mínimo.";
+                + ".";
     }
 
     private static final String TITULO_DISENO_COMPLETO = "¡Completaste el diseño del curso!";
-    private static final String TEXTO_DISENO_COMPLETO = "El curso ya tiene todo lo necesario: la cohorte pasa a inscripción próxima y se habilita para que los alumnos se inscriban en su fecha de inicio.";
+    private static final String TEXTO_DISENO_COMPLETO = "El curso ya tiene todo lo necesario para publicar la cohorte.";
 
     private static String claveDisenoCompleto(Integer cursoId) {
         return "disenoCompleto." + cursoId;

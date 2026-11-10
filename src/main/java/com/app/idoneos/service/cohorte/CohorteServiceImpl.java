@@ -266,39 +266,30 @@ public class CohorteServiceImpl implements CohorteService {
         Programa programa = programaDelCurso(cohorte.getCurso(), idPrograma);
         validarProgramaCompleto(programa);
         cohorte.setPrograma(programa);
-        // Con su programa completo, la cohorte deja de estar pendiente y pasa a inscripción próxima
-        activar(cohorte, LocalDateTime.now());
+        // La cohorte sigue pendiente: publicarla es una decisión del docente (finalizarDiseno)
         cohorte.setUltimaModificacion(LocalDateTime.now());
         return cohorteRepository.save(cohorte);
     }
 
-    /** Activa las cohortes pendientes cuyo programa ya tiene el contenido completo. */
+    /** Finaliza el diseño de una cohorte pendiente y la publica. */
     @Override
     @Transactional
-    public int activarPendientesConContenidoCompleto() {
-        int activadas = 0;
-        for (Cohorte cohorte : cohorteRepository.findByBajaFalse()) {
-            if (cohorte.esPendiente() && tieneContenidoCompleto(cohorte.getPrograma())) {
-                activar(cohorte, LocalDateTime.now());
-                cohorte.setUltimaModificacion(LocalDateTime.now());
-                cohorteRepository.save(cohorte);
-                activadas++;
-            }
+    public Cohorte finalizarDiseno(Integer idCohorte, Docente docente) {
+        Cohorte cohorte = cohorteRepository.findById(idCohorte).filter(c -> !c.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! La cohorte no se encuentra activa."));
+        if (docente != null && !cohorte.getCurso().tieneDocente(docente)) {
+            throw new IllegalArgumentException("Error! El docente no participa en el curso de la cohorte.");
         }
-        return activadas;
-    }
-
-    @Override
-    @Transactional
-    public boolean activarSiEstaCompleta(Integer idCohorte) {
-        Cohorte cohorte = cohorteRepository.findById(idCohorte).filter(c -> !c.esInactivo()).orElse(null);
-        if (cohorte == null || !cohorte.esPendiente() || !tieneContenidoCompleto(cohorte.getPrograma())) {
-            return false;
+        if (!cohorte.esPendiente()) {
+            throw new IllegalArgumentException("Error! El diseño de la cohorte ya está finalizado.");
         }
+        if (!cohorte.tienePrograma()) {
+            throw new IllegalArgumentException("Error! La cohorte todavía no tiene programa.");
+        }
+        validarProgramaCompleto(cohorte.getPrograma());
         activar(cohorte, LocalDateTime.now());
         cohorte.setUltimaModificacion(LocalDateTime.now());
-        cohorteRepository.save(cohorte);
-        return true;
+        return cohorteRepository.save(cohorte);
     }
 
     /** Saca a la cohorte de "Pendiente de contenido": pasa al estado que le corresponde por sus fechas. */
@@ -359,12 +350,11 @@ public class CohorteServiceImpl implements CohorteService {
     @org.springframework.transaction.annotation.Transactional
     public void actualizarCohortesPendientes() {
         try {
-            int activadas = activarPendientesConContenidoCompleto();
             int canceladas = cancelarPendientesVencidas();
             int cambiadas = actualizarEstadosPorFecha();
-            if (activadas > 0 || canceladas > 0 || cambiadas > 0) {
+            if (canceladas > 0 || cambiadas > 0) {
                 org.slf4j.LoggerFactory.getLogger(CohorteServiceImpl.class)
-                        .info("Cohortes: {} activadas, {} canceladas y {} con estado nuevo por fecha", activadas, canceladas, cambiadas);
+                        .info("Cohortes: {} canceladas y {} con estado nuevo por fecha", canceladas, cambiadas);
             }
         } catch (RuntimeException e) {
             org.slf4j.LoggerFactory.getLogger(CohorteServiceImpl.class)

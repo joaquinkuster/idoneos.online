@@ -201,3 +201,8 @@
 .fx-inscripcion .fx-etiqueta-campo {
     margin-bottom: -12px;
 }
+
+/* El desplegable de ayuda cerrado no ocupa alto, pero sí sumaría una separación de la columna */
+.fx-inscripcion .ayuda-desplegable:not(.abierto) {
+    margin-bottom: -20px;
+}

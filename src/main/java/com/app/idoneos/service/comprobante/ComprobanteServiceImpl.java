@@ -3,22 +3,23 @@ package com.app.idoneos.service.comprobante;
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.Comprobante;
 import com.app.idoneos.model.Curso;
-import com.app.idoneos.model.Descuento;
 import com.app.idoneos.model.Pago;
-import com.app.idoneos.model.Programa;
+import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.repository.ComprobanteRepository;
 import com.app.idoneos.service.CrudService;
+import com.app.idoneos.util.PdfUtil;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
-import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.Rectangle;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.ColumnText;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfPageEventHelper;
+import com.lowagie.text.pdf.PdfTemplate;
 import com.lowagie.text.pdf.PdfWriter;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
@@ -40,8 +41,6 @@ public class ComprobanteServiceImpl implements ComprobanteService {
     private static final Logger REGISTRO = LoggerFactory.getLogger(ComprobanteServiceImpl.class);
 
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-    private static final Color AZUL = new Color(0x0B, 0x1B, 0x31);
-    private static final Color DORADO = new Color(0xD4, 0xA0, 0x3D);
 
     @Autowired
     private ComprobanteRepository comprobanteRepository;
@@ -77,53 +76,149 @@ public class ComprobanteServiceImpl implements ComprobanteService {
     @Override
     public byte[] generarPdf(Comprobante comprobante) {
         Pago pago = comprobante.getPago();
+        Rectangle pagina = PageSize.A4;
+        float ancho = pagina.getWidth();
+        float alto = pagina.getHeight();
         ByteArrayOutputStream salida = new ByteArrayOutputStream();
-        Document documento = new Document(PageSize.A4, 56, 56, 56, 56);
+        Document documento = new Document(pagina, 0, 0, 0, 0);
         try {
-            PdfWriter.getInstance(documento, salida);
+            PdfWriter escritor = PdfWriter.getInstance(documento, salida);
+            PaginacionDelPie pie = new PaginacionDelPie();
+            escritor.setPageEvent(pie);
             documento.open();
+            PdfContentByte lienzo = escritor.getDirectContent();
+            BaseFont negrita = PdfUtil.helvetica(true);
+            BaseFont normal = PdfUtil.helvetica(false);
 
-            Paragraph marca = new Paragraph("Idóneos Online", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 22, AZUL));
-            marca.setSpacingAfter(2);
-            documento.add(marca);
-            Paragraph titulo = new Paragraph("Comprobante de pago", FontFactory.getFont(FontFactory.HELVETICA, 13, DORADO));
-            titulo.setSpacingAfter(18);
-            documento.add(titulo);
+            // Encabezado: logo, nombre y áreas, y el distintivo gris rectangular
+            PdfUtil.dibujarEncabezado(lienzo, 48, alto - 94);
+            String distintivo = "COMPROBANTE";
+            float anchoDistintivo = PdfUtil.ancho(negrita, distintivo, 9, 0.8f) + 24;
+            lienzo.setColorFill(new Color(0xF1, 0xF5, 0xF9));
+            lienzo.setColorStroke(PdfUtil.BORDE);
+            lienzo.setLineWidth(0.8f);
+            lienzo.rectangle(ancho - 48 - anchoDistintivo, alto - 76, anchoDistintivo, 24);
+            lienzo.fillStroke();
+            PdfUtil.centrado(lienzo, negrita, 9, new Color(0x47, 0x55, 0x69), distintivo, ancho - 48 - anchoDistintivo / 2, alto - 68, 0.8f);
 
-            PdfPTable tabla = new PdfPTable(new float[] { 36, 64 });
-            tabla.setWidthPercentage(100);
-            agregarFila(tabla, "Número", comprobante.getNumero());
-            agregarFila(tabla, "Fecha de emisión", comprobante.getFechaEmision().format(FORMATO_FECHA));
-            agregarFila(tabla, "Pagador", comprobante.getNombrePagador() + " (DNI " + comprobante.getDniPagador() + ")");
-            agregarFila(tabla, "Alumno", pago.getInscripcion().getAlumno().getUsuario().getNombreCompleto());
-            agregarFila(tabla, "Curso", pago.getInscripcion().getCurso().getNombre());
-            agregarFila(tabla, "Programa", pago.getInscripcion().getCohorte().getPrograma().getNombre());
-            if (pago.getDescuento() != null) {
-                agregarFila(tabla, "Descuento aplicado", pago.getDescuento().getNombre() + " ("
-                        + String.format(Locale.of("es", "AR"), "%.0f", pago.getDescuento().getPorcentaje()) + "%)");
-            }
-            agregarFila(tabla, "Monto", "$ " + String.format(Locale.of("es", "AR"), "%,.2f", pago.getMonto()));
-            agregarFila(tabla, "Medio de pago", pago.getMedioDePago());
-            if (pago.getCodigoReferencia() != null) {
-                agregarFila(tabla, "Referencia", pago.getCodigoReferencia());
-            }
-            if (pago.getNumeroComprobante() != null) {
-                agregarFila(tabla, "N.º de comprobante", pago.getNumeroComprobante());
-            }
-            if (pago.getFechaAprobacion() != null) {
-                agregarFila(tabla, "Fecha de aprobación", pago.getFechaAprobacion().format(FORMATO_FECHA));
-            }
-            documento.add(tabla);
+            // Bajo el logo: el número de comprobante y la fecha de emisión, en ese orden
+            lineaDelEncabezado(lienzo, alto - 114, "N.\u00ba de comprobante: ", comprobante.getNumero());
+            lineaDelEncabezado(lienzo, alto - 136, "Fecha de emisi\u00f3n: ", comprobante.getFechaEmision().format(FORMATO_FECHA));
+            lienzo.setColorStroke(PdfUtil.DORADO);
+            lienzo.setLineWidth(2f);
+            lienzo.moveTo(48, alto - 152);
+            lienzo.lineTo(ancho - 48, alto - 152);
+            lienzo.stroke();
 
-            Paragraph pie = new Paragraph("Este comprobante acredita el pago de la inscripción. Las bajas de inscripción no generan reembolso.",
-                    FontFactory.getFont(FontFactory.HELVETICA, 9, Color.GRAY));
-            pie.setSpacingBefore(24);
-            documento.add(pie);
+            // Datos en filas horizontales: etiqueta a la izquierda y valor a su lado
+            Inscripcion inscripcion = pago.getInscripcion();
+            float y = alto - 190;
+            y = fila(lienzo, y, "Curso", inscripcion.getCurso().getNombre() + " (Cohorte " + inscripcion.getCohorte().getMesAnio() + ")");
+            y = fila(lienzo, y, "Monto", "$ " + String.format(Locale.of("es", "AR"), "%,.2f", pago.getMonto()) + " ARS");
+            y -= 16;
+            lienzo.beginText();
+            lienzo.setFontAndSize(negrita, 9);
+            lienzo.setColorFill(PdfUtil.GRIS);
+            lienzo.setCharacterSpacing(0.8f);
+            lienzo.setTextMatrix(48, y);
+            lienzo.showText("DATOS DEL PAGADOR");
+            lienzo.setCharacterSpacing(0);
+            lienzo.endText();
+            y -= 34;
+            y = fila(lienzo, y, "Apellido y nombre", comprobante.getNombrePagador());
+            y = fila(lienzo, y, "D.N.I. / CUIT", comprobante.getDniPagador());
+            fila(lienzo, y, "Medio de pago", pago.getMedioDePago());
+
             documento.close();
         } catch (DocumentException e) {
             throw new IllegalStateException("No se pudo generar el comprobante en PDF", e);
         }
         return salida.toByteArray();
+    }
+
+    /** Dibuja una fila con la etiqueta a la izquierda y el valor a su lado, y devuelve la posición de la fila siguiente. */
+    /** Dibuja una línea del encabezado con la etiqueta en gris y el valor en negrita. */
+    private static void lineaDelEncabezado(PdfContentByte lienzo, float y, String etiqueta, String valor) {
+        BaseFont negrita = PdfUtil.helvetica(true);
+        BaseFont normal = PdfUtil.helvetica(false);
+        lienzo.beginText();
+        lienzo.setFontAndSize(normal, 10);
+        lienzo.setColorFill(PdfUtil.GRIS);
+        lienzo.setTextMatrix(48, y);
+        lienzo.showText(etiqueta);
+        lienzo.setFontAndSize(negrita, 10);
+        lienzo.setColorFill(PdfUtil.AZUL);
+        lienzo.showText(valor);
+        lienzo.endText();
+    }
+
+    /** Dibuja una fila con la etiqueta a la izquierda y el valor a su lado, y devuelve la posición de la fila siguiente. */
+    private static float fila(PdfContentByte lienzo, float y, String etiqueta, String valor) throws DocumentException {
+        BaseFont negrita = PdfUtil.helvetica(true);
+        BaseFont normal = PdfUtil.helvetica(false);
+        float tamanio = 11;
+        lienzo.beginText();
+        lienzo.setFontAndSize(normal, 10);
+        lienzo.setColorFill(PdfUtil.GRIS);
+        lienzo.setTextMatrix(48, y);
+        lienzo.showText(etiqueta + ":");
+        lienzo.endText();
+        ColumnText texto = new ColumnText(lienzo);
+        Font fuente = new Font(negrita, tamanio, Font.NORMAL, PdfUtil.AZUL);
+        texto.setSimpleColumn(new Phrase(valor, fuente), 190, y - 30, 547, y + tamanio, tamanio + 3, Element.ALIGN_LEFT);
+        texto.go();
+        int lineas = Math.max(1, (int) Math.ceil(negrita.getWidthPoint(valor, tamanio) / 357));
+        float siguiente = y - 14 - (lineas - 1) * (tamanio + 3);
+        lienzo.setColorStroke(new Color(0xE2, 0xE8, 0xF0));
+        lienzo.setLineWidth(0.6f);
+        lienzo.moveTo(48, siguiente + 2);
+        lienzo.lineTo(547, siguiente + 2);
+        lienzo.stroke();
+        return siguiente - 22;
+    }
+
+    /** Dibuja en el pie de cada página los datos de la empresa y la paginación, por ejemplo Página 1 de 1. */
+    private static final class PaginacionDelPie extends PdfPageEventHelper {
+
+        private PdfTemplate total;
+
+        @Override
+        public void onOpenDocument(PdfWriter escritor, Document documento) {
+            total = escritor.getDirectContent().createTemplate(40, 12);
+        }
+
+        @Override
+        public void onEndPage(PdfWriter escritor, Document documento) {
+            PdfContentByte lienzo = escritor.getDirectContent();
+            BaseFont normal = PdfUtil.helvetica(false);
+            float ancho = documento.getPageSize().getWidth();
+            lienzo.setColorStroke(new Color(0xE2, 0xE8, 0xF0));
+            lienzo.setLineWidth(0.6f);
+            lienzo.moveTo(48, 62);
+            lienzo.lineTo(ancho - 48, 62);
+            lienzo.stroke();
+            lienzo.beginText();
+            lienzo.setFontAndSize(normal, 8);
+            lienzo.setColorFill(PdfUtil.GRIS);
+            lienzo.setTextMatrix(48, 48);
+            lienzo.showText("Idóneos Online S.A.S. \u00b7 CUIT 30-71884920-4");
+            String texto = "Página " + escritor.getPageNumber() + " de ";
+            float anchoTexto = normal.getWidthPoint(texto, 8);
+            lienzo.setTextMatrix(ancho - 48 - anchoTexto - 6, 48);
+            lienzo.showText(texto);
+            lienzo.endText();
+            lienzo.addTemplate(total, ancho - 48 - 6, 48);
+        }
+
+        @Override
+        public void onCloseDocument(PdfWriter escritor, Document documento) {
+            total.beginText();
+            total.setFontAndSize(PdfUtil.helvetica(false), 8);
+            total.setColorFill(PdfUtil.GRIS);
+            total.setTextMatrix(0, 0);
+            total.showText(String.valueOf(escritor.getPageNumber() - 1));
+            total.endText();
+        }
     }
 
     // ----------------------------------------------------------------------
@@ -169,20 +264,6 @@ public class ComprobanteServiceImpl implements ComprobanteService {
     @Override
     public void borrar(Comprobante entidad) {
         comprobanteRepository.delete(entidad);
-    }
-
-    private static void agregarFila(PdfPTable tabla, String etiqueta, String valor) {
-        tabla.addCell(celda(etiqueta, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, AZUL)));
-        tabla.addCell(celda(valor, FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK)));
-    }
-
-    private static PdfPCell celda(String texto, Font fuente) {
-        PdfPCell celda = new PdfPCell(new Phrase(texto, fuente));
-        celda.setBorder(Rectangle.BOTTOM);
-        celda.setBorderColor(new Color(0xDD, 0xDD, 0xDD));
-        celda.setPadding(7);
-        celda.setHorizontalAlignment(Element.ALIGN_LEFT);
-        return celda;
     }
 
     private static String recortar(String texto, int maximo) {
