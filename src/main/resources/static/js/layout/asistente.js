@@ -1,15 +1,4 @@
-/**
- * Asistente navegacional (fragments/components/asistente.html): botón flotante (una brújula) en la esquina inferior derecha con la cantidad de
- * pendientes del usuario y una carta con la «ruta» de lo que tiene pendiente según su rol. Lo arma el servidor (GET /asistente/pendientes); no
- * hay inteligencia artificial.
- *
- *  - Al cargar la página se pide la cantidad para el contador del botón.
- *  - Al abrir la carta se piden de nuevo los datos con el esqueleto de carga de los listados, y los pasos entran escalonados.
- *  - Las cartas siguen el orden de cercanía. Cada paso es un enlace a la pantalla donde se
- *    resuelve. Solo las cartas urgentes (faltan 7 días o menos) llevan la marca y el círculo relleno: dorado, o rojo si faltan 3 o menos.
- *  - Las acciones rápidas quedan fijas al pie; los pasos hacen scroll por encima.
- *  - Se cierra con la X, con un clic en el encabezado, con Esc o con un clic afuera.
- */
+/** Asistente navegacional (fragments/components/asistente.html). */
 (function () {
     'use strict';
 
@@ -114,7 +103,7 @@
             contexto.appendChild(elemento('span', 'as-ctx-n', String(datos.total)));
             cuerpo.appendChild(contexto);
 
-            // El primer pendiente es la tarjeta «Ahora»: neutra, dorada (faltan 7 días o menos) o roja (3 o menos), con un botón de acción
+            // El primer pendiente es la tarjeta "Ahora": neutra, dorada (faltan 7 días o menos) o roja (3 o menos), con un botón de acción
             var primero = pendientes[0];
             var nivel = primero.urgencia === 'alta' ? ' alta' : (primero.urgencia === 'media' ? ' media' : '');
             var hero = elemento('a', 'as-hero' + nivel);

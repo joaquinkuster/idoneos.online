@@ -20,9 +20,7 @@ import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas de la equipo docente del curso (CU-25 y la sección de docentes del CU-27, MOD-F-02).
- */
+/** Pruebas de la equipo docente del curso. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

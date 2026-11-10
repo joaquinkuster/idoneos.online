@@ -26,10 +26,7 @@ import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.PoolRepository;
 import com.app.idoneos.repository.TemaRepository;
 
-/**
- * Pruebas de las vistas y los formularios del ABM de autoevaluaciones (CU-64 a CU-67). Fausto Spotorno es titular de
- * "Mercado de Capitales Argentino": su autoevaluación del tema 1 tiene intentos y la del tema 2 no.
- */
+/** Pruebas de las vistas y los formularios del ABM de autoevaluaciones. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -140,7 +137,7 @@ class AutoevaluacionControllerTest {
         assertFalse(modalTema1.contains("Renta fija (6 preguntas)"));
         assertFalse(modalTema1.contains("Preguntas del tema"));
 
-        // Tema 2: su pool y el del tema 1, agrupados; no el del tema 3
+        // Tema 2: su pool y el del tema 1, agrupados. No el del tema 3
         String modalTema2 = modal(pagina, autoevaluacion("Autoevaluación Tema 2: Ejercicios de rendimiento"));
         assertTrue(modalTema2.contains("U1 · Marco regulatorio (6 preguntas)"));
         assertTrue(modalTema2.contains("U2 · Renta fija (6 preguntas)"));

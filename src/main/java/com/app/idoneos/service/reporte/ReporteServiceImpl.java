@@ -9,96 +9,66 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Reporte}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link ReporteService}.
- */
+/** Implementación de ReporteService. */
 @Service
 public class ReporteServiceImpl implements ReporteService {
 
     @Autowired
     private ReporteRepository reporteRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el reporte por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el reporte por su identificador. */
     @Override
     public Optional<Reporte> buscarPorId(Integer id) {
         return reporteRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Reporte> obtenerTodo() {
         return reporteRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return reporteRepository.existsById(id);
     }
 
-
-
-    /**
-     * Busca los registros de reporte asociados a curso.
-     *
-     * @param curso el registro de Curso asociado
-     * @return una lista de Reporte asociados al Curso indicado
-     */
+    /** Busca los registros de reporte asociados a curso. */
     @Override
     public List<Reporte> buscarPorCurso(Curso curso) {
         return reporteRepository.findByCurso(curso);
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el reporte en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el reporte en la base de datos. */
     @Override
     public Reporte guardar(Reporte entidad) {
         return reporteRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Reporte modificar(Reporte entidad) {
         return reporteRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(Reporte entidad) {
         reporteRepository.delete(entidad);

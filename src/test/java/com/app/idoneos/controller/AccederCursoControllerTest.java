@@ -19,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas de la pantalla "Acceder curso" del alumno (CU-27, MOD-F-02).
- */
+/** Pruebas de la pantalla "Acceder curso" del alumno. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -68,7 +66,7 @@ class AccederCursoControllerTest {
     void barraLateralYBarraSuperior() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
-                // "Curso" va arriba; el grupo "Este curso" (Temas y Programas) es de gestión y el alumno no lo ve
+                // "Curso" va arriba. El grupo "Este curso" (Temas y Programas) es de gestión y el alumno no lo ve
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Este curso"))))
                 .andExpect(content().string(Matchers.containsString("Este programa")))
                 .andExpect(content().string(Matchers.containsString("Esta cohorte")))

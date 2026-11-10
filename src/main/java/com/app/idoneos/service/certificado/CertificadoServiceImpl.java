@@ -30,10 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Certificado}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link CertificadoService}.
- */
+/** Implementación de CertificadoService. */
 @Service
 public class CertificadoServiceImpl implements CertificadoService {
 
@@ -45,47 +42,29 @@ public class CertificadoServiceImpl implements CertificadoService {
     @Autowired
     private CertificadoRepository certificadoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el certificado por su identificador. Incluye los registros dados de baja o anulados, para poder consultarlos.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el certificado por su identificador. */
     @Override
     public Optional<Certificado> buscarPorId(Integer id) {
         return certificadoRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve certificados vigentes (no anulados).
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Certificado> obtenerTodo() {
         return certificadoRepository.findByAnuladoFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return certificadoRepository.existsById(id);
     }
 
-
-    /**
-     * Busca el certificado por su atributo único 'numero'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param numero el valor de 'numero' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el certificado por su atributo único 'numero'. */
     @Override
     public Optional<Certificado> buscarPorNumero(String numero) {
         return certificadoRepository.findByNumero(numero);
@@ -152,22 +131,17 @@ public class CertificadoServiceImpl implements CertificadoService {
         return parrafo;
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el certificado en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el certificado en la base de datos. */
     @Override
     public Certificado guardar(Certificado entidad) {
         return certificadoRepository.save(entidad);
     }
 
-    /**
-     * Emite el certificado de finalización de una inscripción. Si ya tiene uno vigente, lo devuelve.
-     */
+    /** Emite el certificado de finalización de una inscripción. */
     @Override
     @Transactional
     public Certificado emitir(Inscripcion inscripcion) {
@@ -193,14 +167,11 @@ public class CertificadoServiceImpl implements CertificadoService {
         return certificado;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Certificado modificar(Certificado entidad) {
         return certificadoRepository.save(entidad);
@@ -230,22 +201,18 @@ public class CertificadoServiceImpl implements CertificadoService {
         return certificadoRepository.save(certificado);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Anula el certificado, en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Anula el certificado, en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Certificado entidad) {
         entidad.anular(); // Anulación en lugar de borrado
         certificadoRepository.save(entidad);
     }
 
-    /**
-     * Anula los certificados vigentes de una inscripción.
-     */
+    /** Anula los certificados vigentes de una inscripción. */
     @Override
     @Transactional
     public boolean anular(Inscripcion inscripcion) {

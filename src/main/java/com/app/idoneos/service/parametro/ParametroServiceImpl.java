@@ -16,10 +16,7 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Parametro}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link ParametroService}.
- */
+/** Implementación de ParametroService. */
 @Service
 public class ParametroServiceImpl implements ParametroService {
 
@@ -32,69 +29,41 @@ public class ParametroServiceImpl implements ParametroService {
     @Autowired
     private ParametroRepository parametroRepository;
 
-    /**
-     * Clave con la que se cifran los parámetros sensibles (AES-256). En producción se define con la variable de entorno
-     * {@code IDONEOS_SEGURIDAD_CLAVE_CIFRADO}; el valor por defecto es solo para desarrollo. Si cambia, los parámetros
-     * cifrados con la anterior dejan de poder leerse y hay que volver a cargarlos.
-     */
+    /** Clave con la que se cifran los parámetros sensibles (AES-256). */
     @Value("${idoneos.seguridad.clave-cifrado:idoneos-online-clave-de-cifrado-de-desarrollo}")
     private String claveDeCifrado;
 
     private volatile TextEncryptor cifrador;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el parámetro por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el parámetro por su identificador. */
     @Override
     public Optional<Parametro> buscarPorId(Integer id) {
         return parametroRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Parametro> obtenerTodo() {
         return parametroRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return parametroRepository.existsById(id);
     }
 
-
-    /**
-     * Busca el parámetro por su atributo único 'clave'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param clave el valor de 'clave' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el parámetro por su atributo único 'clave'. */
     @Override
     public Optional<Parametro> buscarPorClave(String clave) {
         return parametroRepository.findByClave(clave);
     }
 
-    /**
-     * Obtiene el valor entero de un parámetro del sistema.
-     *
-     * @param clave la clave del parámetro
-     * @param valorPorDefecto el valor a devolver si el parámetro no existe o no es un entero
-     * @return el valor entero del parámetro
-     */
+    /** Obtiene el valor entero de un parámetro del sistema. */
     @Override
     public int obtenerEntero(String clave, int valorPorDefecto) {
         return parametroRepository.findByClave(clave).map(parametro -> {
@@ -122,27 +91,21 @@ public class ParametroServiceImpl implements ParametroService {
         }).orElse(valorPorDefecto);
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el parámetro en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el parámetro en la base de datos. */
     @Override
     public Parametro guardar(Parametro entidad) {
         return parametroRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Parametro modificar(Parametro entidad) {
         return parametroRepository.save(entidad);
@@ -170,13 +133,11 @@ public class ParametroServiceImpl implements ParametroService {
         return parametroRepository.save(parametro);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(Parametro entidad) {
         parametroRepository.delete(entidad);
@@ -189,10 +150,7 @@ public class ParametroServiceImpl implements ParametroService {
         return cifrador;
     }
 
-    /**
-     * El valor de un parámetro como lo usa el sistema: descifrado si es sensible y está cifrado. Un valor sensible sin
-     * el prefijo de cifrado (cargado a mano en la base) se toma tal cual.
-     */
+    /** Obtiene el valor de un parámetro como lo usa el sistema, descifrado si es sensible y está cifrado. */
     private String valorLegible(Parametro parametro) {
         String valor = parametro.getValor();
         if (!parametro.esSensible() || !valor.startsWith(PREFIJO_CIFRADO)) {

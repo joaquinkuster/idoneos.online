@@ -8,85 +8,60 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Sesion}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link SesionService}.
- */
+/** Implementación de SesionService. */
 @Service
 public class SesionServiceImpl implements SesionService {
 
     @Autowired
     private SesionRepository sesionRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la sesión por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la sesión por su identificador. */
     @Override
     public Optional<Sesion> buscarPorId(Integer id) {
         return sesionRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Sesion> obtenerTodo() {
         return sesionRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return sesionRepository.existsById(id);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la sesión en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la sesión en la base de datos. */
     @Override
     public Sesion guardar(Sesion entidad) {
         return sesionRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Sesion modificar(Sesion entidad) {
         return sesionRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(Sesion entidad) {
         sesionRepository.delete(entidad);

@@ -7,13 +7,12 @@ import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import java.util.List;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el alumno.
- */
+/** Servicio del alumno. */
 public interface AlumnoService extends CrudService<Alumno> {
 
-    // ---------------------------------------------------------------- Lecturas
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los alumnos con una inscripción activa al curso, ordenados por apellido y nombre.

@@ -16,10 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Descuento}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link DescuentoService}.
- */
+/** Implementación de DescuentoService. */
 @Service
 public class DescuentoServiceImpl implements DescuentoService {
 
@@ -29,48 +26,31 @@ public class DescuentoServiceImpl implements DescuentoService {
     @Autowired
     private DescuentoRepository descuentoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el descuento por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el descuento por su identificador. */
     @Override
     public Optional<Descuento> buscarPorId(Integer id) {
         return descuentoRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Descuento> obtenerTodo() {
         return descuentoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return descuentoRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca el descuento por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param nombre el valor de 'nombre' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el descuento por su atributo único 'nombre'. */
     @Override
     public Optional<Descuento> buscarPorNombre(String nombre) {
         return descuentoRepository.findByNombre(nombre);
@@ -105,14 +85,11 @@ public class DescuentoServiceImpl implements DescuentoService {
                 .toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el descuento en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el descuento en la base de datos. */
     @Override
     public Descuento guardar(Descuento entidad) {
         return descuentoRepository.save(entidad);
@@ -133,7 +110,7 @@ public class DescuentoServiceImpl implements DescuentoService {
         aplicarDatos(descuento, nombreLimpio, porcentaje, vigenciaDesde, vigenciaHasta, cantidadLimite,
                 cursosRequeridos);
         if (existente != null) {
-            // Reactiva el descuento dado de baja con el mismo nombre (el nombre es único); nunca se había aplicado
+            // Reactiva el descuento dado de baja con el mismo nombre (el nombre es único). Nunca se había aplicado
             descuento.setBaja(false);
             descuento.setCantidadUsada(0);
             descuento.setUltimaModificacion(LocalDateTime.now());
@@ -141,14 +118,11 @@ public class DescuentoServiceImpl implements DescuentoService {
         return descuentoRepository.save(descuento);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Descuento modificar(Descuento entidad) {
         return descuentoRepository.save(entidad);
@@ -179,13 +153,11 @@ public class DescuentoServiceImpl implements DescuentoService {
         return descuentoRepository.save(descuento);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Descuento entidad) {
         entidad.marcarInactivo(); // Baja lógica
@@ -224,10 +196,7 @@ public class DescuentoServiceImpl implements DescuentoService {
         }
     }
 
-    /**
-     * Valida los datos de un descuento (los mismos en el alta y en la modificación) y devuelve el nombre sin espacios
-     * sobrantes.
-     */
+    /** Valida los datos de un descuento (los mismos en el alta y en la modificación) y devuelve el nombre sin espacios sobrantes. */
     private String validarDatos(String nombre, Float porcentaje, LocalDate vigenciaDesde, LocalDate vigenciaHasta,
             Integer cantidadLimite, Integer cursosRequeridos) {
         List<String> faltantes = new ArrayList<>();

@@ -43,9 +43,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Implementación del servicio de los recursos de los temas ({@link RecursoService}).
- */
+/** Implementación de RecursoService. */
 @Service
 public class RecursoServiceImpl implements RecursoService {
 
@@ -93,36 +91,29 @@ public class RecursoServiceImpl implements RecursoService {
     @Autowired
     private DocenteCursoRepository docenteCursoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el material por su identificador. Solo devuelve registros activos.
-     */
+    /** Busca el material por su identificador. */
     @Override
     public Optional<TemaRecurso> buscarPorId(Integer id) {
         return temaRecursoRepository.findById(id).filter(entidad -> !entidad.esInactivo());
     }
 
-    /**
-     * Obtiene todos los registros activos.
-     */
+    /** Obtiene todos los registros activos. */
     @Override
     public List<TemaRecurso> obtenerTodo() {
         return temaRecursoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro activo con el identificador dado.
-     */
+    /** Verifica si existe un registro activo con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return buscarPorId(id).isPresent();
     }
 
-
-    /**
-     * Busca los materiales activos de un tema, en su orden.
-     */
+    /** Busca los materiales activos de un tema, en su orden. */
     @Override
     public List<TemaRecurso> buscarPorTema(Tema tema) {
         return temaRecursoRepository.findByTemaAndBajaFalse(tema).stream()
@@ -130,15 +121,13 @@ public class RecursoServiceImpl implements RecursoService {
                 .toList();
     }
 
-    /**
-     * CU-31: Busca materiales con filtros opcionales.
-     */
+    /** Busca materiales con filtros opcionales. */
     @Override
     public List<TemaRecurso> buscarConFiltros(Integer idCurso, Integer idTema, String tipo, String titulo,
             Boolean generadoPorIa, Boolean baja, Docente soloDeDocente) {
         String criterio = titulo == null ? "" : titulo.trim().toLowerCase();
         TipoRecurso tipoBuscado = TipoRecurso.deTexto(tipo);
-        // El curso, el tema y la baja se filtran en la base; el resto, acá
+        // El curso, el tema y la baja se filtran en la base. El resto, acá
         return temaRecursoRepository.buscarPorFiltros(idCurso, idTema, baja).stream()
                 .filter(m -> tipoBuscado == null || m.getRecurso().getTipo().equals(tipoBuscado.getNombre()))
                 .filter(m -> criterio.isEmpty() || m.getTitulo().toLowerCase().contains(criterio))
@@ -150,9 +139,7 @@ public class RecursoServiceImpl implements RecursoService {
                 .toList();
     }
 
-    /**
-     * Indica si un usuario puede abrir un material.
-     */
+    /** Indica si un usuario puede abrir un material. */
     @Override
     public boolean puedeAcceder(TemaRecurso material, Usuario usuario) {
         if (usuario.esAdministradorActivo()) {
@@ -166,9 +153,7 @@ public class RecursoServiceImpl implements RecursoService {
         return alumno != null && buscarInscripcionConAcceso(material, alumno).isPresent();
     }
 
-    /**
-     * Busca la inscripción con la que un alumno accede a un material (debe estar publicado).
-     */
+    /** Busca la inscripción con la que un alumno accede a un material (debe estar publicado). */
     @Override
     public Optional<Inscripcion> buscarInscripcionConAcceso(TemaRecurso material, Alumno alumno) {
         if (!material.estaPublicado()) {
@@ -177,7 +162,9 @@ public class RecursoServiceImpl implements RecursoService {
         return inscripcionService.buscarConAccesoATema(alumno, material.getTema());
     }
 
-    // ---------------------------------------------------------------- Biblioteca del docente
+    // ----------------------------------------------------------------------
+    // Biblioteca del docente
+    // ----------------------------------------------------------------------
 
     @Override
     public List<Recurso> buscarRecursosDelDocente(Docente docente) {
@@ -306,7 +293,7 @@ public class RecursoServiceImpl implements RecursoService {
         marcarRecursoDeBaja(recurso);
     }
 
-    /** Comprueba que ningún tema use el recurso; si alguno lo usa, la baja no se puede. */
+    /** Comprueba que ningún tema use el recurso. Si alguno lo usa, la baja no se puede. */
     private void validarSinUsos(Recurso recurso) {
         long usos = contarUsos(recurso);
         if (usos > 0) {
@@ -377,19 +364,17 @@ public class RecursoServiceImpl implements RecursoService {
         return ManejadorArchivosUtil.construirRutaRelativa(directorioCursos, carpeta.resolve(nombre));
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el material en la base de datos.
-     */
+    /** Guarda el material en la base de datos. */
     @Override
     public TemaRecurso guardar(TemaRecurso entidad) {
         return temaRecursoRepository.save(entidad);
     }
 
-    /**
-     * CU-28: Carga un material a un tema.
-     */
+    /** Carga un material a un tema. */
     @Override
     @Transactional
     public TemaRecurso subir(Docente docente, Integer idTema, String tipoTexto, DatosRecurso datos,
@@ -434,19 +419,14 @@ public class RecursoServiceImpl implements RecursoService {
         return material;
     }
 
-    /**
-     * Registra en un tema un recurso de la biblioteca digital.
-     */
+    /** Registra en un tema un recurso de la biblioteca digital. */
     @Override
     @Transactional
     public TemaRecurso reutilizar(Docente docente, Integer idTema, Integer idRecurso) {
         return reutilizar(docente, idTema, List.of(idRecurso == null ? -1 : idRecurso)).get(0);
     }
 
-    /**
-     * Registra en un tema varios recursos de la biblioteca digital (todos o ninguno): primero se valida cada uno y recién después se
-     * registran, así un recurso que no se puede registrar no deja a los demás a medias.
-     */
+    /** Registra en un tema varios recursos de la biblioteca digital (todos o ninguno). */
     @Override
     @Transactional
     public List<TemaRecurso> reutilizar(Docente docente, Integer idTema, List<Integer> idsRecurso) {
@@ -488,47 +468,25 @@ public class RecursoServiceImpl implements RecursoService {
         return registrados;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     */
+    /** Modifica un registro existente. */
     @Override
     public TemaRecurso modificar(TemaRecurso entidad) {
         return temaRecursoRepository.save(entidad);
     }
 
-    /**
-     * CU-29: Modifica un material.
-     */
+    /** Cambia la visibilidad de un material en su tema. */
     @Override
     @Transactional
-    public TemaRecurso modificar(Integer id, Docente docente, DatosRecurso datos, MultipartFile archivo) {
+    public TemaRecurso cambiarVisibilidad(Integer id, Docente docente, boolean oculto) {
         TemaRecurso material = buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
         obtenerParticipacion(material.getCurso(), docente);
-        if (!esDuenio(material, docente)) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el recurso", material.getTitulo(),
-                    "pertenece a otro docente", ""));
-        }
-        long otrosUsos = contarOtrosUsos(material);
-        if (otrosUsos > 0) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el recurso", material.getTitulo(),
-                    "tiene " + MensajeErrorUtil.formatearCantidad(otrosUsos, "otro tema asociado", "otros temas asociados"), ""));
-        }
-        Recurso recurso = material.getRecurso();
-        TipoRecurso tipo = TipoRecurso.deTexto(recurso.getTipo());
-        if (tipo == null || !tipo.permiteSubidaManual()) {
-            throw new IllegalArgumentException("Error! Este tipo de recurso no se puede modificar manualmente.");
-        }
-        boolean hayArchivo = archivo != null && !archivo.isEmpty();
-        validarDatos(tipo, datos, hayArchivo, false);
-        validarIsbnNoRepetido(tipo, datos, recurso.getIdRecurso());
-        if (hayArchivo) {
-            ManejadorArchivosUtil.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
-        }
 
-        if (!datos.oculto() && material.getOculto()) {
+        if (!oculto && material.getOculto()) {
             // Volver a publicar un material cuya modalidad el curso ya no tiene
             String modalidad = material.getModalidadAsociada();
             if (modalidad != null && !material.getCurso().incluyeModalidad(modalidad)) {
@@ -536,7 +494,7 @@ public class RecursoServiceImpl implements RecursoService {
                         + material.getTitulo() + "»: el curso no tiene la modalidad '" + modalidad + "'.");
             }
         }
-        if (datos.oculto() && !material.getOculto()) {
+        if (oculto && !material.getOculto()) {
             programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), Set.of(material.getIdTemaRecurso())).ifPresent(motivo -> {
                 // El error es del campo "Visible para alumnos": se muestra debajo de él, como en las autoevaluaciones
                 throw RespuestaFormularioUtil.armarCampoInvalido("oculto",
@@ -550,37 +508,23 @@ public class RecursoServiceImpl implements RecursoService {
                                 "Registrá otro antes de ocultarlo."));
             });
         }
-
-        String rutaAnterior = recurso.getRutaArchivo();
-        String rutaNueva = hayArchivo ? guardarArchivo(recurso, material.getTema(), tipo, archivo) : null;
-        if (rutaNueva != null && rutaAnterior != null && !rutaAnterior.equals(rutaNueva)) {
-            ManejadorArchivosUtil.eliminar(rutaAnterior, directorioCursos); // cambió de formato: no queda el viejo
-        }
-        actualizarDatosPropios(recurso, tipo, datos, rutaNueva, hayArchivo ? archivo.getSize() : null);
-        LocalDateTime ahora = LocalDateTime.now();
-        recurso.setTitulo(datos.titulo().trim());
-        recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
-        recurso.setUltimaModificacion(ahora);
-        recursoRepository.save(recurso);
-        material.setOculto(datos.oculto());
-        material.setUltimaModificacion(ahora);
+        material.setOculto(oculto);
+        material.setUltimaModificacion(LocalDateTime.now());
         return temaRecursoRepository.save(material);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica).
-     */
+    /** Da de baja el registro (baja lógica). */
     @Override
     public void borrar(TemaRecurso entidad) {
         entidad.marcarInactivo();
         temaRecursoRepository.save(entidad);
     }
 
-    /**
-     * CU-30: Da de baja un material.
-     */
+    /** Da de baja un material. */
     @Override
     @Transactional
     public void darDeBaja(Integer id, Docente docente) {
@@ -589,9 +533,7 @@ public class RecursoServiceImpl implements RecursoService {
         darDeBaja(material);
     }
 
-    /**
-     * CU-30: Da de baja varios materiales a la vez (todos o ninguno).
-     */
+    /** Da de baja varios materiales a la vez (todos o ninguno). */
     @Override
     @Transactional
     public void darDeBajaVarios(List<Integer> ids, Docente docente) {
@@ -608,11 +550,6 @@ public class RecursoServiceImpl implements RecursoService {
                 .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
         if (docente != null) {
             obtenerParticipacion(material.getCurso(), docente);
-        }
-        long otrosUsos = contarOtrosUsos(material);
-        if (otrosUsos > 0) {
-            throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", material.getTitulo(),
-                    "tiene " + MensajeErrorUtil.formatearCantidad(otrosUsos, "otro tema asociado", "otros temas asociados"), ""));
         }
         return material;
     }
@@ -632,21 +569,16 @@ public class RecursoServiceImpl implements RecursoService {
         }
     }
 
-    /** Da de baja el uso del recurso en el tema y, si ningún otro tema lo usa, también el recurso. */
+    /** Da de baja el uso del recurso en el tema. El recurso sigue en la biblioteca para reutilizarlo en otro tema. */
     private void darDeBaja(TemaRecurso material) {
-        LocalDateTime ahora = LocalDateTime.now();
         material.marcarInactivo();
-        material.setUltimaModificacion(ahora);
+        material.setUltimaModificacion(LocalDateTime.now());
         temaRecursoRepository.save(material);
-        Recurso recurso = material.getRecurso();
-        if (recurso.getTemasRecurso().stream().allMatch(TemaRecurso::esInactivo)) {
-            recurso.marcarInactivo();
-            recurso.setUltimaModificacion(ahora);
-            recursoRepository.save(recurso);
-        }
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
     /** Indica si el docente es el dueño del recurso del material (solo él puede modificar el recurso). */
     @Override
@@ -655,12 +587,6 @@ public class RecursoServiceImpl implements RecursoService {
     }
 
     /** Cuenta los otros temas activos que usan el mismo recurso. */
-    @Override
-    public long contarOtrosUsos(TemaRecurso material) {
-        return material.getRecurso().getTemasRecurso().stream()
-                .filter(uso -> !uso.esInactivo() && uso.getIdTemaRecurso() != material.getIdTemaRecurso()).count();
-    }
-
     private boolean participaEnElCurso(Curso curso, Docente docente) {
         return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
@@ -722,7 +648,7 @@ public class RecursoServiceImpl implements RecursoService {
         }
     }
 
-    /** No se admiten dos bibliografías vigentes con el mismo ISBN (se ignoran guiones y espacios). */
+    /** Valida que no haya dos bibliografías vigentes con el mismo ISBN, ignorando guiones y espacios. */
     private void validarIsbnNoRepetido(TipoRecurso tipo, DatosRecurso datos, int idRecursoActual) {
         String isbn = tipo == TipoRecurso.BIBLIOGRAFIA ? convertirVacioANulo(datos.isbn()) : null;
         if (isbn == null) {
@@ -774,7 +700,7 @@ public class RecursoServiceImpl implements RecursoService {
         }
     }
 
-    /** Actualiza los datos propios del tipo de recurso; si hay un archivo nuevo, también su ruta. */
+    /** Actualiza los datos propios del tipo de recurso. Si hay un archivo nuevo, también su ruta. */
     private void actualizarDatosPropios(Recurso recurso, TipoRecurso tipo, DatosRecurso datos, String rutaNueva, Long tamanio) {
         String extension = rutaNueva == null ? null : ManejadorArchivosUtil.obtenerExtension(rutaNueva);
         switch (tipo) {

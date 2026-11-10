@@ -27,11 +27,7 @@ import com.app.idoneos.model.PreguntaIntento;
 import com.app.idoneos.repository.AutoevaluacionRepository;
 import com.app.idoneos.repository.IntentoAutoevaluacionRepository;
 
-/**
- * Pruebas de las pantallas del alumno para CU-70: la ficha de la autoevaluación, el cuestionario, el resumen, la entrega y el
- * bloqueo del resto de la plataforma mientras rinde una autoevaluación que no permite salir. Valentina Ruiz tiene el tema
- * 2 habilitada (autoevaluación secuencial que no permite salir) y la 1 completada (navegación libre, permite salir).
- */
+/** Pruebas de las pantallas del alumno: la ficha de la autoevaluación, el cuestionario. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

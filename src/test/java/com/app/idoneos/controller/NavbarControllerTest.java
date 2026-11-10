@@ -14,10 +14,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Pruebas del navbar único: es el mismo en el sitio público y en los paneles, con la marca de la empresa, los tres
- * enlaces del sitio y el menú del usuario con su rol; el menú lateral empieza debajo, sin cabecera propia.
- */
+/** Pruebas del navbar único: es el mismo en el sitio público y en los paneles, con la marca de la empresa. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

@@ -1,7 +1,7 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    SITIO PÚBLICO: botón del usuario, banners internos, cards de cursos, ficha del curso e inicio de sesión.
    La estructura del inicio de sesión sigue la de CataratasRH, con los colores de Idóneos.
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 
 /* BANNERS DE LAS PÁGINAS INTERNAS: más altos, con la presencia del banner principal */
 .nb ~ .wf-hero-banner {

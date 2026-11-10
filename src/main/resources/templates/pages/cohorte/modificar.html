@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación de una cohorte. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /cohorte/modificar/{id}).
-     Usa del modelo: cohorte, plazoMinimoContenidoDias, accesoDiasMaximos y cupoMaximoPermitido. -->
+<!-- Ventana de modificación de una cohorte. -->
     <div th:fragment="modal(cohorte)" class="modal fade pn-modal" th:id="'modalModificarCohorte' + ${cohorte.idCohorte}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -84,7 +83,7 @@
     </div>
     <div class="pn-alerta pn-alerta-dorado" th:if="${bloqueada}">
         <strong th:text="${'La cohorte no se puede modificar: ' + cohorte.motivoDeBloqueo + '.'}">La cohorte no se puede modificar: está publicada en el catálogo.</strong>
-        <span th:text="${@textos.avisoCohorte}">Lo publicado es un compromiso de la empresa.</span>
+        <span th:text="${@mensajeErrorUtil.avisoCohorte}">Lo publicado es un compromiso de la empresa.</span>
     </div>
     <div class="pn-alerta pn-alerta-dorado" th:if="${cohorte.esPendiente()}">
         La cohorte está <strong>pendiente de contenido</strong>: cuando el docente le asigne su programa pasa a <strong>inscripción próxima</strong> y se habilita para que los alumnos se inscriban en su fecha de inicio.

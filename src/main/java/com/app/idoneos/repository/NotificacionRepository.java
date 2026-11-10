@@ -8,9 +8,7 @@ import com.app.idoneos.model.Notificacion;
 import com.app.idoneos.model.TipoNotificacion;
 import com.app.idoneos.model.Usuario;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Notificacion} en la base de datos.
- */
+/** Repositorio de Notificacion. */
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Integer> {
 

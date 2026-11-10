@@ -1,26 +1,11 @@
-/**
- * Envío de formularios por JavaScript (fetch).
- *
- * Los formularios con la clase "form-ajax" se envían sin recargar la página:
- *  - Si el servidor responde con éxito, se muestra un SweetAlert y, al aceptarlo, se recarga el listado
- *    (o se va al destino que indique la respuesta).
- *  - Si responde con un error, se muestra una alerta fija dentro del formulario (sin cerrarlo ni perder
- *    lo que el usuario escribió).
- *
- * La alerta es el elemento "alert-formulario" que está justo antes del formulario; si no existe, se crea.
- * Las validaciones propias de cada página se ejecutan primero: si cancelan el envío (preventDefault),
- * este script no hace nada.
- *
- * Si el formulario trae data-confirmar-titulo (y data-confirmar-texto o data-confirmar-html, data-confirmar-boton), antes de enviarlo se pide una
- * confirmación con una alerta de advertencia: es el caso de las acciones que finalizan un diseño y no se pueden deshacer.
- */
+/** Envío de formularios por JavaScript (fetch). */
 (function () {
     'use strict';
 
     var MENSAJE_INESPERADO = 'Error! Ocurrió un error inesperado. Intentá nuevamente.';
 
     function alertaDe(formulario) {
-        // Las alertas van debajo del formulario, justo antes de los botones; sin botones, justo antes del formulario
+        // Las alertas van debajo del formulario, justo antes de los botones. Sin botones, justo antes del formulario
         var pie = formulario.querySelector(':scope > .pn-modal-pie');
         var alerta = pie ? formulario.querySelector(':scope > .alert-formulario') : formulario.previousElementSibling;
         if (!alerta || !alerta.classList.contains('alert-formulario')) {
@@ -107,7 +92,7 @@
             var texto = datos.error
                 || (respuesta.status === 403 ? 'Error! No tenés permisos para realizar esta operación.' : MENSAJE_INESPERADO);
             // Si el error es de un campo, se marca ese campo (en su paso, si el formulario es por pasos) y no se repite en
-            // la alerta de arriba; si no, se muestra la alerta del formulario
+            // la alerta de arriba. Si no, se muestra la alerta del formulario
             var marcado = window.PanelValidacion && window.PanelValidacion.irAlError
                 && window.PanelValidacion.irAlError(formulario, texto, datos.campo);
             if (!marcado) { mostrarError(formulario, texto); }

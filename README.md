@@ -63,7 +63,9 @@ docker compose up --build
 
 Con `IDONEOS_SEMILLA: "true"` (valor por defecto) se cargan datos de demostración al iniciar. En un entorno real debe ser `false`.
 
-`docker compose down` apaga todo y `docker compose down -v` además borra la base y los archivos subidos. La base queda en `localhost:5434`.
+`docker compose down` apaga todo y `docker compose down -v` además borra la base y los archivos subidos. La base queda en `localhost:5433`.
+
+Si la red intercepta el HTTPS (por ejemplo un antivirus) y la construcción falla con «unable to get local issuer certificate», copiar el certificado raíz como `.crt` en la carpeta `certs/` y volver a construir.
 
 ## Usuarios de prueba
 

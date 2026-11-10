@@ -1,17 +1,4 @@
-/**
- * Asistente de programas del docente (MOD-F-02, CU-15 a CU-18 y cronograma del programa).
- *
- *  1. Un único asistente registra y edita programas, en tres pasos: Datos básicos, Cronograma y Resumen.
- *  2. El cronograma se arma como en su pantalla: a la izquierda los temas disponibles (los que ya tienen su contenido completo, con un
- *     buscador) que se arrastran al calendario, y a la derecha el cronograma, que se ve como calendario (cada tema es una línea que se
- *     reordena arrastrándola, con una barra cuyo borde derecho se arrastra para cambiar la duración) o como tabla por temas. Los días
- *     de los temas suman siempre la duración del curso y nunca la superan, ni en el calendario ni por temas; "Repartir en partes iguales"
- *     divide la duración. Un tema se saca arrastrándolo al panel de la izquierda o con el tacho.
- *  3. Un programa nuevo puede partir de uno anterior (paso Cronograma): se carga su cronograma, que no se guarda hasta confirmar.
- *  4. Un programa que ya no se puede modificar (inscripciones o inscripción abierta) se ve, pero no se edita: el asistente queda de
- *     solo lectura con un aviso.
- *  5. Si la página se abre con ?nuevo o ?editar=<id>, abre sola el asistente; se quitan esos parámetros de la dirección.
- */
+/** Asistente de programas del docente. */
 (function () {
     'use strict';
 
@@ -65,7 +52,7 @@
         temasPorId[tema.id] = tema;
     });
 
-    /** La escala que mejor entra en la pantalla: la unidad más grande con la que el curso ocupa al menos seis columnas. */
+    /** La escala que mejor entra en la pantalla. */
     function escalaAutomatica() {
         var opciones = [DIAS_POR_MES, DIAS_POR_SEMANA, 1];
         for (var i = 0; i < opciones.length; i++) {
@@ -78,13 +65,16 @@
     var ajustado = false;       // si el docente ya cambió a mano alguna duración
     var escala = escalaAutomatica();
     var vista = 'calendario';
-    var edicion = null;         // { id, nombre, descripcion, cronograma, bloqueado, motivo } del programa que se edita; null si se registra
+    var edicion = null;         // { id, nombre, descripcion, cronograma, bloqueado, motivo } del programa que se edita. Null si se registra
     var origenNombre = '';
     var arrastre = null;        // { tipo: 'fila', i } o { tipo: 'disponible', id }
     var cambio = null;          // { i, x, dias, ancho } mientras se estira el borde de una barra
     var unidadesCongeladas = 0; // mientras se estira un tema, la grilla no cambia de columnas (si no, se mueve el borde)
 
-    // ---------------------------------------------------------------- utilidades
+    // ----------------------------------------------------------------------
+    // utilidades
+    // ----------------------------------------------------------------------
+
     function esc(texto) {
         return String(texto == null ? '' : texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
@@ -148,7 +138,10 @@
         cronograma.forEach(function (fila, i) { fila.dias = reparto[i]; });
     }
 
-    // ---------------------------------------------------------------- cronograma: cambios
+    // ----------------------------------------------------------------------
+    // cronograma: cambios
+    // ----------------------------------------------------------------------
+
     /** Suma un tema al cronograma, antes de la posición indicada (o al final). */
     function agregar(id, posicion) {
         errorBuscador.textContent = '';
@@ -187,7 +180,10 @@
         ajustado = true;
     }
 
-    // ---------------------------------------------------------------- dibujo
+    // ----------------------------------------------------------------------
+    // dibujo
+    // ----------------------------------------------------------------------
+
     function dibujarDisponibles() {
         var buscado = normalizar(buscador.value);
         var usados = {};
@@ -213,7 +209,7 @@
         textoMinimo.innerHTML = 'El mínimo requerido de temas es <strong>' + minimo + (minimo < PALABRAS.length ? ' (' + PALABRAS[minimo] + ')' : '') + '</strong>.';
     }
 
-    /** Las unidades de la grilla (días, semanas o meses): las necesarias, unas pocas visibles y algunas libres, sin pasar de la duración del curso. */
+    /** Las unidades de la grilla (días, semanas o meses): las necesarias, unas pocas visibles y algunas libres. */
     function unidadesDeLaGrilla() {
         var necesarias = Math.ceil(total() / escala);
         var tope = Math.ceil(MAXIMO / escala);
@@ -287,7 +283,10 @@
         dibujarTabla();
     }
 
-    // ---------------------------------------------------------------- eventos del cronograma
+    // ----------------------------------------------------------------------
+    // eventos del cronograma
+    // ----------------------------------------------------------------------
+
     buscador.addEventListener('input', dibujarDisponibles);
     botonRepartir.addEventListener('click', function () {
         errorBuscador.textContent = '';
@@ -361,8 +360,7 @@
         }
     });
 
-    // Arrastrar y soltar: las líneas se reordenan, un tema disponible se suma al soltarlo en una línea (queda antes de ella) o en la zona
-    // de abajo (queda al final), y una línea soltada en el panel de la izquierda se saca del cronograma
+    // Arrastrar y soltar: las líneas se reordenan.
     function limpiarMarcas() {
         editor.querySelectorAll('.sobre').forEach(function (e) { e.classList.remove('sobre'); });
     }
@@ -419,7 +417,10 @@
         }
     });
 
-    // ---------------------------------------------------------------- partir de un programa anterior
+    // ----------------------------------------------------------------------
+    // partir de un programa anterior
+    // ----------------------------------------------------------------------
+
     function leerCronograma(cadena) {
         return (cadena || '').split(',').filter(Boolean).map(function (par) {
             var partesPar = par.split(':');
@@ -437,7 +438,10 @@
         });
     }
 
-    // ---------------------------------------------------------------- abrir el asistente
+    // ----------------------------------------------------------------------
+    // abrir el asistente
+    // ----------------------------------------------------------------------
+
     function abrir(programa) {
         edicion = programa;
         origenNombre = '';
@@ -486,7 +490,10 @@
         if (boton) { abrir(programaDe(boton)); }
     });
 
-    // ---------------------------------------------------------------- resumen
+    // ----------------------------------------------------------------------
+    // resumen
+    // ----------------------------------------------------------------------
+
     function crear(etiqueta, clase, html) {
         var e = document.createElement(etiqueta);
         if (clase) { e.className = clase; }
@@ -513,7 +520,7 @@
         return boton;
     }
 
-    /** Una línea de tema del cronograma: «Título (14 días)». */
+    /** Una línea de tema del cronograma: "Título (14 días)". */
     function lineaDeTema(fila) {
         return fila ? temasPorId[fila.id].titulo + ' (' + texto(fila.dias) + ')' : '';
     }
@@ -585,7 +592,7 @@
             lineas(cohortes, datos.cohortesPendientes.map(function (etiqueta) { return { etiqueta: '', despues: etiqueta }; }));
             programa.appendChild(cohortes);
         }
-        // El cronograma es una rama del árbol (con su propia leyenda); sus temas van en un grupo verde, "Temas asignados"
+        // El cronograma es una rama del árbol (con su propia leyenda). Sus temas van en un grupo verde, "Temas asignados"
         if (lineasCronograma.length) {
             var ramaCronograma = nodo('oro', 'Cronograma', ['oro', 'Cronograma']);
             var grupoTemas = nodo(alta ? 'verde' : 'naranja', 'Temas asignados', null, null, alta ? enlaceEditar(1) : null);
@@ -601,7 +608,10 @@
         if (pasoResumen.classList.contains('activo')) { dibujarResumen(); }
     }).observe(pasoResumen, { attributes: true, attributeFilter: ['class'] });
 
-    // ---------------------------------------------------------------- validación y envío
+    // ----------------------------------------------------------------------
+    // validación y envío
+    // ----------------------------------------------------------------------
+
     window.PanelValidadores = window.PanelValidadores || {};
     window.PanelValidadores.programa = function (paso) {
         if (paso !== 2 || soloLectura()) { return true; }
@@ -624,7 +634,7 @@
         return true;
     };
 
-    /** Si el programa nuevo se asigna a cohortes pendientes, guardarlo finaliza su diseño: se pide confirmación antes de enviar. */
+    /** Si el programa nuevo se asigna a cohortes pendientes, guardarlo finaliza su diseño. */
     function configurarConfirmacion() {
         var cohortes = !edicion && datos.cohortesPendientes ? datos.cohortesPendientes : [];
         if (!cohortes.length) {
@@ -662,7 +672,10 @@
 
     formulario.addEventListener('submit', prepararEnvio);
 
-    // ---------------------------------------------------------------- apertura desde la dirección
+    // ----------------------------------------------------------------------
+    // apertura desde la dirección
+    // ----------------------------------------------------------------------
+
     var principal = document.querySelector('[data-abrir-modal]');
     if (principal && principal.dataset.abrirModal === 'modalPrograma') {
         var boton = principal.dataset.editar ? document.querySelector('[data-programa-editar][data-id="' + principal.dataset.editar + '"]') : null;

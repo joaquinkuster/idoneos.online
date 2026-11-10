@@ -17,9 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Pruebas de la pantalla a la que se redirige al iniciar sesión según el rol del usuario.
- */
+/** Pruebas de la pantalla a la que se redirige al iniciar sesión según el rol del usuario. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class LoginRedireccionControllerTest {

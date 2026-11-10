@@ -11,101 +11,64 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Usuario}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link UsuarioService}.
- */
+/** Implementación de UsuarioService. */
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el usuario por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el usuario por su identificador. */
     @Override
     public Optional<Usuario> buscarPorId(Integer id) {
         return usuarioRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Usuario> obtenerTodo() {
         return usuarioRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return usuarioRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-
-    /**
-     * Busca el usuario por su atributo único 'correo'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param correo el valor de 'correo' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el usuario por su atributo único 'correo'. */
     @Override
     public Optional<Usuario> buscarPorCorreo(String correo) {
         return usuarioRepository.findByCorreo(correo);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-
-
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda el usuario en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el usuario en la base de datos. */
     @Override
     public Usuario guardar(Usuario entidad) {
         return usuarioRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Usuario modificar(Usuario entidad) {
         return usuarioRepository.save(entidad);
     }
 
-    /**
-     * Cambia el rol por defecto de un usuario. El rol debe estar vigente entre los roles del usuario.
-     *
-     * @param idUsuario Identificador del usuario.
-     * @param idRol     Identificador del rol que pasa a ser el rol por defecto.
-     * @return El rol establecido como rol por defecto.
-     * @throws IllegalArgumentException Si el usuario no existe o no tiene ese rol vigente.
-     */
+    /** Cambia el rol por defecto de un usuario. */
     @Override
     public Rol cambiarRolPorDefecto(int idUsuario, Integer idRol) {
         Usuario usuario = usuarioRepository.findById(idUsuario)
@@ -121,13 +84,11 @@ public class UsuarioServiceImpl implements UsuarioService {
         return rol;
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Usuario entidad) {
         entidad.marcarInactivo(); // Baja lógica

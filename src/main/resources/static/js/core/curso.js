@@ -1,9 +1,4 @@
-/**
- * Comportamiento de las pantallas de gestión académica (MOD-F-02).
- *
- *  1. Enlaces sin acción por ahora: marcados con data-sin-accion, no navegan a ningún lado.
- *  2. Acordeón de temas: "Expandir todo" y "Colapsar todo".
- */
+/** Comportamiento de las pantallas de gestión académica. */
 (function () {
     'use strict';
 

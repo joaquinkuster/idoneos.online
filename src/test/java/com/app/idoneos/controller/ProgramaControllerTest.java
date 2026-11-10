@@ -28,11 +28,7 @@ import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.DocenteCursoRepository;
 
-/**
- * Pruebas de las vistas y los formularios del ABM de programas (CU-15 a CU-18) y de los selectores de programa y cohorte
- * por defecto de la vista del curso. Fausto Spotorno es titular de "Mercado de Capitales Argentino" (un programa con tres
- * cohortes e inscripciones) y de "Macroeconomía de Coyuntura" (un programa con una cohorte sin inscriptos).
- */
+/** Pruebas de las vistas y los formularios del ABM de programas y de los selectores de programa y cohorte por defecto de la vista del curso. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -75,7 +71,9 @@ class ProgramaControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // ------------------------------------------------------------------ Listado
+    // ----------------------------------------------------------------------
+    // Listado
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -195,7 +193,9 @@ class ProgramaControllerTest {
         mockMvc.perform(post("/programa/registrar")).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Formularios
+    // ----------------------------------------------------------------------
+    // Formularios
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -281,7 +281,9 @@ class ProgramaControllerTest {
         mockMvc.perform(post("/cohorte/establecerPorDefecto/1")).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Selectores de la vista del curso
+    // ----------------------------------------------------------------------
+    // Selectores de la vista del curso
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -343,7 +345,9 @@ class ProgramaControllerTest {
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("no se encuentra activa")));
     }
 
-    // ------------------------------------------------------------------ Enlaces
+    // ----------------------------------------------------------------------
+    // Enlaces
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

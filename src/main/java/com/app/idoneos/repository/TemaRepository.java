@@ -6,25 +6,13 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Tema} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link Tema}.
- */
+/** Repositorio de Tema. */
 @Repository
 public interface TemaRepository extends JpaRepository<Tema, Integer> {
 
-    /**
-     * Encuentra todos los registros activos (no dados de baja).
-     *
-     * @return Una lista de {@link Tema} activos.
-     */
+    /** Encuentra todos los registros activos (no dados de baja). */
     List<Tema> findByBajaFalse();
 
-    /**
-     * Busca los registros vigentes de tema asociados a curso.
-     *
-     * @param curso el registro de Curso asociado
-     * @return una lista de Tema asociados al Curso indicado
-     */
+    /** Busca los registros vigentes de tema asociados a curso. */
     List<Tema> findByCursoAndBajaFalse(Curso curso);
 }

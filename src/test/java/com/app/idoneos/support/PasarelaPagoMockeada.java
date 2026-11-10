@@ -13,13 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 
-/**
- * Configura el mock de la pasarela de pago en las pruebas: los tests no hablan con MODO (haría falta red, credenciales
- * y un celular para pagar), así que se declara qué responde MODO en cada caso. El pago real se prueba a mano.
- *
- * Por defecto MODO aprueba los pagos cuando se los consulta; {@link #dejarPendiente()} retiene la confirmación y
- * {@link #resolver} fija el resultado de una solicitud (por ejemplo, un rechazo con su motivo).
- */
+/** Configura el mock de la pasarela de pago en las pruebas: los tests no hablan con MODO. */
 public class PasarelaPagoMockeada {
 
     private static final String URL_CHECKOUT = "https://site.modo.test/checkout";
@@ -34,11 +28,7 @@ public class PasarelaPagoMockeada {
     private volatile boolean esperarConfirmacion;
     private volatile boolean fallarAlConsultar;
 
-    /**
-     * Configura el mock con el comportamiento normal: las solicitudes se crean y, al consultarlas, MODO las aprueba.
-     *
-     * @param pasarela El mock de la pasarela (declarado en la prueba con {@code @MockitoBean}).
-     */
+    /** Configura el mock con el comportamiento normal: las solicitudes se crean y, al consultarlas. */
     public PasarelaPagoMockeada(PasarelaPagoService pasarela) {
         when(pasarela.montoMinimo()).thenReturn(MONTO_MINIMO);
         when(pasarela.vigenciaSolicitudSegundos()).thenReturn(VIGENCIA_SEGUNDOS);
@@ -88,12 +78,7 @@ public class PasarelaPagoMockeada {
         fallarAlConsultar = false;
     }
 
-    /**
-     * Fija el resultado que informa MODO para una solicitud.
-     *
-     * @param idSolicitud La solicitud.
-     * @param resultado   Lo que informará MODO al consultarla.
-     */
+    /** Fija el resultado que informa MODO para una solicitud. */
     public void resolver(String idSolicitud, PasarelaPagoService.Resultado resultado) {
         resultados.put(idSolicitud, resultado);
     }

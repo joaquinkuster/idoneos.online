@@ -1,11 +1,11 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    NAVBAR ÚNICO (sitio público y paneles). Marcado en templates/fragments/navbar.html; comportamiento en js/navbar.js.
 
    - Alto fijo y espaciado lateral del navbar del inicio; letra y estructura (enlaces y usuario con su rol) del panel.
    - Sin color (.nb): transparente, con letras blancas; solo en las páginas con banner oscuro, arriba del todo.
    - Con color (.nb.con-color): blanco con letras oscuras. Es el aspecto fijo del panel y el que toma el sitio al hacer scroll.
    - Con menú lateral (.con-menu-lateral) aparece el botón de la izquierda; el menú empieza debajo del navbar.
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 :root {
     --nb-alto: 64px;
     --nb-relleno: 40px;
@@ -50,7 +50,10 @@
     min-width: 0;
 }
 
-/* ---------- Botón del menú lateral (solo si la página tiene menú lateral) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Botón del menú lateral (solo si la página tiene menú lateral) */
+/* ---------------------------------------------------------------------- */
+
 .nb-menu {
     display: none;
     width: 36px;
@@ -69,7 +72,7 @@
     display: inline-flex;
 }
 
-/* Con menú lateral, el navbar mantiene el mismo relleno lateral que el resto del sitio (--nb-relleno): el botón arranca en ese borde */
+/* Con menú lateral, el navbar mantiene el mismo relleno lateral que el resto del sitio (--nb-relleno). */
 .nb.con-menu-lateral .nb-izq {
     gap: 6px;
 }
@@ -104,11 +107,12 @@
     background: rgba(148, 163, 184, 0.28);
 }
 
-/* Un solo efecto para todas las páginas: el mismo gris translúcido (mismo color y misma transparencia) sobre cualquier
-   fondo; sobre el navbar blanco se ve gris claro y sobre el banner oscuro, un gris que no llega a ser blanco. El ícono
-   conserva su color. */
+/* Un solo efecto para todas las páginas. */
 
-/* ---------- Marca ---------- */
+/* ---------------------------------------------------------------------- */
+/* Marca */
+/* ---------------------------------------------------------------------- */
+
 .nb-marca {
     display: flex;
     align-items: center;
@@ -143,7 +147,10 @@
     font-weight: 700;
 }
 
-/* ---------- Enlaces ---------- */
+/* ---------------------------------------------------------------------- */
+/* Enlaces */
+/* ---------------------------------------------------------------------- */
+
 .nb-enlaces {
     display: flex;
     align-items: center;
@@ -151,7 +158,7 @@
     margin-left: auto;
 }
 
-/* Los enlaces sin seleccionar se ven tenues; con el mouse encima o activos recuperan el color de la letra */
+/* Los enlaces sin seleccionar se ven tenues. Con el mouse encima o activos recuperan el color de la letra */
 .nb-enlace {
     padding: 4px 0;
     font-size: 15px;
@@ -193,7 +200,10 @@
     background: rgba(148, 163, 184, 0.2);
 }
 
-/* ---------- Menú del usuario dentro del navbar (nombre y rol, igual en todo el sitio) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Menú del usuario dentro del navbar (nombre y rol, igual en todo el sitio) */
+/* ---------------------------------------------------------------------- */
+
 .nb .um-trigger {
     background: transparent;
     border-color: transparent;
@@ -209,7 +219,10 @@
     color: var(--pn-texto);
 }
 
-/* ---------- Botón para abrir los enlaces en pantallas chicas ---------- */
+/* ---------------------------------------------------------------------- */
+/* Botón para abrir los enlaces en pantallas chicas */
+/* ---------------------------------------------------------------------- */
+
 .nb-toggle {
     display: none;
     width: 38px;
@@ -224,7 +237,10 @@
     cursor: pointer;
 }
 
-/* ---------- Debajo del navbar fijo ---------- */
+/* ---------------------------------------------------------------------- */
+/* Debajo del navbar fijo */
+/* ---------------------------------------------------------------------- */
+
 /* El banner superior pasa por debajo del navbar */
 .nb ~ .wf-hero-banner {
     padding-top: 96px;
@@ -239,7 +255,10 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
     margin-top: var(--nb-alto);
 }
 
-/* ---------- Paneles: el menú lateral y el contenido empiezan debajo del navbar ---------- */
+/* ---------------------------------------------------------------------- */
+/* Paneles: el menú lateral y el contenido empiezan debajo del navbar */
+/* ---------------------------------------------------------------------- */
+
 .pn-app {
     padding-top: var(--nb-alto);
 }
@@ -284,8 +303,7 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         display: flex;
     }
 
-    /* Todos los elementos del cajón (enlaces y opciones del usuario) comparten el mismo efecto: la letra se ve tenue y,
-       con el mouse encima o en el elemento activo, recupera el color y un rectángulo gris claro lo cubre */
+    /* Todos los elementos del cajón (enlaces y opciones del usuario) comparten el mismo efecto. */
     .nb-enlace {
         padding: 14px 12px;
         font-size: 15px;

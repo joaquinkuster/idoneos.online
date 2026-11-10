@@ -32,7 +32,7 @@
                             data-termino-uno="programa activo asociado" data-termino-varios="programas activos asociados">Dar de baja seleccionado/s</button>
                 </div>
 
-                <!-- Filtros (CU-01) -->
+                <!-- Filtros -->
                 <form th:action="@{/curso/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <!-- La categoría se elige con los chips de debajo: este campo solo la lleva -->
                     <input type="text" name="categoria" hidden tabindex="-1" aria-hidden="true">
@@ -132,7 +132,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar curso (CU-03) -->
+<!-- Modal: registrar curso -->
 <div class="modal fade pn-modal" id="modalNuevoCurso" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -147,8 +147,8 @@
     </div>
 </div>
 
-<!-- La ventana de modificar (CU-04) se pide al abrirla (core/modalModificar.js) y la de baja (CU-05) es una sola, más abajo -->
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- La ventana de modificar se pide al abrirla (core/modalModificar.js) y la de baja es una sola, más abajo -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaCurso', 'curso', '¿Confirmas dar de baja?', '', '/curso/darDeBaja/0', null, null)}"></th:block>
 
 <!-- Tom Select (selectores múltiples): antes de panel.js, que arma los filtros -->
@@ -157,7 +157,7 @@
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/core/abrirModal.js}"></script>
 <script>
-    // Regla propia del curso: el docente titular no puede ser a la vez ayudante del mismo curso (CU-03 y CU-04)
+    // Regla propia del curso: el docente titular no puede ser a la vez ayudante del mismo curso
     window.PanelValidadores.curso = function (paso, formulario) {
         if (paso !== 2) { return true; } // paso del equipo docente y las modalidades
         var titular = formulario.querySelector('[name="docenteTitularId"]');

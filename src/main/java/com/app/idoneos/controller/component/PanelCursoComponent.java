@@ -18,13 +18,7 @@ import com.app.idoneos.service.curso.CursoService;
 import com.app.idoneos.service.inscripcion.InscripcionService;
 import com.app.idoneos.service.parametro.ParametroService;
 
-/**
- * Base de los controladores de las pantallas que viven dentro del panel de un curso (temas, programas, cronograma,
- * materiales, glosario, foros, participantes, cohortes y la página del curso). Resuelve con qué rol entra la persona,
- * con qué curso y programa trabaja y arma los datos de pantalla que todas comparten ({@code urlBase},
- * {@code urlMisCursos}, {@code esDocente}, {@code esAdministrador} y {@code menuActivo}). Las reglas de acceso las
- * resuelven los servicios; acá solo se arma lo que necesita la vista.
- */
+/** Componente base de los controladores de las pantallas del panel de un curso. */
 @org.springframework.stereotype.Component
 public class PanelCursoComponent {
 
@@ -40,45 +34,21 @@ public class PanelCursoComponent {
     @Autowired
     private com.app.idoneos.service.tema.TemaService temaService;
 
-
     @Autowired
     private com.app.idoneos.service.cohorte.CohorteService cohorteService;
 
-    /**
-     * Resuelve el contexto de las pantallas que se abren desde el panel con {@code cursoId}: el administrador trabaja con
-     * el programa vigente del curso y el docente, con el que tiene elegido.
-     *
-     * @param cursoId El identificador del curso (obligatorio).
-     * @param usuario El usuario autenticado.
-     * @return El contexto de la pantalla.
-     * @throws IllegalArgumentException Si no se indicó el curso, no está activo o el docente no participa.
-     */
+    /** Resuelve el contexto de las pantallas que se abren desde el panel con cursoId. */
     public ContextoCurso contextoDelPanel(Integer cursoId, Usuario usuario) {
         return cursoService.resolverContextoDelPanel(cursoId, usuario);
     }
 
-    /**
-     * Resuelve el contexto de las pantallas que se abren desde un tema (foro, glosario, material): el administrador
-     * y los docentes del curso entran como tales; el alumno, por su inscripción con acceso al tema. Quien las
-     * llame debe haber comprobado antes que la persona puede ver el contenido.
-     *
-     * @param tema  El tema de la pantalla.
-     * @param usuario El usuario autenticado.
-     * @return El contexto de la pantalla.
-     * @throws ResponseStatusException 403 si no es de la gestión del curso ni tiene una inscripción con acceso.
-     */
+    /** Resuelve el contexto de las pantallas que se abren desde un tema (foro, glosario, material). */
     public ContextoCurso contextoDeLaTema(Tema tema, Usuario usuario) {
         return cursoService.resolverContextoDeLaTema(tema, usuario)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
     }
 
-    /**
-     * Vuelca al modelo los datos que comparten todas las pantallas del panel de un curso.
-     *
-     * @param model     El modelo de la vista.
-     * @param contexto   El contexto de la pantalla.
-     * @param menuActivo La opción del menú lateral que se marca como activa.
-     */
+    /** Vuelca al modelo los datos que comparten todas las pantallas del panel de un curso. */
     public void cargarContexto(Model model, ContextoCurso contexto, String menuActivo) {
         model.addAttribute("curso", contexto.curso());
         model.addAttribute("programa", contexto.programa());
@@ -88,7 +58,7 @@ public class PanelCursoComponent {
         model.addAttribute("urlMisCursos", contexto.urlMisCursos());
         model.addAttribute("menuActivo", menuActivo);
         // El estado del diseño es para quien gestiona el curso. Al docente el menú se le habilita de a poco, según el paso del
-        // diseño en que está su cohorte de trabajo; el administrador ve todo
+        // diseño en que está su cohorte de trabajo. El administrador ve todo
         if (contexto.esDocente() || contexto.esAdministrador()) {
             com.app.idoneos.model.Cohorte cohorte = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo();
@@ -108,17 +78,7 @@ public class PanelCursoComponent {
         }
     }
 
-    /**
-     * Arma la respuesta de una operación exitosa del diseño del curso (datos, programa, temas, cronograma) con la alerta guía que
-     * propone el paso que sigue, según el estado del diseño de la cohorte de trabajo del docente: registrar o asignar el programa,
-     * registrar los temas que faltan hasta el mínimo, armar el cronograma o completar el contenido de los temas pendientes. Con el
-     * diseño completo (o si faltan los datos del curso) responde solo con el mensaje.
-     *
-     * @param mensaje El mensaje de éxito.
-     * @param cursoId El curso en que se trabaja.
-     * @param docente El docente que hizo la operación.
-     * @return La respuesta JSON, con la alerta del paso siguiente si corresponde.
-     */
+    /** Arma la respuesta de una operación exitosa del diseño del curso. */
     public org.springframework.http.ResponseEntity<java.util.Map<String, String>> exitoConPasoSiguiente(String mensaje,
             Integer cursoId, com.app.idoneos.model.Docente docente) {
         com.app.idoneos.model.Curso curso;
@@ -173,7 +133,7 @@ public class PanelCursoComponent {
         }
     }
 
-    /** Lo que falta del contenido de los temas para llegar al mínimo, para la alerta guía. */
+    /** Describe lo que falta del contenido de los temas para llegar al mínimo, para la alerta guía. */
     private static String contenidoPendiente(CursoService.EstadoDiseno estado) {
         int faltan = Math.max(1, estado.getTemasQueFaltan());
         return "Todavía " + (faltan == 1 ? "falta completar el contenido de 1 tema" : "faltan completar el contenido de " + faltan + " temas")
@@ -204,7 +164,7 @@ public class PanelCursoComponent {
         }
     }
 
-    /** El paso del diseño en que estaba el curso la última vez que se mostró una pantalla, o 0 si no se sabe; deja registrado el actual. */
+    /** Obtiene el paso del diseño en que estaba el curso la última vez que se mostró una pantalla, o 0 si no se sabe. */
     private int pasoAnterior(Integer cursoId, int pasoActual) {
         var atributos = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
         if (atributos == null) {
@@ -215,7 +175,7 @@ public class PanelCursoComponent {
         return antes instanceof Integer anterior ? anterior : 0;
     }
 
-    /** Indica si el diseño pasó a estar completo con esta operación (y deja registrado que ya lo está, para no repetir el aviso). */
+    /** Indica si el diseño pasó a estar completo con esta operación. */
     private boolean disenoRecienCompleto(Integer cursoId) {
         var atributos = org.springframework.web.context.request.RequestContextHolder.getRequestAttributes();
         if (atributos == null) {
@@ -227,16 +187,7 @@ public class PanelCursoComponent {
         return Boolean.FALSE.equals(antes);
     }
 
-    /**
-     * Arma la respuesta de un recurso o actividad registrado (material, pool, autoevaluación): si al curso todavía le falta contenido
-     * por completar, agrega la alerta guía para seguir con el que sigue; si no, responde solo con el mensaje (y el destino, si hay).
-     *
-     * @param mensaje El mensaje de éxito.
-     * @param destino A dónde se va después, o {@code null} para recargar la pantalla.
-     * @param cursoId El curso en que se trabaja.
-     * @param docente El docente que registró el recurso.
-     * @return La respuesta JSON.
-     */
+    /** Arma la respuesta de un recurso o actividad registrado (material, pool, autoevaluación). */
     public org.springframework.http.ResponseEntity<java.util.Map<String, String>> exitoConContenidoPendiente(String mensaje,
             String destino, Integer cursoId, com.app.idoneos.model.Docente docente) {
         java.util.Map<String, String> cuerpo = new java.util.LinkedHashMap<>();
@@ -282,14 +233,7 @@ public class PanelCursoComponent {
         return org.springframework.http.ResponseEntity.ok(cuerpo);
     }
 
-    /**
-     * Los temas que se ofrecen en los selectores de los ABM del contenido (recursos, pools, autoevaluaciones, glosario y foros). Quien
-     * gestiona el curso ve todos sus temas, porque el contenido se arma antes que el programa: primero los del programa de la cohorte de
-     * trabajo, en su orden, y después los demás, por orden de registro y con la numeración que sigue. El alumno, los de su programa.
-     *
-     * @param contexto El contexto del curso.
-     * @return Los temas, con su número de orden (los de afuera del programa son objetos de vista: nunca se guardan).
-     */
+    /** Obtiene los temas que se ofrecen en los selectores de los ABM del contenido. */
     public java.util.List<com.app.idoneos.model.TemaCronograma> temasDelCursoEnOrden(ContextoCurso contexto) {
         Programa programa = contexto.programa();
         java.util.List<com.app.idoneos.model.TemaCronograma> lista = new java.util.ArrayList<>(
@@ -307,47 +251,25 @@ public class PanelCursoComponent {
         return lista;
     }
 
-    /**
-     * Obtiene los días que ocupa un tema nuevo en el cronograma cuando no se indica otra duración (parámetro del sistema).
-     *
-     * @return Los días de un tema nuevo.
-     */
+    /** Obtiene los días que ocupa un tema nuevo en el cronograma cuando no se indica otra duración (parámetro del sistema). */
     public int diasPorTemaNuevo() {
         return Math.max(1, parametroService.obtenerEntero(Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO,
                 Parametro.CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO));
     }
 
-    /**
-     * Vuelca al modelo el máximo de días que puede sumar un cronograma del curso: la duración del curso.
-     *
-     * @param model El modelo de la vista.
-     * @param curso  El curso del cronograma.
-     */
+    /** Vuelca al modelo el máximo de días que puede sumar un cronograma del curso: la duración del curso. */
     public void cargarDiasMaximosDelCronograma(Model model, Curso curso) {
         model.addAttribute("diasNuevoTema", diasPorTemaNuevo());
         model.addAttribute("diasMaximos", curso.getDuracionDias());
     }
 
-    /**
-     * Vuelve al listado de cursos mostrando el motivo por el que no se pudo abrir la pantalla.
-     *
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @param error              El error que impidió abrir la pantalla.
-     * @return La redirección al listado de cursos.
-     */
+    /** Vuelve al listado de cursos mostrando el motivo por el que no se pudo abrir la pantalla. */
     public String volverAMisCursos(RedirectAttributes redirectAttributes, IllegalArgumentException error) {
         redirectAttributes.addFlashAttribute("error", error.getMessage());
         return "redirect:/curso/buscar";
     }
 
-    /**
-     * Un curso sin programas no tiene temas ni cronograma: el docente va a registrar el primero y el administrador
-     * vuelve al listado de cursos.
-     *
-     * @param contexto           El contexto de la pantalla.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La redirección que corresponde al rol.
-     */
+    /** Avisa que un curso sin programas no tiene temas ni cronograma. */
     public String avisarCursoSinProgramas(ContextoCurso contexto, RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error",
                 "Error! El curso todavía no tiene programas: registrá uno para poder cargar temas.");
@@ -355,10 +277,7 @@ public class PanelCursoComponent {
                 : "redirect:/programa/buscar?cursoId=" + contexto.curso().getIdCurso() + "&nuevo";
     }
 
-    /**
-     * Carga en el modelo lo que comparten las vistas del foro: el tema, el curso, el rol de quien mira, el plazo de
-     * edición y los enlaces del menú. Verifica que el usuario pueda ver el foro del tema.
-     */
+    /** Carga en el modelo lo que comparten las vistas del foro: el tema, el curso, el rol de quien mira. */
     public void cargarContextoDelForo(Tema tema, Usuario usuario, Model model) {
         if (!temaService.puedeVerContenido(tema, usuario)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);

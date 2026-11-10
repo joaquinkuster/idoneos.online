@@ -32,10 +32,7 @@ import com.app.idoneos.service.curso.CursoServiceImpl;
 import com.app.idoneos.service.inscripcion.InscripcionServiceImpl;
 import com.app.idoneos.service.programa.ProgramaServiceImpl;
 
-/**
- * Pruebas de las reglas de negocio de las inscripciones (CU-44 a CU-49), sobre los datos de la semilla.
- * Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de las reglas de negocio de las inscripciones, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class InscripcionGestionServiceTest {
@@ -71,7 +68,7 @@ class InscripcionGestionServiceTest {
         return cohorteService.buscarConFiltros(idPrograma, null, estado, null, null, "recientes", null).get(0);
     }
 
-    /** La semilla trae una inscripción con la fecha de vencimiento pasada: la tarea periódica la deja en «Acceso vencido». */
+    /** La semilla trae una inscripción con la fecha de vencimiento pasada. */
     @org.junit.jupiter.api.BeforeEach
     void vencerLosAccesos() {
         inscripcionService.vencerAccesos();
@@ -81,7 +78,7 @@ class InscripcionGestionServiceTest {
         return inscripcionService.buscarConFiltros(null, correo, estado).get(0);
     }
 
-    /** La inscripción de Valentina al curso de Mercado de Capitales, que tiene intentos de autoevaluación y consultas de foro. */
+    /** La inscripción de Valentina al curso de Mercado de Capitales. */
     private Inscripcion inscripcionConActividad() {
         Integer idCurso = cursoService.buscarPorNombre("Mercado de Capitales Argentino").orElseThrow().getIdCurso();
         return inscripcionService.buscarConFiltros(idCurso, VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0);

@@ -38,20 +38,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-/**
- * Controlador de los intentos de autoevaluación (MOD-F-04).
- * <ul>
- * <li>El alumno rinde (CU-70): iniciar (POST /intento/iniciar/{autoevaluacionId}), el cuestionario (GET /intento/realizar/{id}),
- * guardar cada respuesta (POST /intento/responder/{id}), marcar para revisar (POST /intento/marcar/{id}), avanzar en un
- * cuestionario secuencial (POST /intento/avanzar/{id}), el resumen previo a la entrega (GET /intento/resumen/{id}), la
- * entrega (POST /intento/entregar/{id}) y la sincronización del tiempo (GET /intento/tiempo/{id}). El tiempo lo manda el
- * servidor: el navegador solo lo muestra y se resincroniza con cada respuesta.</li>
- * <li>El docente y el administrador hacen el seguimiento: CU-68 Buscar intentos (GET /intento/buscar), CU-71 Aprobar intento
- * (POST /intento/aprobar/{id}, docente) y CU-72 Dar de baja intento (POST /intento/darDeBaja/{id}, administrador).</li>
- * <li>Calificaciones (CU-69): el docente y el administrador ven una fila por alumno y autoevaluación (GET
- * /intento/buscarPorAutoevaluacion); el alumno ve las suyas (GET /intento/buscarPorInscripcion/{idInscripcion}).</li>
- * </ul>
- */
+/** Controlador del intento. */
 @Controller
 @RequestMapping("/intento")
 public class IntentoController {
@@ -68,19 +55,11 @@ public class IntentoController {
     @Autowired
     private ProgresoService progresoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-70: Muestra el cuestionario, de a una pregunta. Con navegación libre el alumno elige la pregunta; en un
-     * cuestionario secuencial siempre se muestra la actual.
-     *
-     * @param id                 Identificador del intento.
-     * @param pregunta           Número de la pregunta (solo con navegación libre).
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del cuestionario, o una redirección si el intento ya no está en curso.
-     */
+    /** GET /intento/realizar/{id}: Muestra el cuestionario, de a una pregunta. */
     @GetMapping("/realizar/{id}")
     public String realizar(@PathVariable("id") Integer id,
             @RequestParam(value = "pregunta", required = false) Integer pregunta, Model model, Authentication authentication,
@@ -126,15 +105,7 @@ public class IntentoController {
         }
     }
 
-    /**
-     * CU-70 (paso 7): Muestra el resumen del intento: qué preguntas respondió, cuáles no y cuáles marcó.
-     *
-     * @param id                 Identificador del intento.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del resumen, o una redirección si el intento ya no está en curso.
-     */
+    /** GET /intento/resumen/{id}: Muestra el resumen del intento: qué preguntas respondió, cuáles no y cuáles marcó. */
     @GetMapping("/resumen/{id}")
     public String resumen(@PathVariable("id") Integer id, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes) {
@@ -161,14 +132,7 @@ public class IntentoController {
         }
     }
 
-    /**
-     * Informa los segundos que le quedan al intento según el reloj del servidor: el navegador lo usa para
-     * resincronizar su temporizador (al volver a la pestaña y cada tanto). Responde en JSON.
-     *
-     * @param id   Identificador del intento.
-     * @param authentication La autenticación actual.
-     * @return Los segundos restantes (vacío si no hay tiempo límite) y si el intento sigue en curso.
-     */
+    /** GET /intento/tiempo/{id}: Informa los segundos que le quedan al intento según el reloj del servidor. */
     @GetMapping("/tiempo/{id}")
     public ResponseEntity<Map<String, Object>> tiempo(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -178,16 +142,11 @@ public class IntentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-70 (pasos 2 a 4): Inicia un intento (o continúa el que está en curso) y abre el cuestionario.
-     *
-     * @param idAutoevaluacion   Identificador de la autoevaluación.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al cuestionario o, si no puede rendir, a la ficha de la autoevaluación con el motivo.
-     */
+    /** POST /intento/iniciar/{idAutoevaluacion}: Inicia un intento (o continúa el que está en curso) y abre el cuestionario. */
     @PostMapping("/iniciar/{idAutoevaluacion}")
     public String iniciar(@PathVariable("idAutoevaluacion") Integer idAutoevaluacion, Authentication authentication,
             RedirectAttributes redirectAttributes) {
@@ -200,18 +159,11 @@ public class IntentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-70 (paso 6): Guarda la elección del alumno para una pregunta (sin opciones, la deja sin responder). Responde en
-     * JSON con el tiempo que queda según el servidor.
-     *
-     * @param id                Identificador del intento.
-     * @param preguntaIntentoId Identificador de la pregunta del intento.
-     * @param opcionIds         Las opciones elegidas.
-     * @param authentication              La autenticación actual.
-     * @return El estado del intento o el mensaje de error.
-     */
+    /** POST /intento/responder/{id}: Guarda la elección del alumno para una pregunta (sin opciones, la deja sin responder). */
     @PostMapping("/responder/{id}")
     public ResponseEntity<Map<String, Object>> responder(@PathVariable("id") Integer id,
             @RequestParam(value = "preguntaIntentoId", required = false) Integer preguntaIntentoId,
@@ -224,15 +176,7 @@ public class IntentoController {
         }
     }
 
-    /**
-     * Marca o desmarca una pregunta para revisarla antes de entregar (solo con navegación libre). Responde en JSON.
-     *
-     * @param id                Identificador del intento.
-     * @param preguntaIntentoId Identificador de la pregunta del intento.
-     * @param marcada           Si queda marcada.
-     * @param authentication              La autenticación actual.
-     * @return El estado del intento o el mensaje de error.
-     */
+    /** POST /intento/marcar/{id}: Marca o desmarca una pregunta para revisarla antes de entregar (solo con navegación libre). */
     @PostMapping("/marcar/{id}")
     public ResponseEntity<Map<String, Object>> marcar(@PathVariable("id") Integer id,
             @RequestParam(value = "preguntaIntentoId", required = false) Integer preguntaIntentoId,
@@ -245,14 +189,7 @@ public class IntentoController {
         }
     }
 
-    /**
-     * En un cuestionario secuencial, pasa a la pregunta siguiente. Responde en JSON con el destino (la pregunta siguiente o,
-     * si no quedan, el resumen).
-     *
-     * @param id   Identificador del intento.
-     * @param authentication La autenticación actual.
-     * @return El estado del intento con el destino, o el mensaje de error.
-     */
+    /** POST /intento/avanzar/{id}: En un cuestionario secuencial, pasa a la pregunta siguiente. */
     @PostMapping("/avanzar/{id}")
     public ResponseEntity<Map<String, Object>> avanzar(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -266,15 +203,7 @@ public class IntentoController {
         }
     }
 
-    /**
-     * CU-70 (pasos 8 a 12): Entrega el intento, lo corrige y devuelve la nota y el resultado. Responde en JSON con el
-     * mensaje y el destino (la ficha de la autoevaluación).
-     *
-     * @param id            Identificador del intento.
-     * @param tiempoAgotado Si el navegador entrega porque se agotó el tiempo (solo cambia el mensaje).
-     * @param authentication          La autenticación actual.
-     * @return El mensaje con la nota, el resultado y el destino, o el mensaje de error.
-     */
+    /** POST /intento/entregar/{id}: Entrega el intento, lo corrige y devuelve la nota y el resultado. */
     @PostMapping("/entregar/{id}")
     public ResponseEntity<Map<String, Object>> entregar(@PathVariable("id") Integer id,
             @RequestParam(value = "tiempoAgotado", defaultValue = "false") boolean tiempoAgotado, Authentication authentication) {
@@ -300,7 +229,9 @@ public class IntentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
     private Alumno alumnoDe(Authentication authentication) {
         Alumno alumno = ((Usuario) authentication.getPrincipal()).getAlumno();
@@ -310,7 +241,7 @@ public class IntentoController {
         return alumno;
     }
 
-    /** Lo que comparten el cuestionario y el resumen: el intento, su autoevaluación, el curso, y el tiempo. */
+    /** Carga lo que comparten el cuestionario y el resumen: el intento, su autoevaluación, el curso y el tiempo. */
     private void cargar(Model model, IntentoAutoevaluacion intento) {
         Autoevaluacion autoevaluacion = intento.getAutoevaluacion();
         model.addAttribute("intento", intento);
@@ -323,7 +254,7 @@ public class IntentoController {
         model.addAttribute("respondidas", intento.getCantidadRespondidas());
     }
 
-    /** El estado del intento para el navegador: tiempo restante según el servidor y cuántas preguntas lleva. */
+    /** Obtiene el estado del intento para el navegador: el tiempo restante según el servidor y cuántas preguntas lleva. */
     private Map<String, Object> estado(IntentoAutoevaluacion intento) {
         Map<String, Object> datos = new LinkedHashMap<>();
         datos.put("enCurso", intento.estaEnCurso());
@@ -336,32 +267,20 @@ public class IntentoController {
         return datos;
     }
 
-    /** Un número con coma decimal y dos decimales, como se muestran las notas ("7,50"). */
+    /** Formatea un número con coma decimal y dos decimales, como se muestran las notas (7,50). */
     private String formatear(double valor) {
         return String.format(Locale.forLanguageTag("es-AR"), "%.2f", valor);
     }
 
-    /**
-     * Un intento del listado con su número entre los del mismo alumno en la misma autoevaluación.
-     *
-     * @param intento el intento
-     * @param numero  su número de orden (1 es el primero)
-     */
+    /** Un intento del listado con su número entre los del mismo alumno en la misma autoevaluación. */
     public record FilaIntento(IntentoAutoevaluacion intento, int numero) {
     }
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-68: Lista los intentos de autoevaluación de los alumnos del curso, de todas sus cohortes. Los filtros se aplican
-     * en la pantalla; el docente entra con el filtro en su cohorte de trabajo.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a la lista de cursos si no se puede acceder.
-     */
+    /** GET /intento/buscar: Lista los intentos de autoevaluación de los alumnos del curso, de todas sus cohortes. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -384,7 +303,7 @@ public class IntentoController {
             Integer cohorteSeleccionada = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
                             : contexto.participacion().getCohorteDeTrabajo().getIdCohorte();
-            // Entra con el filtro en la cohorte de trabajo; si el navegador pide otra página o cambia el filtro, manda su propia elección
+            // Entra con el filtro en la cohorte de trabajo. Si el navegador pide otra página o cambia el filtro, manda su propia elección
             java.util.Map<String, String[]> parametros = new java.util.HashMap<>(request.getParameterMap());
             if (!PaginacionUtil.pideSoloFilas(request) && !parametros.containsKey("cohorte") && cohorteSeleccionada != null) {
                 parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
@@ -412,15 +331,11 @@ public class IntentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-71: El docente aprueba un intento entregado que no alcanzó la nota mínima. Responde en JSON.
-     *
-     * @param id   Identificador del intento.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /intento/aprobar/{id}: El docente aprueba un intento entregado que no alcanzó la nota mínima. */
     @PostMapping("/aprobar/{id}")
     public ResponseEntity<Map<String, String>> aprobar(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -432,14 +347,11 @@ public class IntentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-72: El administrador da de baja un intento. Responde en JSON.
-     *
-     * @param id Identificador del intento.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /intento/darDeBaja/{id}: El administrador da de baja un intento. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -452,29 +364,15 @@ public class IntentoController {
         }
     }
 
-    /**
-     * Una fila del listado: la calificación de un alumno en una autoevaluación.
-     *
-     * @param inscripcion   la inscripción del alumno
-     * @param autoevaluacion la autoevaluación
-     * @param numeroTema  el número del tema en el cronograma del programa
-     * @param habilitada    si el alumno ya puede acceder al tema
-     */
+    /** Una fila del listado: la calificación de un alumno en una autoevaluación. */
     public record FilaCalificacion(Inscripcion inscripcion, Autoevaluacion autoevaluacion, int numeroTema, boolean habilitada) {
     }
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-69: Listado de calificaciones del curso para el docente y el administrador: una fila por alumno inscripto y
-     * autoevaluación. El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a la lista de cursos si no se puede acceder.
-     */
+    /** GET /intento/buscarPorAutoevaluacion: Listado de calificaciones del curso para el docente y el administrador. */
     @GetMapping("/buscarPorAutoevaluacion")
     public String buscarPorAutoevaluacion(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -489,7 +387,7 @@ public class IntentoController {
             Integer cohorteSeleccionada = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
                             : contexto.participacion().getCohorteDeTrabajo().getIdCohorte();
-            // Entra con el filtro en la cohorte de trabajo; si el navegador pide otra página o cambia el filtro, manda su propia elección
+            // Entra con el filtro en la cohorte de trabajo. Si el navegador pide otra página o cambia el filtro, manda su propia elección
             java.util.Map<String, String[]> parametros = new java.util.HashMap<>(request.getParameterMap());
             if (!PaginacionUtil.pideSoloFilas(request) && !parametros.containsKey("cohorte") && cohorteSeleccionada != null) {
                 parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
@@ -515,16 +413,7 @@ public class IntentoController {
         }
     }
 
-    /**
-     * CU-69: Calificaciones del alumno en un curso: para cada autoevaluación visible de su programa, sus intentos, su mejor
-     * nota y si la aprobó. Solo ve las suyas.
-     *
-     * @param idInscripcion      Identificador de la inscripción del alumno.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de las calificaciones, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /intento/buscarPorInscripcion/{idInscripcion}: Calificaciones del alumno en un curso: para cada autoevaluación visible de su programa. */
     @GetMapping("/buscarPorInscripcion/{idInscripcion}")
     public String buscarPorInscripcion(@PathVariable("idInscripcion") int idInscripcion, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -554,9 +443,11 @@ public class IntentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
-    /** Las filas de una inscripción: sus autoevaluaciones visibles, tema por tema, en el orden del cronograma. */
+    /** Arma las filas de una inscripción: sus autoevaluaciones visibles, tema por tema, en el orden del cronograma. */
     private List<FilaCalificacion> filasDe(Inscripcion inscripcion) {
         List<FilaCalificacion> filas = new ArrayList<>();
         for (TemaCronograma cronograma : inscripcion.getCohorte().getPrograma().getCronogramaOrdenado()) {
@@ -568,9 +459,9 @@ public class IntentoController {
         return filas;
     }
 
-    // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
-
-
+    // ----------------------------------------------------------------------
+    // Listado (filtros y página en el servidor)
+    // ----------------------------------------------------------------------
 
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
@@ -578,10 +469,11 @@ public class IntentoController {
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
+        // ----------------------------------------------------------------------
+        // Listado (filtros y página en el servidor)
+        // ----------------------------------------------------------------------
 
-
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<FilaIntento> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<FilaIntento>("alumno", FiltroUtil.Tipo.TEXTO,
                         f -> f.intento().getInscripcion().getAlumno().getUsuario().getNombreCompleto() + " "
@@ -601,7 +493,7 @@ public class IntentoController {
                 new FiltroUtil.Columna<FilaIntento>("resultado", FiltroUtil.Tipo.LISTA, f -> f.intento().getResultado())),
                 f -> false);
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<FilaCalificacion> tablaCalificaciones = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<FilaCalificacion>("alumno", FiltroUtil.Tipo.TEXTO,
                         f -> f.inscripcion().getAlumno().getUsuario().getNombreCompleto() + " "

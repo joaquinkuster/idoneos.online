@@ -16,10 +16,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Pruebas de las respuestas JSON de los formularios de categorías y cohortes: el resultado se muestra
- * en el propio formulario, sin recargar la página.
- */
+/** Pruebas de las respuestas JSON de los formularios de categorías y cohortes. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

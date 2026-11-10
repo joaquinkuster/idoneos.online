@@ -26,11 +26,7 @@ import com.app.idoneos.service.programa.ProgramaService;
 import com.app.idoneos.service.tema.TemaService;
 import com.app.idoneos.service.temacronograma.TemaCronogramaService;
 
-/**
- * Pruebas del cronograma (CU-23 y CU-24) con los datos de la semilla: "Macroeconomía de Coyuntura" tiene un programa con
- * tres temas, sin inscripciones; "Mercado de Capitales Argentino" tiene un programa con inscripciones activas.
- * Fausto Spotorno es titular de ambos cursos y Sebastián Bordato no participa en el primero.
- */
+/** Pruebas del cronograma con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class CronogramaServiceTest {
@@ -59,14 +55,10 @@ class CronogramaServiceTest {
         return curso;
     }
 
-
     @Autowired
     private com.app.idoneos.repository.EstadoCohorteRepository estadoCohorteRepository;
 
-    /**
-     * La semilla deja cohortes activas en los programas. Estas pruebas miran la mecánica del cronograma sin las reglas de cohorte activa
-     * (que tienen sus propias pruebas), así que dejan las cohortes del programa pendientes de contenido.
-     */
+    /** La semilla deja cohortes activas en los programas. */
     private Programa sinCohortesActivas(Programa programa) {
         var pendiente = estadoCohorteRepository.findByNombre(com.app.idoneos.model.EstadoCohorte.PENDIENTE).orElseThrow();
         programa.getCohortes().forEach(cohorte -> cohorte.setEstadoCohorte(pendiente));
@@ -173,7 +165,9 @@ class CronogramaServiceTest {
         return programaService.registrar(fausto(), deCurso.getCurso().getIdCurso(), deCurso.getIdPrograma(), "Programa 2027", null);
     }
 
-    // ------------------------------------------------------------------ CU-24 Modificar cronograma
+    // ----------------------------------------------------------------------
+    // Modificar cronograma
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-24: se reordenan los temas y se cambian sus semanas, y queda la fecha de modificación del programa")

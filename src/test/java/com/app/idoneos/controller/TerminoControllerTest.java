@@ -26,11 +26,7 @@ import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.TerminoGlosarioRepository;
 import com.app.idoneos.repository.TemaRepository;
 
-/**
- * Pruebas de las vistas y los formularios del glosario (CU-32 a CU-35). Fausto Spotorno es titular de "Mercado de
- * Capitales Argentino" (tema 1 con tres términos, tema 2 con dos y tema 3 sin términos); Valentina Ruiz es alumna
- * de la cohorte en dictado, con los temas 1 y 2 habilitadas y la 3 bloqueada.
- */
+/** Pruebas de las vistas y los formularios del glosario. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -82,7 +78,9 @@ class TerminoControllerTest {
                 .mapToInt(TerminoGlosario::getIdTermino).findFirst().orElseThrow();
     }
 
-    // ------------------------------------------------------------------ Listado de glosarios
+    // ----------------------------------------------------------------------
+    // Listado de glosarios
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -148,7 +146,9 @@ class TerminoControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Vista de un glosario
+    // ----------------------------------------------------------------------
+    // Vista de un glosario
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -303,7 +303,9 @@ class TerminoControllerTest {
         mockMvc.perform(get("/glosario/buscarPorTema/" + primera())).andExpect(status().is3xxRedirection());
     }
 
-    // ------------------------------------------------------------------ Formularios (CU-33 a CU-35)
+    // ----------------------------------------------------------------------
+    // Formularios
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -382,7 +384,9 @@ class TerminoControllerTest {
         mockMvc.perform(post("/termino/darDeBaja/" + idTermino(segunda(), "TIR"))).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Enlaces desde el resto de la plataforma
+    // ----------------------------------------------------------------------
+    // Enlaces desde el resto de la plataforma
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

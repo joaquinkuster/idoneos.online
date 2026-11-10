@@ -2,10 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Visor de PDF (static/js/pages/recurso/visor.js): panel lateral con las miniaturas y el índice, la página con su capa de texto, y la barra con
-         la paginación, el buscador, el zoom y la pantalla completa. Lo usan la vista del recurso y la de la biblioteca digital.
-         urlArchivo: la dirección desde la que se pide el archivo.
-         urlResaltados: la dirección de las anotaciones del alumno (lápiz, marcador y goma), o nulo si quien mira no es un alumno. -->
+    <!-- Visor de PDF (static/js/pages/recurso/visor.js): panel lateral con las miniaturas y el índice. -->
     <div th:fragment="visor(urlArchivo, urlResaltados)" class="mv-visor" data-visor-pdf
          th:attr="data-url=@{${urlArchivo}}, data-url-indice=@{${#strings.replace(urlArchivo, '/archivo/', '/indice/')}}, data-url-resaltados=${urlResaltados != null} ? @{${urlResaltados}} : null">
         <div class="mv-cuerpo">

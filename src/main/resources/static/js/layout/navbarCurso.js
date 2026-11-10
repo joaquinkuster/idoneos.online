@@ -1,7 +1,4 @@
-/**
- * Pestañas del curso: cada pestaña con secciones (Programas, Temas, Cohortes) abre y cierra su menú. Solo hay uno abierto
- * a la vez; se cierran al hacer clic afuera o con Escape.
- */
+/** Pestañas del curso: cada pestaña con secciones (Programas, Temas, Cohortes) abre y cierra su menú. */
 (function () {
     'use strict';
 

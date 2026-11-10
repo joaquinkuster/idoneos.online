@@ -31,7 +31,7 @@
                             data-termino-uno="inscripción con el descuento aplicado" data-termino-varios="inscripciones con el descuento aplicado">Dar de baja seleccionado/s</button>
                 </div>
 
-                <!-- Filtros (CU-56): nombre, estado y orden -->
+                <!-- Filtros: nombre, estado y orden -->
                 <form th:action="@{/descuento/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <a th:href="@{/descuento/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
@@ -120,7 +120,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar descuento (CU-57) -->
+<!-- Modal: registrar descuento -->
 <div class="modal fade pn-modal" id="modalNuevoDescuento" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -203,8 +203,8 @@
     </div>
 </div>
 
-<!-- La ventana de modificar (CU-58) se pide al abrirla (core/modalModificar.js) y la de baja (CU-59) es una sola, más abajo -->
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- La ventana de modificar se pide al abrirla (core/modalModificar.js) y la de baja es una sola, más abajo -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaDescuento', 'descuento', '¿Confirmas dar de baja?', '', '/descuento/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>

@@ -18,9 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.repository.CursoRepository;
 
-/**
- * Pruebas de la pantalla "Acceder curso" del docente (CU-27, MOD-F-02).
- */
+/** Pruebas de la pantalla "Acceder curso" del docente. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -62,7 +60,7 @@ class AccederCursoDocenteControllerTest {
                 .andExpect(content().string(Matchers.containsString("ac-grupo-titulo")))
                 .andExpect(content().string(Matchers.containsString(">Autoevaluaciones<")))
                 .andExpect(content().string(Matchers.containsString(">Foro<")))
-                // cada grupo tiene su enlace "Ver listado"; el de materiales lleva al ABM del tema
+                // cada grupo tiene su enlace "Ver listado". El de materiales lleva al ABM del tema
                 .andExpect(content().string(Matchers.containsString("Ver listado")))
                 .andExpect(content().string(Matchers.containsString("/recurso/ver/")))
                 .andExpect(content().string(Matchers.containsString("/recurso/buscar?cursoId=")))

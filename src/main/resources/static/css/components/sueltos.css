@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    Estilos sueltos que antes estaban escritos en línea en las plantillas
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .ix-hero-velo {
     position: absolute;
     inset: 0;
@@ -79,8 +79,7 @@
     margin-top: 0;
 }
 
-/* El menú queda por encima del enlace que se estira sobre toda la card (.cc-boton::after); su botón mide lo mismo que el
-   botón principal */
+/* El menú queda por encima del enlace que se estira sobre toda la card (.cc-boton::after). */
 .cc-opciones {
     position: relative;
     z-index: 2;
@@ -269,7 +268,7 @@ button.cc-boton {
     font-size: 26px;
 }
 
-/* «Verificando / Preparando / Esperando el pago…»: una etiqueta, no una acción, con el tamaño y el lugar del botón de la caja */
+/* "Verificando / Preparando / Esperando el pago…": una etiqueta, no una acción. */
 .caja-verificando {
     display: flex;
     align-items: center;
@@ -294,7 +293,7 @@ button.cc-boton {
     color: #64748B;
 }
 
-/* Botón de la card de inscripción de la ficha (Ingresá para inscribirte / sin cohortes): separado de la línea de arriba */
+/* Botón de la card de inscripción de la ficha (Ingresá para inscribirte / sin cohortes). */
 .fx-inscripcion > .fx-boton-inscribir,
 .fx-inscripcion [data-bloque] > .fx-boton-inscribir {
     margin-top: 14px;
@@ -351,7 +350,7 @@ button.cc-boton {
     font-weight: 600;
 }
 
-/* «Recordarme» de la ficha: contorno navy, para que el dorado quede solo para «Inscribirme» */
+/* "Recordarme" de la ficha: contorno navy, para que el dorado quede solo para "Inscribirme" */
 .fx-boton-recordar {
     display: inline-flex;
     align-items: center;
@@ -377,7 +376,7 @@ button.cc-boton {
     color: var(--boton-navy, #0F233D);
 }
 
-/* Separado de la línea «La inscripción abre el…» de arriba */
+/* Separado de la línea "La inscripción abre el…" de arriba */
 [data-bloque="proxima"] > .fx-boton-recordar {
     margin-top: 14px;
 }
@@ -386,7 +385,7 @@ button.cc-boton {
     display: none;
 }
 
-/* «Verificando tu pago…» en la card: etiqueta centrada en el lugar (y con el alto) del botón */
+/* "Verificando tu pago…" en la card: etiqueta centrada en el lugar (y con el alto) del botón */
 .cc-verificando {
     width: 100%;
     text-align: center;

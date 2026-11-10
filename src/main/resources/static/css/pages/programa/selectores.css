@@ -1,6 +1,6 @@
-/* ==========================================================================
-   PROGRAMAS (MOD-F-02): selectores de programa y cohorte por defecto del docente y marca del programa por defecto
-   ========================================================================== */
+/* ----------------------------------------------------------------------
+   PROGRAMAS: selectores de programa y cohorte por defecto del docente y marca del programa por defecto
+   ---------------------------------------------------------------------- */
 .ac-contexto {
     display: flex;
     flex-wrap: wrap;

@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * «Recordarme» de la ficha del curso: el alumno marca una cohorte próxima (POST /recordatorio/recordar/{cohorteId}) o quita
- * el recordatorio (POST /recordatorio/quitar/{cohorteId}). Responde en JSON.
- */
+/** Controlador del recordatorio de cohorte. */
 @Controller
 @RequestMapping("/recordatorio")
 public class RecordatorioCohorteController {
@@ -24,7 +21,7 @@ public class RecordatorioCohorteController {
     @Autowired
     private RecordatorioCohorteService recordatorioService;
 
-    /** Marca la cohorte próxima para que el sistema avise al alumno unos días antes de que abra la inscripción. */
+    /** POST /recordatorio/recordar/{cohorteId}: Marca la cohorte próxima para que el sistema avise al alumno unos días antes de que abra la inscripción. */
     @PostMapping("/recordar/{cohorteId}")
     public ResponseEntity<Map<String, String>> recordar(@PathVariable("cohorteId") Integer cohorteId, Authentication authentication) {
         try {
@@ -35,7 +32,7 @@ public class RecordatorioCohorteController {
         }
     }
 
-    /** Quita el recordatorio de la cohorte. */
+    /** POST /recordatorio/quitar/{cohorteId}: Quita el recordatorio de la cohorte. */
     @PostMapping("/quitar/{cohorteId}")
     public ResponseEntity<Map<String, String>> quitar(@PathVariable("cohorteId") Integer cohorteId, Authentication authentication) {
         try {

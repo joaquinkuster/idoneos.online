@@ -1,28 +1,4 @@
-/**
- * Hoja de ruta de los formularios por pasos: el último paso es un resumen estructural en forma de árbol.
- *
- * Un formulario se suma con data-resumen="<nombre de lo que se registra>" y data-modo="alta|modificacion". Sus pasos
- * (.pn-paso) llevan data-grupo con el nombre de la rama del árbol; el último paso lleva [data-resumen-arbol]. Cada campo
- * (.pn-campo) aporta su etiqueta y su valor.
- *
- *  - Alta: el árbol muestra todos los datos cargados, agrupados por paso, con un "Editar" que vuelve a ese paso.
- *  - Modificación: muestra solo lo que cambió, como "antes -> después".
- *
- * Los campos con data-resumen-formato="moneda" se muestran como importe en pesos. Un elemento con
- * data-resumen-linea="Etiqueta" aporta su texto (o, en una casilla, si está confirmada) como una línea más del árbol.
- *
- * Contexto: data-contexto es una lista JSON con lo que está por encima de lo que se registra (por ejemplo, el curso y el
- * programa de una cohorte). Cada entrada lleva su etiqueta y su valor fijo, o bien el campo (select) de donde sale y el
- * atributo de la opción elegida que trae el valor:
- *   [{"etiqueta":"Curso","atributoForm":"data-ctx-curso"}, {"etiqueta":"Programa","campo":"programaId","atributo":"data-programa"}]
- * (atributoForm toma el valor de un atributo del propio formulario).
- * data-resumen-titulo agrega un texto a la línea de lo que se registra (por ejemplo, la fecha de una cohorte).
- * data-resumen-mes="campoA|campoB" nombra lo que se registra por el mes y el año del primer campo con fecha ("Marzo 2026 (Nueva)").
- * data-resumen-derivado="Comprobante" en un campo lo saca de las ramas de lo que se modifica y lo pone en una rama aparte, una
- * entidad que se deriva de ella; data-resumen-derivado-titulo marca el campo cuyo valor es el título de esa rama (por ejemplo, el número).
- * data-resumen-original en un campo indica el valor que tiene guardado cuando el formulario lo abre con otro valor sugerido
- * (por ejemplo, el estado de un pago que se propone acreditar): el resumen lo compara con ese valor y no con el inicial.
- */
+/** Hoja de ruta de los formularios por pasos: el último paso es un resumen estructural en forma de árbol. */
 (function () {
     'use strict';
 
@@ -112,7 +88,7 @@
         var esAlta = formulario.getAttribute('data-modo') !== 'modificacion';
         var nombre = formulario.getAttribute('data-resumen') || 'Registro';
         var original = leer(formulario);
-        // Lo que se carga después de abrir el formulario (por ejemplo, el índice guardado de un documento) puede fijar de nuevo el «antes»
+        // Lo que se carga después de abrir el formulario (por ejemplo, el índice guardado de un documento) puede fijar de nuevo el "antes"
         formulario.hojaDeRuta = { fijarOriginal: function () { original = leer(formulario); } };
         var definicionContexto = [];
         try { definicionContexto = JSON.parse(formulario.getAttribute('data-contexto') || '[]'); } catch (e) { definicionContexto = []; }
@@ -155,14 +131,10 @@
 
         function empty() { return '<span class="pn-arbol-empty">' + EMPTY + '</span>'; }
 
-        // Colores: curso (oro), programa (azul), los niveles siguientes alternan dorado y azul, lo que se registra (verde) y lo que se
-        // modifica (naranja). El color de lo que se registra o modifica lo da el nodo, y el de su tipo, su badge.
-        // Los niveles del árbol alternan dorado y azul de arriba hacia abajo (curso, programa, cohorte, inscripción...), así que
-        // una rama nueva más abajo sigue el mismo patrón
+        // Colores: curso (oro), programa (azul), los niveles siguientes alternan dorado y azul.
         function colorDeNivel(i) { return i % 2 === 0 ? 'oro' : 'azul'; }
 
-
-        /** Un nodo del árbol: línea vertical con codo, punto del color del nivel, título y badges. Los hijos van dentro. */
+        /** Un nodo del árbol: línea vertical con codo, punto del color del nivel, título y badges. */
         function nodo(color, titulo, tipo, estado, extra) {
             var n = crear('div', 'pn-nodo pn-nodo-' + color);
             var fila = crear('div', 'pn-nodo-fila');
@@ -175,7 +147,7 @@
             return n;
         }
 
-        /** La leyenda trae solo los colores que aparecen en este árbol: los niveles de contexto, el de lo que se registra y el del estado. */
+        /** La leyenda trae solo los colores que aparecen en este árbol: los niveles de contexto. */
         function leyenda(contextos, derivados, sinCambios) {
             var items = [];
             contextos.forEach(function (c, i) { items.push([colorDeNivel(i), c.etiqueta]); });
@@ -227,9 +199,7 @@
                 raiz = rama;
             });
 
-            // Lo que se registra o se modifica
-            // El título de lo que se registra no repite el badge de su tipo: es su nombre (curso, programa, tema, material,
-            // descuento), o, si no tiene, la fecha y hora en que se registra (cohorte, inscripción, pago) o su dato propio
+            // Lo que se registra o se modifica El título de lo que se registra no repite el badge de su tipo.
             var sufijo = formulario.getAttribute('data-resumen-titulo');
             var campoNombre = formulario.querySelector('[name="nombre"], [name="titulo"]');
             var titulo;

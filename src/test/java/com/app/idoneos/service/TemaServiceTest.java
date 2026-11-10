@@ -26,11 +26,7 @@ import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.service.programa.ProgramaService;
 import com.app.idoneos.service.tema.TemaService;
 
-/**
- * Pruebas del ABM de temas (CU-19 a CU-22) con los datos de la semilla: "Mercado de Capitales Argentino" tiene un
- * programa con tres temas e inscripciones activas; "Macroeconomía de Coyuntura" tiene un programa con una cohorte sin
- * inscriptos. Fausto Spotorno es titular de ambos cursos y Sebastián Bordato no participa en el segundo.
- */
+/** Pruebas del ABM de temas con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class TemaServiceTest {
@@ -51,14 +47,10 @@ class TemaServiceTest {
         return cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
     }
 
-
     @Autowired
     private com.app.idoneos.repository.EstadoCohorteRepository estadoCohorteRepository;
 
-    /**
-     * La semilla deja cohortes activas en los programas. Estas pruebas miran la mecánica del cronograma sin las reglas de cohorte activa
-     * (que tienen sus propias pruebas), así que dejan las cohortes del programa pendientes de contenido.
-     */
+    /** La semilla deja cohortes activas en los programas. */
     private Programa sinCohortesActivas(Programa programa) {
         var pendiente = estadoCohorteRepository.findByNombre(com.app.idoneos.model.EstadoCohorte.PENDIENTE).orElseThrow();
         programa.getCohortes().forEach(cohorte -> cohorte.setEstadoCohorte(pendiente));
@@ -115,7 +107,9 @@ class TemaServiceTest {
         return assertThrows(IllegalArgumentException.class, accion).getMessage();
     }
 
-    // ------------------------------------------------------------------ CU-19 Buscar tema
+    // ----------------------------------------------------------------------
+    // Buscar tema
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-19: se buscan los temas del cronograma por título, en orden de dictado")
@@ -131,7 +125,9 @@ class TemaServiceTest {
         assertTrue(temaService.buscarConFiltros(programa, "zzz").isEmpty());
     }
 
-    // ------------------------------------------------------------------ CU-21 Modificar tema
+    // ----------------------------------------------------------------------
+    // Modificar tema
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-21: se modifica un tema sin inscripciones activas asociadas")
@@ -169,7 +165,9 @@ class TemaServiceTest {
         assertNotNull(temaService.modificar(id, fausto(), tema.getTitulo(), null, "Otro contenido"));
     }
 
-    // ------------------------------------------------------------------ Temas del curso
+    // ----------------------------------------------------------------------
+    // Temas del curso
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-20: registrar un tema del curso no lo incorpora a ningún cronograma")
@@ -223,7 +221,9 @@ class TemaServiceTest {
                 .contains("no se encuentra activo"));
     }
 
-    // ------------------------------------------------------------------ Contenido opcional
+    // ----------------------------------------------------------------------
+    // Contenido opcional
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("El contenido de un tema es opcional: se puede completar después de registrarlo")

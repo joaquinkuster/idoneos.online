@@ -1,15 +1,3 @@
-# Entorno completo de Idóneos Online: un solo comando y todos tienen las mismas versiones.
-#
-#   docker compose up --build        levanta la base y la aplicación (http://localhost:8080)
-#   docker compose down              apaga todo (los datos de la base se conservan)
-#   docker compose down -v           apaga todo y borra la base y los archivos subidos (arranque desde cero)
-#
-# La primera vez la aplicación crea las tablas, carga los scripts de la carpeta schema (índices y disparadores)
-# y la semilla de demostración (usuarios, cursos, etc.), todo solo. Usuarios de prueba: ver SemillaService (clave 123456).
-#
-# Para cambiar una versión se edita aquí (o en el pom.xml para Java y Spring), se commitea y el equipo la recibe con git pull.
-
-# Nombre del proyecto: es el grupo que muestra Docker Desktop (si no, usa el de la carpeta: idoneosonline)
 name: idoneos
 
 services:
@@ -21,8 +9,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
-      # 5434 en la máquina para no chocar con un PostgreSQL instalado localmente (que usa 5432)
-      - "5434:5432"
+      - "5433:5432"
     volumes:
       - bd:/var/lib/postgresql/data
     healthcheck:
@@ -44,30 +31,18 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://base:5432/idoneos.online
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-      # create: recrea las tablas y carga la semilla en cada arranque (entorno de demostración).
-      # none + IDONEOS_SEMILLA=false: para conservar los datos entre arranques.
+      # create recrea las tablas y la semilla en cada arranque; para conservar los datos: none y IDONEOS_SEMILLA "false"
       SPRING_JPA_HIBERNATE_DDL_AUTO: create
       IDONEOS_SEMILLA: "true"
       IDONEOS_DIRECTORIO_CURSOS: /app/uploads
     volumes:
       - archivos:/app/uploads
 
-  # Más adelante (descomentar cuando se use):
-  # ollama:
-  #   image: ollama/ollama:0.5.4
-  #   ports:
-  #     - "11434:11434"
-  #   volumes:
-  #     - modelos-ollama:/root/.ollama
-
-# Los nombres se fijan a mano (name:) para que Docker no les agregue el prefijo del proyecto con guiones
 volumes:
   bd:
     name: idoneos-bd
   archivos:
     name: idoneos-archivos
-  # modelos-ollama:
-  #   name: idoneos-modelos-ollama
 
 networks:
   default:

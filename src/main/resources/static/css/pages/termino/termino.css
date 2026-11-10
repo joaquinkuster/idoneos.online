@@ -1,6 +1,6 @@
-/* ==========================================================================
-   GLOSARIO (MOD-F-02): vista de un glosario con buscador, índice alfabético y términos agrupados por letra
-   ========================================================================== */
+/* ----------------------------------------------------------------------
+   GLOSARIO: vista de un glosario con buscador, índice alfabético y términos agrupados por letra
+   ---------------------------------------------------------------------- */
 .gl-titulo-fila {
     display: flex;
     align-items: center;

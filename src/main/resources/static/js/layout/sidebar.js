@@ -1,10 +1,4 @@
-/**
- * Grupos desplegables del menú lateral. Se carga justo después del menú (no al final de la página) para que los grupos
- * ya estén armados cuando el navegador lo dibuja por primera vez.
- *
- * Los enlaces que siguen a un título, hasta el próximo, se ocultan o se muestran al hacerle clic. Arranca abierto el grupo
- * del enlace activo y colapsados los demás (en el inicio del curso, todos colapsados).
- */
+/** Grupos desplegables del menú lateral. */
 (function () {
     'use strict';
 
@@ -25,7 +19,7 @@
             titulo.parentNode.insertBefore(cuerpo, titulo.nextSibling);
 
             var clave = 'idoneos.menu.grupo.' + (titulo.getAttribute('title') || titulo.textContent.trim());
-            // Solo queda desplegado el grupo donde está la persona; los demás arrancan colapsados (se pueden abrir a mano)
+            // Solo queda desplegado el grupo donde está la persona. Los demás arrancan colapsados (se pueden abrir a mano)
             var cerrado = !cuerpo.querySelector('.pn-menu-enlace.activo') && !titulo.classList.contains('activo');
             if (!cuerpo.children.length) { cuerpo.hidden = true; titulo.classList.add('sin-hijos'); }
             function aplicar() {

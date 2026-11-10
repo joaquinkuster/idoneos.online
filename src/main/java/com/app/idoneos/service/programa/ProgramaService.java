@@ -11,12 +11,12 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.Programa;
 import java.util.List;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el programa.
- */
+/** Servicio del programa. */
 public interface ProgramaService extends CrudService<Programa> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros vigentes de programa asociados a curso.
@@ -27,28 +27,27 @@ public interface ProgramaService extends CrudService<Programa> {
     List<Programa> buscarPorCurso(Curso curso);
 
     /**
-     * CU-15: Busca los programas activos de un curso por nombre y estado, del más reciente al más antiguo. Los
-     * programas dados de baja no se incluyen.
+     * Busca los programas activos de un curso por nombre y estado, del más reciente al más antiguo.
      *
-     * @param curso  el curso
+     * @param curso el curso
      * @param nombre parte del nombre, sin distinguir mayúsculas ni tildes (opcional)
      * @param estado "Vigente" o "Anterior" (opcional)
      * @return los programas que cumplen los criterios
      */
     List<Programa> buscarConFiltros(Curso curso, String nombre, String estado);
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * CU-16: Registra un programa para un curso, copiando el cronograma de un programa de origen (obligatorio en esta versión: un programa
-     * nunca está incompleto). Pasa a ser el vigente del curso, queda guardado como su programa anterior y se asigna a las cohortes
-     * pendientes de contenido del curso, que pasan a inscripción próxima.
+     * Registra un programa para un curso.
      *
-     * @param docente          el docente que registra
-     * @param cursoId          el identificador del curso
+     * @param docente el docente que registra
+     * @param cursoId el identificador del curso
      * @param programaOrigenId el programa del que se parte (opcional)
-     * @param nombre           el nombre (opcional: si no se indica, es "Versión N")
-     * @param descripcion      qué cambia respecto de la versión anterior (opcional)
+     * @param nombre el nombre (opcional: si no se indica, es "Versión N")
+     * @param descripcion qué cambia respecto de la versión anterior (opcional)
      * @return el programa registrado
      * @throws IllegalArgumentException si supera el máximo, el curso no está activo o el docente no participa en el curso
      */
@@ -56,34 +55,34 @@ public interface ProgramaService extends CrudService<Programa> {
             String descripcion);
 
     /**
-     * CU-16: Registra un programa con su cronograma de una vez (lo arma el asistente de programas: datos, cronograma y
-     * contenido). Si se indican temas, estos y sus días reemplazan al cronograma del programa de origen: los días tienen que sumar la
-     * duración del curso y los temas tienen que tener su contenido completo.
+     * Registra un programa con su cronograma de una vez.
      *
-     * @param docente          el docente que registra
-     * @param cursoId          el identificador del curso
+     * @param docente el docente que registra
+     * @param cursoId el identificador del curso
      * @param programaOrigenId el programa del que se parte (opcional)
-     * @param nombre           el nombre (opcional: si no se indica, es "Versión N")
-     * @param descripcion      qué cambia respecto de la versión anterior (opcional)
-     * @param temaIds          los temas del cronograma, en orden ({@code null} para conservar el del programa de origen)
-     * @param dias             los días de cada tema, en el mismo orden
+     * @param nombre el nombre (opcional: si no se indica, es "Versión N")
+     * @param descripcion qué cambia respecto de la versión anterior (opcional)
+     * @param temaIds los temas del cronograma, en orden ({@code null} para conservar el del programa de origen)
+     * @param dias los días de cada tema, en el mismo orden
      * @return el programa registrado
      * @throws IllegalArgumentException si algún dato no es válido
      */
     Programa registrar(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
             String descripcion, List<Integer> temaIds, List<String> dias);
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * CU-17: Modifica los datos y el cronograma de un programa que no tiene inscripciones activas.
+     * Modifica los datos y el cronograma de un programa que no tiene inscripciones activas.
      *
-     * @param id          el identificador del programa
-     * @param docente     el docente que modifica
-     * @param nombre      el nombre
+     * @param id el identificador del programa
+     * @param docente el docente que modifica
+     * @param nombre el nombre
      * @param descripcion qué cambia respecto de la versión anterior (opcional)
-     * @param temaIds     los temas del cronograma, en orden ({@code null} para no tocar el cronograma)
-     * @param dias        los días de cada tema, en el mismo orden
+     * @param temaIds los temas del cronograma, en orden ({@code null} para no tocar el cronograma)
+     * @param dias los días de cada tema, en el mismo orden
      * @return el programa modificado
      * @throws IllegalArgumentException si algún dato no es válido o el programa tiene inscripciones activas
      */
@@ -91,35 +90,34 @@ public interface ProgramaService extends CrudService<Programa> {
             List<String> dias);
 
     /**
-     * CU-17: Modifica los datos de un programa que no tiene inscripciones activas.
+     * Modifica los datos de un programa que no tiene inscripciones activas.
      *
-     * @param id           el identificador del programa
-     * @param docente      el docente que modifica
-     * @param nombre       el nombre
-     * @param descripcion  qué cambia respecto de la versión anterior (opcional)
+     * @param id el identificador del programa
+     * @param docente el docente que modifica
+     * @param nombre el nombre
+     * @param descripcion qué cambia respecto de la versión anterior (opcional)
      * @return el programa modificado
-     * @throws IllegalArgumentException si el programa no está activo, tiene inscripciones activas, falta el nombre o
-     *                                  el docente no participa en el curso
+     * @throws IllegalArgumentException si el programa no está activo, tiene inscripciones activas, falta el nombre o el docente no participa en el curso
      */
     Programa modificar(Integer id, Docente docente, String nombre, String descripcion);
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
     /**
-     * CU-18: Da de baja un programa que no tiene cohortes activas (baja lógica).
+     * Da de baja un programa que no tiene cohortes activas (baja lógica).
      *
-     * @param id      el identificador del programa
+     * @param id el identificador del programa
      * @param docente el docente que da de baja, o {@code null} si lo hace el administrador
-     * @throws IllegalArgumentException si el programa no está activo, tiene cohortes activas o el docente no participa
-     *                                  en el curso
+     * @throws IllegalArgumentException si el programa no está activo, tiene cohortes activas o el docente no participa en el curso
      */
     void darDeBaja(Integer id, Docente docente);
 
     /**
-     * CU-18: Da de baja varios programas a la vez, todos o ninguno: si alguno no puede darse de baja (no está activo, el
-     * docente no participa en su curso o tiene cohortes activas), no se da de baja ninguno.
+     * Da de baja varios programas a la vez, todos o ninguno.
      *
-     * @param ids     los identificadores de los programas
+     * @param ids los identificadores de los programas
      * @param docente el docente que da de baja, o {@code null} si lo hace el administrador
      * @throws IllegalArgumentException si no se seleccionó ningún programa o alguno no puede darse de baja
      */
@@ -129,12 +127,12 @@ public interface ProgramaService extends CrudService<Programa> {
      * Un programa que quedaría por debajo del mínimo.
      *
      * @param programa el programa afectado
-     * @param minimo   el mínimo de temas con material publicado y autoevaluación que exige el sistema
+     * @param minimo el mínimo de temas con material publicado y autoevaluación que exige el sistema
      * @param quedaria la cantidad de temas que conservaría
      */
     public record Bloqueo(Programa programa, int minimo, int quedaria) {
 
-        /** El mínimo expresado en temas, por ejemplo "2 temas". */
+        /** Obtiene el mínimo expresado en temas, por ejemplo "2 temas". */
         public String minimoEnTemas() {
             return MensajeErrorUtil.formatearCantidad(minimo, "tema", "temas");
         }
@@ -144,12 +142,11 @@ public interface ProgramaService extends CrudService<Programa> {
     int buscarMinimoDeContenido();
 
     /**
-     * Indica si una operación dejaría al programa por debajo del mínimo. Solo cuenta si el programa tiene cohortes en
-     * curso y si la operación es la que le quita contenido: un programa que ya estaba por debajo y no empeora no se bloquea.
+     * Indica si una operación dejaría al programa por debajo del mínimo.
      *
-     * @param programa           El programa que se verifica.
+     * @param programa El programa que se verifica.
      * @param materialesQuitados Los materiales que dejarían de estar publicados.
-     * @param temasQuitadas   Los temas que dejarían de formar parte del cronograma.
+     * @param temasQuitadas Los temas que dejarían de formar parte del cronograma.
      * @return El bloqueo, o vacío si el programa se mantiene por encima del mínimo.
      */
     Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<Integer> materialesQuitados,
@@ -157,31 +154,26 @@ public interface ProgramaService extends CrudService<Programa> {
 
     /**
      * Indica si quitar temas del cronograma dejaría al programa con cohortes en curso con menos temas que el mínimo.
-     * Cuenta solo temas del cronograma, sin mirar su contenido. Si el programa ya estaba por debajo y la operación no
-     * empeora, no se bloquea.
      *
-     * @param programa         El programa que se verifica.
+     * @param programa El programa que se verifica.
      * @param temasQuitadas Los temas que dejarían de formar parte del cronograma.
      * @return El bloqueo (con la cantidad de temas que quedarían), o vacío si el programa conserva el mínimo.
      */
     Optional<Bloqueo> verificarMinimoDeTemas(Programa programa, Collection<Integer> temasQuitadas);
 
     /**
-     * Motivo (sin punto final) por el que no se puede quitar el material de un tema, con la misma oración que usan las
-     * autoevaluaciones: es el único visible del tema y su programa tiene cohortes activas.
+     * Motivo (sin punto final) por el que no se puede quitar el material de un tema.
      *
-     * @param tema             El tema del material.
+     * @param tema El tema del material.
      * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
      * @return El motivo, o vacío si el programa se mantiene por encima del mínimo.
      */
     Optional<String> buscarMotivoDeMinimoPorRecurso(Tema tema, Collection<Integer> materialesQuitados);
 
     /**
-     * Motivo (sin punto final) por el que no se puede quitar el material de un tema porque el tema dejaría de tener el contenido que
-     * pide el diseño del curso (por ejemplo, su único material publicado o su única clase grabada) y su programa tiene cohortes en
-     * curso o inscripciones activas: el diseño pasaría de completo a incompleto.
+     * Motivo (sin punto final) por el que no se puede quitar el material de un tema porque el tema dejaría de tener el contenido que pide el diseño del curso (por ejemplo, su único material publicado o su única clase grabada) y su programa tiene cohortes en curso o inscripciones activas: el diseño pasaría de completo a incompleto.
      *
-     * @param tema               El tema del material.
+     * @param tema El tema del material.
      * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
      * @return El motivo, o vacío si el tema conserva todo su contenido o ningún programa que lo incluye está en curso.
      */

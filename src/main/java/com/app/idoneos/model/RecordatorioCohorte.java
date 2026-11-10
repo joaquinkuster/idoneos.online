@@ -7,11 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Cohorte próxima que un alumno marcó con «Recordarme»: cuando falten los días de anticipación que indica el parámetro para
- * que abra su inscripción, el sistema le crea una notificación de tipo «Recordatorio de cohorte». Quitar el recordatorio es una
- * baja lógica; si el alumno lo vuelve a marcar, se reactiva el mismo registro.
- */
+/** Entidad que representa una cohorte próxima que un alumno marcó con Recordarme. */
 @Entity
 @Table(name = "RecordatorioCohorte", uniqueConstraints = @UniqueConstraint(name = "uk_recordatorio_cohorte", columnNames = {"idAlumno", "idCohorte"}))
 @Getter

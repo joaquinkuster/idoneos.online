@@ -279,7 +279,7 @@
     display: none !important;
 }
 
-/* El asistente usa la grilla y las pestañas de la pantalla del cronograma (cn-*): acá solo se acomodan sus botones */
+/* El asistente usa la grilla y las pestañas de la pantalla del cronograma (cn-*). */
 /* El tacho es el mismo botón de icono que el del ABM de pools (pl-icon-boton pl-quitar) */
 .pn-prog-quitar {
     margin-left: 0;

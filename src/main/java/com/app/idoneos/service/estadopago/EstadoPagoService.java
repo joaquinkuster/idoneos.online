@@ -5,15 +5,15 @@ import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.EstadoPago;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el estado del pago.
- */
+/** Servicio del estado del pago. */
 public interface EstadoPagoService extends CrudService<EstadoPago> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca el estado del pago por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca el estado del pago por su atributo único 'nombre'.
      *
      * @param nombre el valor de 'nombre' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra

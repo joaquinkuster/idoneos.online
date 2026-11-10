@@ -28,11 +28,7 @@ import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.TemaRepository;
 
-/**
- * Pruebas de las vistas y los formularios del foro (CU-35 a CU-42). En "Mercado de Capitales Argentino", el tema 1
- * tiene una consulta de Valentina Ruiz con una respuesta de Fausto Spotorno (titular); el tema 2, una consulta sin
- * responder; la 3 no tiene consultas y está bloqueada para Valentina, alumna de la cohorte en dictado.
- */
+/** Pruebas de las vistas y los formularios del foro. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -89,7 +85,9 @@ class ConsultaControllerTest {
                 .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)).findFirst().orElseThrow();
     }
 
-    // ------------------------------------------------------------------ Listado de foros
+    // ----------------------------------------------------------------------
+    // Listado de foros
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -140,7 +138,9 @@ class ConsultaControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Vista de un foro
+    // ----------------------------------------------------------------------
+    // Vista de un foro
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -256,7 +256,9 @@ class ConsultaControllerTest {
         mockMvc.perform(get("/foro/buscarPorTema/" + primera())).andExpect(status().is3xxRedirection());
     }
 
-    // ------------------------------------------------------------------ Detalle de una consulta
+    // ----------------------------------------------------------------------
+    // Detalle de una consulta
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -353,7 +355,9 @@ class ConsultaControllerTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("modalResponder"))));
     }
 
-    // ------------------------------------------------------------------ Formularios
+    // ----------------------------------------------------------------------
+    // Formularios
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -444,7 +448,9 @@ class ConsultaControllerTest {
         mockMvc.perform(post("/respuesta/darDeBaja/1")).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Enlaces desde el resto de la plataforma
+    // ----------------------------------------------------------------------
+    // Enlaces desde el resto de la plataforma
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

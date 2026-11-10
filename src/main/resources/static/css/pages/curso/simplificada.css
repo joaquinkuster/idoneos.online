@@ -1,4 +1,7 @@
-/* ---------- Vista del curso simplificada ---------- */
+/* ---------------------------------------------------------------------- */
+/* Vista del curso simplificada */
+/* ---------------------------------------------------------------------- */
+
 .ac-cabecera-simple {
     margin-bottom: 20px;
     padding: 24px 28px;
@@ -83,8 +86,7 @@
     color: var(--pn-texto);
 }
 
-/* Menú de tres puntos (temas, materiales, cards de curso e inscripciones): fondo sólido, sin el efecto glass de los
-   desplegables del sitio, y letra de 14 px */
+/* Menú de tres puntos (temas, materiales, cards de curso e inscripciones): fondo sólido. */
 .ac-menu-boton + .dropdown-menu {
     font-size: 14px;
     background: #FFFFFF !important;
@@ -96,7 +98,7 @@
     font-size: 14px;
 }
 
-/* Opciones del menú de tres puntos: al pasar el mouse o hacer clic, un gris muy claro (en lugar del azul de Bootstrap) */
+/* Opciones del menú de tres puntos: al pasar el mouse o hacer clic. */
 .ac-menu-boton + .dropdown-menu .dropdown-item:hover,
 .ac-menu-boton + .dropdown-menu .dropdown-item:focus,
 .ac-menu-boton + .dropdown-menu .dropdown-item:active {

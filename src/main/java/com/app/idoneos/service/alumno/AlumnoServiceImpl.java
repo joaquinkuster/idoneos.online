@@ -12,50 +12,34 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Alumno}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link AlumnoService}.
- */
+/** Implementación de AlumnoService. */
 @Service
 public class AlumnoServiceImpl implements AlumnoService {
 
     @Autowired
     private AlumnoRepository alumnoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el alumno por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el alumno por su identificador. */
     @Override
     public Optional<Alumno> buscarPorId(Integer id) {
         return alumnoRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Alumno> obtenerTodo() {
         return alumnoRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return alumnoRepository.existsById(id);
     }
-
 
     @Override
     public List<Alumno> buscarPorCurso(Curso curso) {
@@ -74,39 +58,31 @@ public class AlumnoServiceImpl implements AlumnoService {
                 .toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el alumno en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el alumno en la base de datos. */
     @Override
     public Alumno guardar(Alumno entidad) {
         return alumnoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Alumno modificar(Alumno entidad) {
         return alumnoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(Alumno entidad) {
         alumnoRepository.delete(entidad);

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /recurso/modificar/{id}). -->
+<!-- Ventana de modificación. -->
     <div th:fragment="modal(r, usos)" class="modal fade pn-modal" th:id="'modalModificarRecurso' + ${r.idRecurso}" tabindex="-1" aria-hidden="true"
          th:with="tipo=${r.tipo}, bibliografia=${r.bibliografia}, bloqueado=${usos > 0}">
         <div class="modal-dialog modal-dialog-centered modal-lg">

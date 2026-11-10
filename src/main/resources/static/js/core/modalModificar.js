@@ -1,11 +1,4 @@
-/**
- * Ventanas de edición que se piden al servidor cuando se las necesita, en lugar de dibujar una por cada fila del listado.
- *
- * El botón lleva data-modal-url (la ruta que devuelve la ventana) y data-bs-target (el id de la ventana que llega). Se pide
- * el HTML, se reemplaza la ventana anterior con ese id, se inician sus comportamientos (pasos, duración, resumen,
- * selectores) y se abre. Antes de abrirla avisa con el evento "ventana-cargada" (detail.ventana) para que cada página
- * inicie lo propio de su formulario. Las ventanas ya pedidas se vuelven a pedir cada vez, así siempre muestran los datos actuales.
- */
+/** Ventanas de edición que se piden al servidor cuando se las necesita. */
 (function () {
     'use strict';
 
@@ -17,8 +10,7 @@
         if (window.iniciarMultiselect) { window.iniciarMultiselect(ventana); }
         // Cada página inicia lo suyo (por ejemplo las preguntas de un pool o los pools de una autoevaluación) cuando llega la ventana
         document.dispatchEvent(new CustomEvent('ventana-cargada', { detail: { ventana: ventana } }));
-        // El resumen toma como "antes" lo que hay al terminar de armarse el formulario: se inicia después de lo que dibuja cada página,
-        // si no, lo que se dibuja después (como las preguntas del pool) figuraría como cambios sin haber tocado nada
+        // El resumen toma como "antes" lo que hay al terminar de armarse el formulario.
         ventana.querySelectorAll('form[data-resumen]').forEach(function (f) { if (window.HojaDeRutaIniciar) { window.HojaDeRutaIniciar(f); } });
     }
 

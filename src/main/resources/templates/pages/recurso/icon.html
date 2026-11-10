@@ -1,6 +1,4 @@
-<!-- Ícono cuadrado de color de un recurso o actividad de un tema.
-     tipo: nombre del tipo (Grabación, Bibliografía, Presentación, Resumen, Glosario, Autoevaluación, Pool de preguntas
-           o Clase con clon); tamanio: clase de tamaño adicional ('ac-recurso-icon-chico' o vacío). -->
+<!-- Ícono cuadrado de color de un recurso o actividad de un tema. tipo: nombre del tipo. -->
 <th:block th:fragment="icon(tipo, tamanio)" th:switch="${tipo}">
     <span th:case="'Grabación'" class="ac-recurso-icon ac-recurso-icon-azul" th:classappend="${tamanio}"><i class="fa-solid fa-circle-play"></i></span>
     <span th:case="'Presentación'" class="ac-recurso-icon ac-recurso-icon-naranja" th:classappend="${tamanio}"><i class="fa-solid fa-file-powerpoint"></i></span>

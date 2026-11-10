@@ -17,17 +17,11 @@ import com.app.idoneos.model.Cohorte;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * Consejo (advice) de controladores para los errores de la solicitud que ocurren antes de llegar a la lógica de cada
- * pantalla, porque los detecta el propio Spring: valores que no se pueden convertir al tipo esperado (por ejemplo,
- * un número demasiado grande), direcciones de operaciones que solo admiten POST abiertas desde el navegador y archivos
- * que superan el tamaño máximo de las subidas. Responde con un mensaje claro, en el propio formulario cuando es un
- * POST.
- */
+/** Consejo (advice) de controladores para los errores de la solicitud que ocurren antes de llegar a la lógica de cada pantalla, porque los detecta el propio Spring: valores que no se pueden convertir al tipo esperado (por ejemplo, un número demasiado grande), direcciones de operaciones que solo admiten POST abiertas desde el navegador y archivos que superan el tamaño máximo de las subidas. */
 @ControllerAdvice
 public class ManejadorErroresAdvice {
 
-    /** Mensajes de las excepciones de los casos de uso (CU-12 y CU-13) para los valores numéricos inválidos. */
+    /** Mensajes de las excepciones de los casos de uso para los valores numéricos inválidos. */
     private static final Map<String, String> MENSAJES_DE_CU = Map.of(
             "cupoMaximo", MensajeErrorUtil.armarFormatoInvalido("El cupo máximo", "número entero de 1 a " + Cohorte.CUPO_MAXIMO_PERMITIDO),
             "accesoDias", MensajeErrorUtil.armarFormatoInvalido("Los días de acceso", "número entero de 1 a " + Cohorte.DIAS_ACCESO_MAXIMOS));
@@ -45,15 +39,7 @@ public class ManejadorErroresAdvice {
             Map.entry("fechaInicioDictado", "Inicio de dictado"),
             Map.entry("fechaFinDictado", "Fin de dictado"));
 
-    /**
-     * Informa que un valor enviado no es válido. En los formularios (POST) responde en JSON para que el mensaje
-     * se muestre en el propio formulario; en una consulta (GET) vuelve al inicio con un aviso.
-     *
-     * @param e                  La excepción de conversión de tipos.
-     * @param request          La solicitud HTTP.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una respuesta HTTP 400 con el mensaje de error, o una redirección al inicio.
-     */
+    /** Informa que un valor enviado no es válido. */
     /** El formato que se espera según el tipo al que no se pudo convertir el valor. */
     private static String formatoDe(Class<?> tipo) {
         if (tipo == null) {
@@ -84,14 +70,7 @@ public class ManejadorErroresAdvice {
         return "redirect:/inicio";
     }
 
-    /**
-     * Informa que la dirección solicitada no admite ese método. Si se abrió desde el navegador (GET) una
-     * operación que solo admite POST, vuelve al inicio con un aviso.
-     *
-     * @param e                  La excepción de método no soportado.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al inicio, o una respuesta HTTP 405 con el mensaje de error.
-     */
+    /** Informa que la dirección solicitada no admite ese método. */
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public Object metodoNoSoportado(HttpRequestMethodNotSupportedException e, RedirectAttributes redirectAttributes) {
         if ("GET".equalsIgnoreCase(e.getMethod())) {
@@ -101,12 +80,7 @@ public class ManejadorErroresAdvice {
         return RespuestaFormularioUtil.armarRespuestaConError(HttpStatus.METHOD_NOT_ALLOWED, "Error! La operación solicitada no está permitida.");
     }
 
-    /**
-     * Informa que el archivo supera el tamaño máximo que acepta el servidor. Ese límite lo controla Spring antes de
-     * llegar a los controladores, por eso el error se atiende acá y se muestra dentro del formulario.
-     *
-     * @return Una respuesta HTTP 400 con el mensaje de error.
-     */
+    /** Informa que el archivo supera el tamaño máximo que acepta el servidor. */
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<Map<String, String>> archivoDemasiadoGrande() {
         return RespuestaFormularioUtil.armarRespuestaConError(HttpStatus.BAD_REQUEST, MensajeErrorUtil.armarDemasiadoGrande("El archivo", 500, "MB"));

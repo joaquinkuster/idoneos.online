@@ -131,7 +131,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar consulta (CU-36). El tema es la de este foro -->
+<!-- Modal: registrar consulta. El tema es la de este foro -->
 <div class="modal fade pn-modal" id="modalNuevaConsulta" tabindex="-1" aria-hidden="true" th:if="${esAlumno}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -167,11 +167,11 @@
     </div>
 </div>
 
-<!-- Modales de baja (CU-38, administrador) -->
+<!-- Modales de baja -->
 <th:block th:if="${esAdministrador}" th:each="c : ${consultas}">
 </th:block>
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:if="${esAdministrador}">
     <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaConsulta', 'consulta', '¿Confirmas dar de baja?', '', '/consulta/darDeBaja/0', null, null)}"></th:block>
 </th:block>

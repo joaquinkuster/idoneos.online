@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de lo que el modelo del usuario deriva para mostrar su avatar: las iniciales y la dirección de la foto.
- */
+/** Pruebas de lo que el modelo del usuario deriva para mostrar su avatar. */
 class UsuarioAvatarTest {
 
     private Usuario usuario(String nombre, String apellido, String imagen) {

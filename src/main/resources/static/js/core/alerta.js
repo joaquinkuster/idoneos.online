@@ -1,16 +1,4 @@
-/**
- * Alertas del sistema (SweetAlert2).
- *
- *  - mostrarAviso: el aviso base, con el círculo de color del tipo (éxito, error, información o advertencia). Todos los
- *    avisos y confirmaciones tienen el mismo formato: círculo de 80 px, título, texto, 460 px de ancho y sin animación.
- *  - mostrarExito: alerta de éxito con el título, el mensaje y el botón "Aceptar".
- *  - mostrarError: alerta de error con el botón "Aceptar".
- *  - confirmarBajaMasiva: confirmación de la baja de varios elementos.
- *  - mostrarCursoFinalizado: aviso de curso finalizado con éxito, con acceso a "Mis certificados".
- *  - confirmarAccion: confirmación de una acción que no es una baja (por ejemplo, aprobar un intento), con botón azul.
- *  - confirmarCerrarSesion: confirmación de cierre de sesión con botón rojo.
- *  - confirmarCambiosSinGuardar: confirmación para salir de una pantalla con cambios sin guardar.
- */
+/** Alertas del sistema (SweetAlert2). */
 (function () {
     'use strict';
 
@@ -22,13 +10,7 @@
         advertencia: { icon: 'fa-triangle-exclamation', clase: 'swal-icon-advertencia', boton: 'swal-boton-advertencia' }
     };
 
-    /**
-     * Aviso del sistema, con el formato de todas las alertas: círculo de color con el ícono del tipo, título en negrita y
-     * texto debajo, sin animación. opciones: tipo ('exito', 'error', 'info' o 'advertencia'), titulo, texto, confirmar
-     * (texto del botón, "Aceptar" por defecto), html (en lugar de texto, para dar formato, por ejemplo una negrita), cancelar (si se indica, muestra también un botón para cerrar) y bloquear
-     * (si es true, no se cierra al hacer clic afuera) y claseBoton (para cambiar el estilo del botón principal). Devuelve
-     * la promesa de SweetAlert (con isConfirmed).
-     */
+    /** Aviso del sistema, con el formato de todas las alertas: círculo de color con el ícono del tipo. */
     window.mostrarAviso = function (opciones) {
         var tipo = TIPOS_DE_AVISO[opciones.tipo] || TIPOS_DE_AVISO.info;
         return Swal.fire({
@@ -56,19 +38,13 @@
         return window.mostrarAviso({ tipo: 'exito', titulo: '¡Operación exitosa!', texto: mensaje });
     };
 
-    /**
-     * Alerta guía del flujo: después de crear algo, propone el paso siguiente. Devuelve una promesa con true si la persona
-     * acepta seguir (el que llama navega al paso siguiente) y false si prefiere quedarse.
-     */
+    /** Alerta guía del flujo: después de crear algo, propone el paso siguiente. */
     window.preguntarSiguientePaso = function (titulo, texto, confirmar, tipo) {
         return window.mostrarAviso({ tipo: tipo || 'info', titulo: titulo, texto: texto, confirmar: confirmar, cancelar: 'Ahora no' })
             .then(function (r) { return r.isConfirmed; });
     };
 
-    /**
-     * Pregunta, al final del alta de un recurso en un curso, si se publica en la biblioteca digital (otros docentes podrán verlo). Si se
-     * acepta, lo publica.
-     */
+    /** Pregunta, al final del alta de un recurso en un curso. */
     window.preguntarPublicarRecurso = async function (idRecurso) {
         var respuesta = await window.mostrarAviso({
             tipo: 'info',
@@ -101,11 +77,7 @@
         return window.mostrarAviso({ tipo: 'info', titulo: titulo, texto: mensaje });
     };
 
-    /**
-     * Confirma la baja de varios elementos a la vez, con las mismas dos filas que la baja individual:
-     * los elementos seleccionados y sus dependencias (en rojo con la cantidad si existen, y entonces no se puede
-     * confirmar; en verde si no existen). Devuelve una promesa con true si el usuario confirma.
-     */
+    /** Confirma la baja de varios elementos a la vez, con las mismas dos filas que la baja individual. */
     window.confirmarBajaMasiva = function (datos) {
         var hay = datos.dependencias > 0;
         var termino = datos.dependencias === 1 ? datos.terminoUno : datos.terminoVarios;
@@ -137,10 +109,7 @@
         }).then(function (resultado) { return resultado.isConfirmed; });
     };
 
-    /**
-     * Pregunta si se quiere salir de una pantalla con cambios sin guardar. Devuelve una promesa con true si el usuario
-     * confirma que quiere salir (y perder los cambios).
-     */
+    /** Pregunta si se quiere salir de una pantalla con cambios sin guardar. */
     window.confirmarCambiosSinGuardar = function (mensaje) {
         return Swal.fire({
             iconHtml: '<i class="fa-solid fa-triangle-exclamation"></i>',
@@ -174,10 +143,7 @@
         });
     };
 
-    /**
-     * Confirmación de una acción que no es una baja: título, texto y el nombre del botón de confirmar. Lleva el mismo ícono
-     * redondeado que las de baja, en azul, y aparece sin animación. Devuelve una promesa con true si el usuario confirma.
-     */
+    /** Confirmación de una acción que no es una baja: título, texto y el nombre del botón de confirmar. */
     window.confirmarAccion = function (titulo, texto, textoConfirmar, textoCancelar) {
         return Swal.fire({
             iconHtml: '<i class="fa-solid fa-circle-question"></i>',

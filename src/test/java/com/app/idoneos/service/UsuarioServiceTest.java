@@ -17,10 +17,7 @@ import com.app.idoneos.repository.RolRepository;
 import com.app.idoneos.repository.RolUsuarioRepository;
 import com.app.idoneos.service.usuario.UsuarioServiceImpl;
 
-/**
- * Pruebas del rol por defecto del usuario, sobre los datos de la semilla.
- * Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas del rol por defecto del usuario, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class UsuarioServiceTest {

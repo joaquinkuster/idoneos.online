@@ -10,100 +10,68 @@ import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.repository.ClaseEnVivoRepository;
 import com.app.idoneos.service.CrudService;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link ClaseEnVivo}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link ClaseEnVivoService}.
- */
+/** Implementación de ClaseEnVivoService. */
 @Service
 public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
 
     @Autowired
     private ClaseEnVivoRepository claseEnVivoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la clase en vivo por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la clase en vivo por su identificador. */
     @Override
     public Optional<ClaseEnVivo> buscarPorId(Integer id) {
         return claseEnVivoRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<ClaseEnVivo> obtenerTodo() {
         return claseEnVivoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return claseEnVivoRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-
-
-
-    /**
-     * Busca los registros vigentes de claseEnVivo asociados a cohorte.
-     *
-     * @param cohorte el registro de Cohorte asociado
-     * @return una lista de ClaseEnVivo asociados al Cohorte indicado
-     */
+    /** Busca los registros vigentes de claseEnVivo asociados a cohorte. */
     @Override
     public List<ClaseEnVivo> buscarPorCohorte(Cohorte cohorte) {
         return claseEnVivoRepository.findByCohorteAndBajaFalse(cohorte);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la clase en vivo en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la clase en vivo en la base de datos. */
     @Override
     public ClaseEnVivo guardar(ClaseEnVivo entidad) {
         return claseEnVivoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public ClaseEnVivo modificar(ClaseEnVivo entidad) {
         return claseEnVivoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(ClaseEnVivo entidad) {
         entidad.marcarInactivo(); // Baja lógica

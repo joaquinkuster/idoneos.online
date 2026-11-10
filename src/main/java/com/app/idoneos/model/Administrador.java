@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Perfil de un usuario con el rol de administrador del sistema. Gestiona parámetros y genera reportes.
- */
+/** Entidad que representa el perfil de un usuario con el rol de administrador del sistema. */
 @Entity
 @Table(name = "Administrador")
 @Getter
@@ -17,47 +15,31 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Administrador {
 
-    /**
-     * Identificador único del administrador.
-     */
+    /** Identificador único del administrador. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idAdministrador")
     private int idAdministrador;
 
-    /**
-     * Usuario al que pertenece este perfil de rol.
-     */
+    /** Usuario al que pertenece este perfil de rol. */
     @OneToOne
     @JoinColumn(name = "idUsuario", nullable = false, unique = true)
     private Usuario usuario;
 
-    /**
-     * Conjunto de reportes asociados.
-     */
+    /** Reportes que referencian a este registro. */
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private Set<Reporte> reportes = new HashSet<>();
 
-    /**
-     * Conjunto de parametros asociados.
-     */
+    /** Parametros que referencian a este registro. */
     @OneToMany(mappedBy = "administrador", cascade = CascadeType.ALL)
     private Set<Parametro> parametros = new HashSet<>();
 
-    /**
-     * Constructor para crear el administrador con los datos básicos.
-     *
-     * @param usuario usuario al que pertenece este perfil de rol.
-     */
+    /** Crea el administrador con los datos básicos. */
     public Administrador(Usuario usuario) {
         this.usuario = usuario;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del administrador.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del administrador. */
     @Override
     public String toString() {
         return "Administrador #" + idAdministrador;

@@ -29,11 +29,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.service.curso.CursoServiceImpl;
 
-/**
- * Pruebas de la imagen del curso: se guarda en {@code curso{id}/imagen.{ext}} dentro de la carpeta configurada, se
- * publica en {@code /uploads/curso{id}/{imagen}}, se reemplaza al modificar el curso y las carpetas de tema no se
- * publican.
- */
+/** Pruebas de la imagen del curso: se guarda en curso{id/imagen.{ext}} dentro de la carpeta configurada. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class CargaDeImagenControllerTest {

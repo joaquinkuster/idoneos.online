@@ -12,12 +12,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Programa de un curso: una versión de su diseño, con el cronograma de temas que reparte la duración del curso.
- */
+/** Entidad que representa un programa de un curso, que es una versión de su diseño. */
 @Entity
 @Table(name = "Programa")
 @Check(name = "ck_programa_nombre", constraints = "trim(nombre) <> ''")
+@Check(name = "ck_programa_descripcion", constraints = "descripcion is null or trim(descripcion) <> ''")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,122 +28,79 @@ public class Programa {
     /** Cantidad máxima de caracteres de la descripción. */
     public static final int LONGITUD_DESCRIPCION = 150;
 
-    /**
-     * Identificador único del programa.
-     */
+    /** Identificador único del programa. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idPrograma")
     private int idPrograma;
 
-    /**
-     * Relación con Curso.
-     */
+    /** Curso de este registro. */
     @ManyToOne
     @JoinColumn(name = "idCurso", nullable = false)
     private Curso curso;
 
-    /**
-     * Nombre del programa. Por defecto es "Versión N", con N la cantidad de versiones que tuvo el curso.
-     */
+    /** Nombre del programa. */
     @Column(name = "nombre", nullable = false, length = LONGITUD_NOMBRE)
     private String nombre;
 
-    /**
-     * Qué cambia esta versión respecto de la anterior.
-     */
+    /** Qué cambia esta versión respecto de la anterior. */
     @Column(name = "descripcion", nullable = true, length = LONGITUD_DESCRIPCION)
     private String descripcion;
 
-    /**
-     * Programa del que se derivó esta versión («Versión 3, a partir de Versión 2»), o {@code null} si se empezó en blanco o es la primera.
-     */
+    /** Programa del que se derivó esta versión ("Versión 3, a partir de Versión 2"). */
     @ManyToOne
     @JoinColumn(name = "idProgramaAnterior", nullable = true)
     private Programa programaAnterior;
 
-    /**
-     * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
-     */
+    /** Fecha y hora de creación del registro. */
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de la última modificación del registro.
-     */
+    /** Fecha y hora de la última modificación del registro. */
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
-    /**
-     * Indica si el registro fue dado de baja (baja lógica). El valor predeterminado es "false", indicando que está vigente.
-     */
+    /** Indica si el registro fue dado de baja (baja lógica). */
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
-    /**
-     * Conjunto de cohortes asociados.
-     */
+    /** Cohortes que referencian a este registro. */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
     private Set<Cohorte> cohortes = new HashSet<>();
 
-    /**
-     * Conjunto de temasCronograma asociados.
-     */
+    /** Temas cronograma que referencian a este registro. */
     @OneToMany(mappedBy = "programa", cascade = CascadeType.ALL)
     private Set<TemaCronograma> temasCronograma = new HashSet<>();
 
-    /**
-     * Constructor para crear el programa con los datos básicos.
-     *
-     * @param curso relación con Curso.
-     * @param nombre nombre del programa.
-     */
+    /** Crea el programa con los datos básicos. */
     public Programa(Curso curso, String nombre) {
         this.curso = curso;
         this.nombre = nombre;
     }
 
-    /**
-     * Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true.
-     */
+    /** Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true. */
     public void marcarInactivo() {
         baja = true;
     }
 
-    /**
-     * Verifica si el registro está dado de baja.
-     *
-     * @return true si está dado de baja (baja = true), false si está vigente.
-     */
+    /** Verifica si el registro está dado de baja. */
     public boolean esInactivo() {
         return baja;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del programa.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del programa. */
     @Override
     public String toString() {
         return nombre;
     }
 
-    /**
-     * Indica si el programa es el vigente de su curso: el activo de fecha de creación más reciente.
-     *
-     * @return {@code true} si es el programa vigente.
-     */
+    /** Indica si el programa es el vigente de su curso: el activo de fecha de creación más reciente. */
     public boolean esVigente() {
         Programa vigente = curso.getProgramaVigente();
         return !baja && vigente != null && vigente.getIdPrograma() == idPrograma;
     }
 
-    /**
-     * Obtiene el estado del programa dentro de su curso.
-     *
-     * @return "Vigente", "Anterior" (activo pero reemplazado por uno más nuevo) o "Dado de baja".
-     */
+    /** Obtiene el estado del programa dentro de su curso. */
     public String getEstado() {
         if (baja) {
             return "Dado de baja";
@@ -152,82 +108,44 @@ public class Programa {
         return esVigente() ? "Vigente" : "Anterior";
     }
 
-    /**
-     * Cuenta las cohortes activas del programa.
-     *
-     * @return La cantidad de cohortes que no están dadas de baja.
-     */
+    /** Cuenta las cohortes activas del programa. */
     public int getCantidadCohortesActivas() {
         return (int) cohortes.stream().filter(cohorte -> !cohorte.getBaja()).count();
     }
 
-    /**
-     * Cuenta las inscripciones activas de todas las cohortes del programa.
-     *
-     * @return La cantidad de inscripciones que no están dadas de baja.
-     */
+    /** Cuenta las inscripciones activas de todas las cohortes del programa. */
     public int getCantidadInscripcionesActivas() {
         return cohortes.stream().mapToInt(Cohorte::getCantidadInscriptos).sum();
     }
 
-    /**
-     * Obtiene las cohortes activas del programa, de la más reciente a la más antigua.
-     *
-     * @return Las cohortes vigentes.
-     */
+    /** Obtiene las cohortes activas del programa, de la más reciente a la más antigua. */
     public List<Cohorte> getCohortesActivas() {
         return cohortes.stream().filter(cohorte -> !cohorte.getBaja())
                 .sorted(Comparator.comparingInt(Cohorte::getIdCohorte).reversed()).toList();
     }
 
-    /**
-     * Indica si el programa ya no se puede modificar: alguna de sus cohortes está publicada en el catálogo. Un programa sin cohortes
-     * publicadas (por ejemplo, uno recién registrado) se puede modificar aunque el curso tenga otras cohortes publicadas con otro programa.
-     *
-     * @return {@code true} si el programa no se puede modificar.
-     */
+    /** Indica si el programa ya no se puede modificar: alguna de sus cohortes está publicada en el catálogo. */
     public boolean estaCongelado() {
         return cohortes.stream().anyMatch(Cohorte::estaPublicada);
     }
 
-    /**
-     * Por qué el programa no se puede modificar, sin punto final.
-     *
-     * @return El motivo.
-     */
+    /** Obtiene el motivo por el que el programa no se puede modificar, sin punto final. */
     public String getMotivoDeCongelado() {
         return com.app.idoneos.util.MensajeErrorUtil.MOTIVO_PUBLICADO;
     }
 
-    /**
-     * Indica si el programa tiene cohortes que todavía no terminaron (próximas, abiertas o en dictado). Mientras las tenga,
-     * cada tema de su cronograma debe conservar al menos una autoevaluación visible: es lo que permite a los alumnos
-     * completarla.
-     *
-     * @return {@code true} si alguna cohorte activa no está finalizada.
-     */
+    /** Indica si el programa tiene cohortes que todavía no terminaron (próximas, abiertas o en dictado). */
     public boolean tieneCohortesActivas() {
         return cohortes.stream().anyMatch(Cohorte::estaActiva);
     }
 
-    /**
-     * Obtiene los temas del cronograma que no tienen ninguna autoevaluación visible (vigente y no oculta).
-     *
-     * @return Los temas sin autoevaluación visible, en el orden del cronograma.
-     */
+    /** Obtiene los temas del cronograma que no tienen ninguna autoevaluación visible (vigente y no oculta). */
     public List<Tema> getTemasSinAutoevaluacion() {
         return getCronogramaOrdenado().stream().map(TemaCronograma::getTema)
                 .filter(tema -> tema.getAutoevaluacionesPublicadas().isEmpty()).toList();
     }
 
-    /**
-     * Indica qué le falta al programa para tener el contenido completo, que es lo que se necesita para que una cohorte
-     * esté activa: los datos académicos del curso completos, el mínimo de temas con material y autoevaluación publicados, una
-     * autoevaluación visible en cada tema y la duración del curso asignada por completo entre sus temas.
-     *
-     * @param minimoTemasConMaterial El mínimo de temas con material publicado y autoevaluación que exige el sistema.
-     * @return Lo que falta, uno por línea y listo para mostrar; vacío si el contenido está completo.
-     */
+    /** Indica qué le falta al programa para tener el contenido completo. */
     public List<String> getFaltantesDeContenido(int minimoTemasConMaterial) {
         List<String> faltantes = new java.util.ArrayList<>();
         List<String> faltantesDelCurso = curso.getFaltantesDeDatosAcademicos();
@@ -251,31 +169,17 @@ public class Programa {
         return faltantes;
     }
 
-    /**
-     * Indica si la duración del curso está asignada por completo entre los temas del programa: la suma de los días de sus
-     * temas es igual a la duración del curso.
-     *
-     * @return {@code true} si el programa cubre toda la duración del curso.
-     */
+    /** Indica si la duración del curso está asignada por completo entre los temas del programa. */
     public boolean estaDuracionAsignadaCompleta() {
         return getCantidadTemas() > 0 && getDuracionTotalDias() == curso.getDuracionDias();
     }
 
-    /**
-     * Indica si el programa tiene el contenido completo (ver {@link #getFaltantesDeContenido(int)}).
-     *
-     * @param minimoTemasConMaterial El mínimo de temas con material publicado y autoevaluación que exige el sistema.
-     * @return {@code true} si no le falta nada.
-     */
+    /** Indica si el programa tiene el contenido completo (ver.getFaltantesDeContenido(int)). */
     public boolean tieneContenidoCompleto(int minimoTemasConMaterial) {
         return getFaltantesDeContenido(minimoTemasConMaterial).isEmpty();
     }
 
-    /**
-     * Calcula la duración total del cronograma del programa, sumando los días de cada tema vigente.
-     *
-     * @return La duración total en días.
-     */
+    /** Calcula la duración total del cronograma del programa, sumando los días de cada tema vigente. */
     public int getDuracionTotalDias() {
         return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
                 .mapToInt(TemaCronograma::getDuracionDias).sum();
@@ -284,13 +188,7 @@ public class Programa {
     /** Cantidad máxima de columnas con las que se dibuja el cronograma en un espacio sin barra de desplazamiento. */
     public static final int COLUMNAS_MAXIMAS_DEL_CRONOGRAMA = 20;
 
-    /**
-     * Calcula cuántos días representa cada columna al dibujar el cronograma en un espacio sin desplazamiento: la escala
-     * más fina (día, semana o mes) con la que la duración total no pasa de {@value #COLUMNAS_MAXIMAS_DEL_CRONOGRAMA}
-     * columnas. Un tema que no dura una cantidad exacta de columnas ocupa la columna parcial completa.
-     *
-     * @return 1, 7 o 30.
-     */
+    /** Calcula cuántos días representa cada columna al dibujar el cronograma en un espacio sin desplazamiento. */
     public int getPasoCronograma() {
         int total = curso.getDuracionDias();
         if (total <= COLUMNAS_MAXIMAS_DEL_CRONOGRAMA) {
@@ -300,11 +198,7 @@ public class Programa {
                 ? DuracionUtil.DIAS_POR_SEMANA : DuracionUtil.DIAS_POR_MES;
     }
 
-    /**
-     * Obtiene el nombre de la unidad que representa cada columna del cronograma.
-     *
-     * @return "mes", "semana" o "día".
-     */
+    /** Obtiene el nombre de la unidad que representa cada columna del cronograma. */
     public String getUnidadCronograma() {
         return switch (getPasoCronograma()) {
             case DuracionUtil.DIAS_POR_MES -> "mes";
@@ -313,33 +207,18 @@ public class Programa {
         };
     }
 
-    /**
-     * Calcula cuántas columnas tiene el cronograma al dibujarlo (una por unidad, ver {@link #getPasoCronograma()}).
-     *
-     * @return La cantidad de columnas.
-     */
+    /** Calcula cuántas columnas tiene el cronograma al dibujarlo (una por unidad, ver.getPasoCronograma()). */
     public int getColumnasCronograma() {
         int paso = getPasoCronograma();
         return (curso.getDuracionDias() + paso - 1) / paso;
     }
 
-    /**
-     * Cuenta los temas del cronograma con contenido publicado: las que tienen al menos un material (vigente y no oculto)
-     * y al menos una autoevaluación visible.
-     *
-     * @return La cantidad de temas con material publicado y autoevaluación.
-     */
+    /** Cuenta los temas del cronograma con contenido publicado. */
     public int getCantidadTemasConMaterialPublicado() {
         return cantidadTemasConMaterialPublicadoSin(java.util.Set.of(), java.util.Set.of());
     }
 
-    /**
-     * Obtiene los temas que hoy cuentan (con material publicado y autoevaluación) y dejarían de contar si se quitaran
-     * ciertos materiales: las que se quedarían sin ningún material publicado.
-     *
-     * @param materialesQuitados Los identificadores de los materiales que dejarían de estar publicados.
-     * @return Los temas que dejarían de contar, en el orden del cronograma.
-     */
+    /** Obtiene los temas que hoy cuentan (con material publicado y autoevaluación) y dejarían de contar si se quitaran ciertos materiales: las que se quedarían sin ningún material publicado. */
     public java.util.List<Tema> temasQueDejanDeContarSin(java.util.Collection<Integer> materialesQuitados) {
         return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja()).map(TemaCronograma::getTema)
                 .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
@@ -349,14 +228,7 @@ public class Programa {
                 .toList();
     }
 
-    /**
-     * Cuenta los temas con material publicado y autoevaluación que quedarían si se quitaran ciertos materiales (por
-     * ocultarlos o darlos de baja) y ciertas temas del cronograma.
-     *
-     * @param materialesQuitados Los identificadores de los materiales que dejarían de estar publicados.
-     * @param temasQuitadas   Los identificadores de los temas que dejarían de formar parte del cronograma.
-     * @return La cantidad de temas que conservarían material publicado y autoevaluación.
-     */
+    /** Cuenta los temas con material publicado y autoevaluación que quedarían si se quitaran ciertos materiales (por ocultarlos o darlos de baja) y ciertas temas del cronograma. */
     public int cantidadTemasConMaterialPublicadoSin(java.util.Collection<Integer> materialesQuitados,
             java.util.Collection<Integer> temasQuitadas) {
         return (int) temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
@@ -367,54 +239,30 @@ public class Programa {
                 .count();
     }
 
-    /**
-     * Cuenta los temas vigentes del cronograma.
-     *
-     * @return La cantidad de temas del cronograma.
-     */
+    /** Cuenta los temas vigentes del cronograma. */
     public int getCantidadTemas() {
         return (int) temasCronograma.stream().filter(cronograma -> !cronograma.getBaja()).count();
     }
 
-    /**
-     * Obtiene los temas vigentes del cronograma, en orden de dictado.
-     *
-     * @return Los temas del cronograma ordenadas por su número de orden.
-     */
+    /** Obtiene los temas vigentes del cronograma, en orden de dictado. */
     public List<TemaCronograma> getCronogramaOrdenado() {
         return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja() && !cronograma.getTema().getBaja())
                 .sorted(Comparator.comparingInt(TemaCronograma::getNumeroOrden)).toList();
     }
 
-    /**
-     * Calcula el último día del programa en el que se dicta un tema (suma de los días de los temas
-     * anteriores y la propia).
-     *
-     * @param temaCronograma El tema del cronograma.
-     * @return El número de día en que termina el tema.
-     */
+    /** Calcula el último día del programa en el que se dicta un tema (suma de los días de los temas anteriores y la propia). */
     public int getDiaHasta(TemaCronograma temaCronograma) {
         return getCronogramaOrdenado().stream()
                 .filter(cronograma -> cronograma.getNumeroOrden() <= temaCronograma.getNumeroOrden())
                 .mapToInt(TemaCronograma::getDuracionDias).sum();
     }
 
-    /**
-     * Calcula el primer día del programa en el que se dicta un tema.
-     *
-     * @param temaCronograma El tema del cronograma.
-     * @return El número de día en que empieza el tema.
-     */
+    /** Calcula el primer día del programa en el que se dicta un tema. */
     public int getDiaDesde(TemaCronograma temaCronograma) {
         return getDiaHasta(temaCronograma) - temaCronograma.getDuracionDias() + 1;
     }
 
-    /**
-     * Elige la cohorte más relevante del programa: la que está en dictado, si no la que tiene la inscripción
-     * abierta y, si no, la más reciente.
-     *
-     * @return La cohorte elegida, o {@code null} si el programa no tiene cohortes vigentes.
-     */
+    /** Elige la cohorte más relevante del programa: la que está en dictado. */
     public Cohorte getCohorteDestacada() {
         // Las cohortes pendientes o canceladas no se muestran: todavía no tienen contenido completo o ya no lo tendrán
         List<Cohorte> vigentes = cohortes.stream().filter(cohorte -> !cohorte.getBaja() && cohorte.esActiva()).toList();

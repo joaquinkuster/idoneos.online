@@ -2,9 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Cabecera de un grupo de categoría en un listado agrupado (tabla o cards). Se dibuja cuando cambia la categoría respecto de la
-         fila o card anterior. Al hacerle clic se colapsa o se expande el grupo (core/tabla.js).
-         categoria: la categoría; total: cuántos cursos tiene en todo el listado filtrado; bajas: cuántos están dados de baja. -->
+    <!-- Cabecera de un grupo de categoría en un listado agrupado (tabla o cards). -->
     <tr th:fragment="fila(categoria, total, bajas)" class="pn-grupo pn-grupo-fila" data-grupo role="button" tabindex="0" aria-expanded="true">
         <td colspan="99">
             <i class="fa-solid fa-chevron-down pn-grupo-flecha" aria-hidden="true"></i>
@@ -13,8 +11,7 @@
         </td>
     </tr>
 
-    <!-- Divisor de una tabla agrupada por un texto cualquiera (por ejemplo, el tipo de recurso): el mismo de una categoría, con el nombre y la
-         cantidad de filas del grupo en todo el listado filtrado. -->
+    <!-- Divisor de una tabla agrupada por un texto cualquiera (por ejemplo, el tipo de recurso). -->
     <tr th:fragment="filaTipo(nombre, total)" class="pn-grupo pn-grupo-fila" data-grupo role="button" tabindex="0" aria-expanded="true">
         <td colspan="99">
             <i class="fa-solid fa-chevron-down pn-grupo-flecha" aria-hidden="true"></i>
@@ -23,8 +20,7 @@
         </td>
     </tr>
 
-    <!-- Encabezado de la carta de una categoría (cards): la etiqueta dorada, el nombre con la cantidad de cursos al lado y, a la derecha,
-         el label que colapsa o expande la carta (core/tabla.js cambia "Ocultar cursos" por "Mostrar cursos"). -->
+    <!-- Encabezado de la carta de una categoría (cards): la etiqueta dorada. -->
     <div th:fragment="carta(categoria, total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
         <div>
             <span class="pn-grupo-etiqueta">Categoría</span>
@@ -39,7 +35,7 @@
         </span>
     </div>
 
-    <!-- Encabezado de la carta de cursos con cohortes pendientes de contenido: igual al de una categoría, con la etiqueta "Requiere tu acción". -->
+    <!-- Encabezado de la carta de cursos con cohortes pendientes de contenido: igual al de una categoría. -->
     <div th:fragment="pendientes(total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
         <i class="fa-solid fa-circle-exclamation pn-grupo-aviso" aria-hidden="true"></i>
         <div class="pn-grupo-textos">
@@ -55,8 +51,7 @@
         </span>
     </div>
 
-    <!-- Encabezado de la carta de cursos recomendados (catálogo del alumno con intereses): igual al de una categoría, con la cabecera azul suave,
-         un ícono y la etiqueta «Según tus intereses». Los intereses se modifican desde «Mis intereses» del menú del usuario. -->
+    <!-- Encabezado de la carta de cursos recomendados (catálogo del alumno con intereses). -->
     <div th:fragment="recomendados(total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
         <i class="fa-solid fa-wand-magic-sparkles pn-grupo-aviso" aria-hidden="true"></i>
         <div class="pn-grupo-textos">

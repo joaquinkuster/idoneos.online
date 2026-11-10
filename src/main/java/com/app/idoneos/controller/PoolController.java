@@ -36,14 +36,7 @@ import com.app.idoneos.service.pool.PoolService;
 import com.app.idoneos.service.pool.PoolService.SolicitudPregunta;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador del ABM de pools de preguntas (MOD-F-04): CU-60 Buscar pool (GET /pool/buscar), CU-61 Crear pool (POST
- * /pool/registrar), CU-62 Modificar pool (POST /pool/modificar/{id}) y CU-63 Dar de baja pool (POST /pool/darDeBaja/{id} y
- * /pool/darDeBajaMasiva). Crear y modificar se hacen en ventanas por pasos del listado.
- *
- * El docente (titular o ayudante) gestiona los pools de los cursos en los que participa; el administrador puede
- * buscarlos y darlos de baja en cualquier curso.
- */
+/** Controlador del pool. */
 @Controller
 @RequestMapping("/pool")
 public class PoolController {
@@ -57,18 +50,11 @@ public class PoolController {
     @Autowired
     private ObjectMapper objectMapper;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-60: Lista los pools de un curso, con su tema y la cantidad de preguntas cargadas. Trae también los datos de
-     * cada pool y del alta para las ventanas de crear y modificar.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /pool/buscar: Lista los pools de un curso, con su tema y la cantidad de preguntas cargadas. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
@@ -95,7 +81,7 @@ public class PoolController {
             model.addAttribute("temas", esAdministrador ? List.of() : panel.temasDelCursoEnOrden(contexto));
             model.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             model.addAttribute("puedeGestionar", !esAdministrador);
-            // Desde «Completar contenido» se llega con ?nuevo&temaId=: se abre sola la ventana para crear el pool de ese tema
+            // Desde "Completar contenido" se llega con ?nuevo&temaId=: se abre sola la ventana para crear el pool de ese tema
             model.addAttribute("abrirModal", !esAdministrador && nuevo != null ? "modalNuevoPool" : null);
             model.addAttribute("temaSeleccionada", temaId);
             model.addAttribute("titulo", "Pools | Idóneos Online");
@@ -105,17 +91,11 @@ public class PoolController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-61: Registra un pool con sus preguntas. Responde en JSON.
-     *
-     * @param temaId  Identificador del tema.
-     * @param nombre    El nombre del pool.
-     * @param preguntas Las preguntas, en JSON.
-     * @param authentication      La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y el listado como destino) o el mensaje de error.
-     */
+    /** POST /pool/registrar: Registra un pool con sus preguntas. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "temaId", required = false) Integer temaId,
@@ -131,17 +111,11 @@ public class PoolController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-62: Modifica un pool sin intentos asociados. Responde en JSON.
-     *
-     * @param id        Identificador del pool.
-     * @param nombre    El nombre del pool.
-     * @param preguntas Las preguntas que debe conservar, en JSON.
-     * @param authentication      La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y el listado como destino) o el mensaje de error.
-     */
+    /** POST /pool/modificar/{id}: Modifica un pool sin intentos asociados. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -155,15 +129,11 @@ public class PoolController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-63: Da de baja un pool que no está asociado a ninguna autoevaluación activa. Responde en JSON.
-     *
-     * @param id   Identificador del pool.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /pool/darDeBaja/{id}: Da de baja un pool que no está asociado a ninguna autoevaluación activa. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -177,13 +147,7 @@ public class PoolController {
         }
     }
 
-    /**
-     * Da de baja varios pools a la vez, todos o ninguno. Responde en JSON.
-     *
-     * @param ids  Identificadores de los pools seleccionados.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /pool/darDeBajaMasiva: Da de baja varios pools a la vez, todos o ninguno. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
@@ -197,11 +161,11 @@ public class PoolController {
         }
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
-    /**
-     * Lee las preguntas que envía el editor, que las serializa como una lista JSON.
-     */
+    /** Lee las preguntas que envía el editor, que las serializa como una lista JSON. */
     private List<SolicitudPregunta> leerPreguntas(String json) {
         if (json == null || json.isBlank()) {
             return List.of();
@@ -213,9 +177,7 @@ public class PoolController {
         }
     }
 
-    /**
-     * Arma los datos que el editor muestra de un pool: su nombre y sus preguntas con sus opciones vigentes.
-     */
+    /** Arma los datos que el editor muestra de un pool: su nombre y sus preguntas con sus opciones vigentes. */
     private Map<String, Object> buscarDatos(Pool pool) {
         List<Map<String, Object>> preguntas = new ArrayList<>();
         for (Pregunta pregunta : pool.getPreguntasActivas()) {
@@ -248,16 +210,11 @@ public class PoolController {
         }
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de un pool, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     El pool.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /pool/modificar/{id}: Ventana de modificación de un pool, que el listado pide al abrirla (en lugar de dibujar una por fila). */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -270,16 +227,17 @@ public class PoolController {
         return "pages/pool/modificar :: modal(p=${p})";
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (motor común)
+        // ----------------------------------------------------------------------
+        // Listado (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Pool> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Pool>("nombre", FiltroUtil.Tipo.TEXTO, Pool::getNombre),
                 new FiltroUtil.Columna<Pool>("tema", FiltroUtil.Tipo.LISTA, p -> p.getTema().getTitulo()),

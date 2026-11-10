@@ -16,7 +16,7 @@
         </div>
 
         <div class="um-seccion">
-            <!-- «Mi portal»: un acordeón igual para los tres roles. El encabezado solo abre y cierra; adentro están las pantallas del rol -->
+            <!-- "Mi portal": un acordeón igual para los tres roles. -->
             <div th:if="${usuario.esAdministradorActivo() or usuario.esDocenteActivo() or usuario.esAlumnoActivo()}" class="um-grupo">
                 <button type="button" class="um-item um-grupo-cabecera" data-um-desplegar aria-expanded="false">
                     <span>Mi portal</span><i class="fa-solid fa-chevron-down"></i>

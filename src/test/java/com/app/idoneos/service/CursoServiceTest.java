@@ -28,10 +28,7 @@ import com.app.idoneos.service.docente.DocenteServiceImpl;
 import com.app.idoneos.service.modalidad.ModalidadServiceImpl;
 import com.app.idoneos.service.nivel.NivelServiceImpl;
 
-/**
- * Pruebas de las reglas de negocio de los cursos (CU-01 a CU-06), sobre los datos de la semilla.
- * Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de las reglas de negocio de los cursos, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class CursoServiceTest {

@@ -5,10 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.Administrador;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Administrador} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link Administrador}.
- */
+/** Repositorio de Administrador. */
 @Repository
 public interface AdministradorRepository extends JpaRepository<Administrador, Integer> {
 

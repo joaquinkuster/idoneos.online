@@ -1,16 +1,4 @@
-/**
- * Pantalla del cronograma de un programa (MOD-F-02): consulta (CU-23) y modificación (CU-24).
- *
- *  - Vista de calendario: una fila por tema con una barra que ocupa los días que dura, en una escala de días, semanas o
- *    meses a elección. Vista por temas: tabla, donde la duración se escribe en meses, semanas y días.
- *  - Si se puede modificar: las filas se reordenan arrastrándolas por el asa, la duración se cambia arrastrando el borde
- *    derecho de la barra (salta de a una unidad de la escala), los temas se agregan arrastrándolas desde el panel de la izquierda y se quitan arrastrándolas
- *    de vuelta a ese panel. Nada se guarda hasta apretar "Modificar".
- *  - "Nuevo tema" lleva al ABM de temas; si hay cambios sin guardar, antes pide confirmación.
- *  - El botón de información junto al título muestra u oculta el texto de ayuda.
- *
- * Los datos (temas del curso y temas del cronograma, en orden) vienen del servidor en el HTML.
- */
+/** Pantalla del cronograma de un programa: consulta y modificación. */
 (function () {
     'use strict';
 
@@ -25,8 +13,7 @@
     var DIAS_POR_MES = 30;
     var DIAS_NUEVO = parseInt(raiz.dataset.diasNuevo, 10) || DIAS_POR_SEMANA; // duración de un tema al agregarlo (parámetro del sistema)
     var PASOS = { dias: 1, semanas: DIAS_POR_SEMANA, meses: DIAS_POR_MES };
-    // Unidades que dibuja la grilla: como mínimo las visibles y, al modificar, algunas libres después del último tema
-    // para poder estirarla. El máximo que puede sumar un cronograma es un parámetro del sistema (en días).
+    // Unidades que dibuja la grilla: como mínimo las visibles y, al modificar.
     var VISIBLES = { dias: 10, semanas: 8, meses: 6 };
     var LIBRES = editable ? { dias: 7, semanas: 6, meses: 2 } : { dias: 0, semanas: 0, meses: 0 };
     var ANCHO_UNIDAD = 26;
@@ -137,15 +124,17 @@
             + '</div></div>';
     }
 
-    // ------------------------------------------------------------------ dibujo
+    // ----------------------------------------------------------------------
+    // dibujo
+    // ----------------------------------------------------------------------
+
     function dibujar() {
         var total = totalDias();
         var paso = PASOS[escala];
         var unidades = unidadesDeLaGrilla(escala);
         var columnas = unidades * paso; // una columna por día: las barras son exactas aunque la escala sea mayor
         var ancho = ANCHO_UNIDAD / paso;
-        // min-width: si las columnas no entran, todas las filas se ensanchan juntas (y el fondo del encabezado llega hasta el final)
-        // Sin columna de temas: la grilla son solo los días, igual que en el paso Cronograma del asistente de programas
+        // min-width: si las columnas no entran.
         var plantilla = 'repeat(' + columnas + ', minmax(' + ancho + 'px, 1fr));min-width:' + (columnas * ancho) + 'px';
         var unidadHoy = diaHoy >= 1 ? Math.ceil(diaHoy / paso) : 0;
 
@@ -217,7 +206,10 @@
         dibujar();
     });
 
-    // ------------------------------------------------------------------ pestañas
+    // ----------------------------------------------------------------------
+    // pestañas
+    // ----------------------------------------------------------------------
+
     raiz.querySelectorAll('[data-vista]').forEach(function (boton) {
         boton.addEventListener('click', function () {
             var porTemas = boton.dataset.vista === 'temas';
@@ -247,7 +239,10 @@
         return;
     }
 
-    // ------------------------------------------------------------------ arrastrar y soltar
+    // ----------------------------------------------------------------------
+    // arrastrar y soltar
+    // ----------------------------------------------------------------------
+
     var arrastre = null;
 
     function limpiarMarcas() {
@@ -304,7 +299,10 @@
         dibujar();
     });
 
-    // ------------------------------------------------------------------ duración: se arrastra el borde derecho de la barra
+    // ----------------------------------------------------------------------
+    // duración: se arrastra el borde derecho de la barra
+    // ----------------------------------------------------------------------
+
     var cambio = null;
     raiz.addEventListener('pointerdown', function (e) {
         var borde = e.target.closest('.cn-borde');
@@ -367,7 +365,10 @@
         dibujar();
     });
 
-    // ------------------------------------------------------------------ botones
+    // ----------------------------------------------------------------------
+    // botones
+    // ----------------------------------------------------------------------
+
     raiz.querySelector('[data-nueva-tema]').addEventListener('click', async function () {
         if (!hayCambios() || await window.confirmarCambiosSinGuardar('Si salís ahora, los cambios del cronograma se pierden.')) {
             window.location.href = raiz.dataset.urlNueva;

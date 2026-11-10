@@ -1,7 +1,4 @@
-<!-- Formulario por pasos para registrar (autoevaluacion == null) o modificar una autoevaluación.
-     Parámetros: autoevaluacion (la autoevaluación a modificar o null), bloqueado (true si la autoevaluación ya registra
-     intentos: solo pueden modificarse la fecha de cierre, la visibilidad y la cantidad de intentos permitidos).
-     Usa del modelo: temas (temas del programa de trabajo), pools y temasPorPool. -->
+<!-- Formulario por pasos para registrar (autoevaluacion == null) o modificar una autoevaluación. -->
 <form th:fragment="formulario(autoevaluacion, bloqueado)"
       th:action="@{${autoevaluacion == null ? '/autoevaluacion/registrar' : '/autoevaluacion/modificar/' + autoevaluacion.idAutoevaluacion}}"
       method="post" class="form-ajax" data-validar data-pasos data-resumen="Autoevaluación" data-autoevaluacion-formulario

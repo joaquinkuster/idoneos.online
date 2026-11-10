@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.service.curso.CursoService.ContextoCurso;
+import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
@@ -43,14 +44,7 @@ import com.app.idoneos.service.curso.CursoService.ResumenCursos;
 import com.app.idoneos.service.programa.ProgramaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de la gestión de cursos (MOD-F-01).
- *
- * Mapea las pantallas de los casos de uso:
- * CU-01 Buscar curso (GET /curso/buscar), CU-03 Registrar curso (POST /curso/registrar),
- * CU-04 Modificar curso (POST /curso/modificar/{id}) y CU-05 Dar de baja curso (POST /curso/darDeBaja/{id}).
- * Los formularios de alta, modificación y baja se muestran como ventanas modales de la pantalla de búsqueda.
- */
+/** Controlador del curso. */
 @Controller
 @RequestMapping("/curso")
 public class CursoController {
@@ -84,31 +78,12 @@ public class CursoController {
     @Qualifier("directorioCursos")
     private Path directorioCursos;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-01: Busca cursos según nombre, categoría, nivel, equipo docente y modalidad.
-     * Si el usuario es docente (y no administrador), el resultado se restringe a los cursos
-     * en los que participa como titular o ayudante.
-     *
-     * @param busqueda          Parte del nombre o la descripción del curso.
-     * @param categoriaId       Identificador de la categoría.
-     * @param nivelId           Identificador del nivel.
-     * @param docenteId         Identificador de un docente del equipo docente.
-     * @param modalidadId       Identificador de la modalidad de dictado.
-     * @param orden             Orden de los resultados: "nombre" (A–Z) o "recientes". Los dados de baja van al final.
-     * @param model            El modelo de la vista.
-     * @param authentication              La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de búsqueda de cursos.
-     */
-    /**
-     * Ventana de modificación de un curso, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     El curso.
-     * @param model El modelo de la vista.
-     * @return El fragmento con la ventana.
-     */
+    /** Busca cursos según nombre, categoría, nivel, equipo docente y modalidad. */
+    /** GET /curso/modificar/{id}: Ventana de modificación de un curso, que el listado pide al abrirla (en lugar de dibujar una por fila). */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
         Curso curso = cursoService.buscarActivoPorId(id);
@@ -144,7 +119,7 @@ public class CursoController {
             // Se entrega siempre el listado completo: los filtros (también los que llegan por la URL, que solo
             // completan los campos) y la paginación se aplican en la pantalla.
             List<Curso> cursos = cursoService.buscarConFiltros(null, null, null, null, null, orden, soloDeDocente);
-            // El docente no ve los cursos dados de baja; el administrador sí
+            // El docente no ve los cursos dados de baja. El administrador sí
             if (!esAdministrador) {
                 cursos = cursos.stream().filter(curso -> !curso.esInactivo()).toList();
             }
@@ -152,7 +127,7 @@ public class CursoController {
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
             ResumenCursos resumen = esAdministrador ? cursoService.resumir(cursos) : null;
             if (!esAdministrador) {
-                // "Mis cursos" del docente: cards, 8 por página; las filtra y pagina el servidor
+                // "Mis cursos" del docente: cards, 8 por página. Las filtra y pagina el servidor
                 PaginacionUtil.Pagina<Curso> paginaCards = Filtros.cards.paginar(cursos, request.getParameterMap(), 8, POR_CATEGORIA);
                 cargarGrupos(model, Filtros.cards, cursos, request.getParameterMap(), true, "categoriaId");
                 PaginacionUtil.cargarEnModelo(model, paginaCards);
@@ -223,16 +198,7 @@ public class CursoController {
         }
     }
 
-    /**
-     * "Mis cursos" del administrador: la misma vista del docente, con todos los cursos activos de la plataforma, el
-     * acceso al panel del curso y atajos al ABM de cursos para editarlo, darlo de baja o registrar uno nuevo. Los cursos dados de baja no
-     * se muestran. Los filtros y la paginación se aplican en la pantalla.
-     *
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de "Mis cursos" del administrador, o una redirección si el usuario no es administrador.
-     */
+    /** Muestra "Mis cursos" del administrador, que es la misma vista del docente. */
     private String buscarCardsParaAdministrador(Model model, Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         if (!usuario.esAdministradorActivo()) {
@@ -241,7 +207,7 @@ public class CursoController {
         List<Curso> cursos = cursoService.buscarConFiltros(null, null, null, null, null, "nombre", null).stream()
                 .filter(curso -> !curso.esInactivo()).toList();
         int totalCursos = cursos.size();
-        // Tarjetas, 8 por página; las filtra y pagina el servidor
+        // Tarjetas, 8 por página. Las filtra y pagina el servidor
         PaginacionUtil.Pagina<Curso> pagina = Filtros.cards.paginar(cursos, request.getParameterMap(), 8, POR_CATEGORIA);
         cargarGrupos(model, Filtros.cards, cursos, request.getParameterMap(), true, "categoriaId");
         PaginacionUtil.cargarEnModelo(model, pagina);
@@ -265,17 +231,7 @@ public class CursoController {
         return "pages/curso/buscar";
     }
 
-    /**
-     * CU-27: Permite al docente acceder a un curso en el que participa, con todos sus temas habilitados y sin
-     * avance. Se muestra el programa y la cohorte de su contexto de trabajo.
-     *
-     * @param idCurso            El identificador del curso.
-     * @param seccion            La sección a mostrar: "temas" (por defecto), "cronograma" o "clases".
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de "Acceder curso", o una redirección a "Mis cursos" si no puede acceder.
-     */
+    /** GET /curso/acceder/{idCurso}: Permite al docente acceder a un curso en el que participa. */
     @GetMapping("/acceder/{idCurso}")
     public String acceder(@PathVariable("idCurso") int idCurso,
             @RequestParam(value = "seccion", defaultValue = "temas") String seccion,
@@ -284,7 +240,7 @@ public class CursoController {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         boolean esAdministrador = false;
         try {
-            // Si participa en el curso como docente trabaja como tal; si no, solo el administrador puede entrar
+            // Si participa en el curso como docente trabaja como tal. Si no, solo el administrador puede entrar
             DocenteCurso participacion = null;
             Docente docente = usuario.getDocente();
             if (docente != null) {
@@ -299,7 +255,7 @@ public class CursoController {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
             }
             esAdministrador = participacion == null;
-            // «Completar contenido» desde Mis cursos: la cohorte pendiente pasa a ser la cohorte por defecto del docente y se
+            // "Completar contenido" desde Mis cursos: la cohorte pendiente pasa a ser la cohorte por defecto del docente y se
             // sigue a la página del curso sin el parámetro
             if (cohorteId != null && !esAdministrador) {
                 cohorteService.buscarPorId(cohorteId).filter(c -> c.getCurso().getIdCurso() == idCurso)
@@ -355,20 +311,20 @@ public class CursoController {
             model.addAttribute("puedeAsignarPrograma", !esAdministrador && cohorte != null && cohorte.esPendiente()
                     && cohorte.getCantidadInscriptos() == 0);
             // Los temas del curso para el acordeón: primero los del programa de la cohorte (con su orden y sus días) y después los demás
-            List<com.app.idoneos.controller.component.FilaDeTema> filas = new java.util.ArrayList<>();
+            List<FilaDeTema> filas = new java.util.ArrayList<>();
             java.util.Set<Integer> enPrograma = new java.util.HashSet<>();
             if (programa != null) {
                 for (var uc : programa.getCronogramaOrdenado()) {
-                    filas.add(new com.app.idoneos.controller.component.FilaDeTema(uc.getTema(), uc.getNumeroOrden(), uc.getDuracionDias(), true));
+                    filas.add(new FilaDeTema(uc.getTema(), uc.getNumeroOrden(), uc.getDuracionDias(), true));
                     enPrograma.add(uc.getTema().getIdTema());
                 }
             }
             curso.getTemas().stream().filter(t -> !t.getBaja() && !enPrograma.contains(t.getIdTema()))
                     .sorted(java.util.Comparator.comparingInt(com.app.idoneos.model.Tema::getIdTema))
-                    .forEach(t -> filas.add(new com.app.idoneos.controller.component.FilaDeTema(t, 0, 0, false)));
+                    .forEach(t -> filas.add(new FilaDeTema(t, 0, 0, false)));
             model.addAttribute("filasDeTemas", filas);
             // Qué temas ya tienen todo su contenido (el docente ve los pendientes expandidos y con su insignia), qué le falta a cada uno y,
-            // para «Completar contenido», cuál es el primero pendiente y el recurso que sigue
+            // para "Completar contenido", cuál es el primero pendiente y el recurso que sigue
             Map<Integer, Boolean> contenidoCompleto = new java.util.HashMap<>();
             Map<Integer, List<String>> faltantesPorTema = new java.util.HashMap<>();
             com.app.idoneos.model.Tema temaPendiente = null;
@@ -382,7 +338,7 @@ public class CursoController {
             }
             model.addAttribute("contenidoCompleto", contenidoCompleto);
             model.addAttribute("faltantesPorTema", faltantesPorTema);
-            // Lo que falta de cada tema, para mostrarlo como «Material» y «Clase grabada»
+            // Lo que falta de cada tema, para mostrarlo como "Material" y "Clase grabada"
             Map<Integer, String> faltantesTextoPorTema = new java.util.HashMap<>();
             faltantesPorTema.forEach((idTema, faltantes) -> faltantesTextoPorTema.put(idTema, enumerarFaltantes(faltantes)));
             model.addAttribute("faltantesTextoPorTema", faltantesTextoPorTema);
@@ -406,7 +362,7 @@ public class CursoController {
         }
     }
 
-    /** Enumera lo que le falta a un tema entre comillas angulares: «Material», «Material» y «Autoevaluación», «A», «B» y «C». */
+    /** Enumera lo que le falta a un tema entre comillas angulares: "Material", "Material" y "Autoevaluación". */
     private static String enumerarFaltantes(List<String> faltantes) {
         List<String> citados = faltantes.stream().map(f -> "«" + f + "»").toList();
         if (citados.size() <= 1) {
@@ -415,10 +371,7 @@ public class CursoController {
         return String.join(", ", citados.subList(0, citados.size() - 1)) + " y " + citados.get(citados.size() - 1);
     }
 
-    /**
-     * Las cohortes de trabajo del curso agrupadas por el programa que usan, para el selector de cohorte por defecto: el programa vigente
-     * primero, después los demás del más reciente al más antiguo y, al final, las cohortes que todavía no tienen programa.
-     */
+    /** Obtiene las cohortes de trabajo del curso agrupadas por el programa que usan. */
     private static Map<String, List<com.app.idoneos.model.Cohorte>> agruparCohortesPorPrograma(Curso curso) {
         List<com.app.idoneos.model.Cohorte> cohortes = curso.getCohortesDeTrabajo();
         com.app.idoneos.model.Programa vigente = curso.getProgramaVigente();
@@ -439,28 +392,11 @@ public class CursoController {
         return grupos;
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-03: Registra un curso con sus modalidades de dictado y su equipo docente. Responde en JSON para
-     * que el formulario muestre el resultado sin recargar la página.
-     *
-     * @param nombre               El nombre del curso.
-     * @param descripcion          La descripción del curso (opcional).
-     * @param precio               El precio del curso.
-     * @param cargaHoraria             La carga horaria del curso para el alumno, en la unidad indicada.
-     * @param cargaHorariaUnidad       La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
-     * @param duracion            La duración del curso, en la unidad indicada.
-     * @param duracionUnidad      La unidad de la duración: "dias", "semanas" o "meses" (por defecto, días).
-     * @param imagenArchivo        La imagen de portada (opcional).
-     * @param categoriaId          Identificador de la categoría.
-     * @param nivelId              Identificador del nivel.
-     * @param emiteCertificado     Si el curso emite certificado al finalizar.
-     * @param idsModalidades       Identificadores de las modalidades de dictado.
-     * @param docenteTitularId     Identificador del docente titular.
-     * @param idsDocentesAyudantes Identificadores de los docentes ayudantes (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /curso/registrar: Registra un curso con sus modalidades de dictado y su equipo docente. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -501,29 +437,11 @@ public class CursoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-04: Modifica un curso activo. Responde en JSON para que el formulario muestre el resultado
-     * sin recargar la página.
-     *
-     * @param id                   Identificador del curso.
-     * @param nombre               El nombre del curso.
-     * @param descripcion          La descripción del curso (opcional).
-     * @param precio               El precio del curso.
-     * @param cargaHoraria             La carga horaria del curso para el alumno, en la unidad indicada.
-     * @param cargaHorariaUnidad       La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
-     * @param duracion            La duración del curso, en la unidad indicada.
-     * @param duracionUnidad      La unidad de la duración: "dias", "semanas" o "meses" (por defecto, días).
-     * @param imagenArchivo        La nueva imagen de portada (opcional; si no se envía se conserva la actual).
-     * @param categoriaId          Identificador de la categoría.
-     * @param nivelId              Identificador del nivel.
-     * @param emiteCertificado     Si el curso emite certificado al finalizar.
-     * @param idsModalidades       Identificadores de las modalidades de dictado.
-     * @param docenteTitularId     Identificador del docente titular.
-     * @param idsDocentesAyudantes Identificadores de los docentes ayudantes (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /curso/modificar/{id}: Modifica un curso activo. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -560,9 +478,11 @@ public class CursoController {
         }
     }
 
-    // ---------------------------------------------------------------- Unidades de duración
+    // ----------------------------------------------------------------------
+    // Unidades de duración
+    // ----------------------------------------------------------------------
 
-    /** Convierte la dedicación docente recibida (en minutos u horas) a minutos; {@code null} si no se envió. */
+    /** Convierte la dedicación docente recibida (en minutos u horas) a minutos. {@code null} si no se envió. */
     private static Integer minutos(Integer cantidad, String unidad) {
         if (cantidad == null) {
             return null;
@@ -574,7 +494,7 @@ public class CursoController {
         }
     }
 
-    /** Convierte la duración recibida (en días, semanas o meses) a días; {@code null} si no se envió. */
+    /** Convierte la duración recibida (en días, semanas o meses) a días. {@code null} si no se envió. */
     private static Integer dias(Integer cantidad, String unidad) {
         if (cantidad == null) {
             return null;
@@ -586,20 +506,7 @@ public class CursoController {
         }
     }
 
-    /**
-     * Completa los datos académicos del curso (los que define el docente al diseñarlo): nivel, descripción, objetivos,
-     * carga horaria para el certificado e imagen. Responde en JSON.
-     *
-     * @param id                 Identificador del curso.
-     * @param nivelId            Identificador del nivel.
-     * @param descripcion        La descripción (opcional).
-     * @param objetivos          Los objetivos.
-     * @param cargaHoraria       La carga horaria para el certificado, en la unidad indicada.
-     * @param cargaHorariaUnidad La unidad de la carga horaria: "minutos" u "horas" (por defecto, horas).
-     * @param imagenArchivo      La nueva imagen de portada (opcional; si no se envía se conserva la actual).
-     * @param authentication               La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /curso/modificarPorDocente/{id}: Completa los datos académicos del curso (los que define el docente al diseñarlo): nivel, descripción. */
     @PostMapping("/modificarPorDocente/{id}")
     public ResponseEntity<Map<String, String>> modificarPorDocente(@PathVariable("id") Integer id,
             @RequestParam(value = "nivelId", required = false) Integer nivelId,
@@ -627,14 +534,11 @@ public class CursoController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-05: Da de baja un curso que no tenga programas ni temas activos asociadas. Responde en JSON.
-     *
-     * @param id Identificador del curso.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /curso/darDeBaja/{id}: Da de baja un curso que no tenga programas ni temas activos asociadas. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -645,13 +549,7 @@ public class CursoController {
         }
     }
 
-    /**
-     * Da de baja varios cursos a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno. Responde en JSON.
-     *
-     * @param ids Identificadores de los cursos seleccionados.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /curso/darDeBajaMasiva: Da de baja varios cursos a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
@@ -663,10 +561,7 @@ public class CursoController {
         }
     }
 
-    /**
-     * Guarda la imagen del curso en su carpeta ({@code curso{id}/imagen.{ext}}), reemplazando la anterior, y
-     * registra su nombre en el curso.
-     */
+    /** Guarda la imagen del curso en su carpeta (curso{id/imagen.{ext}}), reemplazando la anterior. */
     private void guardarImagen(Curso curso, MultipartFile imagenArchivo) {
         String nombre;
         try {
@@ -679,24 +574,11 @@ public class CursoController {
         cursoService.actualizarImagen(curso.getIdCurso(), nombre);
     }
 
-
-    /**
-     * Un curso con una cohorte pendiente de contenido y los días que faltan para que abra su inscripción (el plazo que tiene el docente
-     * para completarla).
-     *
-     * @param curso   El curso.
-     * @param cohorte La cohorte pendiente que abre antes: es la que se deja como cohorte por defecto al completar el contenido.
-     * @param dias    Los días que faltan para el inicio de la inscripción de la cohorte pendiente más próxima (0 si es hoy).
-     */
+    /** Un curso con una cohorte pendiente de contenido y los días que faltan para que abra su inscripción (el plazo que tiene el docente para completarla). */
     public record CursoPendiente(Curso curso, Cohorte cohorte, long dias) {
     }
 
-    /**
-     * Arma la lista de cursos con alguna cohorte pendiente de contenido, ordenados por la que abre antes.
-     *
-     * @param cursos Los cursos a revisar.
-     * @return Los cursos pendientes con los días que faltan para la apertura de su cohorte más próxima.
-     */
+    /** Arma la lista de cursos con alguna cohorte pendiente de contenido, ordenados por la que abre antes. */
     private List<CursoPendiente> buscarPendientesDeContenido(List<Curso> cursos) {
         java.time.LocalDate hoy = java.time.LocalDate.now();
         return cursos.stream()
@@ -710,14 +592,11 @@ public class CursoController {
                 .toList();
     }
 
-    /** Agrupa los cursos por categoría (ordenada por nombre); dentro de cada una se conserva el orden del listado. */
+    /** Agrupa los cursos por categoría (ordenada por nombre). Dentro de cada una se conserva el orden del listado. */
     public static final java.util.Comparator<Curso> POR_CATEGORIA = java.util.Comparator
             .comparing(curso -> curso.getCategoria().getNombre(), String.CASE_INSENSITIVE_ORDER);
 
-    /**
-     * Carga en el modelo lo que necesita la vista agrupada por categoría: si se agrupa y cuántos cursos, y cuántos dados de baja,
-     * tiene cada categoría en todo el listado filtrado (no solo en la página que se muestra).
-     */
+    /** Carga en el modelo lo que necesita la vista agrupada por categoría: si se agrupa y cuántos cursos. */
     public static void cargarGrupos(Model model, FiltroUtil<Curso> filtros, List<Curso> cursos, java.util.Map<String, String[]> params,
             boolean agrupar, String campoCategoria) {
         model.addAttribute("agrupar", agrupar);
@@ -739,9 +618,11 @@ public class CursoController {
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Tarjetas de cursos (motor común)
+        // ----------------------------------------------------------------------
+        // Tarjetas de cursos (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas de las vistas de cards de cursos (catálogo y "Mis cursos"): lo que se filtra en el servidor. */
+        /** Define las columnas de las vistas de cards de cursos (catálogo y "Mis cursos"), que se filtran en el servidor. */
         public static final FiltroUtil<Curso> cards = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Curso>("busqueda", FiltroUtil.Tipo.TEXTO,
                         c -> c.getNombre() + " " + (c.getDescripcion() == null ? "" : c.getDescripcion())),
@@ -757,9 +638,11 @@ public class CursoController {
                 new FiltroUtil.Columna<Curso>("precio", FiltroUtil.Tipo.LISTA, c -> c.getPrecio() <= 0 ? "gratis" : "pago")),
                 c -> false);
 
-        // ---------------------------------------------------------------- Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
+        // Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado del administrador: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado del administrador, que se filtran y ordenan en el servidor. */
         public static FiltroUtil<Curso> tabla(ResumenCursos resumen) {
             return new FiltroUtil<>(List.of(
                     new FiltroUtil.Columna<Curso>("nombre", FiltroUtil.Tipo.TEXTO, Curso::getNombre),
@@ -778,6 +661,38 @@ public class CursoController {
                     new FiltroUtil.Columna<Curso>("fechaCreacion", FiltroUtil.Tipo.FECHA,
                             c -> FiltroUtil.formatearFechaHora(c.getFechaCreacion()))),
                     Curso::getBaja);
+        }
+    }
+
+    /** Un tema en el acordeón del curso del docente: los del programa van primero, con su orden y sus días. */
+    public static class FilaDeTema {
+
+        private final Tema tema;
+        private final int numeroOrden;
+        private final int duracionDias;
+        private final boolean enPrograma;
+
+        public FilaDeTema(Tema tema, int numeroOrden, int duracionDias, boolean enPrograma) {
+            this.tema = tema;
+            this.numeroOrden = numeroOrden;
+            this.duracionDias = duracionDias;
+            this.enPrograma = enPrograma;
+        }
+
+        public Tema getTema() {
+            return tema;
+        }
+
+        public int getNumeroOrden() {
+            return numeroOrden;
+        }
+
+        public int getDuracionDias() {
+            return duracionDias;
+        }
+
+        public boolean isEnPrograma() {
+            return enPrograma;
         }
     }
 }

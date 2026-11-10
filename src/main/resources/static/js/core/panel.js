@@ -1,15 +1,13 @@
-/**
- * Arranque del panel: menú lateral en pantallas chicas, textos truncados y filtros automáticos de los formularios
- * con data-filtros. El resto vive en módulos aparte: core/validacion.js (formularios) y core/tabla.js (listados).
- */
+/** Arranque del panel: menú lateral en pantallas chicas. */
 (function () {
     'use strict';
 
     var CLAVE_FOCO = 'idoneos.panel.focoFiltro';
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // 1. Menú lateral
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
     var app = document.getElementById('pnApp');
     if (app) {
         document.addEventListener('click', function (e) {
@@ -26,9 +24,10 @@
         if (!e.title) { e.title = e.textContent.trim(); }
     });
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // 3. Filtros automáticos
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
     document.querySelectorAll('form[data-filtros]').forEach(function (form) {
         var temporizador = null;
         form.addEventListener('change', function (e) {

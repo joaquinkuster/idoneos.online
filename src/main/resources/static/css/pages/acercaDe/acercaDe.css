@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    ACERCA DE: propuesta, cómo aprendés y socios fundadores
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .ac-pagina {
     background: #F6F3EC;
 }
@@ -235,7 +235,7 @@
     width: 100%;
 }
 
-/* Cards por fila: 4 en PC y televisores, 2 en pantallas medianas y 1 en celulares (siempre divisores de 8, 12 y 24) */
+/* Cards por fila: 4 en PC y televisores, 2 en pantallas medianas y 1 en celulares. */
 @media (max-width: 1199.98px) {
     .ix-slider-cursos {
         --por-vista: 2;
@@ -260,7 +260,7 @@
     border-radius: 12px;
 }
 
-/* La foto queda a mitad del borde superior; su marco es del color del fondo de la sección, como si recortara la card */
+/* La foto queda a mitad del borde superior. Su marco es del color del fondo de la sección. */
 .ac-foto {
     position: absolute;
     top: 0;
@@ -338,7 +338,7 @@
     border-color: #D4A03D;
 }
 
-/* Puntos casi imperceptibles: gris apenas más oscuro que el fondo; el activo es un poco más largo */
+/* Puntos casi imperceptibles: gris apenas más oscuro que el fondo. El activo es un poco más largo */
 .ac-slider-puntos {
     display: flex;
     align-items: center;

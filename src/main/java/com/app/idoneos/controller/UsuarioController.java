@@ -15,9 +15,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.usuario.UsuarioService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de las acciones del usuario autenticado sobre su propia cuenta.
- */
+/** Controlador del usuario. */
 @Controller
 @RequestMapping("/usuario")
 public class UsuarioController {
@@ -25,16 +23,11 @@ public class UsuarioController {
     @Autowired
     private UsuarioService usuarioService;
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Cambia el rol por defecto del usuario autenticado (el rol con el que trabaja). Responde en JSON con
-     * la página a la que debe ir el navegador para mostrar la vista del nuevo rol.
-     *
-     * @param idRol Identificador del rol que pasa a ser el rol por defecto.
-     * @param authentication  La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito y el destino, o el mensaje de error.
-     */
+    /** POST /usuario/cambiarRolPorDefecto: Cambia el rol por defecto del usuario autenticado (el rol con el que trabaja). */
     @PostMapping("/cambiarRolPorDefecto")
     public ResponseEntity<Map<String, String>> cambiarRolPorDefecto(
             @RequestParam(value = "idRol", required = false) Integer idRol, Authentication authentication) {

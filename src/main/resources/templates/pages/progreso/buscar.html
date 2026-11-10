@@ -35,7 +35,7 @@
                           th:text="${#lists.size(inscripciones) + (#lists.size(inscripciones) == 1 ? ' alumno encontrado' : ' alumnos encontrados')}">0 alumnos encontrados</span>
                 </div>
 
-                <!-- Filtro (CU-55): alumno. Se aplica en el navegador, sin recargar -->
+                <!-- Filtro: alumno. Se aplica en el navegador, sin recargar -->
                 <form class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo" data-filtro-estatico="cohorte">
                         <label class="pn-etiqueta">Cohorte</label>
@@ -98,7 +98,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <!-- Detalle por tema (CU-55): se despliega debajo de la fila del alumno -->
+                            <!-- Detalle por tema: se despliega debajo de la fila del alumno -->
                             <tr class="pn-fila-detalle" th:id="${'detalleProgreso' + i.idInscripcion}">
                                 <td colspan="7">
                                     <div class="pn-detalle">

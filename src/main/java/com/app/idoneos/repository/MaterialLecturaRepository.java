@@ -5,9 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.MaterialLectura;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link MaterialLectura} en la base de datos.
- */
+/** Repositorio de MaterialLectura. */
 @Repository
 public interface MaterialLecturaRepository extends JpaRepository<MaterialLectura, Integer> {
 }

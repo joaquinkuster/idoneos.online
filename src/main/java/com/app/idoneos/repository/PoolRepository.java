@@ -9,17 +9,11 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Pool} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link Pool}.
- */
+/** Repositorio de Pool. */
 @Repository
 public interface PoolRepository extends JpaRepository<Pool, Integer> {
 
-    /**
-     * Busca en la base, con su tema y su curso ya cargados, filtrando por curso, tema y baja (cada filtro es opcional).
-     * Antes se traía todo y se filtraba en memoria.
-     */
+    /** Busca en la base, con su tema y su curso ya cargados, filtrando por curso. */
     @org.springframework.data.jpa.repository.Query("""
             select p from Pool p join fetch p.tema t join fetch t.curso c
             where (cast(:idCurso as integer) is null or c.idCurso = :idCurso)
@@ -30,26 +24,12 @@ public interface PoolRepository extends JpaRepository<Pool, Integer> {
             @org.springframework.data.repository.query.Param("idTema") Integer idTema,
             @org.springframework.data.repository.query.Param("baja") Boolean baja);
 
-    /**
-     * Encuentra todos los registros activos (no dados de baja).
-     *
-     * @return Una lista de {@link Pool} activos.
-     */
+    /** Encuentra todos los registros activos (no dados de baja). */
     List<Pool> findByBajaFalse();
 
-    /**
-     * Busca los registros vigentes de pool asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de Pool asociados al Tema indicado
-     */
+    /** Busca los registros vigentes de pool asociados a tema. */
     List<Pool> findByTemaAndBajaFalse(Tema tema);
 
-    /**
-     * Busca todos los pools de un tema, incluidos los dados de baja.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de Pool del tema
-     */
+    /** Busca todos los pools de un tema, incluidos los dados de baja. */
     List<Pool> findByTema(Tema tema);
 }

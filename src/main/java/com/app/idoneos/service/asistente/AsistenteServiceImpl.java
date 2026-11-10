@@ -22,6 +22,7 @@ import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.curso.CursoService;
 import com.app.idoneos.util.MensajeErrorUtil;
 
+/** Implementación de AsistenteService. */
 @Service
 public class AsistenteServiceImpl implements AsistenteService {
 
@@ -34,7 +35,7 @@ public class AsistenteServiceImpl implements AsistenteService {
     @Autowired
     private CursoService cursoService;
 
-    /** Cuándo cierra o abre, con los días que faltan si está cerca: «Cierra el 09/11» (con el año si no es el actual, 20 caracteres como máximo). Sin fecha, {@code null}. */
+    /** Arma el texto de cuándo cierra o abre, con los días que faltan si está cerca. */
     private static String fecha(String prefijo, LocalDateTime cuando, LocalDate hoy) {
         if (cuando == null) {
             return null;
@@ -49,7 +50,7 @@ public class AsistenteServiceImpl implements AsistenteService {
         return prefijo + " " + dia;
     }
 
-    /** La urgencia según los días que faltan: «alta» (rojo), «media» (dorado) o {@code null}. */
+    /** Calcula la urgencia según los días que faltan: "alta" (rojo), "media" (dorado) o {@code null}. */
     private static String urgencia(LocalDateTime cuando, LocalDate hoy) {
         if (cuando == null) {
             return null;
@@ -80,7 +81,9 @@ public class AsistenteServiceImpl implements AsistenteService {
         return new Respuesta(usuario.getNombre(), "No tenés pendientes.", null, "Pendientes", 0, List.of(), List.of());
     }
 
-    // ---------------------------------------------------------------- Alumno
+    // ----------------------------------------------------------------------
+    // Alumno
+    // ----------------------------------------------------------------------
 
     private record AutoevaluacionPendiente(Autoevaluacion autoevaluacion, Inscripcion inscripcion, boolean atrasada) {
     }
@@ -98,7 +101,7 @@ public class AsistenteServiceImpl implements AsistenteService {
                 pendientes.add(new AutoevaluacionPendiente(autoevaluacion, inscripcion, atrasada));
             }
         }
-        // Primero las que cierran antes (las atrasadas ya quedan arriba por su fecha; las que no cierran, al final)
+        // Primero las que cierran antes (las atrasadas ya quedan arriba por su fecha. Las que no cierran, al final)
         pendientes.sort(Comparator.comparing(
                 (AutoevaluacionPendiente p) -> p.autoevaluacion().getFechaCierre() == null ? LocalDateTime.MAX : p.autoevaluacion().getFechaCierre()));
 
@@ -117,7 +120,9 @@ public class AsistenteServiceImpl implements AsistenteService {
                         new Atajo("Mis certificados", "/certificado/buscar"), new Atajo("Mis intereses", ATAJO_INTERESES)));
     }
 
-    // ---------------------------------------------------------------- Docente
+    // ----------------------------------------------------------------------
+    // Docente
+    // ----------------------------------------------------------------------
 
     private record CohortePendiente(Curso curso, Cohorte cohorte, CursoService.EstadoDiseno estado, long dias) {
     }
@@ -154,10 +159,7 @@ public class AsistenteServiceImpl implements AsistenteService {
                 List.of(new Atajo("Mis cursos", "/curso/buscar"), new Atajo("Biblioteca digital", "/biblioteca/buscar")));
     }
 
-    /**
-     * Lo que le falta a la cohorte en el paso del diseño en que está, la acción de ese paso (la misma que el botón del diseño del curso y que
-     * la alerta guía) y a dónde lleva.
-     */
+    /** Describe lo que le falta a la cohorte en el paso del diseño en que está. */
     private String[] pasoDelDiseno(CohortePendiente p) {
         CursoService.EstadoDiseno estado = p.estado();
         String curso = "?cursoId=" + p.curso().getIdCurso();
@@ -180,7 +182,9 @@ public class AsistenteServiceImpl implements AsistenteService {
         };
     }
 
-    // ---------------------------------------------------------------- Administrador
+    // ----------------------------------------------------------------------
+    // Administrador
+    // ----------------------------------------------------------------------
 
     private Respuesta paraAdministrador(Usuario usuario) {
         LocalDateTime ahora = LocalDateTime.now();

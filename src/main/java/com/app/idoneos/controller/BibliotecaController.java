@@ -35,7 +35,7 @@ import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.recurso.RecursoService;
 import com.app.idoneos.service.indice.IndiceRecursoService;
-import com.app.idoneos.service.ocr.OcrService;
+import com.app.idoneos.service.ocr.OCRService;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.util.FiltroUtil;
 import com.app.idoneos.util.ManejadorArchivosUtil;
@@ -44,11 +44,7 @@ import com.app.idoneos.util.RespuestaFormularioUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * Controlador de «Mi biblioteca» del docente: los recursos que cargó, con o sin tema, y que puede compartir con otros docentes. Mapea
- * «Mis recursos»: Buscar (GET /biblioteca/buscar), Registrar (POST /biblioteca/registrar), Modificar (POST /biblioteca/modificar/{id}) y
- * Dar de baja (POST /biblioteca/darDeBaja/{id}).
- */
+/** Controlador de la biblioteca. */
 @Controller
 @RequestMapping("/biblioteca")
 public class BibliotecaController {
@@ -57,7 +53,7 @@ public class BibliotecaController {
     private IndiceRecursoService indiceService;
 
     @Autowired
-    private OcrService ocrService;
+    private OCRService ocrService;
 
     @Autowired
     private RecursoService recursoService;
@@ -69,18 +65,11 @@ public class BibliotecaController {
     @Qualifier("directorioCursos")
     private Path directorioCursos;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * «Biblioteca digital»: un solo listado con los recursos que ve el usuario, agrupados por tipo. El docente ve primero los suyos (públicos
-     * y privados) y después los públicos de otros docentes; el administrador ve todos. El filtro, el orden y la página los resuelve el
-     * servidor.
-     *
-     * @param model          El modelo de la vista.
-     * @param authentication La autenticación actual.
-     * @param request        La solicitud HTTP.
-     * @return La vista del listado, o solo sus filas si las pide la propia pantalla.
-     */
+    /** GET /biblioteca/buscar: "Biblioteca digital": un solo listado con los recursos que ve el usuario, agrupados por tipo. */
     @GetMapping("/buscar")
     public String buscar(Model model, Authentication authentication, HttpServletRequest request) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -88,7 +77,7 @@ public class BibliotecaController {
         Docente docente = esAdministrador ? null : usuario.getDocente();
         List<Recurso> recursos = esAdministrador ? recursoService.buscarTodosLosRecursos() : recursoService.buscarRecursosVisibles(docente);
         Map<String, String[]> params = request.getParameterMap();
-        // Agrupado por tipo salvo que se ordene por otra columna; dentro de cada tipo van primero los del docente
+        // Agrupado por tipo salvo que se ordene por otra columna. Dentro de cada tipo van primero los del docente
         String campoOrden = request.getParameter("ordenCampo");
         boolean agrupar = campoOrden == null || campoOrden.isBlank() || "titulo".equals(campoOrden) || "tipo".equals(campoOrden);
         Comparator<Recurso> porTipo = Comparator.comparing(Recurso::getTipo, String.CASE_INSENSITIVE_ORDER)
@@ -117,7 +106,7 @@ public class BibliotecaController {
         model.addAttribute("propios", propios);
         model.addAttribute("usosPorRecurso", usosPorRecurso);
         model.addAttribute("esAdministrador", esAdministrador);
-        // Cursos activos del docente, para «Registrar en un tema» (el administrador no tiene esa acción)
+        // Cursos activos del docente, para "Registrar en un tema" (el administrador no tiene esa acción)
         model.addAttribute("cursosDelDocente", esAdministrador ? List.<com.app.idoneos.model.Curso>of()
                 : cursoService.buscarConFiltros(null, null, null, null, null, null, docente).stream().filter(c -> !c.getBaja()).toList());
         if (PaginacionUtil.pideSoloFilas(request)) {
@@ -134,22 +123,13 @@ public class BibliotecaController {
         return docente != null && recurso.getDocente().getIdDocente() == docente.getIdDocente();
     }
 
-    /** El listado de «Explorar biblioteca» se unificó con el de «Mi biblioteca»: se mantiene la dirección y se redirige. */
+    /** GET /biblioteca/explorar: El listado de "Explorar biblioteca" se unificó con el de "Mi biblioteca". */
     @GetMapping("/explorar")
     public String explorar() {
         return "redirect:/biblioteca/buscar";
     }
 
-    /**
-     * Muestra un recurso en el visor de la plataforma: el reproductor de una grabación o el visor de páginas de un PDF. No hay forma de
-     * descargarlo: se ve únicamente desde la plataforma. Un enlace externo se abre directamente. Lo ve su dueño, cualquier docente si es
-     * público y el administrador.
-     *
-     * @param id             Identificador del recurso.
-     * @param model          El modelo de la vista.
-     * @param authentication La autenticación actual.
-     * @return La vista del recurso, o una redirección al enlace externo.
-     */
+    /** GET /biblioteca/ver/{id}: Muestra un recurso en el visor de la plataforma. */
     @GetMapping("/ver/{id}")
     public String ver(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -172,16 +152,7 @@ public class BibliotecaController {
         return "pages/biblioteca/ver";
     }
 
-    /**
-     * Entrega el contenido de un recurso a la propia plataforma (al reproductor de video o al visor de PDF), con las mismas protecciones que
-     * el de los materiales: solo responde si el pedido lo hace la página del recurso, no se guarda en la caché del navegador ni se sugiere
-     * un nombre de archivo. Los videos admiten pedidos por rangos.
-     *
-     * @param id             Identificador del recurso.
-     * @param authentication La autenticación actual.
-     * @param request        El pedido HTTP, para controlar de dónde viene.
-     * @return El contenido, o 403 / 404 si no puede abrirlo o no existe.
-     */
+    /** GET /biblioteca/archivo/{id}: Entrega el contenido de un recurso a la propia plataforma (al reproductor de video o al visor de PDF). */
     @GetMapping("/archivo/{id}")
     public ResponseEntity<Resource> abrirArchivo(@PathVariable("id") Integer id, Authentication authentication, HttpServletRequest request) {
         Recurso recurso = recursoService.buscarRecursoPorId(id)
@@ -208,7 +179,7 @@ public class BibliotecaController {
                 .body(new FileSystemResource(archivo));
     }
 
-    /** Cómo se muestra el recurso: "enlace", "video", "pdf" o "empty" si no se puede mostrar. */
+    /** Obtiene cómo se muestra el recurso: "enlace", "video", "pdf" o "empty" si no se puede mostrar. */
     private static String formatoDeVista(Recurso recurso) {
         if (recurso.esEnlaceExterno()) {
             return "enlace";
@@ -223,14 +194,7 @@ public class BibliotecaController {
         };
     }
 
-    /**
-     * Ventana de modificación de un recurso, que el listado pide al abrirla.
-     *
-     * @param id             El recurso.
-     * @param model          El modelo de la vista.
-     * @param authentication La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /biblioteca/modificar/{id}: Ventana de modificación de un recurso, que el listado pide al abrirla. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
@@ -242,13 +206,7 @@ public class BibliotecaController {
         return "pages/biblioteca/modificar :: modal(r=${r}, usos=${usos})";
     }
 
-    /**
-     * Entrega el índice del documento (las entradas con su página) al visor y a los formularios.
-     *
-     * @param id             Identificador del recurso.
-     * @param authentication La autenticación actual.
-     * @return Las entradas del índice, o una lista vacía si no tiene.
-     */
+    /** GET /biblioteca/indice/{id}: Entrega el índice del documento (las entradas con su página) al visor y a los formularios. */
     @GetMapping("/indice/{id}")
     public ResponseEntity<List<IndiceRecursoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
         Recurso recurso = recursoService.buscarRecursoPorId(id)
@@ -259,7 +217,7 @@ public class BibliotecaController {
         return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(recurso));
     }
 
-    /** Guarda el índice que llegó con el formulario; si se cambió el archivo y no llegó un índice nuevo, el anterior ya no sirve y se borra. */
+    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo. */
     private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
         String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
         indiceService.reemplazar(recurso, json);
@@ -269,11 +227,11 @@ public class BibliotecaController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Registra un recurso en la biblioteca, sin asociarlo a un tema. Responde en JSON.
-     */
+    /** POST /biblioteca/registrar: Registra un recurso en la biblioteca, sin asociarlo a un tema. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "tipo", required = false) String tipo,
@@ -303,11 +261,11 @@ public class BibliotecaController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un recurso de la biblioteca. Responde en JSON.
-     */
+    /** POST /biblioteca/modificar/{id}: Modifica un recurso de la biblioteca. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "titulo", required = false) String titulo,
@@ -335,10 +293,7 @@ public class BibliotecaController {
         }
     }
 
-    /**
-     * Publica un recurso en la biblioteca digital (lo pasa de privado a público). Se pregunta al final del alta de un recurso en un curso.
-     * Responde en JSON.
-     */
+    /** POST /biblioteca/publicar/{id}: Publica un recurso en la biblioteca digital (lo pasa de privado a público). */
     @PostMapping("/publicar/{id}")
     public ResponseEntity<Map<String, String>> publicar(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -350,11 +305,11 @@ public class BibliotecaController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja varios recursos de la biblioteca a la vez, todos o ninguno. Responde en JSON.
-     */
+    /** POST /biblioteca/darDeBajaMasiva: Da de baja varios recursos de la biblioteca a la vez, todos o ninguno. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(@RequestParam(value = "ids", required = false) List<Integer> ids,
             Authentication authentication) {
@@ -371,9 +326,7 @@ public class BibliotecaController {
         }
     }
 
-    /**
-     * Da de baja un recurso de la biblioteca. Responde en JSON.
-     */
+    /** POST /biblioteca/darDeBaja/{id}: Da de baja un recurso de la biblioteca. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -389,13 +342,13 @@ public class BibliotecaController {
         }
     }
 
-    /** Columnas de filtro, orden y página del listado «Mis recursos» (las aplica el servidor). */
+    /** Columnas de filtro, orden y página del listado "Mis recursos" (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Recurso> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Recurso>("titulo", FiltroUtil.Tipo.TEXTO, Recurso::getTitulo),
                 new FiltroUtil.Columna<Recurso>("tipo", FiltroUtil.Tipo.LISTA, Recurso::getTipo),

@@ -6,15 +6,15 @@ import com.app.idoneos.model.Categoria;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con la categoría.
- */
+/** Servicio de la categoría. */
 public interface CategoriaService extends CrudService<Categoria> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca la categoría por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca la categoría por su atributo único 'nombre'.
      *
      * @param nombre el valor de 'nombre' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
@@ -26,8 +26,7 @@ public interface CategoriaService extends CrudService<Categoria> {
      *
      * @param nombre parte del nombre de la categoría (opcional)
      * @param baja {@code true} para solo las dadas de baja, {@code false} para solo las vigentes, {@code null} para todas
-     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevas primero);
-     *              las dadas de baja van siempre al final
+     * @param orden el orden de los resultados: "nombre" (A,Z, por defecto) o "recientes" (más nuevas primero), las dadas de baja van siempre al final
      * @return una lista de categorías que cumplen los criterios
      */
     List<Categoria> buscarConFiltros(String nombre, Boolean baja, String orden);
@@ -48,10 +47,12 @@ public interface CategoriaService extends CrudService<Categoria> {
      */
     boolean tieneCursosConCohortesPublicadas(Categoria categoria);
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Registra una nueva categoría. Si existe una categoría dada de baja con el mismo nombre, la reactiva.
+     * Registra una nueva categoría.
      *
      * @param nombre el nombre de la categoría
      * @param descripcion la descripción de la categoría (opcional)
@@ -60,7 +61,9 @@ public interface CategoriaService extends CrudService<Categoria> {
      */
     Categoria registrar(String nombre, String descripcion);
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
      * Modifica el nombre y la descripción de una categoría activa sin inscripciones activas asociadas.
@@ -73,7 +76,9 @@ public interface CategoriaService extends CrudService<Categoria> {
      */
     Categoria modificar(Integer idCategoria, String nombre, String descripcion);
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
     /**
      * Da de baja una categoría activa que no tenga cursos activos asociados.
@@ -84,7 +89,7 @@ public interface CategoriaService extends CrudService<Categoria> {
     void darDeBaja(Integer idCategoria);
 
     /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja.
      *
      * @param ids los identificadores de los registros
      * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja

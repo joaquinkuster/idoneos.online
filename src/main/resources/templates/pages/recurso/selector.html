@@ -1,9 +1,4 @@
-<!-- Selector "Agregar un recurso o actividad" (al estilo de Moodle): lista a la izquierda, descripción de lo elegido a
-     la derecha. Se usa en la vista del curso y en el ABM de materiales.
-     destino: ruta a la que se redirige al elegir (se le agrega 'nuevo={id del tipo}'); vacío = abre el formulario de
-     alta en la misma página. Requiere el atributo de modelo 'tiposDeSubida' (tipos de material que se suben a mano).
-     La opción Glosario lleva al glosario del tema con el formulario de alta abierto. Las que todavía no tienen su ABM
-     figuran como "Próximamente". -->
+<!-- Selector "Agregar un recurso o actividad" (al estilo de Moodle): lista a la izquierda. -->
 <div th:fragment="selector(destino)" class="modal fade pn-modal" id="modalSelectorRecurso" tabindex="-1" aria-hidden="true"
      th:attr="data-destino=${destino}">
     <div class="modal-dialog modal-dialog-centered modal-lg">

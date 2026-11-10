@@ -26,11 +26,7 @@ import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas de la página del cronograma (CU-23 y CU-24). Fausto Spotorno es titular de "Macroeconomía de Coyuntura" (un
- * programa con tres temas, sin inscripciones: se puede modificar) y de "Mercado de Capitales Argentino" (con
- * inscripciones activas: solo lectura).
- */
+/** Pruebas de la página del cronograma. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -80,7 +76,9 @@ class CronogramaControllerTest {
         return programaDe(curso).getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema()).toList();
     }
 
-    // ------------------------------------------------------------------ Consulta y edición
+    // ----------------------------------------------------------------------
+    // Consulta y edición
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -94,7 +92,7 @@ class CronogramaControllerTest {
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Modificar cronograma"))))
                 .andExpect(content().string(Matchers.containsString("id=\"programaIdCronograma\"")))
                 .andExpect(content().string(Matchers.containsString(">" + programa.getNombre() + "</option>")))
-                // cards sin íconos de información; la ayuda es un botón junto al título que muestra el texto
+                // cards sin íconos de información. La ayuda es un botón junto al título que muestra el texto
                 .andExpect(content().string(Matchers.containsString("data-ayuda-texto")))
                 .andExpect(content().string(Matchers.containsString("data-ayuda ")))
                 // navbar único con los enlaces del sitio, sin "Mis cursos"
@@ -181,7 +179,9 @@ class CronogramaControllerTest {
                 .andExpect(content().string(Matchers.containsString("id=\"cronograma\"")));
     }
 
-    // ------------------------------------------------------------------ CU-24 Formulario
+    // ----------------------------------------------------------------------
+    // Formulario
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -227,7 +227,9 @@ class CronogramaControllerTest {
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("inscripciones activas asociadas")));
     }
 
-    // ------------------------------------------------------------------ Enlaces
+    // ----------------------------------------------------------------------
+    // Enlaces
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

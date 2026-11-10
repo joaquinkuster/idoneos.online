@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    MENÚ DESPLEGABLE DEL USUARIO (dentro del navbar único)
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .um-wrapper {
     position: relative;
     display: inline-block;
@@ -95,7 +95,7 @@
     display: block;
     width: 100%;
     padding: 10px 16px;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--pn-texto);
     text-decoration: none;
@@ -106,7 +106,7 @@
     transition: background-color 0.12s ease, opacity 0.15s ease;
 }
 
-/* Las opciones no seleccionadas se atenúan; al pasar el mouse o estar activas vuelven a ser sólidas */
+/* Las opciones no seleccionadas se atenúan. Al pasar el mouse o estar activas vuelven a ser sólidas */
 .um-item:not(.um-item-peligro) {
     opacity: 0.55;
 }

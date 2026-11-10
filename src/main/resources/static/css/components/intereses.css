@@ -1,5 +1,4 @@
-/* Ventana de intereses del alumno (pages/intereses/formulario.html): usa la estructura y el ancho de las ventanas de los ABM
-   (pn-modal); aquí solo van los chips de categoría. */
+/* Ventana de intereses del alumno (pages/intereses/formulario.html). */
 .ia-chips {
     display: flex;
     flex-wrap: wrap;

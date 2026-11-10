@@ -4,14 +4,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Traduce al español los motivos de rechazo que informa la plataforma de pagos (por ejemplo, {@code INSUFFICIENT_FUNDS}) para
- * mostrárselos al alumno y al administrador.
- *
- * Los motivos que llegan como un código en mayúsculas (con o sin un texto después de los dos puntos) se buscan en una tabla; si el
- * código no está en la tabla, se muestra un texto genérico que conserva el código para poder rastrearlo. Un texto que no es un código
- * se deja como llegó.
- */
+/** Utilidad de motivos de rechazo de pagos. Traduce al español los motivos que informa la plataforma de pagos. */
 public final class MotivoPagoUtil {
 
     /** Un código de la plataforma: mayúsculas, números y guiones bajos, solo o seguido de ":" y un texto. */

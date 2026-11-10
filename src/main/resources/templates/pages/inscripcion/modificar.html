@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /inscripcion/modificar/{id}). -->
+<!-- Ventana de modificación. -->
     <div th:fragment="modal(i)" class="modal fade pn-modal" th:id="'modalModificarInscripcion' + ${i.idInscripcion}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -25,7 +25,7 @@
         <div class="row g-3">
 <div class="col-12 pn-campo">
                                 <label class="pn-etiqueta">Suspendida</label>
-                                <!-- Solo se suspende una inscripción habilitada y se reactiva la suspendida; pendiente de pago o cancelada no se modifica -->
+                                <!-- Solo se suspende una inscripción habilitada y se reactiva la suspendida. -->
                                 <select name="habilitada" class="pn-input" th:disabled="${!i.tieneAcceso() and !i.estaSuspendida()}">
                                     <!-- Sí suspende (habilitada = false) y No reactiva (habilitada = true) -->
                                     <option value="false" th:selected="${i.estaSuspendida()}">Sí</option>

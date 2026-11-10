@@ -11,9 +11,7 @@ import com.app.idoneos.model.EstadoCohorte;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas unitarias del modelo {@link Cohorte}: estado calculado según las fechas y cupo disponible.
- */
+/** Pruebas unitarias del modelo Cohorte: estado calculado según las fechas y cupo disponible. */
 class CohorteTest {
 
     private final LocalDateTime ahora = LocalDateTime.now();

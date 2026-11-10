@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    ALERTAS (SweetAlert2): cierre de sesión
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .swal-confirmacion {
     width: 400px;
     max-width: 92vw;
@@ -37,7 +37,7 @@
     padding-top: 0;
 }
 
-/* Avisos del sistema (éxito, error, información y advertencia): el mismo círculo de 80 px de las bajas, con el color del tipo */
+/* Avisos del sistema (éxito, error, información y advertencia): el mismo círculo de 80 px de las bajas. */
 .swal2-icon.swal-icon-exito,
 .swal2-icon.swal-icon-error,
 .swal2-icon.swal-icon-info,
@@ -121,7 +121,7 @@
     background: #B91C1C;
 }
 
-/* Cada alerta lleva el botón principal del color de su tipo: rojo, azul o amarillo; el secundario es transparente */
+/* Cada alerta lleva el botón principal del color de su tipo: rojo, azul o amarillo. */
 .swal-boton-info {
     background: var(--pn-ver);
     color: #FFFFFF;
@@ -142,7 +142,7 @@
     background: #14532D;
 }
 
-/* Amarillo con letra azul oscuro en negrita (contraste de más de 10 a 1): en reposo el tono más intenso y al pasar el mouse el más suave */
+/* Amarillo con letra azul oscuro en negrita (contraste de más de 10 a 1). */
 .swal-boton-advertencia {
     background: #F2CB45;
     color: var(--pn-navy-dark);
@@ -164,7 +164,7 @@
     background: #F1F5F9;
 }
 
-/* SweetAlert enfoca el botón principal al abrirse: sin el borde (negro) del foco del navegador ni la sombra de SweetAlert */
+/* SweetAlert enfoca el botón principal al abrirse. */
 .swal2-popup .swal2-actions button:focus,
 .swal2-popup .swal2-actions button:focus-visible {
     outline: none;

@@ -1,12 +1,4 @@
-/**
- * Editor de preguntas de los pools (CU-61 y CU-62), dentro del formulario por pasos de cada pool.
- *
- * Cada editor ([data-pool-editor]) se arma a partir de los datos del pool (atributo data-pool): el nombre y las preguntas con
- * sus opciones. Cada pregunta es de opción única, de opción múltiple o de verdadero o falso. Al enviar, las preguntas se
- * serializan como una lista JSON en el campo oculto "preguntas"; el envío lo hace core/formulario.js y las reglas las valida el
- * servidor. El editor también deja, fuera de la vista, una línea por pregunta (data-resumen-linea) para que el resumen del
- * formulario (hojaDeRuta.js) muestre qué se registra o qué cambió; por eso se dibuja apenas carga la página.
- */
+/** Editor de preguntas de los pools, dentro del formulario por pasos de cada pool. */
 (function () {
     'use strict';
 
@@ -29,7 +21,9 @@
         var siguienteUid = 1;
         var preguntas = [];
 
-        // ------------------------------------------------------------ Estado
+        // ----------------------------------------------------------------------
+        // Estado
+        // ----------------------------------------------------------------------
 
         function tipoDe(pregunta) {
             if (pregunta.opcionMultiple) {
@@ -85,7 +79,9 @@
             }
         }
 
-        // ------------------------------------------------------------ Resumen para la hoja de ruta
+        // ----------------------------------------------------------------------
+        // Resumen para la hoja de ruta
+        // ----------------------------------------------------------------------
 
         function describir(pregunta) {
             var opciones = pregunta.opciones.map(function (o) { return (o.texto || '(sin texto)') + (o.correcta ? ' ✓' : ''); });
@@ -106,7 +102,9 @@
             preguntas.forEach(function (p, i) { resumen.appendChild(linea('Pregunta ' + (i + 1), describir(p))); });
         }
 
-        // ------------------------------------------------------------ Dibujo
+        // ----------------------------------------------------------------------
+        // Dibujo
+        // ----------------------------------------------------------------------
 
         function elemento(etiqueta, atributos, hijos) {
             var nodo = document.createElement(etiqueta);
@@ -248,7 +246,9 @@
             actualizarResumen();
         }
 
-        // ------------------------------------------------------------ Inicio y envío
+        // ----------------------------------------------------------------------
+        // Inicio y envío
+        // ----------------------------------------------------------------------
 
         (datos.preguntas || []).forEach(function (origen) { preguntas.push(nuevaPregunta(origen)); });
         if (!preguntas.length) {

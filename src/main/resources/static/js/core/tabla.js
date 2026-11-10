@@ -1,10 +1,4 @@
-/**
- * Listados en tabla y en cards: selección de filas, columnas visibles, filas por página, paginador, filtros y orden
- * (en el navegador o, con data-tabla-servidor, pidiéndolos al servidor).
- *
- * Los filtros se generan desde las columnas: cada <th data-filtro="..."> declara su tipo. Se carga después de
- * core/validacion.js, que arma los selectores múltiples de los filtros (window.iniciarMultiselect).
- */
+/** Listados en tabla y en cards: selección de filas, columnas visibles, filas por página, paginador. */
 (function () {
     'use strict';
 
@@ -15,15 +9,10 @@
         try { return window.localStorage.getItem(clave); } catch (e) { return null; }
     }
 
-    // Filtros generados desde las columnas. Cada <th data-filtro="..."> declara su tipo y el filtro se dibuja con el
-    // nombre de la columna y en su mismo orden:
-    //   texto  -> campo "contiene"                      (fila: data-f-<campo>)
-    //   numero -> desde / hasta                         (fila: data-f-<campo> con el número)
-    //   fecha  -> desde / hasta                         (fila: data-f-<campo> con la fecha ISO)
-    //   lista  -> desplegable (o campo con sugerencias si hay muchas opciones) con los valores que hay en la tabla
-    //   multilista -> selector múltiple con búsqueda (Tom Select) con los valores que hay en la tabla; la fila cumple si
-    //                 tiene alguno de los elegidos (fila: data-f-<campo> con los valores separados por "|")
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    // Filtros generados desde las columnas
+    // ----------------------------------------------------------------------
+
     function construirFiltros(formulario, raiz) {
         var cabeceras = raiz.querySelectorAll('thead th[data-filtro]');
         if (!cabeceras.length) { return; }
@@ -35,9 +24,7 @@
         var inicio = formulario.firstChild;
         var sufijo = 0;
 
-        // Si la fila no trae el dato del filtro (data-f-<campo>), se toma de lo que muestra su celda:
-        //   fecha -> la primera dd/mm/aaaa pasada a aaaa-mm-dd; numero -> el primer número ("Gratis" es 0);
-        //   texto y lista -> el texto de la celda (con data-separador en el <th>, la celda trae varios valores).
+        // Si la fila no trae el dato del filtro (data-f-<campo>), se toma de lo que muestra su celda.
         function derivar(th, tipo, campo) {
             var atributo = 'data-f-' + campo.toLowerCase();
             var indice = Array.prototype.indexOf.call(th.parentNode.children, th);
@@ -166,8 +153,7 @@
         var botonBaja = raiz.querySelector('[data-baja-masiva]');
         var porPagina = selectPorPagina ? parseInt(selectPorPagina.value, 10) : 10;
 
-        // Listado en el servidor (data-tabla-servidor): el filtro, el orden y la página los resuelve el servidor y se piden con
-        // fetch; en la pantalla solo está la página actual. Los datos de la página llegan en el <tbody> (data-total, data-paginas...)
+        // Listado en el servidor (data-tabla-servidor): el filtro.
         var servidor = raiz.hasAttribute('data-tabla-servidor');
         var meta = { total: 0, paginas: 1 };
         var ordenServidor = null;
@@ -410,8 +396,7 @@
             });
         }
 
-        // Columnas visibles: un ícono en el encabezado de la última columna abre el menú. La elección se recuerda por listado.
-        // Solo las columnas de la tabla del listado, no las de una tabla de detalle anidada dentro de una fila
+        // Columnas visibles: un ícono en el encabezado de la última columna abre el menú.
         var cabeceras = Array.prototype.slice.call(raiz.querySelectorAll('table.pn-tabla:not(.pn-tabla-anidada) > thead > tr > th'));
         var cabeceraAcciones = cabeceras[cabeceras.length - 1];
         var menuColumnas = raiz.querySelector('[data-columnas-menu]');
@@ -429,8 +414,7 @@
         }
         if (menuColumnas) {
             var claveColumnas = 'idoneos.columnas.v2.' + window.location.pathname;
-            // Columnas ocultas de entrada (th con data-oculta); si el usuario ya eligió las suyas, vale su elección. Se guardan también
-            // las columnas que existían al elegir: una columna nueva con data-oculta arranca oculta aunque haya una elección guardada
+            // Columnas ocultas de entrada (th con data-oculta). Si el usuario ya eligió las suyas, vale su elección.
             var porDefecto = [];
             var nombresColumnas = [];
             cabeceras.forEach(function (th) {
@@ -489,14 +473,10 @@
         // Vuelve a calcular las filas a mostrar. Con filtros, lo reemplaza la función de filtrado.
         var reaplicar = function () { filas = todas.slice(); pagina = 1; dibujar(); };
 
-        // ------------------------------------------------------------------
+        // ----------------------------------------------------------------------
         // Filtros y orden en el navegador: sin recargar la página, al escribir o elegir una opción.
-        // Cada campo del formulario (por su name) se compara con el atributo data-f-<name> de la fila:
-        //   texto -> contiene (sin tildes ni mayúsculas); lista desplegable -> igual (la fila puede traer varios valores
-        //   separados por "|"); "desde" / "hasta" -> la fila tiene fecha ISO en data-f-desde / data-f-hasta.
-        // El campo "orden" reordena las filas con data-o-<valor> (y data-o2-<valor> de desempate); la opción indica la
-        // dirección en data-dir / data-dir2 ("desc" para descendente). Las filas dadas de baja van siempre al final.
-        // ------------------------------------------------------------------
+        // ----------------------------------------------------------------------
+
         var formularioFiltros = raiz.querySelector('form[data-filtro-front]');
         if (formularioFiltros) {
             var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-cards]');
@@ -526,7 +506,7 @@
                         if (campo.type === 'number') {
                             return esDesde ? parseFloat(datoRango) >= parseFloat(valor) : parseFloat(datoRango) <= parseFloat(valor);
                         }
-                        // las fechas con hora se comparan por el día; la hora solo sirve para ordenar
+                        // las fechas con hora se comparan por el día. La hora solo sirve para ordenar
                         var dia = campo.type === 'date' ? datoRango.substring(0, 10) : datoRango;
                         return esDesde ? dia >= valor : dia <= valor;
                     }
@@ -605,7 +585,7 @@
                 if (!enlace) { return; }
                 e.preventDefault();
                 // Se vacían todos los campos (reset() devolvería los valores con que llegó la página, por ejemplo un filtro
-                // que vino elegido por la URL); el orden vuelve a su opción inicial
+                // que vino elegido por la URL). El orden vuelve a su opción inicial
                 campos.forEach(function (campo) {
                     if (campo.multiple) {
                         if (campo.tomselect) { campo.tomselect.clear(true); } else {
@@ -632,12 +612,10 @@
             if (servidor) { actualizarLimpiar(); } else { filtrar(); }
         }
 
-        // ------------------------------------------------------------------
-        // Orden por columna: un clic en el título ordena de menor a mayor, otro de mayor a menor y otro quita el orden.
-        // El criterio depende del tipo de la columna (data-filtro): número, fecha (ISO) o texto sin tildes ni mayúsculas.
-        // Un <th data-orden-inicial="asc|desc"> marca el orden con el que arranca el listado. Las filas dadas de baja
-        // quedan siempre al final.
-        // ------------------------------------------------------------------
+        // ----------------------------------------------------------------------
+        // Orden por columna: un clic en el título ordena de menor a mayor.
+        // ----------------------------------------------------------------------
+
         (function () {
             var titulos = Array.prototype.filter.call(raiz.querySelectorAll('thead th[data-col]'), function (th) {
                 // En el servidor solo se ordena por las columnas con campo (data-campo)
@@ -786,9 +764,10 @@
         }
     });
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // Movimiento: lo que llega entra con un fundido hacia arriba, escalonado (movimiento.css). Con "reducir movimiento" no se anima.
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
     var SIN_MOVIMIENTO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     function entrar(elementos) {
         if (SIN_MOVIMIENTO) { return; }
@@ -805,10 +784,10 @@
         if (cuerpo) { entrar(cuerpo); }
     });
 
-    // ------------------------------------------------------------------
-    // Chips de categoría bajo los filtros: eligen la categoría con el mismo campo del filtro y muestran cuántos cursos hay en cada una.
-    // Los datos (campo, categoría elegida y chips) vienen del servidor en data-chips del cuerpo de la tabla o de las cards.
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    // Chips de categoría bajo los filtros.
+    // ----------------------------------------------------------------------
+
     function dibujarChips(raiz) {
         var contenedor = raiz.querySelector('[data-chips-categorias]');
         var cuerpo = raiz.querySelector('tbody') || raiz.querySelector('[data-cards]');
@@ -852,10 +831,11 @@
     document.querySelectorAll('[data-tabla]').forEach(dibujarChips);
     document.addEventListener('tabla-actualizada', function (e) { if (e.detail && e.detail.tabla) { dibujarChips(e.detail.tabla); } });
 
-    // ------------------------------------------------------------------
-    // Grupos por categoría (ABM de cursos, Mis cursos): al hacer clic en la cabecera se colapsa o expande el grupo. Las filas o cards
-    // de un grupo son las que siguen a su cabecera hasta la próxima.
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    // Grupos por categoría
+    // ----------------------------------------------------------------------
+
+    // Al hacer clic en la cabecera se colapsa o expande el grupo (sus filas o cards son las que siguen hasta la próxima cabecera).
     function alternarGrupo(cabecera) {
         var cerrar = !cabecera.classList.contains('cerrado');
         cabecera.classList.toggle('cerrado', cerrar);
@@ -865,8 +845,7 @@
             var cuerpo = cabecera.nextElementSibling;
             if (!cuerpo) { return; }
             if (SIN_MOVIMIENTO) { cuerpo.hidden = cerrar; return; }
-            // Al ocultar: primero el contenido se desvanece y recién entonces la carta se pliega (así no se ven las cards recortadas
-            // mientras se achican). Al mostrar: la carta se abre vacía y el contenido aparece con un fundido.
+            // Al ocultar: primero el contenido se desvanece y recién entonces la carta se pliega (así no se ven las cards recortadas mientras se achican).
             if (cuerpo.animacionGrupo) { cuerpo.animacionGrupo.cancel(); }
             if (!cerrar) { cuerpo.hidden = false; }
             var alto = cuerpo.offsetHeight;

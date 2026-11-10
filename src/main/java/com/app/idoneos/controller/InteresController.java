@@ -18,10 +18,7 @@ import com.app.idoneos.util.RespuestaFormularioUtil;
 
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Controlador de los intereses del alumno: las categorías de cursos que le interesan. Se le preguntan al ingresar (si todavía no
- * eligió ninguna) y se pueden editar después. Con ellas el catálogo le recomienda cursos primero.
- */
+/** Controlador del interés. */
 @Controller
 @RequestMapping("/interes")
 public class InteresController {
@@ -29,14 +26,7 @@ public class InteresController {
     @Autowired
     private InteresAlumnoService interesAlumnoService;
 
-    /**
-     * Guarda las categorías que le interesan al alumno (reemplaza las anteriores). Responde en JSON.
-     *
-     * @param categoriaIds   Identificadores de las categorías elegidas.
-     * @param authentication La autenticación actual.
-     * @param sesion         La sesión HTTP.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /interes/guardar: Guarda las categorías que le interesan al alumno (reemplaza las anteriores). */
     @PostMapping("/guardar")
     public ResponseEntity<Map<String, String>> guardar(
             @RequestParam(value = "categoriaIds", required = false) List<Integer> categoriaIds, Authentication authentication,
@@ -53,13 +43,7 @@ public class InteresController {
         }
     }
 
-    /**
-     * El alumno cerró la ventana sin guardar al preguntarle qué le interesa: no se le vuelve a preguntar en esta sesión (en el próximo ingreso se
-     * le pregunta de nuevo, mientras no tenga intereses registrados). No guarda nada en la base. Responde en JSON.
-     *
-     * @param sesion La sesión HTTP.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /interes/omitir: El alumno cerró la ventana sin guardar al preguntarle qué le interesa. */
     @PostMapping("/omitir")
     public ResponseEntity<Map<String, String>> omitir(HttpSession sesion) {
         try {

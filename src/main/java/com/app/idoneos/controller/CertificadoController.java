@@ -30,14 +30,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.certificado.CertificadoService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de los certificados (MOD-F-03).
- *
- * Mapea CU-48 Corregir datos personales del certificado (Administrador): la ventana se abre desde la búsqueda de
- * inscripciones (CU-44) y este controlador recibe la corrección. El alumno consulta sus certificados en "Mis
- * certificados" (GET /certificado/buscar) y los descarga en PDF (GET /certificado/descargar/{id}); el
- * administrador puede descargar cualquiera.
- */
+/** Controlador del certificado. */
 @Controller
 @RequestMapping("/certificado")
 public class CertificadoController {
@@ -45,15 +38,11 @@ public class CertificadoController {
     @Autowired
     private CertificadoService certificadoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Lista los certificados del alumno (los que se emitieron al completar un curso), con la descarga en PDF.
-     *
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return La vista de "Mis certificados".
-     */
+    /** GET /certificado/buscar: Lista los certificados del alumno (los que se emitieron al completar un curso), con la descarga en PDF. */
     @GetMapping("/buscar")
     public String buscarPorAlumno(Model model, Authentication authentication, jakarta.servlet.http.HttpServletRequest request) {
         Alumno alumno = ((Usuario) authentication.getPrincipal()).getAlumno();
@@ -71,13 +60,7 @@ public class CertificadoController {
         return "pages/certificado/buscarPorAlumno";
     }
 
-    /**
-     * Descarga el certificado (PDF): el alumno el suyo y el administrador cualquiera.
-     *
-     * @param id   Identificador del certificado.
-     * @param authentication La autenticación actual.
-     * @return El archivo PDF.
-     */
+    /** GET /certificado/descargar/{id}: Descarga el certificado (PDF): el alumno el suyo y el administrador cualquiera. */
     @GetMapping("/descargar/{id}")
     public ResponseEntity<byte[]> descargar(@PathVariable("id") Integer id, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -96,16 +79,11 @@ public class CertificadoController {
                 .body(certificadoService.generarPdf(certificado));
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-48: Corrige el nombre y/o el DNI del alumno registrados en un certificado emitido. Responde en JSON.
-     *
-     * @param id     Identificador del certificado.
-     * @param nombre El nombre completo del alumno.
-     * @param dni    El DNI del alumno.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /certificado/corregir/{id}: Corrige el nombre y/o el DNI del alumno registrados en un certificado emitido. */
     @PostMapping("/corregir/{id}")
     public ResponseEntity<Map<String, String>> corregirDatos(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -118,14 +96,13 @@ public class CertificadoController {
         }
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        /** Las columnas de "Mis certificados": lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas de "Mis certificados", que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Certificado> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Certificado>("curso", FiltroUtil.Tipo.LISTA, c -> c.getInscripcion().getCurso().getNombre()),
                 new FiltroUtil.Columna<Certificado>("programa", FiltroUtil.Tipo.LISTA,

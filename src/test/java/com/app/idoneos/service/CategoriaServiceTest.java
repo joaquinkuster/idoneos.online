@@ -16,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Categoria;
 import com.app.idoneos.service.categoria.CategoriaServiceImpl;
 
-/**
- * Pruebas de las reglas de negocio de las categorías (CU-07 a CU-10), sobre los datos de la semilla.
- * Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de las reglas de negocio de las categorías, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class CategoriaServiceTest {

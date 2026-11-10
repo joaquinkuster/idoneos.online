@@ -17,9 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas de la pantalla "Mis cursos" del alumno cuando no tiene cursos para mostrar (CU-02).
- */
+/** Pruebas de la pantalla "Mis cursos" del alumno cuando no tiene cursos para mostrar. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

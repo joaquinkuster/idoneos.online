@@ -6,16 +6,15 @@ import com.app.idoneos.model.Comprobante;
 import com.app.idoneos.model.Pago;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el comprobante.
- */
+/** Servicio del comprobante. */
 public interface ComprobanteService extends CrudService<Comprobante> {
 
-    // ---------------------------------------------------------------- Lecturas
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca el comprobante por su atributo único 'numero'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca el comprobante por su atributo único 'numero'.
      *
      * @param numero el valor de 'numero' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
@@ -30,15 +29,16 @@ public interface ComprobanteService extends CrudService<Comprobante> {
      */
     byte[] generarPdf(Comprobante comprobante);
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Emite el comprobante de un pago aprobado: le asigna su número, lo guarda y lo agrega al pago. El envío por
-     * correo electrónico es parte de MOD-NF-01: por ahora queda registrado en el log y sin enviar.
+     * Emite el comprobante de un pago aprobado: le asigna su número, lo guarda y lo agrega al pago.
      *
-     * @param pago          El pago aprobado.
+     * @param pago El pago aprobado.
      * @param nombrePagador El nombre del pagador, para el comprobante.
-     * @param dniPagador    El DNI del pagador, para el comprobante.
+     * @param dniPagador El DNI del pagador, para el comprobante.
      * @return El comprobante emitido.
      */
     Comprobante emitir(Pago pago, String nombrePagador, String dniPagador);

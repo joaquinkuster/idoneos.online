@@ -2,13 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Board del cronograma de un programa (vista de calendario y por temas), que dibuja static/js/pages/cronograma/board.js.
-         Con puedeEditar se puede reordenar y cambiar los días (docente); si no, es de solo lectura (alumno,
-         administrador, o docente con inscripciones activas).
-         curso, programa: el curso y su programa; cronograma: los temas del programa en orden;
-         temasDelCurso: los temas que se muestran; soloPublicado: contar solo el material publicado (alumno). -->
-    <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno), se marca el día actual con la línea
-         roja, se muestra el atraso del alumno junto al título y cada tema lleva su estado. -->
+    <!-- Board del cronograma de un programa (vista de calendario y por temas). -->
+    <!-- Si quien lo incluye define cronoCohorte (y cronoInscripcion para el alumno). -->
     <th:block th:fragment="board(curso, programa, cronograma, temasDelCurso, puedeEditar, soloPublicado)"
         th:with="enCurso=${cronoCohorte != null and cronoCohorte.haComenzadoCronograma()},
                  terminado=${cronoCohorte != null and cronoCohorte.haFinalizadoCronograma()}">
@@ -26,7 +21,7 @@
                                    data-estado=${cronoInscripcion != null ? cronoInscripcion.getEstadoTemaResumido(uc) : (cronoCohorte != null ? cronoCohorte.getEstadoTemaResumido(uc) : '')}"></span>
                 </div>
 
-                <!-- Ayuda de la edición (solo al modificar): el ícono de «Temas disponibles» la muestra u oculta -->
+                <!-- Ayuda de la edición (solo al modificar): el ícono de "Temas disponibles" la muestra u oculta -->
                 <div class="cn-info" data-ayuda-texto hidden th:if="${puedeEditar}">
                     <div>
                         <span data-minimo-texto>El mínimo requerido de temas es <strong>2 (dos)</strong>.</span>
@@ -74,7 +69,7 @@
                                 <button type="button" class="pn-btn pn-btn-contorno pn-prog-boton activa" data-vista="calendario">Calendario</button>
                                 <button type="button" class="pn-btn pn-btn-contorno pn-prog-boton" data-vista="temas">Tabular</button>
                             </div>
-                            <!-- Escala de la grilla: solo cambia cómo se dibuja; la duración siempre se guarda en días -->
+                            <!-- Escala de la grilla: solo cambia cómo se dibuja. La duración siempre se guarda en días -->
                             <label class="cn-escala" data-escala-etiqueta>Escala
                                 <select class="pn-input" data-escala aria-label="Escala del calendario">
                                     <option value="dias">Días</option>

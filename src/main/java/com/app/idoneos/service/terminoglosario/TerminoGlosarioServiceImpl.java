@@ -24,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link TerminoGlosario}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link TerminoGlosarioService}.
- */
+/** Implementación de TerminoGlosarioService. */
 @Service
 public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
 
@@ -43,48 +40,31 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
     @Autowired
     private TemaService temaService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el término del glosario por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el término del glosario por su identificador. */
     @Override
     public Optional<TerminoGlosario> buscarPorId(Integer id) {
         return terminoGlosarioRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<TerminoGlosario> obtenerTodo() {
         return terminoGlosarioRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return terminoGlosarioRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de terminoGlosario asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de TerminoGlosario asociados al Tema indicado
-     */
+    /** Busca los registros vigentes de terminoGlosario asociados a tema. */
     @Override
     public List<TerminoGlosario> buscarPorTema(Tema tema) {
         return terminoGlosarioRepository.findByTemaAndBajaFalse(tema);
@@ -98,9 +78,7 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
         return grupos;
     }
 
-    /**
-     * CU-32: Busca los términos de un tema que contienen un texto, en orden alfabético.
-     */
+    /** Busca los términos de un tema que contienen un texto, en orden alfabético. */
     @Override
     public List<TerminoGlosario> buscarConFiltros(Tema tema, String texto, boolean enDefiniciones) {
         String buscado = TextoUtil.normalizar(texto);
@@ -111,30 +89,23 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
                 .toList();
     }
 
-    /**
-     * Indica si un usuario puede ver el glosario de un tema.
-     */
+    /** Indica si un usuario puede ver el glosario de un tema. */
     @Override
     public boolean puedeVer(Tema tema, Usuario usuario) {
         return temaService.puedeVerContenido(tema, usuario);
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el término del glosario en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el término del glosario en la base de datos. */
     @Override
     public TerminoGlosario guardar(TerminoGlosario entidad) {
         return terminoGlosarioRepository.save(entidad);
     }
 
-    /**
-     * CU-33: Registra un término en el glosario de un tema.
-     */
+    /** Registra un término en el glosario de un tema. */
     @Override
     @Transactional
     public TerminoGlosario registrar(Docente docente, Integer temaId, String termino, String definicion) {
@@ -158,22 +129,17 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
         return terminoGlosarioRepository.save(guardado);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public TerminoGlosario modificar(TerminoGlosario entidad) {
         return terminoGlosarioRepository.save(entidad);
     }
 
-    /**
-     * CU-34: Modifica un término del glosario.
-     */
+    /** Modifica un término del glosario. */
     @Override
     @Transactional
     public TerminoGlosario modificar(Integer id, Docente docente, String termino, String definicion) {
@@ -193,22 +159,18 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
         return terminoGlosarioRepository.save(existente);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(TerminoGlosario entidad) {
         entidad.marcarInactivo(); // Baja lógica
         terminoGlosarioRepository.save(entidad);
     }
 
-    /**
-     * CU-35: Da de baja un término del glosario.
-     */
+    /** Da de baja un término del glosario. */
     @Override
     @Transactional
     public void darDeBaja(Integer id, Docente docente) {

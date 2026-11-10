@@ -27,10 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Pool}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link PoolService}.
- */
+/** Implementación de PoolService. */
 @Service
 public class PoolServiceImpl implements PoolService {
 
@@ -55,62 +52,42 @@ public class PoolServiceImpl implements PoolService {
     @Autowired
     private DocenteCursoRepository docenteCursoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el pool por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el pool por su identificador. */
     @Override
     public Optional<Pool> buscarPorId(Integer id) {
         return poolRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Pool> obtenerTodo() {
         return poolRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return poolRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de pool asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de Pool asociados al Tema indicado
-     */
+    /** Busca los registros vigentes de pool asociados a tema. */
     @Override
     public List<Pool> buscarPorTema(Tema tema) {
         return poolRepository.findByTemaAndBajaFalse(tema);
     }
 
-    /**
-     * CU-60: Busca los pools de un curso (incluidos los dados de baja) aplicando filtros opcionales. Los dados de baja
-     * van siempre al final.
-     */
+    /** Busca los pools de un curso (incluidos los dados de baja) aplicando filtros opcionales. */
     @Override
     public List<Pool> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
-        // El curso, el tema y la baja se filtran en la base; el texto y la participación del docente, acá
+        // El curso, el tema y la baja se filtran en la base. El texto y la participación del docente, acá
         return poolRepository.buscarPorFiltros(idCurso, idTema, baja).stream()
                 .filter(p -> criterio.isEmpty() || p.getNombre().toLowerCase().contains(criterio))
                 .filter(p -> soloDeDocente == null || participaEnElCurso(p.getTema().getCurso(), soloDeDocente))
@@ -120,22 +97,17 @@ public class PoolServiceImpl implements PoolService {
                 .toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el pool en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el pool en la base de datos. */
     @Override
     public Pool guardar(Pool entidad) {
         return poolRepository.save(entidad);
     }
 
-    /**
-     * CU-61: Crea un pool en un tema activo, con sus preguntas y opciones de respuesta.
-     */
+    /** Crea un pool en un tema activo, con sus preguntas y opciones de respuesta. */
     @Override
     @Transactional
     public Pool registrar(Docente docente, Integer idTema, String nombre, List<SolicitudPregunta> preguntas) {
@@ -151,22 +123,17 @@ public class PoolServiceImpl implements PoolService {
         return pool;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Pool modificar(Pool entidad) {
         return poolRepository.save(entidad);
     }
 
-    /**
-     * CU-62: Modifica el nombre de un pool y agrega, edita o elimina sus preguntas y opciones.
-     */
+    /** Modifica el nombre de un pool y agrega, edita o elimina sus preguntas y opciones. */
     @Override
     @Transactional
     public Pool modificar(Integer idPool, Docente docente, String nombre, List<SolicitudPregunta> preguntas) {
@@ -188,31 +155,25 @@ public class PoolServiceImpl implements PoolService {
         return poolRepository.save(pool);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Pool entidad) {
         entidad.marcarInactivo(); // Baja lógica
         poolRepository.save(entidad);
     }
 
-    /**
-     * CU-63: Da de baja un pool que no está asociado a ninguna autoevaluación activa.
-     */
+    /** Da de baja un pool que no está asociado a ninguna autoevaluación activa. */
     @Override
     @Transactional
     public void darDeBaja(Integer idPool, Docente docente) {
         darDeBaja(validarBaja(idPool, docente));
     }
 
-    /**
-     * Da de baja varios pools. Es todo o nada: primero se valida cada uno y recién después se dan de baja.
-     */
+    /** Da de baja varios pools. */
     @Override
     @Transactional
     public void darDeBajaVarios(List<Integer> ids, Docente docente) {
@@ -223,10 +184,7 @@ public class PoolServiceImpl implements PoolService {
         pools.forEach(this::darDeBaja);
     }
 
-    /**
-     * Verifica que el pool esté activo, que el docente (si se indica) participe en su curso y que ninguna autoevaluación
-     * activa lo use.
-     */
+    /** Verifica que el pool esté activo, que el docente (si se indica) participe en su curso y que ninguna autoevaluación activa lo use. */
     private Pool validarBaja(Integer idPool, Docente docente) {
         Pool pool = poolRepository.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
@@ -249,16 +207,16 @@ public class PoolServiceImpl implements PoolService {
         poolRepository.save(pool);
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
         return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 
-    /**
-     * Verifica que el docente participe en el curso (como titular o ayudante).
-     */
+    /** Verifica que el docente participe en el curso (como titular o ayudante). */
     private void obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
@@ -268,10 +226,7 @@ public class PoolServiceImpl implements PoolService {
         }
     }
 
-    /**
-     * Valida el nombre (obligatorio, hasta 50 caracteres y único en el tema, incluso entre los pools dados de baja,
-     * porque la restricción de la tabla lo exige) y lo devuelve sin espacios sobrantes.
-     */
+    /** Valida el nombre. */
     private String validarNombre(String nombre, Tema tema, Pool actual) {
         if (nombre == null || nombre.isBlank()) {
             throw RespuestaFormularioUtil.armarCampoInvalido("nombre", "Error! Debe completar el nombre del pool.");
@@ -290,11 +245,7 @@ public class PoolServiceImpl implements PoolService {
         return limpio;
     }
 
-    /**
-     * Valida que haya al menos una pregunta y que cada una tenga enunciado, al menos dos opciones con texto y la cantidad
-     * de opciones correctas que corresponde a su tipo: exactamente una en las de opción única y al menos una en las de
-     * opción múltiple.
-     */
+    /** Valida que haya al menos una pregunta y que cada una tenga enunciado. */
     private void validarPreguntas(List<SolicitudPregunta> preguntas) {
         if (preguntas == null || preguntas.isEmpty()) {
             throw new IllegalArgumentException("Error! Debe cargar al menos una pregunta.");
@@ -335,10 +286,7 @@ public class PoolServiceImpl implements PoolService {
         }
     }
 
-    /**
-     * Valida que, tras la modificación, el pool conserve en conjunto con los demás pools de cada autoevaluación asociada
-     * la cantidad de preguntas que esta necesita para sortear sus intentos.
-     */
+    /** Valida que, tras la modificación, el pool conserve en conjunto con los demás pools de cada autoevaluación asociada la cantidad de preguntas que esta necesita para sortear sus intentos. */
     private void validarQueLasAutoevaluacionesPuedanSortear(Pool pool, int preguntasNuevas) {
         for (Autoevaluacion autoevaluacion : pool.getAutoevaluacionesActivas()) {
             long deLosOtrosPools = autoevaluacion.getPoolsActivos().stream()
@@ -352,10 +300,7 @@ public class PoolServiceImpl implements PoolService {
         }
     }
 
-    /**
-     * Aplica las preguntas de la solicitud al pool: las que ya existen se actualizan, las nuevas se crean y las que no
-     * figuran se dan de baja.
-     */
+    /** Aplica las preguntas de la solicitud al pool: las que ya existen se actualizan. */
     private void aplicarPreguntas(Pool pool, List<SolicitudPregunta> solicitudes, LocalDateTime ahora) {
         Map<Integer, Pregunta> existentes = new LinkedHashMap<>();
         pool.getPreguntasActivas().forEach(p -> existentes.put(p.getIdPregunta(), p));
@@ -387,10 +332,7 @@ public class PoolServiceImpl implements PoolService {
         });
     }
 
-    /**
-     * Aplica las opciones de la solicitud a la pregunta: las que ya existen se actualizan, las nuevas se crean y las que
-     * no figuran se dan de baja.
-     */
+    /** Aplica las opciones de la solicitud a la pregunta: las que ya existen se actualizan. */
     private void aplicarOpciones(Pregunta pregunta, List<SolicitudOpcion> solicitudes, LocalDateTime ahora) {
         Map<Integer, OpcionRespuesta> existentes = new LinkedHashMap<>();
         pregunta.getOpcionesActivas().forEach(o -> existentes.put(o.getIdOpcionRespuesta(), o));

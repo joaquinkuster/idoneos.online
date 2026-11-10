@@ -23,11 +23,7 @@ import com.app.idoneos.service.cohorte.CohorteServiceImpl;
 import com.app.idoneos.service.curso.CursoServiceImpl;
 import com.app.idoneos.service.programa.ProgramaServiceImpl;
 
-/**
- * Pruebas de la inscripción con el alumno que llega en la sesión del usuario (CU-45). A propósito NO son
- * transaccionales: en la aplicación real el alumno de la sesión está desconectado de Hibernate (sus colecciones no se
- * pueden leer) y dentro de una transacción de prueba ese problema no se ve. Cada prueba borra lo que crea.
- */
+/** Pruebas de la inscripción con el alumno que llega en la sesión del usuario. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class InscripcionConSesionControllerTest {

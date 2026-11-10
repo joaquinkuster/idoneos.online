@@ -114,7 +114,7 @@
     </div>
 </div>
 
-<!-- Modal: crear pool (CU-61) -->
+<!-- Modal: crear pool -->
 <div class="modal fade pn-modal" id="modalNuevoPool" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -129,9 +129,9 @@
     </div>
 </div>
 
-<!-- Modales por pool: modificar (CU-62) y dar de baja (CU-63) -->
+<!-- Modales por pool: modificar y dar de baja -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaPool', 'pool', '¿Confirmas dar de baja?', '', '/pool/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>

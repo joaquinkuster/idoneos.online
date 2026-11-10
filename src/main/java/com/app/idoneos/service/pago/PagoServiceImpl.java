@@ -41,10 +41,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Pago}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link PagoService}.
- */
+/** Implementación de PagoService. */
 @Service
 public class PagoServiceImpl implements PagoService {
 
@@ -57,7 +54,7 @@ public class PagoServiceImpl implements PagoService {
     /** Número de comprobante de MODO: solo números, de 4 a 100 dígitos. */
     private static final java.util.regex.Pattern FORMATO_COMPROBANTE_MODO = java.util.regex.Pattern.compile("\\d{4,100}");
 
-    /** Número de comprobante de una transferencia: depende del banco; puede llevar letras, números y guiones. */
+    /** Número de comprobante de una transferencia: depende del banco. Puede llevar letras, números y guiones. */
     private static final java.util.regex.Pattern FORMATO_COMPROBANTE_TRANSFERENCIA = java.util.regex.Pattern.compile("[A-Za-z0-9-]{4,100}");
 
     private static final int LONGITUD_OBSERVACIONES = 300;
@@ -101,46 +98,27 @@ public class PagoServiceImpl implements PagoService {
     @Autowired
     private PasarelaPagoService pasarela;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el pago por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el pago por su identificador. */
     @Override
     public Optional<Pago> buscarPorId(Integer id) {
         return pagoRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Pago> obtenerTodo() {
         return pagoRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return pagoRepository.existsById(id);
     }
-
-
-
-
-
-
-
 
     @Override
     public List<Pago> buscarConFiltros(Integer cursoId, String alumno, String estado, LocalDate desde, LocalDate hasta,
@@ -176,7 +154,7 @@ public class PagoServiceImpl implements PagoService {
         return mejorDescuento(comprados);
     }
 
-    /** El descuento vigente de mayor porcentaje entre los que exigen, como mucho, esa cantidad de cursos comprados. */
+    /** Busca el descuento vigente de mayor porcentaje entre los que exigen, como mucho, esa cantidad de cursos comprados. */
     private Optional<Descuento> mejorDescuento(long comprados) {
         LocalDateTime ahora = LocalDateTime.now();
         return descuentoRepository.findByBajaFalse().stream()
@@ -223,7 +201,7 @@ public class PagoServiceImpl implements PagoService {
     @Override
     public DetallePago calcularDetalle(Inscripcion inscripcion) {
         float precio = inscripcion.getCurso().getPrecio();
-        // Un pago aprobado con descuento fija el descuento; si no, el que le corresponde hoy
+        // Un pago aprobado con descuento fija el descuento. Si no, el que le corresponde hoy
         Descuento descuento = inscripcion.getPagos().stream().filter(pago -> pago.estaAprobado() && pago.getDescuento() != null)
                 .map(Pago::getDescuento).findFirst().orElseGet(() -> calcularDescuento(inscripcion).orElse(null));
         float conDescuento = descuento != null ? descuento.aplicarA(precio) : precio;
@@ -270,14 +248,11 @@ public class PagoServiceImpl implements PagoService {
         return Math.min(10, Math.max(5, minutos));
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el pago en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el pago en la base de datos. */
     @Override
     public Pago guardar(Pago entidad) {
         return pagoRepository.save(entidad);
@@ -328,8 +303,7 @@ public class PagoServiceImpl implements PagoService {
             throw new IllegalArgumentException(
                     MensajeErrorUtil.armarDemasiadoLargo("Las observaciones", LONGITUD_OBSERVACIONES, "caracteres"));
         }
-        // Un pendiente (por ejemplo, de MODO sin confirmar) queda rechazado, porque el que se registra es otro pago y el pendiente no debe
-        // acreditarse después. Cada registro es un pago nuevo: los intentos anteriores conservan sus datos para poder rastrearlos
+        // Un pendiente (por ejemplo, de MODO sin confirmar) queda rechazado.
         rechazarPendientes(inscripcion, null);
         Pago pago = new Pago(estado(EstadoPago.PENDIENTE), metodo(MetodoPago.TRANSFERENCIA), inscripcion,
                 "IDN-" + UUID.randomUUID(), monto);
@@ -343,14 +317,11 @@ public class PagoServiceImpl implements PagoService {
         return pago;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Pago modificar(Pago entidad) {
         return pagoRepository.save(entidad);
@@ -394,7 +365,7 @@ public class PagoServiceImpl implements PagoService {
         return resueltos;
     }
 
-    /** Cada minuto concilia los pagos online pendientes (el aviso de MODO por webhook puede no llegar). */
+    /** Concilia cada minuto los pagos online pendientes, porque el aviso de MODO por webhook puede no llegar. */
     @Scheduled(fixedDelay = 60_000, initialDelay = 60_000)
     @Transactional // la llamada a conciliarPendientes() es interna (no pasa por el proxy): la transacción tiene que abrirse acá
     public void conciliarPagosPendientesPeriodicamente() {
@@ -435,8 +406,7 @@ public class PagoServiceImpl implements PagoService {
         if (monto == null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("monto", "Error! El monto es obligatorio.");
         }
-        // Acreditar una transferencia pide su número de comprobante. Acreditar un pago de MODO pide el código de referencia, el
-        // número de comprobante y el nombre y el DNI del pagador: son la prueba de que el administrador verificó el cobro en MODO.
+        // Acreditar una transferencia pide su número de comprobante.
         if (pago.esDeModo()) {
             if (referenciaLimpia == null || comprobanteLimpio == null) {
                 throw new IllegalArgumentException(
@@ -474,22 +444,17 @@ public class PagoServiceImpl implements PagoService {
         return pago;
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(Pago entidad) {
         pagoRepository.delete(entidad);
     }
 
-    /**
-     * La habilitación de la inscripción ocupa un cupo de la cohorte: si ya no queda, no se puede pagar. (Si el pago
-     * online ya se cobró cuando se aprueba, la inscripción se habilita igual: no se puede rechazar un pago acreditado.)
-     */
+    /** La habilitación de la inscripción ocupa un cupo de la cohorte: si ya no queda, no se puede pagar. */
     /** Una inscripción cancelada no se paga: ya no hay un lugar reservado para ella. */
     private static void validarNoCancelada(Inscripcion inscripcion) {
         if (inscripcion.estaCancelada()) {
@@ -497,11 +462,7 @@ public class PagoServiceImpl implements PagoService {
         }
     }
 
-    /**
-     * Toma el bloqueo de la cohorte de la inscripción y recarga la inscripción de la base, para decidir con el estado real: dos
-     * operaciones sobre la misma cohorte (dos pagos por el último lugar, o el aviso de MODO y la tarea periódica sobre el mismo
-     * pago) se hacen una después de la otra. Se bloquea antes de leer para no trabajar con datos viejos.
-     */
+    /** Toma el bloqueo de la cohorte de la inscripción y recarga la inscripción de la base. */
     private void bloquearCohorteDeLaInscripcion(Integer idInscripcion) {
         inscripcionRepository.buscarIdCohorte(idInscripcion).ifPresent(cohorteRepository::buscarPorIdConBloqueo);
         inscripcionRepository.findById(idInscripcion).ifPresent(this::recargar);
@@ -522,7 +483,7 @@ public class PagoServiceImpl implements PagoService {
         }
     }
 
-    /** Reglas comunes de CU-51 y CU-52: arma el pago de la inscripción y crea la solicitud en la plataforma. */
+    /** Inicia el pago con las reglas comunes: arma el pago de la inscripción y crea la solicitud en la plataforma. */
     private SolicitudPago iniciar(Inscripcion inscripcion, Float montoEsperado) {
         validarNoCancelada(inscripcion);
         if (inscripcion.tienePagoAprobado()) {
@@ -589,14 +550,14 @@ public class PagoServiceImpl implements PagoService {
                 usuario.getDni());
         pago.setIdSolicitudPago(solicitud.id());
         pagoRepository.save(pago);
-        // Con el pago en curso la inscripción pasa a «Pago en curso» y reserva su lugar hasta que se resuelva
+        // Con el pago en curso la inscripción pasa a "Pago en curso" y reserva su lugar hasta que se resuelva
         inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PAGO_EN_CURSO));
         inscripcion.setUltimaModificacion(ahora);
         inscripcionRepository.save(inscripcion);
         return new SolicitudPago(pago.getIdPago(), solicitud.id(), false);
     }
 
-    /** El mensaje de un pago que MODO todavía no resolvió: no se puede pagar de nuevo hasta que informe cómo terminó. */
+    /** Arma el mensaje de un pago que MODO todavía no resolvió. */
     private static IllegalArgumentException estaVerificandoElPago() {
         return new IllegalArgumentException(
                 "Error! Estamos verificando tu pago con MODO. Aguardá unos minutos y revisá el resultado en Mis pagos.");
@@ -608,12 +569,7 @@ public class PagoServiceImpl implements PagoService {
                 && pago.getFechaCreacion().plusSeconds(pasarela.vigenciaSolicitudSegundos()).isBefore(LocalDateTime.now());
     }
 
-    /**
-     * El descuento cubre todo el precio: no hay nada que cobrar, así que se habilita el acceso directamente, sin
-     * registrar un pago ni emitir comprobante. Como no hay pago al que asociar el descuento, su uso se cuenta acá
-     * (si no, un descuento del 100% no tendría tope). Esta inscripción tampoco cuenta como curso comprado, porque
-     * no tiene pago aprobado.
-     */
+    /** Habilita el acceso sin pago cuando el descuento cubre todo el precio y no hay nada que cobrar. */
     private SolicitudPago habilitarSinPago(Inscripcion inscripcion, Descuento descuento) {
         LocalDateTime ahora = LocalDateTime.now();
         inscripcion.habilitar(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.HABILITADA), ahora);
@@ -626,15 +582,7 @@ public class PagoServiceImpl implements PagoService {
         return new SolicitudPago(null, null, true);
     }
 
-    /**
-     * Resuelve un pago online pendiente consultando a MODO. Solo se decide con una respuesta real de MODO; si no responde, el pago sigue pendiente
-     * (conserva el lugar de la inscripción) y se vuelve a consultar en la corrida siguiente:
-     * <ul>
-     * <li>Accepted: se aprueba. Rejected: se rechaza. Processing: se espera, hay un pago en vuelo.</li>
-     * <li>Created o Scanned: nadie está pagando. Pasado el vencimiento de la solicitud más {@link #MARGEN_MINUTOS} minutos (MODO no acepta pagos
-     * vencidos, y el margen cubre la demora con que se actualiza su estado), se rechaza por vencimiento.</li>
-     * </ul>
-     */
+    /** Resuelve un pago online pendiente consultando a MODO. */
     private void conciliar(Pago pago) {
         if (!pago.estaPendiente() || !pago.esDeModo() || pago.getIdSolicitudPago() == null) {
             return;
@@ -693,7 +641,7 @@ public class PagoServiceImpl implements PagoService {
         }
     }
 
-    /** Aprueba el pago: registra la fecha, habilita el acceso de la inscripción si lo pagado cubre el precio, cuenta el uso del descuento y emite el comprobante. */
+    /** Aprueba el pago: registra la fecha, habilita el acceso de la inscripción si lo pagado cubre el precio. */
     private void aprobar(Pago pago, String nombrePagador, String dniPagador) {
         LocalDateTime ahora = LocalDateTime.now();
         pago.setEstadoPago(estado(EstadoPago.APROBADO));
@@ -723,7 +671,7 @@ public class PagoServiceImpl implements PagoService {
     /** Motivo con el que se rechaza un pago pendiente cuando se aprueba otro de la misma inscripción. */
     static final String MOTIVO_OTRO_PAGO_APROBADO = "Se aprobó otro pago de esta inscripción.";
 
-    /** Rechaza los pagos pendientes de la inscripción (menos {@code excepto}): otro pago se aprobó y estos ya no corresponden. */
+    /** Rechaza los pagos pendientes de la inscripción (menos excepto). */
     private void rechazarPendientes(Inscripcion inscripcion, Pago excepto) {
         for (Pago otro : new ArrayList<>(inscripcion.getPagos())) {
             if (otro != excepto && otro.estaPendiente()) {
@@ -737,7 +685,7 @@ public class PagoServiceImpl implements PagoService {
         pago.setMotivoRechazo(motivo);
         pago.setUltimaModificacion(LocalDateTime.now());
         pagoRepository.save(pago);
-        // Sin otro pago en curso, la inscripción vuelve a «Pendiente de pago» y libera el lugar que reservaba
+        // Sin otro pago en curso, la inscripción vuelve a "Pendiente de pago" y libera el lugar que reservaba
         Inscripcion inscripcion = pago.getInscripcion();
         if (inscripcion.estaConPagoEnCurso() && inscripcion.getPagos().stream().noneMatch(Pago::estaPendiente)) {
             inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
@@ -751,11 +699,7 @@ public class PagoServiceImpl implements PagoService {
         }
     }
 
-    /**
-     * Valida el código de referencia de MODO: solo letras y números, de 6 a 12 caracteres, y que no esté en otro pago.
-     *
-     * @return el código validado, o {@code null} si no se indicó
-     */
+    /** Valida el código de referencia de MODO: solo letras y números, de 6 a 12 caracteres. */
     private String validarCodigoReferencia(String codigo, Pago pago) {
         if (codigo == null) {
             return null;
@@ -771,10 +715,7 @@ public class PagoServiceImpl implements PagoService {
         return codigo;
     }
 
-    /**
-     * Valida el número de comprobante según el medio de pago (MODO: solo números; transferencia: letras, números y
-     * guiones) y que no esté repetido entre los pagos del mismo medio.
-     */
+    /** Valida el número de comprobante según el medio de pago. */
     private void validarNumeroComprobante(String numero, String medio, Pago pago) {
         if (numero == null) {
             return;
@@ -794,7 +735,7 @@ public class PagoServiceImpl implements PagoService {
         }
     }
 
-    /** Si el alumno vio un monto en la caja y ahora corresponde cobrar otro, no se cobra y se le avisa. */
+    /** Valida el monto esperado. Si el alumno vio un monto en la caja y ahora corresponde cobrar otro, no se cobra y se le avisa. */
     private void validarMontoEsperado(Float montoEsperado, float monto) {
         if (montoEsperado != null && Math.abs(monto - montoEsperado) > 0.005f) {
             throw new MontoCambiadoException(
@@ -802,7 +743,7 @@ public class PagoServiceImpl implements PagoService {
         }
     }
 
-    /** El monto que se acredita no puede superar lo que todavía debe la inscripción. */
+    /** Valida que el monto que se acredita no supere lo que todavía debe la inscripción. */
     private void validarMontoNoSuperaLaDeuda(Inscripcion inscripcion, float monto) {
         float debe = calcularMontoPendiente(inscripcion);
         if (monto > debe + 0.005f) {

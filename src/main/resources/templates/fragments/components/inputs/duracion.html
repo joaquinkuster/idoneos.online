@@ -2,10 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Duración en días, semanas o meses, o una combinación (Mixto) con una casilla para cada unidad (static/js/components/duracion.js).
-         El servidor recibe un solo número: el total en días (campo "nombre") y su unidad fija ("nombreUnidad" = dias).
-         nombre: name del campo; valor: total guardado en días (o null); bloqueado: solo lectura; mensaje: aviso de campo obligatorio
-         (si es null, el campo es opcional). -->
+    <!-- Duración en días, semanas o meses, o una combinación (Mixto) con una casilla para cada unidad (static/js/components/duracion.js). -->
     <div th:fragment="duracion(nombre, valor, bloqueado, mensaje)" class="pn-duracion" data-duracion>
         <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" th:required="${mensaje != null}" tabindex="-1" aria-hidden="true"
                data-tiempo-total th:attr="data-mensaje-obligatorio=${mensaje}">

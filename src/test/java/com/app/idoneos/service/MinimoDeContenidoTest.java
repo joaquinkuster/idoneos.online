@@ -20,12 +20,7 @@ import com.app.idoneos.repository.ProgramaRepository;
 import com.app.idoneos.service.recurso.RecursoService;
 import com.app.idoneos.service.parametro.ParametroService;
 
-/**
- * Pruebas del mínimo de contenido de un programa con cohortes en curso: un tema cuenta si tiene material publicado y al
- * menos una autoevaluación visible, y el programa debe conservar el mínimo (parámetro de la semilla: 2) mientras tenga
- * cohortes en curso, aunque no tengan inscripciones. Se usa el programa de «Mercado de Capitales Argentino», con tres
- * temas con material y autoevaluación.
- */
+/** Pruebas del mínimo de contenido de un programa con cohortes en curso. */
 @SpringBootTest
 @Transactional
 class MinimoDeContenidoTest {
@@ -61,7 +56,7 @@ class MinimoDeContenidoTest {
         int cuentan = programa.getCantidadTemasConMaterialPublicado();
         assertTrue(cuentan >= 2);
 
-        // Sin los materiales de un tema, ese tema deja de contar; sin sus temas, tampoco
+        // Sin los materiales de un tema, ese tema deja de contar. Sin sus temas, tampoco
         TemaCronograma primera = programa.getCronogramaOrdenado().get(0);
         Set<Integer> materialesDeLaPrimera = primera.getTema().getMateriales().stream().map(TemaRecurso::getIdTemaRecurso)
                 .collect(java.util.stream.Collectors.toSet());
@@ -94,7 +89,7 @@ class MinimoDeContenidoTest {
         Set<Integer> todas = programa.getCronogramaOrdenado().stream().map(c -> c.getTema().getIdTema())
                 .collect(java.util.stream.Collectors.toSet());
 
-        // Sin ningún tema queda por debajo; sin ninguna quitada, no
+        // Sin ningún tema queda por debajo. Sin ninguna quitada, no
         var bloqueo = programaService.verificarMinimoDeTemas(programa, todas);
         assertTrue(bloqueo.isPresent());
         assertEquals(0, bloqueo.get().quedaria());

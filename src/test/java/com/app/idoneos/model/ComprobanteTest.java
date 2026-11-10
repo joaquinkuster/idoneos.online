@@ -7,9 +7,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de la regla de numeración de los comprobantes.
- */
+/** Pruebas de la regla de numeración de los comprobantes. */
 class ComprobanteTest {
 
     @Test

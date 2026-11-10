@@ -12,9 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas unitarias de las reglas de {@link Recurso}, {@link TemaRecurso} y {@link TipoRecurso}.
- */
+/** Pruebas unitarias de las reglas de Recurso, TemaRecurso y TipoRecurso. */
 class RecursoTest {
 
     private Recurso grabacion(String ruta) {

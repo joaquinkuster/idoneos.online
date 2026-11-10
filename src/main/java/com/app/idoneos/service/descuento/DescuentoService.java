@@ -7,15 +7,15 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el descuento.
- */
+/** Servicio del descuento. */
 public interface DescuentoService extends CrudService<Descuento> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca el descuento por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca el descuento por su atributo único 'nombre'.
      *
      * @param nombre el valor de 'nombre' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
@@ -23,29 +23,28 @@ public interface DescuentoService extends CrudService<Descuento> {
     Optional<Descuento> buscarPorNombre(String nombre);
 
     /**
-     * Busca descuentos por nombre y estado (CU-56).
+     * Busca descuentos por nombre y estado.
      *
      * @param nombre parte del nombre (opcional)
-     * @param estado Vigente, Próximo, Vencido, Agotado o Dado de baja (opcional; vacío para todos)
-     * @param orden "nombre" (A–Z, por defecto), "recientes" (más nuevos primero) o "porcentaje" (mayor primero);
-     *              los dados de baja van siempre al final
+     * @param estado Vigente, Próximo, Vencido, Agotado o Dado de baja (opcional, vacío para todos)
+     * @param orden "nombre" (A,Z, por defecto), "recientes" (más nuevos primero) o "porcentaje" (mayor primero), los dados de baja van siempre al final
      * @return los descuentos que cumplen los criterios
      */
     List<Descuento> buscarConFiltros(String nombre, String estado, String orden);
 
     /**
-     * Busca los descuentos vigentes en este momento (no dados de baja, no agotados, no vencidos y ya comenzados),
-     * del mayor porcentaje al menor.
+     * Busca los descuentos vigentes en este momento.
      *
      * @return Los descuentos vigentes.
      */
     List<Descuento> buscarVigentes();
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Registra un descuento (CU-57), con cantidad usada en cero. Si existe uno dado de baja con el mismo nombre,
-     * lo reactiva con los datos nuevos.
+     * Registra un descuento, con cantidad usada en cero.
      *
      * @param nombre nombre del descuento
      * @param porcentaje porcentaje, entre 1 y 100
@@ -59,11 +58,12 @@ public interface DescuentoService extends CrudService<Descuento> {
     Descuento registrar(String nombre, Float porcentaje, LocalDate vigenciaDesde, LocalDate vigenciaHasta,
             Integer cantidadLimite, Integer cursosRequeridos);
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Modifica los datos de un descuento que no está dado de baja (CU-58). Los vencidos y agotados pueden
-     * modificarse (por ejemplo para extender la vigencia), pero la cantidad límite no puede ser menor a la usada.
+     * Modifica los datos de un descuento que no está dado de baja.
      *
      * @param idDescuento identificador del descuento
      * @throws IllegalArgumentException si el descuento está dado de baja o algún dato no es válido
@@ -72,10 +72,12 @@ public interface DescuentoService extends CrudService<Descuento> {
     Descuento modificar(Integer idDescuento, String nombre, Float porcentaje, LocalDate vigenciaDesde,
             LocalDate vigenciaHasta, Integer cantidadLimite, Integer cursosRequeridos);
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
     /**
-     * Da de baja un descuento que no está dado de baja y nunca se aplicó (CU-59).
+     * Da de baja un descuento que no está dado de baja y nunca se aplicó.
      *
      * @param idDescuento identificador del descuento
      * @throws IllegalArgumentException si ya está dado de baja o se aplicó a alguna inscripción

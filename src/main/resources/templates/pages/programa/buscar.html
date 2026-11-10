@@ -113,7 +113,7 @@
     </div>
 </div>
 
-<!-- Asistente de programas: Datos básicos, Cronograma y Resumen. El mismo sirve para registrar y para modificar -->
+<!-- Asistente de programas: Datos básicos, Cronograma y Resumen. -->
 <div class="modal fade pn-modal" id="modalPrograma" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -248,10 +248,10 @@
                         <p class="pn-nota pn-prog-nota-cohortes" data-prog-nota-cohortes hidden>Las cohortes asignadas quedan con su diseño completo y abren la inscripción en su fecha de inicio.</p>
                     </div>
 
-                    <!-- Con cohortes publicadas en el catálogo el programa es un compromiso con los alumnos: solo se puede consultar -->
+                    <!-- Con cohortes publicadas en el catálogo el programa es un compromiso con los alumnos. -->
                     <div class="pn-alerta pn-alerta-dorado" data-programa-bloqueado hidden>
-                        <strong th:text="${'El programa no se puede modificar: ' + @textos.motivoPublicado + '.'}">El programa no se puede modificar: tiene cohortes publicadas en el catálogo.</strong>
-                        <span th:text="${@textos.avisoDiseno}">Lo publicado es un compromiso de la empresa.</span>
+                        <strong th:text="${'El programa no se puede modificar: ' + @mensajeErrorUtil.motivoPublicado + '.'}">El programa no se puede modificar: tiene cohortes publicadas en el catálogo.</strong>
+                        <span th:text="${@mensajeErrorUtil.avisoDiseno}">Lo publicado es un compromiso de la empresa.</span>
                     </div>
 
                     <div class="pn-modal-pie">
@@ -266,9 +266,9 @@
     </div>
 </div>
 
-<!-- Bajas (CU-18) -->
+<!-- Bajas -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaPrograma', 'programa', '¿Confirmas dar de baja?', '', '/programa/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>

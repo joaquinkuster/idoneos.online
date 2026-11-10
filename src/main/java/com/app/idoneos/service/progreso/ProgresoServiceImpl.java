@@ -21,10 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Progreso}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link ProgresoService}.
- */
+/** Implementación de ProgresoService. */
 @Service
 public class ProgresoServiceImpl implements ProgresoService {
 
@@ -43,59 +40,35 @@ public class ProgresoServiceImpl implements ProgresoService {
     @Autowired
     private CertificadoService certificadoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el progreso por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el progreso por su identificador. */
     @Override
     public Optional<Progreso> buscarPorId(Integer id) {
         return progresoRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Progreso> obtenerTodo() {
         return progresoRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return progresoRepository.existsById(id);
     }
 
-    /**
-     * Busca los registros de progreso asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de Progreso asociados al Tema indicado
-     */
+    /** Busca los registros de progreso asociados a tema. */
     @Override
     public List<Progreso> buscarPorTema(Tema tema) {
         return progresoRepository.findByTema(tema);
     }
 
-
-    /**
-     * Busca el progreso a partir de la combinación única de sus relaciones. Incluye los registros dados de baja.
-     *
-     * @param inscripcion el registro de Inscripcion asociado
-     * @param tema el registro de Tema asociado
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el progreso a partir de la combinación única de sus relaciones. */
     @Override
     public Optional<Progreso> buscarPorInscripcionYTema(Inscripcion inscripcion, Tema tema) {
         return progresoRepository.findByInscripcionAndTema(inscripcion, tema);
@@ -125,35 +98,27 @@ public class ProgresoServiceImpl implements ProgresoService {
         return new DetalleProgreso(inscripcion, temas);
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el progreso en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el progreso en la base de datos. */
     @Override
     public Progreso guardar(Progreso entidad) {
         return progresoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Progreso modificar(Progreso entidad) {
         return progresoRepository.save(entidad);
     }
 
-    /**
-     * Registra el tema como completada para un alumno si la aprobó (ver {@link Tema#estaAprobadaPor}).
-     */
+    /** Registra el tema como completada para un alumno si la aprobó (ver Tema.estaAprobadaPor). */
     @Override
     @Transactional
     public boolean actualizar(Inscripcion inscripcion, Tema tema) {
@@ -181,9 +146,7 @@ public class ProgresoServiceImpl implements ProgresoService {
         return true;
     }
 
-    /**
-     * Verifica el tema para cada alumno con inscripción vigente en un programa que la incluye.
-     */
+    /** Verifica el tema para cada alumno con inscripción vigente en un programa que la incluye. */
     @Override
     @Transactional
     public void actualizarPorTema(Tema tema) {
@@ -198,21 +161,17 @@ public class ProgresoServiceImpl implements ProgresoService {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(Progreso entidad) {
         progresoRepository.delete(entidad);
     }
 
-    /**
-     * Revierte el tema a no completada y anula el certificado vigente de la inscripción, si lo tenía.
-     */
+    /** Revierte el tema a no completada y anula el certificado vigente de la inscripción, si lo tenía. */
     @Override
     @Transactional
     public boolean revertir(Inscripcion inscripcion, Tema tema) {

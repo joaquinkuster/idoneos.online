@@ -81,8 +81,7 @@
     z-index: 5;
 }
 
-/* Filtros: todas las columnas miden lo mismo. Un filtro de rango (desde / hasta) usa el ancho de una sola columna,
-   partido en dos mitades. */
+/* Filtros: todas las columnas miden lo mismo. */
 .pn-filtros {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
@@ -113,9 +112,7 @@
     justify-self: start;
 }
 
-/* Botón "Más" de las acciones de una fila: aparece solo cuando hay más de dos acciones. Modificar y Dar de baja
-   quedan siempre a la vista; lo demás va en un menú aparte, como el desplegable de Bootstrap. Los tres botones miden lo
-   mismo. */
+/* Botón "Más" de las acciones de una fila: aparece solo cuando hay más de dos acciones. */
 .pn-acciones .pn-btn-editar,
 .pn-acciones .pn-btn-peligro,
 .pn-acciones .pn-mas {

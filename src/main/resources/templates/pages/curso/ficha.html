@@ -82,7 +82,7 @@
 
             <th:block th:if="${hayCohortes}" th:with="primeraAbierta=${primeraCohorte.estaAbierta()}, alumno=${usuario != null ? usuario.alumno : null}">
               <label class="fx-etiqueta-campo" for="fxCohorte">Cohorte</label>
-              <!-- Un solo select con las cohortes abiertas y las próximas; el estado de cada una va entre paréntesis -->
+              <!-- Un solo select con las cohortes abiertas y las próximas. El estado de cada una va entre paréntesis -->
               <select id="fxCohorte" class="pn-input" data-cohortes>
                 <option th:each="cohorte : ${cohortesElegibles}" th:value="${cohorte.idCohorte}"
                         th:text="${cohorte.programa.nombre + (cohorte.fechaInicioDictado != null ? ' · desde ' + #temporals.format(cohorte.fechaInicioDictado, 'dd/MM/yyyy') : '') + ' (' + cohorte.estado + ')'}"
@@ -110,7 +110,7 @@
               <!-- Cohorte abierta: la inscripción de siempre -->
               <div data-bloque="abierta" th:hidden="${!primeraAbierta}">
                 <a th:if="${usuario == null}" th:href="@{/login}" class="fx-boton-inscribir">Ingresá para inscribirte</a>
-                <!-- Alumno: se aceptan los términos y condiciones acá mismo y se confirma la inscripción (CU-45) -->
+                <!-- Alumno: se aceptan los términos y condiciones acá mismo y se confirma la inscripción -->
                 <form th:if="${usuario != null and usuario.alumno != null}" id="formInscripcion" th:action="@{/inscripcion/inscribir}"
                       method="post" class="form-ajax fx-form-inscripcion" data-validar novalidate>
                   <input type="hidden" name="cohorteId" data-cohorte-id th:value="${primeraCohorte.idCohorte}">
@@ -129,7 +129,7 @@
                 <p class="fx-apoyo" th:if="${usuario != null and usuario.alumno == null}">Solo los alumnos pueden inscribirse a un curso.</p>
               </div>
 
-              <!-- Cohorte próxima: «Recordarme» en lugar de «Inscribirme» -->
+              <!-- Cohorte próxima: "Recordarme" en lugar de "Inscribirme" -->
               <div data-bloque="proxima" th:hidden="${primeraAbierta}">
                 <a th:if="${usuario == null}" th:href="@{/login}" class="fx-boton-recordar">Ingresá para que te recordemos</a>
                 <th:block th:if="${usuario != null and usuario.alumno != null}">
@@ -168,7 +168,6 @@
 
     </div>
   </div>
-
 
   <!-- Scripts Globales y SweetAlert2 -->
   <div th:replace="~{fragments/layout/scripts :: scripts}"></div>

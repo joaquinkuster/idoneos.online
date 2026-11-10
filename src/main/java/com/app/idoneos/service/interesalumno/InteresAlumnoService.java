@@ -5,13 +5,12 @@ import java.util.List;
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.Categoria;
 
-/**
- * Servicio de los intereses del alumno: las categorías de cursos que dijo que le interesan, que se usan para recomendarle cursos
- * en el catálogo.
- */
+/** Servicio de los intereses del alumno. Son las categorías de cursos que dijo que le interesan. */
 public interface InteresAlumnoService {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca las categorías de interés del alumno, ordenadas por nombre.
@@ -22,7 +21,7 @@ public interface InteresAlumnoService {
     List<Categoria> buscarCategorias(Alumno alumno);
 
     /**
-     * Indica si hay que preguntarle al alumno qué le interesa: mientras no tenga ninguna categoría de interés registrada.
+     * Indica si hay que preguntarle al alumno qué le interesa.
      *
      * @param alumno El alumno.
      * @return {@code true} si hay que preguntarle.
@@ -36,12 +35,14 @@ public interface InteresAlumnoService {
      */
     List<Categoria> buscarCategoriasElegibles();
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
      * Guarda los intereses del alumno: reemplaza los que tenía por las categorías elegidas.
      *
-     * @param idAlumno      El identificador del alumno.
+     * @param idAlumno El identificador del alumno.
      * @param idsCategorias Los identificadores de las categorías elegidas (al menos una).
      * @throws IllegalArgumentException si no se elige ninguna categoría o alguna no existe.
      */

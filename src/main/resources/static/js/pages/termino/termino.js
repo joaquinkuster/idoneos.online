@@ -1,7 +1,4 @@
-/**
- * Comportamiento de la vista del glosario (MOD-F-02): si la página se abre con ?nuevo (desde la opción Glosario del
- * selector "Agregar recurso o actividad"), abre sola la ventana para registrar un término.
- */
+/** Comportamiento de la vista del glosario. */
 (function () {
     'use strict';
 

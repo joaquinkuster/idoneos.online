@@ -24,14 +24,7 @@ import com.app.idoneos.service.curso.CursoService;
 
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de la gestión de categorías (MOD-F-01).
- *
- * Mapea las pantallas de los casos de uso:
- * CU-07 Buscar categoría (GET /categoria/buscar), CU-08 Registrar categoría, CU-09 Modificar categoría
- * y CU-10 Dar de baja categoría. Los formularios de alta, modificación y baja se muestran como ventanas modales
- * de la pantalla de búsqueda.
- */
+/** Controlador de la categoría. */
 @Controller
 @RequestMapping("/categoria")
 public class CategoriaController {
@@ -42,17 +35,11 @@ public class CategoriaController {
     @Autowired
     private CursoService cursoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-07: Busca categorías por nombre.
-     *
-     * @param nombre Parte del nombre de la categoría.
-     * @param baja   Si es true, solo las dadas de baja; si es false, solo las vigentes; si es nulo, todas.
-     * @param orden  Orden de los resultados: "nombre" (A–Z) o "recientes". Las dadas de baja van al final.
-     * @param model El modelo de la vista.
-     * @return La vista de búsqueda de categorías.
-     */
+    /** GET /categoria/buscar: Busca categorías por nombre. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "baja", required = false) Boolean baja,
@@ -86,16 +73,11 @@ public class CategoriaController {
         return "pages/categoria/buscar";
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-08: Registra una categoría. Responde en JSON para que el formulario muestre el resultado
-     * sin recargar la página.
-     *
-     * @param nombre      El nombre de la categoría.
-     * @param descripcion La descripción de la categoría (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /categoria/registrar: Registra una categoría. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -108,16 +90,11 @@ public class CategoriaController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-09: Modifica el nombre y la descripción de una categoría. Responde en JSON.
-     *
-     * @param id          Identificador de la categoría.
-     * @param nombre      El nuevo nombre.
-     * @param descripcion La nueva descripción (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /categoria/modificar/{id}: Modifica el nombre y la descripción de una categoría. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -130,14 +107,11 @@ public class CategoriaController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-10: Da de baja una categoría que no tenga cursos activos asociados. Responde en JSON.
-     *
-     * @param id Identificador de la categoría.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /categoria/darDeBaja/{id}: Da de baja una categoría que no tenga cursos activos asociados. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -148,13 +122,7 @@ public class CategoriaController {
         }
     }
 
-    /**
-     * Da de baja varios categorías a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno. Responde en JSON.
-     *
-     * @param ids Identificadores de los categorías seleccionados.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /categoria/darDeBajaMasiva: Da de baja varios categorías a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
@@ -166,15 +134,11 @@ public class CategoriaController {
         }
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de una categoría, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     La categoría.
-     * @param model El modelo de la vista.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /categoria/modificar/{id}: Ventana de modificación de una categoría. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
         Categoria cat = categoriaService.buscarPorId(id).filter(c -> !c.getBaja())
@@ -185,17 +149,17 @@ public class CategoriaController {
         return "pages/categoria/modificar :: modal(cat=${cat})";
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (motor común)
+        // ----------------------------------------------------------------------
+        // Listado (motor común)
+        // ----------------------------------------------------------------------
 
-
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Categoria> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Categoria>("nombre", FiltroUtil.Tipo.TEXTO, Categoria::getNombre),
                 new FiltroUtil.Columna<Categoria>("descripcion", FiltroUtil.Tipo.TEXTO, c -> c.getDescripcion()),

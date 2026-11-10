@@ -1,9 +1,4 @@
-/**
- * Recuadro con el detalle del pago de una inscripción, para los formularios del administrador (registrar inscripción y
- * registrar pago). Muestra el precio del curso, el descuento aplicado, lo ya pagado (si hay) y el total a pagar.
- *
- * El recuadro es el elemento con el atributo data-caja; adentro, los elementos con data-caja-* se completan con los datos.
- */
+/** Recuadro con el detalle del pago de una inscripción. */
 (function () {
     'use strict';
 
@@ -15,11 +10,7 @@
         return caja.querySelector('[data-caja-' + nombre + ']');
     }
 
-    /**
-     * Completa y muestra el recuadro.
-     * @param caja  El elemento con data-caja.
-     * @param datos precio, descuentoNombre, descuentoPorcentaje, descuento (monto), pagado, total y nota (opcional).
-     */
+    /** Completa y muestra el recuadro. */
     function mostrar(caja, datos) {
         var gratis = datos.precio <= 0;
         elemento(caja, 'precio').textContent = gratis ? 'Gratis' : formato(datos.precio);

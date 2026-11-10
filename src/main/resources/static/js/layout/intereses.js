@@ -1,8 +1,4 @@
-/**
- * Ventana de intereses del alumno (pages/intereses/formulario.html): elige las categorías de cursos que le interesan.
- *
- * Modo "ingreso": se abre sola al entrar si todavía no eligió ninguna; al cerrarla sin guardar no se le vuelve a preguntar en esa sesión. Modo "edicion": se abre desde «Mis intereses» del menú del usuario ([data-abrir-intereses]) con lo ya elegido; se puede cancelar sin registrar nada.
- */
+/** Ventana de intereses del alumno (pages/intereses/formulario.html). */
 (function () {
     'use strict';
 
@@ -29,7 +25,7 @@
             c.classList.toggle('on', modo === 'edicion' && original.indexOf(c.dataset.categoria) >= 0);
         });
         titulo.textContent = modo === 'ingreso' ? 'Registrar intereses' : 'Editar intereses';
-        // «Ahora no» solo al registrar (la pregunta al ingresar); al editar es «Cancelar»
+        // "Ahora no" solo al registrar (la pregunta al ingresar). Al editar es "Cancelar"
         botonOmitir.textContent = modo === 'ingreso' ? 'Ahora no' : 'Cancelar';
         instancia.show();
     }
@@ -46,8 +42,7 @@
             .then(function (respuesta) { return respuesta.json().then(function (cuerpo) { return { ok: respuesta.ok, cuerpo: cuerpo }; }); });
     }
 
-    // La ventana se cierra como todas las del sistema (Cancelar, la X, Esc o un clic afuera). Si se cerró al preguntar al ingresar sin guardar,
-    // se avisa al servidor para no volver a preguntar en esta sesión (no guarda nada en la base).
+    // La ventana se cierra como todas las del sistema (Cancelar, la X, Esc o un clic afuera).
     var guardado = false;
     modal.addEventListener('hidden.bs.modal', function () {
         if (modo === 'ingreso' && !guardado) { enviar('/interes/omitir', new FormData()).catch(function () { /* sin efecto */ }); }

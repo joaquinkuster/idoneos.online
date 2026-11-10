@@ -1,4 +1,7 @@
-/* ---------- Protección del contenido de los materiales ---------- */
+/* ---------------------------------------------------------------------- */
+/* Protección del contenido de los materiales */
+/* ---------------------------------------------------------------------- */
+
 .mv-protegido .mv-contenedor {
     -webkit-user-select: none;
     user-select: none;

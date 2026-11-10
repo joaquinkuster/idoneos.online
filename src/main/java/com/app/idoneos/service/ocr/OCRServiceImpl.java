@@ -25,13 +25,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/**
- * Implementación de {@link OcrService}: detecta los PDF escaneados con OpenPDF y los procesa con OCRmyPDF, de a uno por vez.
- */
+/** Implementación de OCRService. Detecta los PDF escaneados con OpenPDF y los procesa con OCRmyPDF. */
 @Service
-public class OcrServiceImpl implements OcrService {
+public class OCRServiceImpl implements OCRService {
 
-    private static final Logger registro = LoggerFactory.getLogger(OcrServiceImpl.class);
+    private static final Logger registro = LoggerFactory.getLogger(OCRServiceImpl.class);
 
     /** Páginas que se muestrean para decidir si el PDF tiene texto. */
     private static final int PAGINAS_DE_MUESTRA = 8;
@@ -58,7 +56,7 @@ public class OcrServiceImpl implements OcrService {
     @Value("${idoneos.ocr.comando:ocrmypdf}")
     private String comando;
 
-    @Value("${idoneos.ocr.idioma:spa}")
+    @Value("${idoneos.ocr.idioma:spa+eng}")
     private String idioma;
 
     @Value("${idoneos.ocr.max-paginas:300}")
@@ -166,7 +164,7 @@ public class OcrServiceImpl implements OcrService {
         }
     }
 
-    /** Corre OCRmyPDF sobre el archivo; si sale bien, el resultado reemplaza al original y el recurso pasa a «Listo». */
+    /** Corre OCRmyPDF sobre el archivo. Si sale bien. */
     private void procesar(int idRecurso, Path archivo) {
         Path salida = archivo.resolveSibling(archivo.getFileName() + ".ocr.tmp");
         try {

@@ -2,10 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Ventana para asignar (o cambiar) el programa de una cohorte pendiente: el mismo asistente de dos pasos (datos y resumen) en el
-         listado de cohortes del docente y en el inicio del curso.
-         coh: la cohorte; programas: los programas del curso que se pueden elegir; faltantes: por id de programa, lo que le falta a su
-         contenido (si el programa está completo, la cohorte pasa a activa). -->
+    <!-- Ventana para asignar (o cambiar) el programa de una cohorte pendiente. -->
     <th:block th:fragment="modal(coh, programas, faltantes)">
     <div class="modal fade pn-modal" th:id="'modalAsignarPrograma' + ${coh.idCohorte}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">

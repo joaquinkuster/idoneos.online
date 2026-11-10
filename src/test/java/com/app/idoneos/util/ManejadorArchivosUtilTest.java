@@ -15,9 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockMultipartFile;
 
-/**
- * Pruebas de {@link ManejadorArchivosUtil}: rutas de las carpetas, validación por contenido y guardado de archivos.
- */
+/** Pruebas de ManejadorArchivosUtil: rutas de las carpetas, validación por contenido y guardado de archivos. */
 class ManejadorArchivosUtilTest {
 
     private static final byte[] PDF = { '%', 'P', 'D', 'F', '-', '1', '.', '7', 0, 0, 0, 0 };

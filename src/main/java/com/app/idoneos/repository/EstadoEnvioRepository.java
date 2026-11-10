@@ -5,17 +5,10 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link EstadoEnvio} en la base de datos.
- */
+/** Repositorio de EstadoEnvio. */
 @Repository
 public interface EstadoEnvioRepository extends JpaRepository<EstadoEnvio, Integer> {
 
-    /**
-     * Busca el registro por su atributo único 'nombre'.
-     *
-     * @param nombre el valor de 'nombre' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el registro por su atributo único 'nombre'. */
     Optional<EstadoEnvio> findByNombre(String nombre);
 }

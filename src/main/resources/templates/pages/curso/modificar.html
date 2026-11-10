@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación de un curso. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /curso/modificar/{id}).
-     Usa del modelo: curso y bloqueado (tiene inscripciones activas), más los catálogos del formulario. -->
+<!-- Ventana de modificación de un curso. -->
 <div th:fragment="modal(curso, bloqueado)" class="modal fade pn-modal" th:id="'modalModificarCurso' + ${curso.idCurso}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">

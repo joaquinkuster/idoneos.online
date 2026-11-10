@@ -28,10 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Inscripcion}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link InscripcionService}.
- */
+/** Implementación de InscripcionService. */
 @Service
 public class InscripcionServiceImpl implements InscripcionService {
 
@@ -70,63 +67,37 @@ public class InscripcionServiceImpl implements InscripcionService {
     @Autowired
     private ProgresoRepository progresoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la inscripción por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la inscripción por su identificador. */
     @Override
     public Optional<Inscripcion> buscarPorId(Integer id) {
         return inscripcionRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Inscripcion> obtenerTodo() {
         return inscripcionRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return inscripcionRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de inscripcion asociados a cohorte.
-     *
-     * @param cohorte el registro de Cohorte asociado
-     * @return una lista de Inscripcion asociados al Cohorte indicado
-     */
+    /** Busca los registros vigentes de inscripcion asociados a cohorte. */
     @Override
     public List<Inscripcion> buscarPorCohorte(Cohorte cohorte) {
         return inscripcionRepository.findByCohorteAndBajaFalse(cohorte);
     }
 
-
-    /**
-     * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
-     * y por el estado de la inscripción (En progreso o Finalizado).
-     *
-     * @param alumno el alumno dueño de las inscripciones
-     * @param nombreCurso parte del nombre del curso (opcional)
-     * @param estado el estado de la inscripción (opcional)
-     * @return una lista de inscripciones que cumplen los criterios, de la más reciente a la más antigua
-     */
+    /** Busca las inscripciones vigentes de un alumno. */
     @Override
     public List<Inscripcion> buscarMisCursos(Alumno alumno, String nombreCurso, String estado) {
         String criterio = nombreCurso == null ? "" : nombreCurso.trim().toLowerCase();
@@ -139,14 +110,7 @@ public class InscripcionServiceImpl implements InscripcionService {
                 .toList();
     }
 
-    /**
-     * Verifica que el alumno pueda acceder al curso de la inscripción (CU-27).
-     *
-     * @param idInscripcion El identificador de la inscripción.
-     * @param alumno        El alumno que solicita el acceso.
-     * @return La inscripción a la que puede acceder.
-     * @throws IllegalArgumentException Si el alumno no puede acceder, con el motivo.
-     */
+    /** Verifica que el alumno pueda acceder al curso de la inscripción. */
     @Override
     public Inscripcion validarAcceso(int idInscripcion, Alumno alumno) {
         Inscripcion inscripcion = buscarPorId(idInscripcion)
@@ -168,9 +132,7 @@ public class InscripcionServiceImpl implements InscripcionService {
         return inscripcion;
     }
 
-    /**
-     * Busca la inscripción con la que un alumno puede ver el contenido de un tema.
-     */
+    /** Busca la inscripción con la que un alumno puede ver el contenido de un tema. */
     @Override
     public Optional<Inscripcion> buscarConAccesoATema(Alumno alumno, Tema tema) {
         return inscripcionRepository.findByAlumnoAndBajaFalse(alumno).stream()
@@ -202,14 +164,11 @@ public class InscripcionServiceImpl implements InscripcionService {
                 .toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda la inscripción en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la inscripción en la base de datos. */
     @Override
     public Inscripcion guardar(Inscripcion entidad) {
         return inscripcionRepository.save(entidad);
@@ -240,7 +199,9 @@ public class InscripcionServiceImpl implements InscripcionService {
         return inscripcion;
     }
 
-    // ---------------------------------------------------------------- Cierre de la inscripción
+    // ----------------------------------------------------------------------
+    // Cierre de la inscripción
+    // ----------------------------------------------------------------------
 
     private static final org.slf4j.Logger REGISTRO = org.slf4j.LoggerFactory.getLogger(InscripcionServiceImpl.class);
 
@@ -283,7 +244,7 @@ public class InscripcionServiceImpl implements InscripcionService {
         return vencidas;
     }
 
-    /** Cada minuto actualiza los estados que dependen de una fecha: cancela las pendientes de pago de una inscripción cerrada y vence los accesos. */
+    /** Actualiza cada minuto los estados que dependen de una fecha. */
     @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60_000, initialDelay = 90_000)
     @Transactional // las llamadas internas no pasan por el proxy: la transacción se abre acá
     public void actualizarEstadosPeriodicamente() {
@@ -301,14 +262,11 @@ public class InscripcionServiceImpl implements InscripcionService {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Inscripcion modificar(Inscripcion entidad) {
         return inscripcionRepository.save(entidad);
@@ -336,7 +294,7 @@ public class InscripcionServiceImpl implements InscripcionService {
                 throw new IllegalArgumentException(
                         "Error! No se puede habilitar una inscripción pendiente de pago: se habilita al aprobarse el pago.");
             } else if (habilitada && inscripcion.estaSuspendida()) {
-                // Reactivar: conservó su pago y su cupo; vuelve a estar habilitada, o vencida si su fecha ya pasó
+                // Reactivar: conservó su pago y su cupo. Vuelve a estar habilitada, o vencida si su fecha ya pasó
                 inscripcion.setEstadoInscripcion(estadoInscripcion(inscripcion.vencimientoPasado(ahora)
                         ? com.app.idoneos.model.EstadoInscripcion.VENCIDA : com.app.idoneos.model.EstadoInscripcion.HABILITADA));
             } else if (!habilitada && inscripcion.tieneAcceso(ahora)) {
@@ -349,13 +307,11 @@ public class InscripcionServiceImpl implements InscripcionService {
         return inscripcionRepository.save(inscripcion);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Inscripcion entidad) {
         entidad.marcarInactivo(); // Baja lógica
@@ -387,10 +343,7 @@ public class InscripcionServiceImpl implements InscripcionService {
         inscripcion.marcarInactivo();
         inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.DADA_DE_BAJA));
         inscripcion.setUltimaModificacion(LocalDateTime.now());
-        // El certificado y los intentos se dan de baja; los progresos quedan sin acceso con la inscripción y las
-        // consultas de foro se muestran de forma anónima (ConsultaForo.getAutor)
-        inscripcion.getCertificados().forEach(Certificado::anular);
-        inscripcion.getIntentosAutoevaluacion().forEach(IntentoAutoevaluacion::marcarInactivo);
+        // El certificado se anula y los intentos se dan de baja solos: lo hace la base de datos.
         inscripcionRepository.save(inscripcion);
     }
 
@@ -410,10 +363,7 @@ public class InscripcionServiceImpl implements InscripcionService {
         }
     }
 
-    /**
-     * Reglas comunes de CU-45 y CU-46: valida la cohorte, la ventana de inscripción, el cupo, la inscripción
-     * duplicada y los términos, y registra la inscripción con su progreso inicial.
-     */
+    /** Crea la inscripción con las reglas comunes: valida la cohorte, la ventana de inscripción y el cupo. */
     private Inscripcion crearInscripcion(Alumno solicitante, Integer idCohorte, boolean terminos, String errorTerminos) {
         if (idCohorte == null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("cohorteId", "Error! Debe seleccionar la cohorte.");
@@ -439,8 +389,8 @@ public class InscripcionServiceImpl implements InscripcionService {
             throw RespuestaFormularioUtil.armarCampoInvalido("terminos", errorTerminos);
         }
 
-        // El vencimiento del acceso se calcula al habilitarse por primera vez: un curso gratuito queda habilitado ya;
-        // uno con costo, cuando se apruebe el pago (o se habilite sin costo, o el administrador la dé de alta)
+        // El vencimiento del acceso se calcula al habilitarse por primera vez: un curso gratuito queda habilitado ya.
+        // Uno con costo, cuando se apruebe el pago (o se habilite sin costo, o el administrador la dé de alta)
         Inscripcion inscripcion = new Inscripcion(cohorte, alumno, null);
         inscripcion.setFechaCreacion(ahora);
         inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));

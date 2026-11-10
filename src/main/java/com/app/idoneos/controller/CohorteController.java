@@ -36,14 +36,7 @@ import com.app.idoneos.service.programa.ProgramaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 import com.app.idoneos.util.PaginacionUtil;
 
-/**
- * Controlador de la gestión de cohortes (MOD-F-01).
- *
- * Mapea las pantallas de los casos de uso:
- * CU-11 Buscar cohorte (GET /cohorte/buscar), CU-12 Registrar cohorte, CU-13 Modificar cohorte
- * y CU-14 Dar de baja cohorte. Los formularios de alta, modificación y baja se muestran como ventanas modales
- * de la pantalla de búsqueda.
- */
+/** Controlador de la cohorte. */
 @Controller
 @RequestMapping("/cohorte")
 public class CohorteController {
@@ -69,15 +62,11 @@ public class CohorteController {
     @Autowired
     private com.app.idoneos.repository.ClaseEnVivoRepository claseEnVivoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Qué le falta al contenido de un programa para que una cohorte pueda estar Activa (el formulario de alta lo pide al elegir
-     * el programa, en lugar de calcularlo para todos al cargar el listado).
-     *
-     * @param programaId El programa; vacío para una cohorte sin programa.
-     * @return Los faltantes, vacío si el contenido está completo.
-     */
+    /** GET /cohorte/faltantes: Qué le falta al contenido de un programa para que una cohorte pueda estar Activa (el formulario de alta lo pide al elegir el programa, en lugar de calcularlo para todos al cargar el listado). */
     @GetMapping("/faltantes")
     @org.springframework.web.bind.annotation.ResponseBody
     public List<String> faltantesDelPrograma(@RequestParam(value = "programaId", required = false) Integer programaId) {
@@ -88,14 +77,7 @@ public class CohorteController {
                 .map(cohorteService::faltantesDeContenido).orElse(List.of());
     }
 
-    /**
-     * Ventana de modificación de una cohorte, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     La cohorte.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /cohorte/modificar/{id}: Ventana de modificación de una cohorte. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -111,23 +93,7 @@ public class CohorteController {
         return "pages/cohorte/modificar :: modal(cohorte=${coh})";
     }
 
-    /**
-     * CU-11: Busca cohortes de un programa según su estado (Abierta, En dictado, Finalizada) y un rango
-     * de fechas de inscripción. Si el usuario es docente (y no administrador), se restringe a los cursos
-     * en los que participa como titular o ayudante.
-     *
-     * @param cursoId    Identificador del curso. El administrador sin curso ve las cohortes de todos los cursos.
-     * @param programaId Identificador del programa.
-     * @param nuevo      Si está presente, se abre el alta de cohorte (con el curso elegido) al cargar la pantalla.
-     * @param busqueda   Parte del nombre del curso o del programa.
-     * @param estado     Estado de la cohorte.
-     * @param desde      Fecha desde la que la inscripción debe estar abierta.
-     * @param hasta      Fecha hasta la que la inscripción debe estar abierta.
-     * @param orden      Orden de los resultados: "recientes" o "curso" (A–Z). Las dadas de baja van al final.
-     * @param model     El modelo de la vista.
-     * @param authentication       La autenticación actual.
-     * @return La vista de búsqueda de cohortes.
-     */
+    /** GET /cohorte/buscar: Busca cohortes de un programa según su estado. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaId", required = false) Integer programaId,
@@ -202,8 +168,7 @@ public class CohorteController {
         model.addAttribute("plazoMinimoContenidoDias", cohorteService.plazoMinimoParaCompletarContenidoDias());
         // Qué le falta al contenido de cada programa para poder abrir la inscripción (el formulario avisa si la cohorte queda pendiente)
         Map<Integer, List<String>> faltantesPorPrograma = new HashMap<>();
-        // Solo con un curso del panel: calcularlo para todos los programas de todos los cursos hacía lento el listado del
-        // administrador. Sin curso, el formulario pide los faltantes del programa elegido a /cohorte/faltantes.
+        // Solo con un curso del panel: calcularlo para todos los programas de todos los cursos hacía lento el listado del administrador.
         if (curso != null) {
             for (var programa : programasOfrecidos) {
                 faltantesPorPrograma.put(programa.getIdPrograma(), cohorteService.faltantesDeContenido(programa));
@@ -250,21 +215,11 @@ public class CohorteController {
         return "pages/cohorte/buscarPorDocente";
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-12: Registra una cohorte de un curso, con o sin programa. Nace Pendiente si todavía no tiene un programa con el
-     * contenido completo. Responde en JSON para que el formulario muestre el resultado sin recargar la página.
-     *
-     * @param cursoId                Identificador del curso.
-     * @param programaId             Identificador del programa (opcional).
-     * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
-     * @param fechaFinInscripcion    Fecha de fin de la inscripción.
-     * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param accesoDias          Días de acceso al contenido (opcional: si no se indica, la duración del curso más el tiempo extra).
-     * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cohorte/registrar: Registra una cohorte de un curso, con o sin programa. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "cursoId", required = false) Integer cursoId,
@@ -291,17 +246,11 @@ public class CohorteController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-11: Cambia el contexto de trabajo del docente a la cohorte seleccionada (la establece como
-     * cohorte y programa por defecto en su participación en el curso).
-     *
-     * @param id                 Identificador de la cohorte.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return Una redirección al listado de cohortes.
-     */
+    /** POST /cohorte/cambiarContexto/{id}: Cambia el contexto de trabajo del docente a la cohorte seleccionada (la establece como cohorte y programa por defecto en su participación en el curso). */
     @PostMapping("/cambiarContexto/{id}")
     public String cambiarContexto(@PathVariable("id") Integer id, Authentication authentication,
             RedirectAttributes redirectAttributes) {
@@ -317,14 +266,7 @@ public class CohorteController {
         return "redirect:/cohorte/buscar";
     }
 
-    /**
-     * El docente elige el programa de una cohorte pendiente que el administrador registró sin programa. Responde en JSON.
-     *
-     * @param id         Identificador de la cohorte.
-     * @param programaId Identificador del programa (debe ser del curso de la cohorte).
-     * @param authentication       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cohorte/asignarPrograma/{id}: El docente elige el programa de una cohorte pendiente que el administrador registró sin programa. */
     @PostMapping("/asignarPrograma/{id}")
     public ResponseEntity<Map<String, String>> asignarPrograma(@PathVariable("id") Integer id,
             @RequestParam(value = "programaId", required = false) Integer programaId,
@@ -342,7 +284,7 @@ public class CohorteController {
             if (!volverAlCurso) {
                 return RespuestaFormularioUtil.armarRespuestaExitosa(mensaje);
             }
-            // Con la alerta del paso que sigue (o "Completaste el diseño"); si se descarta, igual se vuelve al curso
+            // Con la alerta del paso que sigue (o "Completaste el diseño"). Si se descarta, igual se vuelve al curso
             Integer cursoId = cohorte.getCurso().getIdCurso();
             Map<String, String> cuerpo = new java.util.LinkedHashMap<>(
                     panel.exitoConPasoSiguiente(mensaje, cursoId, usuario.getDocente()).getBody());
@@ -353,14 +295,7 @@ public class CohorteController {
         }
     }
 
-    /**
-     * Guarda la cohorte elegida como cohorte por defecto del docente (junto con su programa) en su participación en
-     * el curso. Responde en JSON (lo usa el selector de la vista del curso).
-     *
-     * @param id   Identificador de la cohorte.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cohorte/establecerPorDefecto/{id}: Guarda la cohorte elegida como cohorte por defecto del docente (junto con su programa) en su participación en el curso. */
     @PostMapping("/establecerPorDefecto/{id}")
     public ResponseEntity<Map<String, String>> establecerPorDefecto(@PathVariable("id") Integer id,
             Authentication authentication) {
@@ -375,17 +310,7 @@ public class CohorteController {
         }
     }
 
-    /**
-     * CU-13: Modifica una cohorte activa. Responde en JSON.
-     *
-     * @param id                     Identificador de la cohorte.
-     * @param fechaInicioInscripcion Fecha de inicio de la inscripción.
-     * @param fechaFinInscripcion    Fecha de fin de la inscripción.
-     * @param fechaInicioDictado     Fecha de inicio del dictado (si el curso tiene modalidad En vivo).
-     * @param accesoDias          Días de acceso al contenido (opcional: si no se indica, la duración del curso más el tiempo extra).
-     * @param cupoMaximo             Cupo máximo de inscriptos (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cohorte/modificar/{id}: Modifica una cohorte activa. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "fechaInicioInscripcion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicioInscripcion,
@@ -407,26 +332,16 @@ public class CohorteController {
         }
     }
 
-    /**
-     * Calcula los días de acceso de una cohorte: la duración del curso más el tiempo extra para quien se atrase.
-     *
-     * @param curso       El curso de la cohorte.
-     * @param tiempoExtra El tiempo extra, en días (opcional).
-     * @return Los días de acceso.
-     */
+    /** Calcula los días de acceso de una cohorte. */
     private static int accesoConTiempoExtra(Curso curso, Integer tiempoExtra) {
         return curso.getDuracionDias() + (tiempoExtra == null ? 0 : tiempoExtra);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-14: Da de baja una cohorte que no tenga inscripciones ni clases en vivo activas, y la desvincula
-     * de los docentes que la tienen asignada por defecto. Responde en JSON.
-     *
-     * @param id Identificador de la cohorte.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cohorte/darDeBaja/{id}: Da de baja una cohorte que no tenga inscripciones ni clases en vivo activas. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -437,13 +352,7 @@ public class CohorteController {
         }
     }
 
-    /**
-     * Da de baja varios cohortes a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno. Responde en JSON.
-     *
-     * @param ids Identificadores de los cohortes seleccionados.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cohorte/darDeBajaMasiva: Da de baja varios cohortes a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
@@ -455,17 +364,17 @@ public class CohorteController {
         }
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
+        // Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
 
-
-        /** Las columnas del listado del administrador: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado del administrador, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Cohorte> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Cohorte>("curso", FiltroUtil.Tipo.LISTA, c -> c.getCurso().getNombre()),
                 new FiltroUtil.Columna<Cohorte>("programa", FiltroUtil.Tipo.LISTA,

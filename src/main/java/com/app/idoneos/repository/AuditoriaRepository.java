@@ -5,12 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.Auditoria;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Auditoria} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link Auditoria}.
- */
+/** Repositorio de Auditoria. */
 @Repository
 public interface AuditoriaRepository extends JpaRepository<Auditoria, Integer> {
-
 
 }

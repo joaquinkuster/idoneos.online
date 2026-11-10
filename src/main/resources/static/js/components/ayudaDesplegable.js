@@ -1,8 +1,4 @@
-/**
- * Ayuda desplegable de los formularios: el botón de información (data-ayuda-destino="id") muestra u oculta, con una
- * transición suave, el aviso que tiene ese id (clase ayuda-desplegable). Mismo estilo que la ayuda de la ficha y del
- * cronograma.
- */
+/** Ayuda desplegable de los formularios: el botón de información (data-ayuda-destino="id") muestra u oculta. */
 (function () {
     'use strict';
 

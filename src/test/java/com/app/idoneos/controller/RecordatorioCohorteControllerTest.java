@@ -31,10 +31,7 @@ import com.app.idoneos.repository.NotificacionRepository;
 import com.app.idoneos.repository.TipoNotificacionRepository;
 import com.app.idoneos.service.recordatoriocohorte.RecordatorioCohorteService;
 
-/**
- * Pruebas de «Recordarme»: la ficha ofrece las cohortes próximas con su estado entre paréntesis, el alumno marca y quita el
- * recordatorio, y el sistema crea la notificación cuando faltan los días de anticipación.
- */
+/** Pruebas de "Recordarme": la ficha ofrece las cohortes próximas con su estado entre paréntesis. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

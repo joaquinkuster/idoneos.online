@@ -1,8 +1,4 @@
-/**
- * Ventana "Asignar programa" de una cohorte pendiente de contenido: los programas siempre están completos, así que la cohorte pasa a
- * inscripción próxima al recibir el suyo y se publica en el catálogo. Asignar el programa finaliza el diseño de la cohorte, por eso el
- * formulario pide una confirmación (data-confirmar-*, ver core/formulario.js) con la cohorte y el programa elegidos.
- */
+/** Ventana "Asignar programa" de una cohorte pendiente de contenido: los programas siempre están completos. */
 (function () {
     'use strict';
 

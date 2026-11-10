@@ -36,10 +36,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link IntentoAutoevaluacion}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link IntentoAutoevaluacionService}.
- */
+/** Implementación de IntentoAutoevaluacionService. */
 @Service
 public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionService {
 
@@ -71,47 +68,31 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
     @Autowired
     private ParametroService parametroService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el intento de autoevaluación por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el intento de autoevaluación por su identificador. */
     @Override
     public Optional<IntentoAutoevaluacion> buscarPorId(Integer id) {
         return intentoAutoevaluacionRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<IntentoAutoevaluacion> obtenerTodo() {
         return intentoAutoevaluacionRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return intentoAutoevaluacionRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-
-
-    /**
-     * Busca los intentos vigentes de una inscripción sobre una autoevaluación, del más antiguo al más reciente.
-     */
+    /** Busca los intentos vigentes de una inscripción sobre una autoevaluación, del más antiguo al más reciente. */
     @Override
     public List<IntentoAutoevaluacion> buscarPorInscripcionYAutoevaluacion(Inscripcion inscripcion,
             Autoevaluacion autoevaluacion) {
@@ -119,9 +100,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
                 .findByInscripcionAndAutoevaluacionAndBajaFalseOrderByIdIntentoAutoevaluacion(inscripcion, autoevaluacion);
     }
 
-    /**
-     * Busca un intento del alumno. Si se le agotó el tiempo, lo cierra y lo corrige antes de devolverlo.
-     */
+    /** Busca un intento del alumno. */
     @Override
     @Transactional
     public IntentoAutoevaluacion buscarPropio(Integer idIntento, Alumno alumno) {
@@ -133,9 +112,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    /**
-     * Busca el intento que mantiene al alumno dentro del cuestionario.
-     */
+    /** Busca el intento que mantiene al alumno dentro del cuestionario. */
     @Override
     @Transactional
     public Optional<IntentoAutoevaluacion> buscarEnCursoSinSalida(Alumno alumno) {
@@ -150,9 +127,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return Optional.empty();
     }
 
-    /**
-     * Indica por qué el alumno no puede iniciar un intento, o vacío si puede o ya tiene uno en curso.
-     */
+    /** Indica por qué el alumno no puede iniciar un intento, o vacío si puede o ya tiene uno en curso. */
     @Override
     public Optional<String> motivoNoDisponible(Alumno alumno, Autoevaluacion autoevaluacion) {
         if (!autoevaluacion.esVisible()) {
@@ -169,18 +144,14 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return motivoNoSePuedeIniciar(autoevaluacion, intentos.size(), LocalDateTime.now());
     }
 
-    /**
-     * Lee la tolerancia de entrega (parámetro del sistema).
-     */
+    /** Lee la tolerancia de entrega (parámetro del sistema). */
     @Override
     public int obtenerGraciaEnSegundos() {
         return parametroService.obtenerEntero(Parametro.GRACIA_ENTREGA_AUTOEVALUACION,
                 Parametro.GRACIA_ENTREGA_AUTOEVALUACION_POR_DEFECTO);
     }
 
-    /**
-     * CU-68: Busca los intentos vigentes del curso.
-     */
+    /** Busca los intentos vigentes del curso. */
     @Override
     public List<IntentoAutoevaluacion> buscarDelCurso(Integer idCurso, Docente soloDeDocente) {
         if (idCurso == null) {
@@ -194,22 +165,17 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intentos;
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el intento de autoevaluación en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el intento de autoevaluación en la base de datos. */
     @Override
     public IntentoAutoevaluacion guardar(IntentoAutoevaluacion entidad) {
         return intentoAutoevaluacionRepository.save(entidad);
     }
 
-    /**
-     * CU-70: Inicia un intento (o devuelve el que el alumno tiene en curso).
-     */
+    /** Inicia un intento (o devuelve el que el alumno tiene en curso). */
     @Override
     @Transactional
     public IntentoAutoevaluacion iniciar(Alumno alumno, Integer idAutoevaluacion) {
@@ -250,22 +216,17 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public IntentoAutoevaluacion modificar(IntentoAutoevaluacion entidad) {
         return intentoAutoevaluacionRepository.save(entidad);
     }
 
-    /**
-     * CU-70 (paso 6): Guarda la elección del alumno para una pregunta.
-     */
+    /** Guarda la elección del alumno para una pregunta. */
     @Override
     @Transactional
     public IntentoAutoevaluacion responderPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento,
@@ -296,9 +257,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intentoAutoevaluacionRepository.save(intento);
     }
 
-    /**
-     * Marca o desmarca una pregunta para revisarla (solo con navegación libre).
-     */
+    /** Marca o desmarca una pregunta para revisarla (solo con navegación libre). */
     @Override
     @Transactional
     public IntentoAutoevaluacion marcarPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento, boolean marcada) {
@@ -312,9 +271,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    /**
-     * Pasa a la pregunta siguiente en un cuestionario secuencial.
-     */
+    /** Pasa a la pregunta siguiente en un cuestionario secuencial. */
     @Override
     @Transactional
     public IntentoAutoevaluacion avanzarPregunta(Integer idIntento, Alumno alumno) {
@@ -330,9 +287,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    /**
-     * CU-70 (pasos 8 a 12): Entrega y corrige el intento.
-     */
+    /** Entrega y corrige el intento. */
     @Override
     @Transactional
     public IntentoAutoevaluacion entregar(Integer idIntento, Alumno alumno) {
@@ -343,9 +298,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    /**
-     * Cierra y corrige un intento al que se le agotó el tiempo.
-     */
+    /** Cierra y corrige un intento al que se le agotó el tiempo. */
     @Override
     @Transactional
     public boolean cerrarSiVencido(IntentoAutoevaluacion intento) {
@@ -356,9 +309,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return true;
     }
 
-    /**
-     * Tarea periódica: cierra los intentos en curso a los que se les agotó el tiempo.
-     */
+    /** Cierra los intentos en curso a los que se les agotó el tiempo. */
     @Override
     @Transactional
     public int cerrarVencidos() {
@@ -371,7 +322,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return cerrados;
     }
 
-    /** Cada minuto cierra los intentos vencidos, aunque el alumno no vuelva a entrar. */
+    /** Cierra cada minuto los intentos vencidos, aunque el alumno no vuelva a entrar. */
     @Scheduled(fixedDelay = 60_000, initialDelay = 60_000)
     public void cerrarIntentosVencidosPeriodicamente() {
         try {
@@ -384,9 +335,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         }
     }
 
-    /**
-     * CU-71: Aprueba manualmente un intento entregado que no alcanzó la nota mínima.
-     */
+    /** Aprueba manualmente un intento entregado que no alcanzó la nota mínima. */
     @Override
     @Transactional
     public IntentoAutoevaluacion aprobarPorDocente(Integer idIntento, Docente docente) {
@@ -406,22 +355,18 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(IntentoAutoevaluacion entidad) {
         entidad.marcarInactivo(); // Baja lógica
         intentoAutoevaluacionRepository.save(entidad);
     }
 
-    /**
-     * CU-72: Da de baja un intento y, si el alumno deja de aprobar el tema, la revierte y anula su certificado.
-     */
+    /** Da de baja un intento y, si el alumno deja de aprobar el tema, la revierte y anula su certificado. */
     @Override
     @Transactional
     public boolean darDeBaja(Integer idIntento) {
@@ -437,11 +382,11 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return false;
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
-    /**
-     * Corrige el intento, registra su fecha de entrega y, si lo aprobó, verifica el progreso del tema (y del curso).
-     */
+    /** Corrige el intento, registra su fecha de entrega y, si lo aprobó. */
     private void finalizar(IntentoAutoevaluacion intento) {
         intento.corregir();
         intento.setFechaEntrega(LocalDateTime.now());
@@ -451,9 +396,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         }
     }
 
-    /**
-     * Busca un intento del alumno que siga en curso y dentro del tiempo (más la tolerancia).
-     */
+    /** Busca un intento del alumno que siga en curso y dentro del tiempo (más la tolerancia). */
     private IntentoAutoevaluacion intentoEnCurso(Integer idIntento, Alumno alumno) {
         IntentoAutoevaluacion intento = buscarPropio(idIntento, alumno);
         if (!intento.estaEnCurso()) {
@@ -470,9 +413,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
                 .orElseThrow(() -> new IllegalArgumentException("Error! La pregunta no pertenece al intento."));
     }
 
-    /**
-     * En un cuestionario secuencial solo se responde la pregunta actual.
-     */
+    /** Valida que sea la pregunta actual, porque en un cuestionario secuencial solo se responde la pregunta actual. */
     private void validarQueEsLaPreguntaActual(IntentoAutoevaluacion intento, PreguntaIntento preguntaIntento) {
         if (intento.getAutoevaluacion().getNavegacionLibre()) {
             return;
@@ -483,11 +424,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         }
     }
 
-    /**
-     * Valida el período habilitado, el límite de intentos y las preguntas disponibles.
-     *
-     * @return el motivo por el que no se puede iniciar, o vacío si se puede
-     */
+    /** Valida el período habilitado, el límite de intentos y las preguntas disponibles. */
     private Optional<String> motivoNoSePuedeIniciar(Autoevaluacion autoevaluacion, long intentosUsados, LocalDateTime ahora) {
         if (ahora.isBefore(autoevaluacion.getFechaApertura())) {
             return Optional.of("La autoevaluación se abre el " + autoevaluacion.getFechaApertura().format(FECHA_Y_HORA) + ".");

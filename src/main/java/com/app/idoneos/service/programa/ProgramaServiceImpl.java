@@ -28,10 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Programa}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link ProgramaService}.
- */
+/** Implementación de ProgramaService. */
 @Service
 public class ProgramaServiceImpl implements ProgramaService {
 
@@ -61,56 +58,37 @@ public class ProgramaServiceImpl implements ProgramaService {
     @Autowired
     private com.app.idoneos.repository.CohorteRepository cohorteRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el programa por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el programa por su identificador. */
     @Override
     public Optional<Programa> buscarPorId(Integer id) {
         return programaRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Programa> obtenerTodo() {
         return programaRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return programaRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de programa asociados a curso.
-     *
-     * @param curso el registro de Curso asociado
-     * @return una lista de Programa asociados al Curso indicado
-     */
+    /** Busca los registros vigentes de programa asociados a curso. */
     @Override
     public List<Programa> buscarPorCurso(Curso curso) {
         return programaRepository.findByCursoAndBajaFalse(curso);
     }
 
-    /**
-     * CU-15: Busca los programas activos de un curso por nombre y estado (los dados de baja no se listan).
-     */
+    /** Busca los programas activos de un curso por nombre y estado (los dados de baja no se listan). */
     @Override
     public List<Programa> buscarConFiltros(Curso curso, String nombre, String estado) {
         String buscado = TextoUtil.normalizar(nombre);
@@ -121,22 +99,17 @@ public class ProgramaServiceImpl implements ProgramaService {
                 .sorted(Comparator.comparingInt(Programa::getIdPrograma).reversed()).toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el programa en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el programa en la base de datos. */
     @Override
     public Programa guardar(Programa entidad) {
         return programaRepository.save(entidad);
     }
 
-    /**
-     * CU-16: Registra un programa para un curso.
-     */
+    /** Registra un programa para un curso. */
     @Override
     @Transactional
     public Programa registrar(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
@@ -144,9 +117,7 @@ public class ProgramaServiceImpl implements ProgramaService {
         return registrar(docente, cursoId, programaOrigenId, nombre, descripcion, null, null);
     }
 
-    /**
-     * CU-16: Registra un programa con su cronograma de una vez.
-     */
+    /** Registra un programa con su cronograma de una vez. */
     @Override
     @Transactional
     public Programa registrar(Docente docente, Integer cursoId, Integer programaOrigenId, String nombre,
@@ -194,10 +165,7 @@ public class ProgramaServiceImpl implements ProgramaService {
         return programa;
     }
 
-    /**
-     * Una cohorte nunca tiene un programa incompleto, así que las cohortes pendientes de contenido del curso no tienen programa: el que
-     * acaba de registrarse (que siempre está completo) queda asignado a todas ellas y pasan a inscripción próxima.
-     */
+    /** Asigna el programa a las cohortes pendientes, porque una cohorte nunca tiene un programa incompleto. */
     private void asignarALasCohortesPendientes(Programa programa, Docente docente) {
         for (Cohorte cohorte : cohorteRepository.findByCursoAndBajaFalse(programa.getCurso())) {
             if (cohorte.esPendiente() && !cohorte.tienePrograma() && cohorte.getCantidadInscriptos() == 0) {
@@ -206,11 +174,11 @@ public class ProgramaServiceImpl implements ProgramaService {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-17: Modifica los datos y el cronograma de un programa sin inscripciones activas.
-     */
+    /** Modifica los datos y el cronograma de un programa sin inscripciones activas. */
     @Override
     @Transactional
     public Programa modificar(Integer id, Docente docente, String nombre, String descripcion, List<Integer> temaIds,
@@ -222,20 +190,13 @@ public class ProgramaServiceImpl implements ProgramaService {
         return programa;
     }
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Programa modificar(Programa entidad) {
         return programaRepository.save(entidad);
     }
 
-    /**
-     * CU-17: Modifica los datos de un programa sin inscripciones activas.
-     */
+    /** Modifica los datos de un programa sin inscripciones activas. */
     @Override
     @Transactional
     public Programa modificar(Integer id, Docente docente, String nombre, String descripcion) {
@@ -251,22 +212,18 @@ public class ProgramaServiceImpl implements ProgramaService {
         return programaRepository.save(programa);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Programa entidad) {
         entidad.marcarInactivo(); // Baja lógica
         programaRepository.save(entidad);
     }
 
-    /**
-     * CU-18: Da de baja un programa sin cohortes activas.
-     */
+    /** Da de baja un programa sin cohortes activas. */
     @Override
     @Transactional
     public void darDeBaja(Integer id, Docente docente) {
@@ -276,9 +233,7 @@ public class ProgramaServiceImpl implements ProgramaService {
         programaRepository.save(programa);
     }
 
-    /**
-     * CU-18: Da de baja varios programas a la vez (todos o ninguno).
-     */
+    /** Da de baja varios programas a la vez (todos o ninguno). */
     @Override
     @Transactional
     public void darDeBajaVarios(List<Integer> ids, Docente docente) {
@@ -347,21 +302,13 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     private static final int MINIMO_POR_DEFECTO = 1;
 
-    /** El mínimo de temas con material publicado y autoevaluación que exige el sistema. */
+    /** Busca el mínimo de temas con material publicado y autoevaluación que exige el sistema. */
     @Override
     public int buscarMinimoDeContenido() {
         return parametroService.obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO);
     }
 
-    /**
-     * Indica si una operación dejaría al programa por debajo del mínimo. Solo cuenta si el programa tiene cohortes en
-     * curso y si la operación es la que le quita contenido: un programa que ya estaba por debajo y no empeora no se bloquea.
-     *
-     * @param programa           El programa que se verifica.
-     * @param materialesQuitados Los materiales que dejarían de estar publicados.
-     * @param temasQuitadas   Los temas que dejarían de formar parte del cronograma.
-     * @return El bloqueo, o vacío si el programa se mantiene por encima del mínimo.
-     */
+    /** Indica si una operación dejaría al programa por debajo del mínimo. */
     @Override
     public Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<Integer> materialesQuitados,
             Collection<Integer> temasQuitadas) {
@@ -374,15 +321,7 @@ public class ProgramaServiceImpl implements ProgramaService {
         return Optional.of(new Bloqueo(programa, minimo, despues));
     }
 
-    /**
-     * Indica si quitar temas del cronograma dejaría al programa con cohortes en curso con menos temas que el mínimo.
-     * Cuenta solo temas del cronograma, sin mirar su contenido. Si el programa ya estaba por debajo y la operación no
-     * empeora, no se bloquea.
-     *
-     * @param programa         El programa que se verifica.
-     * @param temasQuitadas Los temas que dejarían de formar parte del cronograma.
-     * @return El bloqueo (con la cantidad de temas que quedarían), o vacío si el programa conserva el mínimo.
-     */
+    /** Indica si quitar temas del cronograma dejaría al programa con cohortes en curso con menos temas que el mínimo. */
     @Override
     public Optional<Bloqueo> verificarMinimoDeTemas(Programa programa, Collection<Integer> temasQuitadas) {
         int minimo = buscarMinimoDeContenido();
@@ -392,14 +331,7 @@ public class ProgramaServiceImpl implements ProgramaService {
         return despues >= antes || despues >= minimo ? Optional.empty() : Optional.of(new Bloqueo(programa, minimo, despues));
     }
 
-    /**
-     * Motivo (sin punto final) por el que no se puede quitar el material de un tema, con la misma oración que usan las
-     * autoevaluaciones: es el único visible del tema y su programa tiene cohortes activas.
-     *
-     * @param tema             El tema del material.
-     * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
-     * @return El motivo, o vacío si el programa se mantiene por encima del mínimo.
-     */
+    /** Busca el motivo, sin punto final, por el que no se puede quitar el material de un tema. */
     @Override
     public Optional<String> buscarMotivoDeMinimoPorRecurso(Tema tema, Collection<Integer> materialesQuitados) {
         for (Programa programa : tema.getProgramasQueLaIncluyen()) {
@@ -413,10 +345,7 @@ public class ProgramaServiceImpl implements ProgramaService {
         return Optional.empty();
     }
 
-    /**
-     * Motivo por el que quitar material dejaría incompleto el diseño: el tema pierde su único material publicado, su única clase
-     * grabada o su único video clon generado, y algún programa que lo incluye está en curso o tiene inscripciones activas.
-     */
+    /** Busca el motivo por el que quitar material dejaría incompleto el diseño. */
     @Override
     public Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<Integer> materialesQuitados) {
         // Un programa nunca queda incompleto: alcanza con que algún programa incluya el tema

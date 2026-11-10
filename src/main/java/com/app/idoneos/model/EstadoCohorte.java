@@ -5,11 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Estado en el que se encuentra una cohorte, siempre guardado: Pendiente de contenido (todavía no tiene el contenido completo), Inscripción
- * próxima, Inscripción abierta, Inscripción cerrada, En dictado, Dictado finalizado, Cursada finalizada (ya no queda nadie cursando) o
- * Cancelada por falta de contenido (venció el plazo para completarlo). Una tarea periódica la mueve de estado cuando llega cada fecha.
- */
+/** Entidad que representa el estado de una cohorte, que siempre se guarda. */
 @Entity
 @Table(name = "EstadoCohorte")
 @Getter
@@ -26,7 +22,7 @@ public class EstadoCohorte {
     /** Se puede inscribir. */
     public static final String ABIERTA = "Inscripción abierta";
 
-    /** Cerró la inscripción y el dictado todavía no comenzó (o la cohorte no tiene dictado, solo acceso a los contenidos). */
+    /** Cerró la inscripción y el dictado todavía no comenzó. */
     public static final String CERRADA = "Inscripción cerrada";
 
     /** El dictado está en marcha (solo las cohortes con fechas de dictado). */
@@ -41,34 +37,22 @@ public class EstadoCohorte {
     /** Venció el plazo para completar el contenido sin hacerlo. */
     public static final String CANCELADA = "Cancelada por falta de contenido";
 
-    /**
-     * Identificador único del estado de la cohorte.
-     */
+    /** Identificador único del estado de la cohorte. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idEstadoCohorte")
     private int idEstadoCohorte;
 
-    /**
-     * Nombre.
-     */
+    /** Nombre. */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el estado de la cohorte con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el estado de la cohorte con los datos básicos. */
     public EstadoCohorte(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del estado de la cohorte.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del estado de la cohorte. */
     @Override
     public String toString() {
         return nombre;

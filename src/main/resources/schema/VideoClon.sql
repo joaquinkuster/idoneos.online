@@ -1,0 +1,20 @@
+-- VideoClon: reglas de la base de datos de esta entidad.
+-- Cada sentencia termina con ^^^ porque los cuerpos de las funciones llevan punto y coma adentro. Se puede ejecutar más de una vez.
+
+-- ----------------------------------------------------------------------
+-- Columnas que no cambian
+-- ----------------------------------------------------------------------
+
+-- A quién pertenece este registro no cambia: solo cambian sus demás datos.
+DROP TRIGGER IF EXISTS trg_video_clon_pertenencia ON video_clon ^^^
+CREATE TRIGGER trg_video_clon_pertenencia BEFORE UPDATE ON video_clon
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_recurso') ^^^
+
+-- ----------------------------------------------------------------------
+-- Sin borrado
+-- ----------------------------------------------------------------------
+
+-- Las bajas son lógicas: el registro no se borra.
+DROP TRIGGER IF EXISTS trg_video_clon_sin_borrado ON video_clon ^^^
+CREATE TRIGGER trg_video_clon_sin_borrado BEFORE DELETE ON video_clon
+    FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^

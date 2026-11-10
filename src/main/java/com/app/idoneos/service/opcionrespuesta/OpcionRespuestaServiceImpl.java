@@ -8,86 +8,62 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link OpcionRespuesta}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link OpcionRespuestaService}.
- */
+/** Implementación de OpcionRespuestaService. */
 @Service
 public class OpcionRespuestaServiceImpl implements OpcionRespuestaService {
 
     @Autowired
     private OpcionRespuestaRepository opcionRespuestaRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la opción de respuesta por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la opción de respuesta por su identificador. */
     @Override
     public Optional<OpcionRespuesta> buscarPorId(Integer id) {
         return opcionRespuestaRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<OpcionRespuesta> obtenerTodo() {
         return opcionRespuestaRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return opcionRespuestaRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la opción de respuesta en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la opción de respuesta en la base de datos. */
     @Override
     public OpcionRespuesta guardar(OpcionRespuesta entidad) {
         return opcionRespuestaRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public OpcionRespuesta modificar(OpcionRespuesta entidad) {
         return opcionRespuestaRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(OpcionRespuesta entidad) {
         entidad.marcarInactivo(); // Baja lógica

@@ -1,5 +1,4 @@
-/* Movimiento de los listados (tabla, cards y grupos): lo que llega entra con un fundido hacia arriba, escalonado, y lo que se
-   va sale con un fundido corto. Lo dispara core/tabla.js; con "reducir movimiento" no hay animación. */
+/* Movimiento de los listados (tabla, cards y grupos): lo que llega entra con un fundido hacia arriba. */
 @keyframes pnEntra {
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: none; }
@@ -16,7 +15,7 @@
     transition: opacity 0.13s ease, transform 0.13s ease;
 }
 
-/* Menú lateral: cada enlace y título entra con un fundido corto hacia la derecha, escalonado (lo agrega layout/sidebar.js) */
+/* Menú lateral: cada enlace y título entra con un fundido corto hacia la derecha. */
 @keyframes pnEntraMenu {
     from { opacity: 0; transform: translateX(-8px); }
     to { opacity: 1; transform: none; }
@@ -27,8 +26,7 @@
     animation-delay: calc(var(--i, 0) * 30ms);
 }
 
-/* Inicio del curso (al acceder): la portada, la cabecera, el diseño, el aviso de clase en vivo, el título "Temas" y cada tema entran en
-   cascada con el mismo fundido hacia arriba del hero. Solo en la página principal del curso (ac-entra / ac-entra-portada). */
+/* Inicio del curso (al acceder): la portada, la cabecera, el diseño, el aviso de clase en vivo. */
 .ac-entra-portada,
 .ac-entra > *,
 .ac-entra .ac-acordeon > .ac-tema {
@@ -46,9 +44,7 @@
 .ac-entra .ac-acordeon > .ac-tema:nth-child(4) { --hd: 0.58s; }
 .ac-entra .ac-acordeon > .ac-tema:nth-child(n+5) { --hd: 0.64s; }
 
-/* Hero (el principal del inicio y los banners de las páginas internas): la etiqueta, el título, el texto y los botones entran en
-   cascada con un fundido hacia arriba; la imagen del inicio entra desde la derecha. Solo CSS: usa la propiedad "translate", que no
-   pisa el transform de las formas del hero. */
+/* Hero (el principal del inicio y los banners de las páginas internas): la etiqueta, el título. */
 @keyframes pnEntraHero {
     from { opacity: 0; translate: 0 16px; }
     to { opacity: 1; translate: 0 0; }
@@ -81,7 +77,7 @@
     animation: pnEntraHeroLado 0.65s cubic-bezier(0.2, 0.7, 0.2, 1) 0.15s both;
 }
 
-/* Visores de recursos (el del curso y el de la biblioteca digital): la cabecera y el visor entran en cascada con el mismo fundido */
+/* Visores de recursos (el del curso y el de la biblioteca digital). */
 .mv-cabecera,
 .mv-contenedor {
     animation: pnEntraHero 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) var(--hd, 0s) both;

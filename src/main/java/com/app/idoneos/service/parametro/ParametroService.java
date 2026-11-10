@@ -6,16 +6,15 @@ import com.app.idoneos.model.Administrador;
 import com.app.idoneos.model.Parametro;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el parámetro.
- */
+/** Servicio del parámetro. */
 public interface ParametroService extends CrudService<Parametro> {
 
-    // ---------------------------------------------------------------- Lecturas
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca el parámetro por su atributo único 'clave'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca el parámetro por su atributo único 'clave'.
      *
      * @param clave el valor de 'clave' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
@@ -32,7 +31,7 @@ public interface ParametroService extends CrudService<Parametro> {
     int obtenerEntero(String clave, int valorPorDefecto);
 
     /**
-     * Obtiene el valor de un parámetro del sistema como texto. Si es un parámetro sensible, lo devuelve descifrado.
+     * Obtiene el valor de un parámetro del sistema como texto.
      *
      * @param clave la clave del parámetro
      * @return el valor del parámetro, o vacío si no existe
@@ -49,11 +48,12 @@ public interface ParametroService extends CrudService<Parametro> {
      */
     float obtenerDecimal(String clave, float valorPorDefecto);
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Registra el valor de un parámetro: lo crea si no existe y, si existe, lo reemplaza. Si es un parámetro sensible
-     * ({@link Parametro#esClaveSensible}), lo guarda cifrado.
+     * Registra el valor de un parámetro: lo crea si no existe y, si existe, lo reemplaza.
      *
      * @param administrador el administrador que lo registra
      * @param clave la clave del parámetro

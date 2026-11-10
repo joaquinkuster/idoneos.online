@@ -1,9 +1,6 @@
 package com.app.idoneos.util;
 
-/**
- * Duraciones. Las de calendario se guardan siempre en días y se expresan en la unidad que mejor las describe: meses
- * (30 días), semanas (7 días) o días. Las de trabajo (dedicación docente) se guardan en minutos y se expresan en horas o minutos.
- */
+/** Utilidad de duraciones. */
 public final class DuracionUtil {
 
     /** Días que tiene una semana. */
@@ -22,8 +19,7 @@ public final class DuracionUtil {
     }
 
     /**
-     * Escribe una duración en la unidad más grande que la expresa en forma exacta: meses si es múltiplo de 30 días,
-     * semanas si es múltiplo de 7 y días en cualquier otro caso.
+     * Escribe una duración en la unidad más grande que la expresa en forma exacta.
      *
      * @param dias La duración en días.
      * @return Por ejemplo "1 día", "10 días", "3 semanas" o "2 meses".
@@ -39,8 +35,7 @@ public final class DuracionUtil {
     }
 
     /**
-     * Escribe una dedicación docente: horas si es múltiplo de 60 minutos, "1 h 30 min" si pasa de una hora y minutos en
-     * cualquier otro caso.
+     * Escribe una dedicación docente: horas si es múltiplo de 60 minutos.
      *
      * @param minutos La duración en minutos.
      * @return Por ejemplo "45 minutos", "2 horas" o "1 h 30 min".
@@ -55,15 +50,11 @@ public final class DuracionUtil {
         return MensajeErrorUtil.formatearCantidad(minutos, "minuto", "minutos");
     }
 
-
-
-
-
     /**
      * Convierte una cantidad expresada en minutos u horas a minutos.
      *
      * @param cantidad La cantidad en la unidad indicada.
-     * @param unidad   "minutos" u "horas".
+     * @param unidad "minutos" u "horas".
      * @return La duración en minutos.
      * @throws IllegalArgumentException si la unidad no es válida.
      */
@@ -79,7 +70,7 @@ public final class DuracionUtil {
      * Convierte una cantidad expresada en una unidad a días.
      *
      * @param cantidad La cantidad en la unidad indicada.
-     * @param unidad   "dias", "semanas" o "meses".
+     * @param unidad "dias", "semanas" o "meses".
      * @return La duración en días.
      * @throws IllegalArgumentException si la unidad no es válida.
      */

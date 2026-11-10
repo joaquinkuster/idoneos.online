@@ -128,7 +128,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar autoevaluación (CU-65) -->
+<!-- Modal: registrar autoevaluación -->
 <div class="modal fade pn-modal" id="modalNuevaAutoevaluacion" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -143,9 +143,9 @@
     </div>
 </div>
 
-<!-- Modales por autoevaluación: modificar (CU-66) y dar de baja (CU-67) -->
+<!-- Modales por autoevaluación: modificar y dar de baja -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaAutoevaluacion', 'autoevaluación', '¿Confirmas dar de baja?', '', '/autoevaluacion/darDeBaja/0', null, null)}"></th:block>
 
 <!-- Tom Select (selectores múltiples): antes de panel.js, que arma los filtros -->

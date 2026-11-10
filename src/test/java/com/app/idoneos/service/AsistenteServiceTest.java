@@ -16,10 +16,7 @@ import com.app.idoneos.service.asistente.AsistenteService;
 import com.app.idoneos.service.asistente.AsistenteService.Pendiente;
 import com.app.idoneos.service.asistente.AsistenteService.Respuesta;
 
-/**
- * Pruebas del asistente navegacional con los usuarios de la semilla: cada rol ve sus pendientes, con un máximo de cinco en la lista y el
- * total completo para el contador, y sus acciones rápidas.
- */
+/** Pruebas del asistente navegacional con los usuarios de la semilla: cada rol ve sus pendientes. */
 @SpringBootTest
 @Transactional
 class AsistenteServiceTest {
@@ -93,7 +90,7 @@ class AsistenteServiceTest {
     @Test
     @DisplayName("Sin pendientes el asistente avisa que está al día y no lista nada")
     void alDia() {
-        // Un docente sin cohortes pendientes (o un alumno sin autoevaluaciones) recibe el mensaje de «al día»
+        // Un docente sin cohortes pendientes (o un alumno sin autoevaluaciones) recibe el mensaje de "al día"
         Respuesta respuesta = asistenteService.armar(usuario("sebastian.bordato@idoneos.online"));
         if (respuesta.total() == 0) {
             assertTrue(respuesta.resumen().contains("Estás al día"), respuesta.resumen());

@@ -24,11 +24,7 @@ import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.IntentoAutoevaluacionRepository;
 import com.app.idoneos.service.progreso.ProgresoService;
 
-/**
- * Pruebas de la consolidación del progreso: completar un tema al aprobar todas sus autoevaluaciones visibles, habilitar la
- * siguiente, emitir el certificado al completar la último tema y revertir (CU-70 a CU-72). Valentina Ruiz cursa
- * "Mercado de Capitales Argentino" (tres temas): tiene completada el tema 1.
- */
+/** Pruebas de la consolidación del progreso. */
 @SpringBootTest
 @Transactional
 class ConsolidacionDeProgresoServiceTest {

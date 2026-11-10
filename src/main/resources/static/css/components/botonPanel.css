@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    BOTONES SÓLIDOS
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .pn-btn {
     display: inline-flex;
     align-items: center;
@@ -76,7 +76,7 @@
 }
 
 .pn-btn-contorno:hover {
-    /* El fondo del hover llega hasta el borde del botón (con el borde en un gris más oscuro), sin dejar los costados sin cubrir */
+    /* El fondo del hover llega hasta el borde del botón (con el borde en un gris más oscuro). */
     background: #E2E8F0;
     border-color: #94A3B8;
     background-clip: border-box;

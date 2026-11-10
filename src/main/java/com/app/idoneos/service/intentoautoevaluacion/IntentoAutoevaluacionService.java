@@ -10,39 +10,34 @@ import com.app.idoneos.model.IntentoAutoevaluacion;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el intento de autoevaluación.
- */
+/** Servicio del intento de autoevaluación. */
 public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoevaluacion> {
 
-    // ---------------------------------------------------------------- Lecturas
-
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca los intentos vigentes de una inscripción sobre una autoevaluación, del más antiguo al más reciente (el que está
-     * en curso, si lo hay, incluido).
+     * Busca los intentos vigentes de una inscripción sobre una autoevaluación.
      *
-     * @param inscripcion    la inscripción del alumno
+     * @param inscripcion la inscripción del alumno
      * @param autoevaluacion la autoevaluación
      * @return los intentos del alumno sobre la autoevaluación
      */
     List<IntentoAutoevaluacion> buscarPorInscripcionYAutoevaluacion(Inscripcion inscripcion, Autoevaluacion autoevaluacion);
 
     /**
-     * Busca un intento del alumno: debe estar vigente y pertenecerle. Si se le agotó el tiempo (más la tolerancia), lo
-     * cierra y lo corrige antes de devolverlo.
+     * Busca un intento del alumno: debe estar vigente y pertenecerle.
      *
      * @param idIntento identificador del intento
-     * @param alumno    el alumno autenticado
+     * @param alumno el alumno autenticado
      * @return el intento
      * @throws IllegalArgumentException si el intento no existe o no es del alumno
      */
     IntentoAutoevaluacion buscarPropio(Integer idIntento, Alumno alumno);
 
     /**
-     * Busca el intento que mantiene al alumno dentro del cuestionario: está en curso, la autoevaluación no permite salir y
-     * todavía no se agotó el tiempo. Mientras exista, el alumno solo puede acceder al intento.
+     * Busca el intento que mantiene al alumno dentro del cuestionario: está en curso.
      *
      * @param alumno el alumno autenticado
      * @return el intento en curso que no permite salir, o vacío si no hay ninguno
@@ -50,10 +45,9 @@ public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoeva
     Optional<IntentoAutoevaluacion> buscarEnCursoSinSalida(Alumno alumno);
 
     /**
-     * Indica por qué el alumno no puede iniciar un intento de la autoevaluación, o vacío si puede (o si ya tiene uno en
-     * curso para continuar): acceso al tema, período habilitado, límite de intentos y preguntas suficientes.
+     * Indica por qué el alumno no puede iniciar un intento de la autoevaluación.
      *
-     * @param alumno         el alumno
+     * @param alumno el alumno
      * @param autoevaluacion la autoevaluación
      * @return el motivo, o vacío si puede iniciar o continuar un intento
      */
@@ -66,30 +60,31 @@ public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoeva
      */
     int obtenerGraciaEnSegundos();
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * CU-70 (pasos 2 a 4): Inicia un intento de autoevaluación: valida el acceso, el período, el límite de intentos y las
-     * preguntas disponibles, sortea las preguntas de los pools y registra el intento con su orden. Si el alumno ya tiene un
-     * intento en curso de esa autoevaluación, lo devuelve sin sortear de nuevo ni consumir otro intento.
+     * Inicia un intento de autoevaluación: valida el acceso, el período.
      *
-     * @param alumno           el alumno autenticado
+     * @param alumno el alumno autenticado
      * @param idAutoevaluacion identificador de la autoevaluación
      * @return el intento en curso
      * @throws IllegalArgumentException si el alumno no puede rendir la autoevaluación
      */
     IntentoAutoevaluacion iniciar(Alumno alumno, Integer idAutoevaluacion);
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * CU-70 (paso 6): Guarda las opciones que el alumno eligió para una pregunta, reemplazando las anteriores; sin opciones,
-     * la deja sin responder. En un cuestionario secuencial solo admite la pregunta actual.
+     * Guarda las opciones que el alumno eligió para una pregunta, reemplazando las anteriores.
      *
-     * @param idIntento         identificador del intento
-     * @param alumno            el alumno autenticado
+     * @param idIntento identificador del intento
+     * @param alumno el alumno autenticado
      * @param idPreguntaIntento identificador de la pregunta del intento
-     * @param idsOpciones       las opciones elegidas (una en las de opción única)
+     * @param idsOpciones las opciones elegidas (una en las de opción única)
      * @return el intento actualizado
      * @throws IllegalArgumentException si el intento no está en curso, se agotó el tiempo o la elección no es válida
      */
@@ -98,30 +93,28 @@ public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoeva
     /**
      * Marca o desmarca una pregunta para revisarla antes de entregar (solo con navegación libre).
      *
-     * @param idIntento         identificador del intento
-     * @param alumno            el alumno autenticado
+     * @param idIntento identificador del intento
+     * @param alumno el alumno autenticado
      * @param idPreguntaIntento identificador de la pregunta del intento
-     * @param marcada           si queda marcada
+     * @param marcada si queda marcada
      * @return el intento actualizado
      */
     IntentoAutoevaluacion marcarPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento, boolean marcada);
 
     /**
-     * En un cuestionario secuencial, pasa a la pregunta siguiente: la actual queda como pasada (respondida o no) y no se
-     * puede volver a ella.
+     * En un cuestionario secuencial, pasa a la pregunta siguiente.
      *
      * @param idIntento identificador del intento
-     * @param alumno    el alumno autenticado
+     * @param alumno el alumno autenticado
      * @return el intento actualizado
      */
     IntentoAutoevaluacion avanzarPregunta(Integer idIntento, Alumno alumno);
 
     /**
-     * CU-70 (pasos 8 a 12): Entrega el intento: lo corrige, registra la nota y la fecha de entrega y, si lo aprobó, verifica
-     * si completó el tema (y el curso). Si el intento ya se había cerrado (por tiempo), lo devuelve tal cual.
+     * Entrega el intento: lo corrige, registra la nota y la fecha de entrega y, si lo aprobó, verifica si completó el tema y el curso.
      *
      * @param idIntento identificador del intento
-     * @param alumno    el alumno autenticado
+     * @param alumno el alumno autenticado
      * @return el intento corregido
      */
     IntentoAutoevaluacion entregar(Integer idIntento, Alumno alumno);
@@ -135,17 +128,16 @@ public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoeva
     boolean cerrarSiVencido(IntentoAutoevaluacion intento);
 
     /**
-     * Tarea periódica: cierra y corrige todos los intentos en curso a los que se les agotó el tiempo, aunque el alumno no
-     * vuelva a entrar.
+     * Tarea periódica: cierra y corrige todos los intentos en curso a los que se les agotó el tiempo.
      *
      * @return la cantidad de intentos cerrados
      */
     int cerrarVencidos();
 
     /**
-     * CU-68: Busca los intentos vigentes de las autoevaluaciones de un curso, del más antiguo al más reciente.
+     * Busca los intentos vigentes de las autoevaluaciones de un curso, del más antiguo al más reciente.
      *
-     * @param idCurso       el identificador del curso
+     * @param idCurso el identificador del curso
      * @param soloDeDocente si se indica, el docente debe participar en el curso (si no, se rechaza)
      * @return los intentos del curso
      * @throws IllegalArgumentException si el docente no participa en el curso
@@ -153,19 +145,17 @@ public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoeva
     List<IntentoAutoevaluacion> buscarDelCurso(Integer idCurso, Docente soloDeDocente);
 
     /**
-     * CU-71: El docente aprueba manualmente un intento entregado que no alcanzó la nota mínima. La nota no se modifica; el
-     * intento pasa a contar como aprobado y se verifica si el alumno completó el tema (y el curso).
+     * El docente aprueba manualmente un intento entregado que no alcanzó la nota mínima.
      *
      * @param idIntento el identificador del intento
-     * @param docente   el docente, que debe participar en el curso
+     * @param docente el docente, que debe participar en el curso
      * @return el intento aprobado
      * @throws IllegalArgumentException si el intento no existe, está en curso, ya está aprobado o el docente no participa
      */
     IntentoAutoevaluacion aprobarPorDocente(Integer idIntento, Docente docente);
 
     /**
-     * CU-72: Da de baja un intento (también uno en curso, por ejemplo ante un fraude). Si el intento hacía que el alumno
-     * tuviera el tema completado y ya no la aprueba, se revierte ese tema y se anula su certificado.
+     * Da de baja un intento (también uno en curso, por ejemplo ante un fraude).
      *
      * @param idIntento el identificador del intento
      * @return {@code true} si la baja hizo retroceder el tema del alumno

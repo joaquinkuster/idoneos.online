@@ -13,10 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas del contenido publicado de un tema y de las clases en vivo de una cohorte (CU-27), con los datos de la
- * semilla: el alumno Valentina Ruiz está inscripta en la cohorte en dictado de "Mercado de Capitales Argentino".
- */
+/** Pruebas del contenido publicado de un tema y de las clases en vivo de una cohorte. */
 @SpringBootTest
 @Transactional
 class ContenidoDeTemaTest {

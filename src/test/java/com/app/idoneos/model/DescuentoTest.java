@@ -9,9 +9,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas del estado derivado de un descuento (CU-56): se desactiva solo al vencer o al agotarse.
- */
+/** Pruebas del estado derivado de un descuento: se desactiva solo al vencer o al agotarse. */
 class DescuentoTest {
 
     private static final LocalDateTime AHORA = LocalDateTime.of(2026, 10, 13, 12, 0);

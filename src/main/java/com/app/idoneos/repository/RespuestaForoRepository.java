@@ -6,19 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.RespuestaForo;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link RespuestaForo} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link RespuestaForo}.
- */
+/** Repositorio de RespuestaForo. */
 @Repository
 public interface RespuestaForoRepository extends JpaRepository<RespuestaForo, Integer> {
 
-    /**
-     * Encuentra todos los registros activos (no dados de baja).
-     *
-     * @return Una lista de {@link RespuestaForo} activos.
-     */
+    /** Encuentra todos los registros activos (no dados de baja). */
     List<RespuestaForo> findByBajaFalse();
-
 
 }

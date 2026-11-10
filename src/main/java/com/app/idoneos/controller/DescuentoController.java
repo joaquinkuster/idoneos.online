@@ -22,14 +22,7 @@ import com.app.idoneos.model.Descuento;
 import com.app.idoneos.service.descuento.DescuentoService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de la gestión de descuentos (MOD-F-03), solo para el Administrador.
- *
- * Mapea las pantallas de los casos de uso:
- * CU-56 Buscar descuento (GET /descuento/buscar), CU-57 Registrar descuento, CU-58 Modificar descuento
- * y CU-59 Dar de baja descuento. Los formularios de alta, modificación y baja se muestran como ventanas modales
- * de la pantalla de búsqueda.
- */
+/** Controlador del descuento. */
 @Controller
 @RequestMapping("/descuento")
 public class DescuentoController {
@@ -37,15 +30,11 @@ public class DescuentoController {
     @Autowired
     private DescuentoService descuentoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de un descuento, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     El descuento.
-     * @param model El modelo de la vista.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /descuento/modificar/{id}: Ventana de modificación de un descuento. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("d", descuentoService.buscarPorId(id).filter(d -> !d.getBaja())
@@ -53,15 +42,7 @@ public class DescuentoController {
         return "pages/descuento/modificar :: modal(d=${d})";
     }
 
-    /**
-     * CU-56: Busca descuentos. El listado llega completo y los filtros se aplican en la pantalla.
-     *
-     * @param nombre Parte del nombre (opcional).
-     * @param estado Vigente, Próximo, Vencido, Agotado o Dado de baja (opcional).
-     * @param orden  "nombre" (A–Z), "recientes" o "porcentaje".
-     * @param model El modelo de la vista.
-     * @return La vista de búsqueda de descuentos.
-     */
+    /** GET /descuento/buscar: Busca descuentos. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "nombre", required = false) String nombre,
             @RequestParam(value = "estado", required = false) String estado,
@@ -82,13 +63,11 @@ public class DescuentoController {
         return "pages/descuento/buscar";
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-57: Registra un descuento. Responde en JSON.
-     *
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /descuento/registrar: Registra un descuento. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -106,14 +85,11 @@ public class DescuentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-58: Modifica un descuento. Responde en JSON.
-     *
-     * @param id Identificador del descuento.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /descuento/modificar/{id}: Modifica un descuento. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -131,14 +107,11 @@ public class DescuentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-59: Da de baja un descuento que nunca se aplicó. Responde en JSON.
-     *
-     * @param id Identificador del descuento.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /descuento/darDeBaja/{id}: Da de baja un descuento que nunca se aplicó. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -149,12 +122,7 @@ public class DescuentoController {
         }
     }
 
-    /**
-     * Da de baja varios descuentos a la vez, todos o ninguno. Responde en JSON.
-     *
-     * @param ids Identificadores de los descuentos seleccionados.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /descuento/darDeBajaMasiva: Da de baja varios descuentos a la vez, todos o ninguno. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
@@ -166,9 +134,9 @@ public class DescuentoController {
         }
     }
 
-    // ---------------------------------------------------------------- Listado (motor común)
-
-
+    // ----------------------------------------------------------------------
+    // Listado (motor común)
+    // ----------------------------------------------------------------------
 
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
@@ -178,7 +146,7 @@ public class DescuentoController {
 
         private static final java.time.format.DateTimeFormatter DIA_MES_ANIO = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Descuento> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Descuento>("nombre", FiltroUtil.Tipo.TEXTO, Descuento::getNombre),
                 new FiltroUtil.Columna<Descuento>("porcentaje", FiltroUtil.Tipo.NUMERO, d -> String.valueOf(d.getPorcentaje())),

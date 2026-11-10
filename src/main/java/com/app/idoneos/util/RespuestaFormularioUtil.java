@@ -8,15 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-/**
- * Métodos auxiliares para armar las respuestas JSON de los formularios que se envían sin recargar la página.
- * Todas las respuestas tienen la misma forma: {@code mensaje} (y opcionalmente {@code destino}) si salió bien,
- * {@code error} (y opcionalmente {@code campo}) si falló.
- * <p>
- * Cuando un error de validación corresponde a un campo, se lanza con {@link #armarCampoInvalido(String, String)} indicando el
- * {@code name} del input: la respuesta devuelve ese nombre y la pantalla marca el campo debajo, en su paso, en lugar de
- * mostrar una alerta general. Los errores sin campo siguen lanzándose como {@link IllegalArgumentException}.
- */
+/** Utilidad de respuestas de formularios. Arma las respuestas JSON de los formularios que se envían sin recargar la página. */
 public class RespuestaFormularioUtil {
 
     private static final Logger REGISTRO = LoggerFactory.getLogger(RespuestaFormularioUtil.class);
@@ -55,9 +47,7 @@ public class RespuestaFormularioUtil {
     }
 
     /**
-     * Arma la respuesta JSON de una operación exitosa después de la cual la pantalla propone el paso siguiente del flujo
-     * (por ejemplo, crear una cohorte después de crear un curso): se muestra el mensaje y, a continuación, una alerta que
-     * pregunta si se quiere seguir; si se acepta se navega a {@code siguienteUrl}, y si no, se recarga la pantalla.
+     * Arma la respuesta JSON de una operación exitosa después de la cual la pantalla propone el paso siguiente del flujo (por ejemplo, crear una cohorte después de crear un curso): se muestra el mensaje y, a continuación, una alerta que pregunta si se quiere seguir. Si se acepta se navega a siguienteUrl, y si no, se recarga la pantalla.
      *
      * @param mensaje El mensaje de éxito.
      * @param titulo El título de la alerta del paso siguiente.
@@ -88,9 +78,7 @@ public class RespuestaFormularioUtil {
     }
 
     /**
-     * Arma la respuesta JSON de una operación de formulario que falló. Los errores de validación
-     * ({@link IllegalArgumentException}) muestran su mensaje; cualquier otro error muestra un mensaje genérico
-     * para no exponer detalles internos.
+     * Arma la respuesta JSON de una operación de formulario que falló.
      *
      * @param e La excepción ocurrida.
      * @return Una respuesta HTTP 400 con el mensaje de error.
@@ -107,7 +95,7 @@ public class RespuestaFormularioUtil {
     /**
      * Arma una respuesta de error con el estado y el mensaje indicados.
      *
-     * @param estado  El estado HTTP de la respuesta.
+     * @param estado El estado HTTP de la respuesta.
      * @param mensaje El mensaje de error que se muestra al usuario.
      * @return Una respuesta con el estado dado y el mensaje de error.
      */
@@ -116,8 +104,7 @@ public class RespuestaFormularioUtil {
     }
 
     /**
-     * Igual que {@link #armarRespuestaConError(Exception)}, para los endpoints cuya respuesta exitosa lleva datos
-     * ({@link #armarRespuestaConDatos(Map)}) y por lo tanto declaran un cuerpo de tipo {@code Map<String, Object>}.
+     * Igual que armarRespuestaConError, pero con el cuerpo como mapa de objetos.
      *
      * @param e La excepción ocurrida.
      * @return Una respuesta HTTP 400 con el mensaje de error.
@@ -143,7 +130,7 @@ public class RespuestaFormularioUtil {
     /**
      * Arma el error de validación de un campo.
      *
-     * @param campo   El {@code name} del input del formulario.
+     * @param campo El {@code name} del input del formulario.
      * @param mensaje El mensaje que se muestra debajo del campo.
      * @return La excepción lista para lanzar.
      */

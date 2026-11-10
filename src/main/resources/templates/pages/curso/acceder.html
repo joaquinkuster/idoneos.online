@@ -16,7 +16,7 @@
             </th:block>
 
             <main class="pn-contenido">
-                <!-- CU-27: Acceder curso -->
+                <!-- Acceder curso -->
                 <nav class="ac-migas" aria-label="Ruta de navegación">
                     <a th:href="@{/inicio}">Página principal</a>
                     <i class="fa-solid fa-chevron-right"></i>
@@ -38,8 +38,7 @@
                 <!-- Cabecera del curso -->
                 <th:block th:replace="~{pages/curso/cabecera :: cabecera(${seccion == 'temas'}, false)}"></th:block>
 
-                <!-- Diseño del curso para la cohorte de trabajo: los 5 pasos (datos, programa, temas, cronograma y contenido), con el
-                     detalle del paso elegido debajo. Lo que era la página Diseño, para que sea lo primero que ve el docente -->
+                <!-- Diseño del curso para la cohorte de trabajo: los 5 pasos. -->
                 <section class="ec-card" th:if="${seccion == 'temas' and esDocente}"
                     th:classappend="${cohorte != null} ? (${estadoDiseno.pasoActual == 4} ? 'ec-grupo completo' : 'ec-grupo')"
                     th:with="paso=${estadoDiseno.pasoActual}, completo=${estadoDiseno.pasoActual == 4},
@@ -103,7 +102,7 @@
                                                 th:text="${'Falta: ' + faltantesTextoPorTema.get(f.tema.idTema)}">Falta: «Material»</small>
                                         </span>
                                     </div>
-                                    <!-- Primero se registran los temas hasta el mínimo; recién ahí se completa su contenido -->
+                                    <!-- Primero se registran los temas hasta el mínimo. Recién ahí se completa su contenido -->
                                     <div class="ec-acciones" th:if="${puedeGestionar}">
                                         <a class="pn-btn pn-btn-primario" th:if="${estadoDiseno.cantidadTemas < estadoDiseno.minimoTemas}"
                                             th:href="@{/tema/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar tema</a>
@@ -157,9 +156,12 @@
                 </section>
                 */-->
 
-                <!-- ================= Sección: Temas (acordeón) ================= -->
+                <!-- ---------------------------------------------------------------------- -->
+                <!-- Sección: Temas (acordeón) -->
+                <!-- ---------------------------------------------------------------------- -->
+
                 <section id="temasDelCurso" th:if="${seccion == 'temas'}">
-                    <!-- El docente ve todos los temas del curso (los del programa de la cohorte, con su orden, y los demás); el alumno, los de su programa -->
+                    <!-- El docente ve todos los temas del curso (los del programa de la cohorte, con su orden, y los demás). -->
                     <th:block th:if="${programa != null or esDocente}" th:with="filas=${esDocente ? filasDeTemas : programa.cronogramaOrdenado}">
                     <div class="ac-barra-acordeon">
                         <h2 class="ac-seccion-titulo">Temas</h2>
@@ -240,7 +242,7 @@
                                             <th:block
                                                 th:replace="~{pages/recurso/icon :: icon(${m.tipo}, '')}">
                                             </th:block>
-                                            <!-- Un enlace externo lleva directo a su página (en otra pestaña); el resto abre la vista del material -->
+                                            <!-- Un enlace externo lleva directo a su página (en otra pestaña). El resto abre la vista del material -->
                                             <a class="ac-actividad-titulo" th:text="${m.titulo}" rel="noopener"
                                                 th:href="${m.recurso.esEnlaceExterno()} ? ${m.rutaArchivo} : @{'/recurso/ver/' + ${m.idTemaRecurso}}"
                                                 th:target="${m.recurso.esEnlaceExterno()} ? '_blank' : null">Material</a>
@@ -337,7 +339,10 @@
                 </th:block>
                 </section>
 
-                <!-- ================= Sección: Cronograma (solo lectura) ================= -->
+                <!-- ---------------------------------------------------------------------- -->
+                <!-- Sección: Cronograma (solo lectura) -->
+                <!-- ---------------------------------------------------------------------- -->
+
                 <section th:if="${seccion == 'cronograma'}">
                     <th:block th:if="${#lists.isEmpty(programa.cronogramaOrdenado)}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-calendar', 'El programa todavía no tiene temas', 'Cuando se carguen temas, vas a ver su cronograma acá.', null, null)}"></th:block></th:block>
 
@@ -352,7 +357,10 @@
                     </div>
                 </section>
 
-                <!-- ================= Sección: Clases en vivo ================= -->
+                <!-- ---------------------------------------------------------------------- -->
+                <!-- Sección: Clases en vivo -->
+                <!-- ---------------------------------------------------------------------- -->
+
                 <section th:if="${seccion == 'clases'}">
                     <h2 class="ac-seccion-titulo">Clases en vivo de tu cohorte</h2>
 
@@ -394,7 +402,6 @@
         </th:block>
     </th:block>
 
-
     <!-- Datos del curso: se editan acá mismo, sin salir del inicio -->
     <div class="modal fade pn-modal" id="modalModificarCurso" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -420,7 +427,7 @@
     <script th:src="@{/js/pages/curso/contexto.js}" th:if="${puedeGestionar}"></script>
     <script th:if="${puedeGestionar}" th:src="@{/js/pages/recurso/recurso.js}"></script>
 <script>
-    // Card Diseño del curso: el paso elegido muestra su detalle; "Cargar" abre el tema que falta en el acordeón
+    // Card Diseño del curso: el paso elegido muestra su detalle. "Cargar" abre el tema que falta en el acordeón
     (function () {
         var detalle = document.querySelector('[data-ec-detalle]');
         if (!detalle) { return; }
@@ -452,7 +459,7 @@
         } else {
             mostrar(detalle.dataset.pasoInicial);
         }
-        // «Completar contenido»: despliega los temas pendientes y baja suavemente hasta el primero, dentro de la misma página
+        // "Completar contenido": despliega los temas pendientes y baja suavemente hasta el primero, dentro de la misma página
         function completarContenido(ids) {
             var primero = null;
             (ids || '').split(',').forEach(function (id) {
@@ -465,7 +472,7 @@
                 (primero.parentElement || primero).scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
-        // Abre el selector de recursos del primer tema pendiente con el recurso que sigue ya elegido; el docente lee y aprieta «Siguiente»
+        // Abre el selector de recursos del primer tema pendiente con el recurso que sigue ya elegido. El docente lee y aprieta "Siguiente"
         function abrirSelector(boton) {
             var selector = document.getElementById('modalSelectorRecurso');
             if (!selector || !window.bootstrap || !boton.dataset.temaId) { return; }
@@ -507,8 +514,8 @@
     })();
 </script>
 <script th:if="${puedeGestionar}">
-    // ?reutilizar=<recurso> (desde «Registrar en un tema» de la biblioteca digital): abre solo el selector de recursos en la pestaña
-    // «De la biblioteca» con ese recurso elegido, para que el docente solo elija el tema
+    // ?reutilizar=<recurso> (desde "Registrar en un tema" de la biblioteca digital): abre solo el selector de recursos en la pestaña
+    // "De la biblioteca" con ese recurso elegido, para que el docente solo elija el tema
     (function () {
         // ?completar=datos (desde el asistente): abre solo la ventana con los datos del curso que faltan
         if (new URL(window.location.href).searchParams.get('completar') === 'datos') {

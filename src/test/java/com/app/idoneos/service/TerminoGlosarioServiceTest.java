@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
@@ -26,11 +25,7 @@ import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.repository.UsuarioRepository;
 import com.app.idoneos.service.terminoglosario.TerminoGlosarioService;
 
-/**
- * Pruebas del glosario (CU-32 a CU-35) con los datos de la semilla: el tema 1 de "Mercado de Capitales Argentino"
- * tiene los términos BYMA, CNV y ON; la 2, TIR y Duration; la 3 no tiene ninguno. Fausto Spotorno es titular de
- * ambos cursos y Sebastián Bordato no participa en "Macroeconomía de Coyuntura".
- */
+/** Pruebas del glosario con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class TerminoGlosarioServiceTest {
@@ -89,7 +84,9 @@ class TerminoGlosarioServiceTest {
         return terminos.stream().map(TerminoGlosario::getTermino).toList();
     }
 
-    // ------------------------------------------------------------------ CU-32 Buscar término
+    // ----------------------------------------------------------------------
+    // Buscar término
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-32: sin texto se devuelven todos los términos del tema, en orden alfabético")
@@ -126,7 +123,9 @@ class TerminoGlosarioServiceTest {
                 nombres(glosarioService.buscarConFiltros(primera(), null, true)));
     }
 
-    // ------------------------------------------------------------------ CU-33 Registrar término
+    // ----------------------------------------------------------------------
+    // Registrar término
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-33: el docente del curso registra un término con su definición")
@@ -194,7 +193,9 @@ class TerminoGlosarioServiceTest {
         assertEquals(List.of("BYMA", "CNV", "ON"), nombres(glosarioService.buscarConFiltros(primera(), null, true)));
     }
 
-    // ------------------------------------------------------------------ CU-34 Modificar término
+    // ----------------------------------------------------------------------
+    // Modificar término
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-34: el docente modifica el término y la definición, y queda registrada la fecha")
@@ -244,7 +245,9 @@ class TerminoGlosarioServiceTest {
         assertFalse(terminoRepository.findById(ipc.getIdTermino()).orElseThrow().getBaja());
     }
 
-    // ------------------------------------------------------------------ CU-35 Dar de baja término
+    // ----------------------------------------------------------------------
+    // Dar de baja término
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-35: el docente da de baja un término (baja lógica) y el administrador también, sin participar")
@@ -264,7 +267,9 @@ class TerminoGlosarioServiceTest {
                 .contains("El término no se encuentra activo"));
     }
 
-    // ------------------------------------------------------------------ Quién puede ver el glosario
+    // ----------------------------------------------------------------------
+    // Quién puede ver el glosario
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("Ven el glosario el administrador, el docente del curso y el alumno con el tema habilitado")

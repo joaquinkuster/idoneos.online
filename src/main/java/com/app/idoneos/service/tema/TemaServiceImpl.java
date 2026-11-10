@@ -29,10 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Tema}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link TemaService}.
- */
+/** Implementación de TemaService. */
 @Service
 public class TemaServiceImpl implements TemaService {
 
@@ -57,56 +54,37 @@ public class TemaServiceImpl implements TemaService {
     @Autowired
     private TemaCronogramaRepository temaCronogramaRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el tema por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el tema por su identificador. */
     @Override
     public Optional<Tema> buscarPorId(Integer id) {
         return temaRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Tema> obtenerTodo() {
         return temaRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return temaRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de tema asociados a curso.
-     *
-     * @param curso el registro de Curso asociado
-     * @return una lista de Tema asociados al Curso indicado
-     */
+    /** Busca los registros vigentes de tema asociados a curso. */
     @Override
     public List<Tema> buscarPorCurso(Curso curso) {
         return temaRepository.findByCursoAndBajaFalse(curso);
     }
 
-    /**
-     * Indica si un usuario puede ver el contenido de un tema.
-     */
+    /** Indica si un usuario puede ver el contenido de un tema. */
     @Override
     public boolean puedeVerContenido(Tema tema, Usuario usuario) {
         if (usuario.esAdministradorActivo()) {
@@ -121,9 +99,7 @@ public class TemaServiceImpl implements TemaService {
         return alumno != null && inscripcionService.buscarConAccesoATema(alumno, tema).isPresent();
     }
 
-    /**
-     * CU-19: Busca los temas del cronograma de un programa por título.
-     */
+    /** Busca los temas del cronograma de un programa por título. */
     @Override
     public List<TemaCronograma> buscarConFiltros(Programa programa, String titulo) {
         String buscado = TextoUtil.normalizar(titulo);
@@ -132,22 +108,17 @@ public class TemaServiceImpl implements TemaService {
                 .toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el tema en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el tema en la base de datos. */
     @Override
     public Tema guardar(Tema entidad) {
         return temaRepository.save(entidad);
     }
 
-    /**
-     * Registra un tema del curso, sin incorporarlo todavía al cronograma de ningún programa.
-     */
+    /** Registra un tema del curso, sin incorporarlo todavía al cronograma de ningún programa. */
     @Override
     @Transactional
     public Tema registrar(Docente docente, Integer cursoId, String titulo, String descripcion, String contenido) {
@@ -163,9 +134,7 @@ public class TemaServiceImpl implements TemaService {
         return tema;
     }
 
-    /**
-     * Guarda de una vez los temas nuevos y los modificados de un curso.
-     */
+    /** Guarda de una vez los temas nuevos y los modificados de un curso. */
     @Override
     @Transactional
     public int guardarCambios(Docente docente, Integer cursoId, List<CambioDeTema> cambios) {
@@ -190,9 +159,7 @@ public class TemaServiceImpl implements TemaService {
         return cantidad;
     }
 
-    /**
-     * Da de baja un tema del curso: lo quita del cronograma de todos sus programas y lo deja dado de baja.
-     */
+    /** Da de baja un tema del curso: lo quita del cronograma de todos sus programas y lo deja dado de baja. */
     @Override
     @Transactional
     public void darDeBajaPorCurso(Integer id, Docente docente) {
@@ -239,22 +206,17 @@ public class TemaServiceImpl implements TemaService {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Tema modificar(Tema entidad) {
         return temaRepository.save(entidad);
     }
 
-    /**
-     * CU-21: Modifica un tema sin inscripciones activas asociadas.
-     */
+    /** Modifica un tema sin inscripciones activas asociadas. */
     @Override
     @Transactional
     public Tema modificar(Integer id, Docente docente, String titulo, String descripcion, String contenido) {
@@ -274,22 +236,18 @@ public class TemaServiceImpl implements TemaService {
         return temaRepository.save(tema);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Tema entidad) {
         entidad.marcarInactivo(); // Baja lógica
         temaRepository.save(entidad);
     }
 
-    /**
-     * Quita varios temas del cronograma de un programa como parte de la modificación de todo el cronograma.
-     */
+    /** Quita varios temas del cronograma de un programa como parte de la modificación de todo el cronograma. */
     @Override
     @Transactional
     public void quitarVariasDelCronograma(List<Integer> ids, Integer programaId, Docente docente) {
@@ -304,11 +262,7 @@ public class TemaServiceImpl implements TemaService {
         quitarDelCronograma(programa, aQuitar);
     }
 
-    /**
-     * Dar de baja un tema deja sin asignar sus días: la suma de días del programa dejaría de coincidir con la duración del curso y el
-     * programa quedaría incompleto, y un programa nunca está incompleto. Primero se quita el tema del programa (se modifica el programa o
-     * se registra una versión nueva sin ese tema), que controla la suma completa.
-     */
+    /** Valida que dar de baja un tema no deje desajustados los días del programa, porque deja sin asignar los suyos. */
     private void validarQueNoDesajusteLosDias(Programa programa, List<TemaCronograma> aQuitar) {
         TemaCronograma primera = aQuitar.get(0);
         int dias = aQuitar.stream().mapToInt(TemaCronograma::getDuracionDias).sum();
@@ -350,10 +304,7 @@ public class TemaServiceImpl implements TemaService {
         return cronograma;
     }
 
-    /**
-     * Quita los temas del cronograma del programa, renumera las que quedan y da de baja los temas que ya no
-     * forman parte del cronograma de ningún programa.
-     */
+    /** Quita los temas del cronograma del programa. */
     private void quitarDelCronograma(Programa programa, List<TemaCronograma> aQuitar) {
         LocalDateTime ahora = LocalDateTime.now();
         for (TemaCronograma cronograma : aQuitar) {

@@ -69,7 +69,7 @@
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'"
-                                th:attr="data-ver-url=${!m.baja} ? @{'/recurso/ver/' + ${m.idTemaRecurso}}, data-dependencias=${otrosUsosPorMaterial != null ? otrosUsosPorMaterial.getOrDefault(m.idTemaRecurso, 0L) : 0}">
+                                th:attr="data-ver-url=${!m.baja} ? @{'/recurso/ver/' + ${m.idTemaRecurso}}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>
                                 <td>
@@ -106,9 +106,7 @@
                                                 data-bs-toggle="modal" data-bs-target="#modalBajaMaterial"
                                                 th:data-baja-accion="@{'/recurso/darDeBaja/' + ${m.idTemaRecurso}}"
                                                 th:data-baja-pregunta="'¿Confirmas dar de baja el recurso «' + ${m.titulo} + '»?'"
-                                                th:data-baja-nota="${otrosUsosPorMaterial != null and otrosUsosPorMaterial.getOrDefault(m.idTemaRecurso, 0L) > 0
-                                        ? 'Tiene ' + otrosUsosPorMaterial.get(m.idTemaRecurso) + (otrosUsosPorMaterial.get(m.idTemaRecurso) == 1 ? ' otro tema asociado' : ' otros temas asociados') + ': no se puede dar de baja.'
-                                        : 'El recurso dejará de mostrarse a los alumnos.'}">Dar de baja</button>
+                                                data-baja-nota="El recurso dejará de mostrarse a los alumnos en este tema. Sigue en la biblioteca para reutilizarlo.">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
@@ -139,7 +137,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar recurso (CU-29). Los datos que pide dependen del tipo elegido en el formulario -->
+<!-- Modal: registrar recurso. Los datos que pide dependen del tipo elegido en el formulario -->
 <div class="modal fade pn-modal" id="modalNuevoMaterial" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}"
      th:attr="data-abrir-tipo=${nuevoTipo}, data-tema=${temaSeleccionada}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -312,7 +310,7 @@
     </div>
 </div>
 
-<!-- Modales por recurso: modificar (CU-30) y dar de baja (CU-31) -->
+<!-- Modales por recurso: modificar y dar de baja -->
 <th:block th:each="m : ${materiales}">
     <!-- Modificar (solo docente, recurso activo) -->
 
@@ -321,7 +319,7 @@
     </th:block>
 </th:block>
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaMaterial', 'recurso', '¿Confirmas dar de baja?', '', '/recurso/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>

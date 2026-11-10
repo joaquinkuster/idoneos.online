@@ -27,12 +27,7 @@ import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.repository.DocenteCursoRepository;
 import com.app.idoneos.service.programa.ProgramaService;
 
-/**
- * Pruebas del ABM de programas (CU-15 a CU-18) con los datos de la semilla: "Mercado de Capitales Argentino" tiene un
- * programa con tres temas, tres cohortes e inscripciones activas; "Macroeconomía de Coyuntura" tiene un programa con
- * una cohorte abierta sin inscriptos. Fausto Spotorno es titular de ambos cursos y Sebastián Bordato no participa en el
- * segundo.
- */
+/** Pruebas del ABM de programas con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class ProgramaServiceTest {
@@ -79,7 +74,7 @@ class ProgramaServiceTest {
         return assertThrows(IllegalArgumentException.class, accion).getMessage();
     }
 
-    /** Registra un programa a partir del origen indicado o, sin origen, del vigente del curso: un programa nunca nace incompleto. */
+    /** Registra un programa a partir del origen indicado o, sin origen, del vigente del curso. */
     private Programa registrar(Curso curso, Integer origen, String nombre) {
         Integer desde = origen != null ? origen : curso.getProgramaVigente().getIdPrograma();
         return programaService.registrar(fausto(), curso.getIdCurso(), desde, nombre, null);
@@ -134,7 +129,9 @@ class ProgramaServiceTest {
         assertNull(pendiente.getPrograma());
     }
 
-    // ------------------------------------------------------------------ CU-15 Buscar programa
+    // ----------------------------------------------------------------------
+    // Buscar programa
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-15: el programa más reciente es el vigente y los demás figuran como anteriores")
@@ -171,7 +168,9 @@ class ProgramaServiceTest {
         assertTrue(programaService.buscarConFiltros(mercado(), "zzz", null).isEmpty());
     }
 
-    // ------------------------------------------------------------------ CU-16 Registrar programa
+    // ----------------------------------------------------------------------
+    // Registrar programa
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-16: registrar un programa lo deja vigente y es el programa de trabajo del docente")
@@ -229,7 +228,9 @@ class ProgramaServiceTest {
                 .contains("rol de docente"));
     }
 
-    // ------------------------------------------------------------------ CU-17 Modificar programa
+    // ----------------------------------------------------------------------
+    // Modificar programa
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-17: se modifica un programa sin inscripciones activas")
@@ -261,7 +262,9 @@ class ProgramaServiceTest {
                 .contains("El programa no se encuentra activo"));
     }
 
-    // ------------------------------------------------------------------ CU-18 Dar de baja programa
+    // ----------------------------------------------------------------------
+    // Dar de baja programa
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-18: se da de baja un programa sin cohortes activas, el docente o el administrador")
@@ -318,7 +321,9 @@ class ProgramaServiceTest {
         assertTrue(dos.getBaja());
     }
 
-    // ------------------------------------------------------------------ Cronograma del programa
+    // ----------------------------------------------------------------------
+    // Cronograma del programa
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-16: registrar un programa con su cronograma deja los temas en el orden y con los días indicados")

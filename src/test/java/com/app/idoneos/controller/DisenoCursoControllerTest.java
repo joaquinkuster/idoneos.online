@@ -24,10 +24,7 @@ import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.NivelRepository;
 import com.app.idoneos.service.curso.CursoService;
 
-/**
- * Pruebas de la vista Diseño de curso (el mapa de lo que el docente completa: datos del curso, temas, programa vigente y
- * contenido), del modal Editar curso y del estado que alimenta los indicadores del menú lateral.
- */
+/** Pruebas de la vista Diseño de curso. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -52,7 +49,9 @@ class DisenoCursoControllerTest {
                 .findFirst().orElseThrow();
     }
 
-    // ------------------------------------------------------------------ Estado del diseño
+    // ----------------------------------------------------------------------
+    // Estado del diseño
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("El estado del diseño mira el contenido de los temas del curso, el programa vigente y lista lo que falta")
@@ -85,7 +84,9 @@ class DisenoCursoControllerTest {
         assertFalse(estado.faltantesDeDatos().isEmpty());
     }
 
-    // ------------------------------------------------------------------ Inicio del curso
+    // ----------------------------------------------------------------------
+    // Inicio del curso
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -97,7 +98,7 @@ class DisenoCursoControllerTest {
                 .andExpect(content().string(Matchers.containsString("Diseño del curso")))
                 .andExpect(content().string(Matchers.containsString("id=\"modalModificarCurso\"")))
                 .andExpect(content().string(Matchers.containsString("/curso/modificarPorDocente/" + macro().getIdCurso())))
-                // el menú: Programas, Temas y Cohortes, habilitados según el paso del diseño; sin la página Diseño
+                // el menú: Programas, Temas y Cohortes, habilitados según el paso del diseño. Sin la página Diseño
                 .andExpect(content().string(Matchers.containsString("Programas")))
                 .andExpect(content().string(Matchers.containsString("Cohortes")))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Diseño de curso"))));
@@ -134,7 +135,9 @@ class DisenoCursoControllerTest {
         mockMvc.perform(post("/curso/modificarPorDocente/" + macro().getIdCurso())).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Editar curso
+    // ----------------------------------------------------------------------
+    // Editar curso
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

@@ -18,10 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Pruebas de los controladores del módulo de gestión de cursos (MOD-F-01): acceso por rol
- * y vistas que se muestran en cada caso de uso.
- */
+/** Pruebas de los controladores del módulo de gestión de cursos. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class GestionDeCursosControllerTest {

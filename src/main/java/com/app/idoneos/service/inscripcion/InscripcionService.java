@@ -12,9 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con la inscripción.
- */
+/** Servicio de la inscripción. */
 public interface InscripcionService extends CrudService<Inscripcion> {
 
     /**
@@ -25,7 +23,9 @@ public interface InscripcionService extends CrudService<Inscripcion> {
      */
     Optional<Inscripcion> buscarPorId(Integer id);
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros vigentes de inscripcion asociados a cohorte.
@@ -35,10 +35,8 @@ public interface InscripcionService extends CrudService<Inscripcion> {
      */
     List<Inscripcion> buscarPorCohorte(Cohorte cohorte);
 
-
     /**
-     * Busca las inscripciones vigentes de un alumno, filtrando opcionalmente por el nombre del curso
-     * y por el estado de la inscripción (En progreso o Finalizado).
+     * Busca las inscripciones vigentes de un alumno.
      *
      * @param alumno el alumno dueño de las inscripciones
      * @param nombreCurso parte del nombre del curso (opcional)
@@ -48,20 +46,17 @@ public interface InscripcionService extends CrudService<Inscripcion> {
     List<Inscripcion> buscarMisCursos(Alumno alumno, String nombreCurso, String estado);
 
     /**
-     * Verifica que el alumno pueda acceder al curso de la inscripción: la inscripción debe ser suya y estar
-     * vigente y habilitada, su acceso no debe haber vencido y, si la cohorte tiene fecha de inicio de dictado,
-     * ésta no debe ser futura (CU-27).
+     * Verifica que el alumno pueda acceder al curso de la inscripción.
      *
      * @param idInscripcion El identificador de la inscripción.
-     * @param alumno        El alumno que solicita el acceso.
+     * @param alumno El alumno que solicita el acceso.
      * @return La inscripción a la que puede acceder.
      * @throws IllegalArgumentException Si el alumno no puede acceder, con el motivo.
      */
     Inscripcion validarAcceso(int idInscripcion, Alumno alumno);
 
     /**
-     * Busca la inscripción con la que un alumno puede ver el contenido de un tema: una inscripción vigente a su
-     * curso, con acceso vigente (ver {@link #validarAcceso}) y con el tema habilitado según su avance.
+     * Busca la inscripción con la que un alumno puede ver el contenido de un tema.
      *
      * @param alumno el alumno que quiere ver el contenido
      * @param tema el tema del contenido
@@ -70,31 +65,28 @@ public interface InscripcionService extends CrudService<Inscripcion> {
     Optional<Inscripcion> buscarConAccesoATema(Alumno alumno, Tema tema);
 
     /**
-     * Busca las inscripciones activas (no dadas de baja) por curso, alumno y estado de acceso (CU-44, vista del
-     * Administrador), de la más reciente a la más antigua.
+     * Busca las inscripciones activas (no dadas de baja) por curso, alumno y estado de acceso.
      *
      * @param cursoId el curso (opcional)
      * @param alumno parte del nombre, el DNI o el correo del alumno (opcional)
-     * @param estado el nombre del estado de la inscripción (opcional), por ejemplo «Pendiente de pago» o «Acceso habilitado»
+     * @param estado el nombre del estado de la inscripción (opcional), por ejemplo "Pendiente de pago" o "Acceso habilitado"
      * @return las inscripciones que cumplen los criterios
      */
     List<Inscripcion> buscarConFiltros(Integer cursoId, String alumno, String estado);
 
     /**
-     * Todas las inscripciones, también las dadas de baja (listado del Administrador, que las conserva para consultar sus
-     * observaciones), de la más reciente a la más antigua.
+     * Todas las inscripciones, también las dadas de baja.
      *
      * @return las inscripciones activas y las dadas de baja
      */
     List<Inscripcion> buscarTodasConBajas();
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * El alumno se inscribe a una cohorte con inscripción abierta (CU-45). Valida la ventana de inscripción, el cupo,
-     * que no tenga ya una inscripción activa a la cohorte y que acepte los términos y condiciones. Registra el
-     * progreso inicial sobre la primer tema del cronograma. Si el curso es gratuito la inscripción queda
-     * habilitada; si tiene costo queda pendiente de pago.
+     * El alumno se inscribe a una cohorte con inscripción abierta.
      *
      * @param alumno el alumno que se inscribe
      * @param idCohorte la cohorte elegida
@@ -105,8 +97,7 @@ public interface InscripcionService extends CrudService<Inscripcion> {
     Inscripcion inscribir(Alumno alumno, Integer idCohorte, boolean terminosAceptados);
 
     /**
-     * El Administrador registra manualmente la inscripción de un alumno (CU-46), con las mismas reglas que
-     * {@link #inscribir}. La confirmación de los términos es la del administrador en nombre del alumno.
+     * El Administrador registra manualmente la inscripción de un alumno.
      *
      * @param idAlumno el alumno
      * @param idCohorte la cohorte
@@ -116,30 +107,30 @@ public interface InscripcionService extends CrudService<Inscripcion> {
      */
     Inscripcion registrar(Integer idAlumno, Integer idCohorte, boolean terminosConfirmados);
 
-    // ---------------------------------------------------------------- Cierre de la inscripción
+    // ----------------------------------------------------------------------
+    // Cierre de la inscripción
+    // ----------------------------------------------------------------------
 
     /**
-     * Cancela las inscripciones que siguen pendientes de pago cuando la inscripción a su cohorte ya terminó, para que no queden colgadas. Se
-     * cancela la que no tiene un pago en curso ni pendiente, incluso con un pago parcial aprobado (queda registrado, sin devolución): la que tiene
-     * un pago en curso espera a que se resuelva, y si se rechaza se cancela en una corrida posterior.
+     * Cancela las inscripciones que siguen pendientes de pago cuando la inscripción a su cohorte ya terminó.
      *
      * @return La cantidad de inscripciones canceladas.
      */
     int cancelarPendientesDeInscripcionCerrada();
 
     /**
-     * Pasa a «Acceso vencido» las inscripciones con el acceso habilitado o suspendido cuya fecha de vencimiento ya pasó. Es irreversible: el
-     * vencimiento no se modifica.
+     * Pasa a "Acceso vencido" las inscripciones con el acceso habilitado o suspendido cuya fecha de vencimiento ya pasó.
      *
      * @return La cantidad de inscripciones que vencieron.
      */
     int vencerAccesos();
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Modifica las observaciones y la suspensión del acceso de una inscripción activa (CU-47). El vencimiento del acceso no se modifica, y una
-     * inscripción cancelada por falta de pago o dada de baja no admite ningún cambio.
+     * Modifica las observaciones y la suspensión del acceso de una inscripción activa.
      *
      * @param idInscripcion la inscripción
      * @param observaciones las observaciones (opcional)
@@ -149,12 +140,12 @@ public interface InscripcionService extends CrudService<Inscripcion> {
      */
     Inscripcion modificar(Integer idInscripcion, String observaciones, Boolean habilitada);
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
     /**
-     * Da de baja una inscripción activa (CU-49): da de baja su certificado y sus intentos de autoevaluación, deja
-     * inaccesible su progreso y revoca el acceso; sus consultas de foro se muestran de forma anónima. No genera
-     * reembolso.
+     * Da de baja una inscripción activa: da de baja su certificado y sus intentos de autoevaluación.
      *
      * @param idInscripcion la inscripción
      * @param alumno el alumno que solicita la baja, o {@code null} si la solicita el Administrador
@@ -164,8 +155,7 @@ public interface InscripcionService extends CrudService<Inscripcion> {
     void darDeBaja(Integer idInscripcion, Alumno alumno, String motivo);
 
     /**
-     * Da de baja varias inscripciones a la vez (solo el Administrador). Es de todo o nada: si alguna no puede darse de
-     * baja, no se da de baja ninguna. Cada una sigue las reglas de {@link #darDeBaja}.
+     * Da de baja varias inscripciones a la vez (solo el Administrador).
      *
      * @param ids identificadores de las inscripciones
      * @throws IllegalArgumentException si no se indicó ninguna o alguna no puede darse de baja

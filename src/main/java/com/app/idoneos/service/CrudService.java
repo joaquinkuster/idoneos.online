@@ -3,12 +3,7 @@ package com.app.idoneos.service;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Interfaz genérica que define los métodos básicos de operación para un servicio CRUD
- * (Crear, Leer, Actualizar, Eliminar) en entidades de tipo {@code T}.
- *
- * @param <T> el tipo de entidad sobre la cual se realizan las operaciones CRUD
- */
+/** Servicio genérico con las operaciones básicas de un CRUD. */
 public interface CrudService<T> {
 
     /**

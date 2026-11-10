@@ -1,9 +1,4 @@
-/**
- * Texto largo en una celda de tabla (fragments/components/textoLargo.html): los puntos suspensivos son un enlace; un clic abre el
- * texto completo en un globo (popover) y otro clic, en cualquier otro lado, lo cierra. El globo muestra solo el texto.
- *
- * Funciona por delegación: las filas pueden llegar del servidor al filtrar o cambiar de página.
- */
+/** Texto largo en una celda de tabla (fragments/components/textoLargo.html). */
 (function () {
     'use strict';
     if (!window.bootstrap) { return; }

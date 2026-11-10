@@ -26,11 +26,7 @@ import com.app.idoneos.repository.TemaRecursoRepository;
 import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.service.recurso.RecursoService;
 
-/**
- * Pruebas de la vista de un material ({@code GET /recurso/ver/{id}}): reproductor, visor de PDF, descarga de los
- * formatos que no se pueden previsualizar y redirección de los enlaces externos. Valentina Ruiz es alumna de la
- * cohorte en dictado de "Mercado de Capitales Argentino" (tema 2 habilitada, tema 3 bloqueada).
- */
+/** Pruebas de la vista de un material (GET /recurso/ver/{id}): reproductor, visor de PDF. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

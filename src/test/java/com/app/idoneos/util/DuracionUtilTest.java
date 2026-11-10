@@ -6,9 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de las duraciones de calendario: se guardan en días y se expresan en la unidad que mejor las describe.
- */
+/** Pruebas de las duraciones de calendario. */
 class DuracionUtilTest {
 
     @Test

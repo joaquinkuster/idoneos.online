@@ -1,10 +1,4 @@
-/**
- * Formulario de autoevaluaciones (CU-65 y CU-66).
- *
- * Una autoevaluación puede sortear preguntas de los pools de cualquier tema del curso. El selector de pools muestra primero los del tema
- * de la autoevaluación ("Tu tema") y, abajo, los de los otros temas ("Otros temas"). Cada opción lleva en data-tema-pool el tema al que
- * pertenece su pool. El selector de pools es un Tom Select que inicia panel.js al abrir la ventana.
- */
+/** Formulario de autoevaluaciones. */
 (function () {
     'use strict';
 
@@ -20,7 +14,7 @@
             return { value: o.value, text: o.textContent, tema: o.getAttribute('data-tema-pool') || '' };
         });
 
-        // En el alta el tema se elige en el formulario; al editar es el de la autoevaluación
+        // En el alta el tema se elige en el formulario. Al editar es el de la autoevaluación
         function temaActual() {
             return tema ? tema.value : (formulario.dataset.temaId || '');
         }

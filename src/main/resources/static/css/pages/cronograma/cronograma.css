@@ -1,6 +1,6 @@
-/* ==========================================================================
-   CRONOGRAMA (MOD-F-02): paneles, grilla por días, semanas o meses, barras y resumen
-   ========================================================================== */
+/* ----------------------------------------------------------------------
+   CRONOGRAMA: paneles, grilla por días, semanas o meses, barras y resumen
+   ---------------------------------------------------------------------- */
 /* Duración total y mínimo requerido: a la derecha de la cabecera del panel del cronograma */
 .cn-datos {
     display: flex;
@@ -143,7 +143,7 @@
     padding: 5px 8px;
 }
 
-/* Duración de un tema en la vista por temas: el mismo campo de los formularios (cantidad + unidad), más compacto */
+/* Duración de un tema en la vista por temas: el mismo campo de los formularios (cantidad + unidad). */
 .cn-duracion-fila {
     justify-content: center;
     align-items: center;
@@ -307,7 +307,7 @@
     background: #DC2626;
 }
 
-/* Las partes de abajo del tablero (temas, autoevaluaciones pendientes y la leyenda de «Hoy») se separan con una línea gris suave y el mismo margen */
+/* Las partes de abajo del tablero. */
 .cn-leyenda-hoy {
     margin-top: 10px;
     padding-top: 10px;
@@ -551,7 +551,7 @@
     color: var(--pn-texto);
 }
 
-/* La ayuda de la edición se separa 20px de las columnas; el panel de temas disponibles, más ancho que en el asistente */
+/* La ayuda de la edición se separa 20px de las columnas. El panel de temas disponibles. */
 #cronograma.pn-prog-editor > .cn-info:not([hidden]) {
     margin-bottom: 20px;
 }

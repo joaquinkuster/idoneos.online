@@ -35,16 +35,7 @@ import com.app.idoneos.service.consultaforo.ConsultaForoService;
 import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de las consultas del foro (MOD-F-02): CU-35 Buscar consulta de foro (GET /foro/buscar, GET
- * /foro/buscarPorTema/{temaId}), CU-39 Buscar respuesta de foro (GET /consulta/ver/{id}), CU-36 Registrar consulta (POST
- * /consulta/registrar), CU-37 Modificar consulta (POST /consulta/modificar/{id}) y CU-38 Dar de baja consulta (POST
- * /consulta/darDeBaja/{id}). Las respuestas están en {@link RespuestaController}.
- *
- * Cada tema tiene su foro ("Foro 1", "Foro 2", … según el orden del tema en el programa). Los alumnos con el tema
- * habilitada plantean consultas; los docentes (titular o ayudante) las responden; el administrador modera dando de baja
- * consultas y respuestas. Todos ven el foro de los temas a las que tienen acceso.
- */
+/** Controlador de la consulta. */
 @Controller
 public class ConsultaController {
 
@@ -60,19 +51,11 @@ public class ConsultaController {
     @Autowired
     private ParametroService parametroService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Lista los foros de un curso, uno por tema del programa, cada uno con su cantidad de consultas, las que están
-     * sin responder y su último mensaje. Es el listado del ABM: desde cada fila se entra al foro.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param temaId           Identificador del tema (opcional).
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /foro/buscar: Lista los foros de un curso, uno por tema del programa, cada uno con su cantidad de consultas. */
     @GetMapping("/foro/buscar")
     public String buscarForos(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model model, Authentication authentication,
@@ -99,19 +82,7 @@ public class ConsultaController {
         }
     }
 
-    /**
-     * CU-35: Muestra el foro de un tema: sus consultas con el último mensaje más reciente primero, con buscador por
-     * texto y rango de fechas. La paginación (filas por página y paginador) la resuelve
-     * la propia tabla, como en los demás listados.
-     *
-     * @param temaId Identificador del tema.
-     * @param texto    Texto a buscar (opcional).
-     * @param desde    Fecha de registro mínima (opcional).
-     * @param hasta    Fecha de registro máxima (opcional).
-     * @param model   El modelo de la vista.
-     * @param authentication     La autenticación actual.
-     * @return La vista del foro.
-     */
+    /** GET /foro/buscarPorTema/{temaId}: Muestra el foro de un tema: sus consultas con el último mensaje más reciente primero. */
     @GetMapping("/foro/buscarPorTema/{temaId}")
     public String verForo(@PathVariable("temaId") Integer temaId,
             @RequestParam(value = "texto", required = false) String texto,
@@ -124,7 +95,7 @@ public class ConsultaController {
 
         List<ConsultaForo> encontradas = consultaService.buscarConFiltros(tema, texto, desde, hasta);
 
-        // La búsqueda por texto y fechas la resuelve el servicio; la página, el servidor
+        // La búsqueda por texto y fechas la resuelve el servicio. La página, el servidor
         PaginacionUtil.Pagina<ConsultaForo> pagina = PaginacionUtil.paginar(encontradas, request.getParameterMap(), java.util.Map.of());
         PaginacionUtil.cargarEnModelo(model, pagina);
         model.addAttribute("consultas", pagina.filas());
@@ -141,16 +112,7 @@ public class ConsultaController {
         return "pages/consulta/ver";
     }
 
-    /**
-     * CU-39: Muestra una consulta con sus respuestas. Con {@code respuestaId} muestra solo esa respuesta (es su enlace
-     * permanente).
-     *
-     * @param id          Identificador de la consulta.
-     * @param respuestaId Identificador de una respuesta (opcional).
-     * @param model      El modelo de la vista.
-     * @param authentication        La autenticación actual.
-     * @return La vista de la consulta.
-     */
+    /** GET /consulta/ver/{id}: Muestra una consulta con sus respuestas. */
     @GetMapping("/consulta/ver/{id}")
     public String ver(@PathVariable("id") Integer id,
             @RequestParam(value = "respuestaId", required = false) Integer respuestaId, Model model,
@@ -171,16 +133,11 @@ public class ConsultaController {
         return "pages/consulta/consulta";
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-36: Registra una consulta en el foro de un tema. Responde en JSON.
-     *
-     * @param temaId Identificador del tema.
-     * @param texto    El texto de la consulta.
-     * @param authentication     La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /consulta/registrar: Registra una consulta en el foro de un tema. */
     @PostMapping("/consulta/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "temaId", required = false) Integer temaId,
@@ -194,16 +151,11 @@ public class ConsultaController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-37: Modifica una consulta propia, dentro del plazo de edición. Responde en JSON.
-     *
-     * @param id    Identificador de la consulta.
-     * @param texto El texto nuevo.
-     * @param authentication  La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /consulta/modificar/{id}: Modifica una consulta propia, dentro del plazo de edición. */
     @PostMapping("/consulta/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "texto", required = false) String texto, Authentication authentication) {
@@ -216,14 +168,11 @@ public class ConsultaController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-38: Da de baja una consulta y sus respuestas (administrador). Responde en JSON.
-     *
-     * @param id Identificador de la consulta.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /consulta/darDeBaja/{id}: Da de baja una consulta y sus respuestas (administrador). */
     @PostMapping("/consulta/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -236,16 +185,17 @@ public class ConsultaController {
         }
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado de foros (motor común)
+        // ----------------------------------------------------------------------
+        // Listado de foros (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<TemaCronograma> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<TemaCronograma>("nombre", FiltroUtil.Tipo.TEXTO, u -> "Foro " + u.getNumeroOrden()),
                 new FiltroUtil.Columna<TemaCronograma>("tema", FiltroUtil.Tipo.LISTA, u -> u.getTema().getTitulo()),

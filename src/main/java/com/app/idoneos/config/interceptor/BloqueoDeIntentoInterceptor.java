@@ -18,13 +18,7 @@ import com.app.idoneos.service.intentoautoevaluacion.IntentoAutoevaluacionServic
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * Mantiene al alumno dentro del cuestionario (CU-70): mientras tiene un intento en curso de una autoevaluación que no
- * permite salir, cualquier pedido a otra sección de la plataforma lo redirige al intento. Solo dejan pasar el propio
- * cuestionario, los archivos estáticos y el cierre de sesión (que no termina el intento: el tiempo sigue corriendo y al
- * volver a ingresar se lo lleva de nuevo al cuestionario). El bloqueo lo hace el servidor, así que vale para cualquier
- * pestaña o dispositivo del mismo alumno. Cuando se agota el tiempo, el intento se cierra y el bloqueo se levanta.
- */
+/** Interceptor que mantiene al alumno dentro del cuestionario. */
 @Component
 public class BloqueoDeIntentoInterceptor implements HandlerInterceptor {
 

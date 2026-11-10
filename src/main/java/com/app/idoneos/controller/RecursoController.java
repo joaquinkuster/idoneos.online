@@ -31,7 +31,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.recurso.RecursoService;
 import com.app.idoneos.service.indice.IndiceRecursoService;
 import com.app.idoneos.service.resaltado.ResaltadoAlumnoService;
-import com.app.idoneos.service.ocr.OcrService;
+import com.app.idoneos.service.ocr.OCRService;
 import com.app.idoneos.model.Recurso;
 import java.time.LocalDate;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -48,14 +48,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.app.idoneos.util.ManejadorArchivosUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * Controlador del ABM de materiales (MOD-F-02): CU-28 Buscar material (GET /recurso/buscar), CU-29 Subir material
- * (POST /recurso/subir), CU-30 Modificar material (POST /recurso/modificar/{id}) y CU-31 Dar de baja material
- * (POST /recurso/darDeBaja/{id} y /recurso/darDeBajaMasiva).
- *
- * El docente (titular o ayudante) gestiona el material de los cursos en los que participa; el administrador puede
- * buscar y dar de baja el de cualquier curso.
- */
+/** Controlador del recurso. */
 @Controller
 @RequestMapping("/recurso")
 public class RecursoController {
@@ -64,7 +57,7 @@ public class RecursoController {
     private IndiceRecursoService indiceService;
 
     @Autowired
-    private OcrService ocrService;
+    private OCRService ocrService;
 
     @Autowired
     private ResaltadoAlumnoService resaltadoService;
@@ -80,27 +73,11 @@ public class RecursoController {
     @Qualifier("directorioCursos")
     private Path directorioCursos;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-28: Busca el material de un curso (incluido el no publicado) según el tema, el tipo, el título y si fue
-     * generado con IA. Si se indica {@code nuevo}, la página abre sola el formulario para subir un material de ese
-     * tipo (es el destino del selector "Agregar recurso o actividad" de la vista del curso).
-     *
-     * @param cursoId       Identificador del curso.
-     * @param temaId      Identificador del tema (opcional).
-     * @param tipoId        Identificador del tipo de material (opcional).
-     * @param titulo        Parte del título (opcional).
-     * @param generadoPorIa Si fue generado con IA (opcional).
-     * @param baja          {@code true} solo dados de baja, {@code false} solo activos, vacío todos (opcional).
-     * @param nuevo         Identificador del tipo de material a subir (opcional).
-     * @param accion        "editar" o "baja": abre sola la ventana de ese material (desde la vista del curso).
-     * @param materialId    Identificador del material de la acción (opcional).
-     * @param model        El modelo de la vista.
-     * @param authentication          La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de búsqueda de materiales, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /recurso/buscar: Busca el material de un curso (incluido el no publicado) según el tema, el tipo. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId,
@@ -144,9 +121,6 @@ public class RecursoController {
                     m -> accion != null && materialId != null && m.getIdTemaRecurso() == materialId);
             PaginacionUtil.cargarEnModelo(model, pagina);
             // Cuántos otros temas usan el recurso de cada material de la página: si hay alguno no se modifica ni se da de baja
-            Map<Integer, Long> otrosUsosPorMaterial = new java.util.HashMap<>();
-            pagina.filas().forEach(m -> otrosUsosPorMaterial.put(m.getIdTemaRecurso(), materialService.contarOtrosUsos(m)));
-            model.addAttribute("otrosUsosPorMaterial", otrosUsosPorMaterial);
             panel.cargarContexto(model, contexto, "materiales");
             model.addAttribute("abrirModal", abrirModal);
             model.addAttribute("temas", temas);
@@ -171,17 +145,7 @@ public class RecursoController {
         }
     }
 
-    /**
-     * Muestra un material en una vista aparte: el reproductor de una grabación, el visor de páginas de un PDF. No hay
-     * forma de descargarlo: se ve únicamente desde la plataforma. Un enlace externo no tiene vista: se
-     * redirige directamente a la página. Lo ve quien tiene acceso al material (administrador, docente del curso y
-     * alumno con el tema habilitado).
-     *
-     * @param id     Identificador del material.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return La vista del material, o una redirección al enlace externo.
-     */
+    /** GET /recurso/ver/{id}: Muestra un material en una vista aparte: el reproductor de una grabación, el visor de páginas de un PDF. */
     @GetMapping("/ver/{id}")
     public String ver(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         TemaRecurso material = materialService.buscarPorId(id)
@@ -205,24 +169,7 @@ public class RecursoController {
         return "pages/recurso/ver";
     }
 
-    /**
-     * Entrega el contenido de un material a la propia plataforma (al reproductor de video o al visor de PDF), para que
-     * se vea únicamente desde ella. Solo responde si el pedido lo hace la página del material: abrir la dirección en
-     * otra pestaña, en un iframe o descargarla directamente se rechaza (el navegador informa de dónde sale el pedido
-     * en los encabezados Sec-Fetch-Dest y Sec-Fetch-Site, que una página no puede falsificar). Tampoco se permite
-     * guardarlo en la caché del navegador ni se sugiere un nombre de archivo.
-     *
-     * Ningún mecanismo web puede impedir del todo que alguien capture la pantalla o copie el pedido desde las
-     * herramientas del navegador: por eso el visor suma una marca de agua con el nombre de quien mira.
-     *
-     * Lo reciben el administrador, el docente del curso y el alumno con el tema habilitado. Los videos admiten
-     * pedidos por rangos, para poder adelantarlos sin descargarlos enteros.
-     *
-     * @param id      Identificador del material.
-     * @param authentication    La autenticación actual.
-     * @param request  El pedido HTTP, para controlar de dónde viene.
-     * @return El contenido, o 403 / 404 si no puede abrirlo o no existe.
-     */
+    /** GET /recurso/archivo/{id}: Entrega el contenido de un material a la propia plataforma (al reproductor de video o al visor de PDF). */
     @GetMapping("/archivo/{id}")
     public ResponseEntity<Resource> abrirArchivo(@PathVariable("id") Integer id, Authentication authentication,
             HttpServletRequest request) {
@@ -250,13 +197,7 @@ public class RecursoController {
                 .body(new FileSystemResource(archivo));
     }
 
-    /**
-     * Entrega el índice del documento (las entradas con su página) al visor y a los formularios. Lo puede pedir quien puede abrir el material.
-     *
-     * @param id             Identificador del material.
-     * @param authentication La autenticación actual.
-     * @return Las entradas del índice, o una lista vacía si no tiene.
-     */
+    /** GET /recurso/indice/{id}: Entrega el índice del documento (las entradas con su página) al visor y a los formularios. */
     @GetMapping("/indice/{id}")
     public ResponseEntity<List<IndiceRecursoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
         TemaRecurso material = materialService.buscarPorId(id)
@@ -267,14 +208,7 @@ public class RecursoController {
         return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(material.getRecurso()));
     }
 
-    /**
-     * Las anotaciones (lápiz y marcador) que el alumno hizo sobre el documento, una entrada por página. Son solo suyas: para cualquier otro
-     * usuario la lista viene vacía.
-     *
-     * @param id             Identificador del material.
-     * @param authentication La autenticación actual.
-     * @return Las páginas anotadas con sus trazos.
-     */
+    /** GET /recurso/resaltados/{id}: Las anotaciones (lápiz y marcador) que el alumno hizo sobre el documento, una entrada por página. */
     @GetMapping("/resaltados/{id}")
     public ResponseEntity<List<ResaltadoAlumnoService.Pagina>> resaltados(@PathVariable("id") Integer id, Authentication authentication) {
         TemaRecurso material = materialService.buscarPorId(id)
@@ -288,15 +222,7 @@ public class RecursoController {
         return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(paginas);
     }
 
-    /**
-     * Guarda las anotaciones del alumno en una página del documento, reemplazando las anteriores. Responde en JSON.
-     *
-     * @param id             Identificador del material.
-     * @param pagina         La página (la primera es la 1).
-     * @param trazos         Los trazos de la página, como un JSON ({@code []} borra las anotaciones de la página).
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el resultado.
-     */
+    /** POST /recurso/resaltados/{id}/{pagina}: Guarda las anotaciones del alumno en una página del documento, reemplazando las anteriores. */
     @PostMapping("/resaltados/{id}/{pagina}")
     public ResponseEntity<Map<String, String>> guardarResaltados(@PathVariable("id") Integer id, @PathVariable("pagina") Integer pagina,
             @RequestParam(value = "trazos", required = false) String trazos, Authentication authentication) {
@@ -316,7 +242,7 @@ public class RecursoController {
         }
     }
 
-    /** Guarda el índice que llegó con el formulario; si se cambió el archivo y no llegó un índice nuevo, el anterior ya no sirve y se borra. */
+    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo. */
     private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
         String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
         indiceService.reemplazar(recurso, json);
@@ -326,22 +252,11 @@ public class RecursoController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-29: Sube un material a un tema. Responde en JSON para que el formulario muestre el resultado sin
-     * recargar la página.
-     *
-     * @param temaId       Identificador del tema.
-     * @param tipoMaterialId Identificador del tipo de material (Grabación, Bibliografía o Presentación).
-     * @param titulo         El título del material.
-     * @param oculto         Si el material queda oculto para los alumnos.
-     * @param autor          El autor (opcional).
-     * @param enlace         El enlace externo (solo bibliografía, alternativo al archivo).
-     * @param archivo        El archivo del material.
-     * @param authentication           La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /recurso/subir: Sube un material a un tema. */
     @PostMapping("/subir")
     public ResponseEntity<Map<String, String>> subir(
             @RequestParam(value = "temaId", required = false) Integer temaId,
@@ -388,14 +303,7 @@ public class RecursoController {
         }
     }
 
-    /**
-     * Lista los recursos de la biblioteca digital que el docente puede reutilizar en un tema: los suyos y los públicos de otros docentes.
-     * Alimenta la pestaña «De la biblioteca» del selector de recursos.
-     *
-     * @param tipo           El tipo de recurso (opcional: sin tipo trae todos los que se registran a mano).
-     * @param authentication La autenticación actual.
-     * @return La lista, con los del docente primero.
-     */
+    /** GET /recurso/reutilizables: Lista los recursos de la biblioteca digital que el docente puede reutilizar en un tema. */
     @GetMapping("/reutilizables")
     @org.springframework.web.bind.annotation.ResponseBody
     public List<Map<String, Object>> reutilizables(@RequestParam(value = "tipo", required = false) String tipo,
@@ -425,7 +333,7 @@ public class RecursoController {
         return propios;
     }
 
-    /** La línea de información que se muestra bajo el título de un recurso reutilizable, según su tipo. */
+    /** Arma la línea de información que se muestra bajo el título de un recurso reutilizable, según su tipo. */
     private String detalleDeReutilizable(com.app.idoneos.model.Recurso recurso, TipoRecurso tipo) {
         java.util.List<String> partes = new java.util.ArrayList<>();
         switch (tipo) {
@@ -455,14 +363,7 @@ public class RecursoController {
         return partes.stream().filter(p -> p != null && !p.isBlank()).collect(java.util.stream.Collectors.joining(" · "));
     }
 
-    /**
-     * Registra en un tema uno o varios recursos de la biblioteca digital (todos o ninguno). Responde en JSON, como el alta.
-     *
-     * @param temaId         El tema.
-     * @param recursoIds     Los recursos de la biblioteca.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y la alerta guía si todavía falta contenido) o el mensaje de error.
-     */
+    /** POST /recurso/reutilizar: Registra en un tema uno o varios recursos de la biblioteca digital (todos o ninguno). */
     @PostMapping("/reutilizar")
     public ResponseEntity<Map<String, String>> reutilizar(@RequestParam(value = "temaId", required = false) Integer temaId,
             @RequestParam(value = "recursoIds", required = false) List<Integer> recursoIds, Authentication authentication) {
@@ -483,57 +384,28 @@ public class RecursoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-30: Modifica un material activo. Responde en JSON.
-     *
-     * @param id      Identificador del material.
-     * @param titulo  El título del material.
-     * @param oculto  Si el material queda oculto para los alumnos.
-     * @param autor   El autor (opcional).
-     * @param enlace  El enlace externo (solo bibliografía, alternativo al archivo; opcional).
-     * @param archivo El archivo nuevo (opcional: si no se envía se conserva el actual).
-     * @param authentication    La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /recurso/modificar/{id}: Cambia la visibilidad de un material en su tema. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
-            @RequestParam(value = "titulo", required = false) String titulo,
-            @RequestParam(value = "descripcion", required = false) String descripcion,
-            @RequestParam(value = "oculto", defaultValue = "false") boolean oculto,
-            @RequestParam(value = "autor", required = false) String autor,
-            @RequestParam(value = "enlace", required = false) String enlace,
-            @RequestParam(value = "isbn", required = false) String isbn,
-            @RequestParam(value = "editorial", required = false) String editorial,
-            @RequestParam(value = "paginas", required = false) Integer paginas,
-            @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
-            @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
-            @RequestParam(value = "privado", defaultValue = "true") boolean privado,
-            @RequestParam(value = "indiceJson", required = false) String indiceJson,
-            @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
+            @RequestParam(value = "oculto", defaultValue = "false") boolean oculto, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
-            materialService.modificar(id, usuario.getDocente(),
-                    new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
-                            fechaPublicacion, duracionMinutos, privado),
-                    archivo);
-            materialService.buscarPorId(id).ifPresent(m -> guardarIndice(m.getRecurso(), indiceJson, archivo));
+            materialService.cambiarVisibilidad(id, usuario.getDocente(), oculto);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-31: Da de baja un material activo. Responde en JSON.
-     *
-     * @param id   Identificador del material.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /recurso/darDeBaja/{id}: Da de baja un material activo. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -544,14 +416,7 @@ public class RecursoController {
         }
     }
 
-    /**
-     * Da de baja varios materiales a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno. Responde en JSON.
-     *
-     * @param ids  Identificadores de los materiales seleccionados.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /recurso/darDeBajaMasiva: Da de baja varios materiales a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
@@ -563,36 +428,24 @@ public class RecursoController {
         }
     }
 
-    /**
-     * Indica si el pedido lo hace la propia página del material: lo carga el reproductor de video o el visor de PDF
-     * (destino "video" o "empty") desde el mismo sitio. Si el pedido es una navegación (destino "document"), un iframe
-     * u otro sitio, o el navegador no informa el origen, se rechaza.
-     */
+    /** Indica si el pedido lo hace la propia página del material. */
     public static boolean esPedidoDeLaPlataforma(HttpServletRequest request) {
         String destino = request.getHeader("Sec-Fetch-Dest");
         String sitio = request.getHeader("Sec-Fetch-Site");
         return "same-origin".equals(sitio) && ("video".equals(destino) || "empty".equals(destino));
     }
 
-    /**
-     * Obtiene el docente cuyas participaciones limitan la operación, o {@code null} si la hace el administrador
-     * (que puede dar de baja el material de cualquier curso).
-     */
+    /** Obtiene el docente cuyas participaciones limitan la operación. */
     private Docente docenteQueGestiona(Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
         return usuario.esAdministradorActivo() ? null : usuario.getDocente();
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de un material, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     El material.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /recurso/modificar/{id}: Ventana de modificación de un material. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         TemaRecurso m = materialService.buscarPorId(id).filter(x -> !x.getBaja())
@@ -603,11 +456,9 @@ public class RecursoController {
         }
         model.addAttribute("curso", contexto.curso());
         model.addAttribute("m", m);
-        model.addAttribute("otrosUsos", materialService.contarOtrosUsos(m)); // si es mayor a cero, el recurso está compartido: no se modifica
-        model.addAttribute("esDuenio", materialService.esDuenio(m, ((Usuario) authentication.getPrincipal()).getDocente()));
-        return "pages/recurso/modificar :: modal(m=${m}, otrosUsos=${otrosUsos}, esDuenio=${esDuenio})";
+        model.addAttribute("usos", materialService.contarUsos(m.getRecurso())); // los datos del recurso no se modifican mientras algún tema lo usa
+        return "pages/recurso/modificar :: modal(m=${m}, usos=${usos})";
     }
-
 
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
@@ -615,9 +466,11 @@ public class RecursoController {
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (motor común)
+        // ----------------------------------------------------------------------
+        // Listado (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<TemaRecurso> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<TemaRecurso>("titulo", FiltroUtil.Tipo.TEXTO, TemaRecurso::getTitulo),
                 new FiltroUtil.Columna<TemaRecurso>("tema", FiltroUtil.Tipo.LISTA, m -> m.getTema().getTitulo()),

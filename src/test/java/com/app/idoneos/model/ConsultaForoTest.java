@@ -10,10 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de las reglas del foro que se derivan del propio modelo: el resumen, las respuestas vigentes, el último
- * mensaje y el plazo de edición.
- */
+/** Pruebas de las reglas del foro que se derivan del propio modelo: el resumen, las respuestas vigentes. */
 class ConsultaForoTest {
 
     private ConsultaForo consulta(String texto) {

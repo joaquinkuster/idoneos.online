@@ -13,9 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 
-/**
- * Pruebas de las páginas institucionales: inicio, acerca de y página de error.
- */
+/** Pruebas de las páginas institucionales: inicio, acerca de y página de error. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class InicioControllerTest {

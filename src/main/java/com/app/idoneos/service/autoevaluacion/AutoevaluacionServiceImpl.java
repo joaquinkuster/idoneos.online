@@ -33,10 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Autoevaluacion}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link AutoevaluacionService}.
- */
+/** Implementación de AutoevaluacionService. */
 @Service
 public class AutoevaluacionServiceImpl implements AutoevaluacionService {
 
@@ -70,62 +67,42 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
     @Autowired
     private ProgresoService progresoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la autoevaluación por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la autoevaluación por su identificador. */
     @Override
     public Optional<Autoevaluacion> buscarPorId(Integer id) {
         return autoevaluacionRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Autoevaluacion> obtenerTodo() {
         return autoevaluacionRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return autoevaluacionRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de autoevaluacion asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de Autoevaluacion asociados al Tema indicado
-     */
+    /** Busca los registros vigentes de autoevaluacion asociados a tema. */
     @Override
     public List<Autoevaluacion> buscarPorTema(Tema tema) {
         return autoevaluacionRepository.findByTemaAndBajaFalse(tema);
     }
 
-    /**
-     * CU-64: Busca las autoevaluaciones de un curso (incluidas las dadas de baja) aplicando filtros opcionales. Las dadas
-     * de baja van siempre al final.
-     */
+    /** Busca las autoevaluaciones de un curso (incluidas las dadas de baja) aplicando filtros opcionales. */
     @Override
     public List<Autoevaluacion> buscarConFiltros(Integer idCurso, Integer idTema, String nombre, Boolean baja,
             Docente soloDeDocente) {
         String criterio = nombre == null ? "" : nombre.trim().toLowerCase();
-        // El curso, el tema y la baja se filtran en la base; el texto y la participación del docente, acá
+        // El curso, el tema y la baja se filtran en la base. El texto y la participación del docente, acá
         return autoevaluacionRepository.buscarPorFiltros(idCurso, idTema, baja).stream()
                 .filter(a -> criterio.isEmpty() || a.getNombre().toLowerCase().contains(criterio))
                 .filter(a -> soloDeDocente == null || participaEnElCurso(a.getTema().getCurso(), soloDeDocente))
@@ -135,37 +112,29 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
                 .toList();
     }
 
-    /**
-     * Obtiene los temas cuyos autoevaluaciones pueden usar un pool: la propia y las que vienen después en el cronograma
-     * de los programas que la incluyen (una autoevaluación puede combinar pools de su tema y de las anteriores).
-     */
+    /** Obtiene los temas cuyos autoevaluaciones pueden usar un pool. */
     @Override
     public List<Tema> temasQuePuedenUsar(Pool pool) {
         // Una autoevaluación puede usar los pools de cualquier tema del curso: el formulario muestra primero los de su tema
         return pool.getTema().getCurso().getTemas().stream().filter(tema -> !tema.getBaja()).toList();
     }
 
-    /** Indica si una autoevaluación de {@code tema} puede usar pools de {@code delPool}: alcanza con que sean del mismo curso. */
+    /** Indica si una autoevaluación de tema puede usar pools de delPool: alcanza con que sean del mismo curso. */
     private boolean puedeUsarPoolDe(Tema tema, Tema delPool) {
         return tema.getCurso().getIdCurso() == delPool.getCurso().getIdCurso();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda la autoevaluación en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la autoevaluación en la base de datos. */
     @Override
     public Autoevaluacion guardar(Autoevaluacion entidad) {
         return autoevaluacionRepository.save(entidad);
     }
 
-    /**
-     * CU-65: Crea una autoevaluación en un tema activo, asociada a uno o más pools.
-     */
+    /** Crea una autoevaluación en un tema activo, asociada a uno o más pools. */
     @Override
     @Transactional
     public Autoevaluacion registrar(Docente docente, Integer idTema, SolicitudAutoevaluacion solicitud) {
@@ -185,23 +154,17 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         return autoevaluacion;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Autoevaluacion modificar(Autoevaluacion entidad) {
         return autoevaluacionRepository.save(entidad);
     }
 
-    /**
-     * CU-66: Modifica una autoevaluación. Con intentos registrados solo pueden extenderse la fecha de cierre, ocultarse o
-     * mostrarse y ampliarse la cantidad de intentos permitidos.
-     */
+    /** Modifica una autoevaluación. */
     @Override
     @Transactional
     public Autoevaluacion modificar(Integer idAutoevaluacion, Docente docente,
@@ -246,31 +209,25 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         return autoevaluacion;
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Autoevaluacion entidad) {
         entidad.marcarInactivo(); // Baja lógica
         autoevaluacionRepository.save(entidad);
     }
 
-    /**
-     * CU-67: Da de baja una autoevaluación sin intentos.
-     */
+    /** Da de baja una autoevaluación sin intentos. */
     @Override
     @Transactional
     public void darDeBaja(Integer idAutoevaluacion, Docente docente) {
         darDeBajaVarias(List.of(idAutoevaluacion == null ? -1 : idAutoevaluacion), docente);
     }
 
-    /**
-     * Da de baja varias autoevaluaciones. Es todo o nada: primero se valida el conjunto y recién después se dan de baja.
-     */
+    /** Da de baja varias autoevaluaciones. */
     @Override
     @Transactional
     public void darDeBajaVarias(List<Integer> ids, Docente docente) {
@@ -298,10 +255,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         autoevaluaciones.stream().map(Autoevaluacion::getTema).distinct().forEach(progresoService::actualizarPorTema);
     }
 
-    /**
-     * Verifica que la autoevaluación esté activa, que el docente (si se indica) participe en su curso y que ningún alumno
-     * registre intentos sobre ella.
-     */
+    /** Verifica que la autoevaluación esté activa. */
     private Autoevaluacion validarBaja(Integer id, Docente docente) {
         Autoevaluacion autoevaluacion = autoevaluacionRepository.findById(id == null ? -1 : id)
                 .filter(a -> !a.esInactivo())
@@ -318,16 +272,16 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         return autoevaluacion;
     }
 
-    // ---------------------------------------------------------------- Auxiliares
+    // ----------------------------------------------------------------------
+    // Auxiliares
+    // ----------------------------------------------------------------------
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
         return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 
-    /**
-     * Verifica que el docente participe en el curso (como titular o ayudante).
-     */
+    /** Verifica que el docente participe en el curso (como titular o ayudante). */
     private void obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
@@ -337,22 +291,18 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         }
     }
 
-    /**
-     * Indica si, sacando las autoevaluaciones indicadas de las visibles, un tema con cohortes en curso se quedaría sin
-     * ninguna. Un tema que ya estaba sin autoevaluaciones visibles no cuenta: no es lo que cambia esta operación.
-     */
+    /** Indica si, sacando las autoevaluaciones indicadas de las visibles. */
     private boolean quedariaSinAutoevaluacionVisible(Tema tema, Set<Integer> quitadas) {
         List<Autoevaluacion> visibles = tema.getAutoevaluacionesPublicadas();
         return !tema.getProgramasQueLaIncluyen().isEmpty() && !visibles.isEmpty()
                 && visibles.stream().allMatch(a -> quitadas.contains(a.getIdAutoevaluacion()));
     }
 
-    // ---- Lectura y validación de los datos del formulario
+    // ----------------------------------------------------------------------
+    // Lectura y validación de los datos del formulario
+    // ----------------------------------------------------------------------
 
-    /**
-     * Lee y valida los datos de una solicitud, en el orden de los casos de uso: campos obligatorios y pools, pools
-     * vigentes, valores enteros, fechas y cantidad de preguntas que reúnen los pools.
-     */
+    /** Lee y valida los datos de una solicitud, en el orden de los casos de uso: campos obligatorios y pools. */
     private Datos leer(Tema tema, SolicitudAutoevaluacion s) {
         if (s.nombre() == null || s.nombre().isBlank()) {
             throw RespuestaFormularioUtil.armarCampoInvalido("nombre", "Error! Debe completar el nombre de la autoevaluación.");
@@ -433,12 +383,11 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         }
     }
 
-    // ---- Modificación con intentos
+    // ----------------------------------------------------------------------
+    // Modificación con intentos
+    // ----------------------------------------------------------------------
 
-    /**
-     * Con intentos registrados el contenido queda protegido: solo pueden cambiar la fecha de cierre, la visibilidad y la
-     * cantidad de intentos permitidos, y los dos valores se pueden extender pero no acortar.
-     */
+    /** Valida la modificación cuando hay intentos registrados, ya que el contenido queda protegido y solo puede cambiar la fecha de cierre. */
     private void validarModificacionConIntentos(Autoevaluacion actual, Datos nuevos) {
         boolean cambiaContenido = !actual.getNombre().equals(nuevos.nombre())
                 || !Objects.equals(actual.getTiempoLimite(), nuevos.tiempoLimite())
@@ -479,7 +428,9 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         return pools.stream().map(Pool::getIdPool).collect(Collectors.toSet());
     }
 
-    // ---- Aplicación de los datos
+    // ----------------------------------------------------------------------
+    // Aplicación de los datos
+    // ----------------------------------------------------------------------
 
     private void aplicarDatosSimples(Autoevaluacion autoevaluacion, Datos datos) {
         autoevaluacion.setTiempoLimite(datos.tiempoLimite());
@@ -497,9 +448,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
         }
     }
 
-    /**
-     * Deja asociados exactamente los pools indicados: quita los que ya no figuran y agrega los nuevos.
-     */
+    /** Deja asociados exactamente los pools indicados: quita los que ya no figuran y agrega los nuevos. */
     private void reemplazarPools(Autoevaluacion autoevaluacion, List<Pool> pools) {
         Set<Integer> elegidos = idsDe(pools);
         Set<Integer> actuales = new HashSet<>();

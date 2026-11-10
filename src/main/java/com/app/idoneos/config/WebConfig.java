@@ -15,9 +15,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-/**
- * Configuración de Spring MVC.
- */
+/** Configuración de Spring MVC. */
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
@@ -28,36 +26,14 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private BloqueoDeIntentoInterceptor bloqueoDeIntento;
 
-    /**
-     * Crea un bean de tipo HiddenHttpMethodFilter.
-     * Este filtro permite que los formularios HTML envíen métodos HTTP como PUT, DELETE, PATCH,
-     * usando un campo oculto en el formulario.
-     *
-     * @return HiddenHttpMethodFilter configurado.
-     */
+    /** Crea un bean de tipo HiddenHttpMethodFilter. */
     @Bean
     public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
         return new HiddenHttpMethodFilter();
     }
 
-    /**
-     * Publica las imágenes de la aplicación:
-     * <ul>
-     * <li>{@code /img/cursos/**}: las imágenes de ejemplo incluidas en la aplicación ({@code static/img/cursos}).</li>
-     * <li>{@code /img/usuarios/**}: las fotos de perfil de los usuarios ({@code static/img/usuarios}).</li>
-     * <li>{@code /uploads/curso{id}/{imagen}}: la imagen de cada curso, guardada en su carpeta del servidor. El patrón
-     * admite un solo nivel debajo de la carpeta del curso, por lo que las carpetas de tema
-     * ({@code curso{id}/tema{id}/...}) con sus materiales <b>no</b> se publican: se entregan solo por un
-     * endpoint que controla el acceso.</li>
-     * </ul>
-     * Las imágenes se guardan en la caché del navegador durante una semana (las imágenes de los cursos incluyen
-     * la versión en la URL, por lo que un cambio se ve de inmediato).
-     *
-     * @param registry El registro de manejadores de recursos.
-     */
-    /**
-     * Mantiene al alumno dentro del cuestionario mientras rinde una autoevaluación que no permite salir.
-     */
+    /** Publica las imágenes de la aplicación: /img/cursos/**. */
+    /** Mantiene al alumno dentro del cuestionario mientras rinde una autoevaluación que no permite salir. */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(bloqueoDeIntento).addPathPatterns("/**");

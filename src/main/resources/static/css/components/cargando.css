@@ -1,5 +1,4 @@
-/* Selector múltiple todavía sin armar (Tom Select llega al final de la página): se reserva su lugar sin mostrar el
-   <select> crudo, para que no se vea cargarse. Si Tom Select no llega, a los 4 segundos se muestra el <select> común. */
+/* Selector múltiple todavía sin armar (Tom Select llega al final de la página). */
 select.ts-multiselect:not(.tomselected) {
     appearance: none;
     height: 42px;

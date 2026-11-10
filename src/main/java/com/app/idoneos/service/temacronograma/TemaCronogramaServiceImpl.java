@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link TemaCronograma}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link TemaCronogramaService}.
- */
+/** Implementación de TemaCronogramaService. */
 @Service
 public class TemaCronogramaServiceImpl implements TemaCronogramaService {
 
@@ -58,89 +55,62 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
     @Autowired
     private com.app.idoneos.service.programa.ProgramaService programaService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el tema del cronograma por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el tema del cronograma por su identificador. */
     @Override
     public Optional<TemaCronograma> buscarPorId(Integer id) {
         return temaCronogramaRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<TemaCronograma> obtenerTodo() {
         return temaCronogramaRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return temaCronogramaRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-
-    /**
-     * Busca los registros vigentes de temaCronograma asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de TemaCronograma asociados al Tema indicado
-     */
+    /** Busca los registros vigentes de temaCronograma asociados a tema. */
     @Override
     public List<TemaCronograma> buscarPorTema(Tema tema) {
         return temaCronogramaRepository.findByTemaAndBajaFalse(tema);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda el tema del cronograma en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el tema del cronograma en la base de datos. */
     @Override
     public TemaCronograma guardar(TemaCronograma entidad) {
         return temaCronogramaRepository.save(entidad);
     }
 
-    /** El motivo de un bloqueo: si el programa tiene cohortes activas, aclara que el diseño del curso quedaría incompleto. */
+    /** Arma el motivo de un bloqueo, que se da si el programa tiene cohortes activas. */
     private String motivo(Programa programa, String detalle) {
         return programa.tieneCohortesActivas() ? MensajeErrorUtil.motivoDisenoIncompleto(detalle) : detalle;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public TemaCronograma modificar(TemaCronograma entidad) {
         return temaCronogramaRepository.save(entidad);
     }
 
-    /**
-     * CU-24: Modifica el cronograma de un programa (temas, orden y días).
-     */
+    /** Modifica el cronograma de un programa (temas, orden y días). */
     @Override
     @Transactional
     public void modificar(Docente docente, Integer programaId, List<Integer> temaIds, List<String> dias) {
@@ -291,13 +261,11 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         programaRepository.save(programa);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(TemaCronograma entidad) {
         entidad.marcarInactivo(); // Baja lógica

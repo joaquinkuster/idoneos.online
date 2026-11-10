@@ -33,9 +33,7 @@ import com.app.idoneos.service.curso.CursoServiceImpl;
 import com.app.idoneos.service.inscripcion.InscripcionServiceImpl;
 import com.app.idoneos.service.programa.ProgramaServiceImpl;
 
-/**
- * Pruebas de las pantallas y rutas de las inscripciones (CU-44 a CU-49): quién puede usar cada una y qué responde.
- */
+/** Pruebas de las pantallas y rutas de las inscripciones. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -72,7 +70,7 @@ class InscripcionGestionControllerTest {
         return cohorteService.buscarConFiltros(idPrograma, null, com.app.idoneos.model.EstadoCohorte.ABIERTA, null, null, "recientes", null).get(0);
     }
 
-    /** La semilla trae una inscripción con la fecha de vencimiento pasada: la tarea periódica la deja en «Acceso vencido». */
+    /** La semilla trae una inscripción con la fecha de vencimiento pasada. */
     @org.junit.jupiter.api.BeforeEach
     void vencerLosAccesos() {
         inscripcionService.vencerAccesos();
@@ -82,7 +80,9 @@ class InscripcionGestionControllerTest {
         return inscripcionService.buscarConFiltros(null, correo, estado).get(0);
     }
 
-    // ---------- CU-44 Buscar inscripción ----------
+    // ----------------------------------------------------------------------
+    // Buscar inscripción ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -154,7 +154,9 @@ class InscripcionGestionControllerTest {
                 .andExpect(content().string(containsString("Acceso vencido")));
     }
 
-    // ---------- CU-45 Inscribir al curso ----------
+    // ----------------------------------------------------------------------
+    // Inscribir al curso ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
@@ -259,7 +261,9 @@ class InscripcionGestionControllerTest {
                 .andExpect(content().string(not(containsString("formInscripcion"))));
     }
 
-    // ---------- CU-46 Registrar inscripción ----------
+    // ----------------------------------------------------------------------
+    // Registrar inscripción ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -293,7 +297,9 @@ class InscripcionGestionControllerTest {
                 .param("terminos", "true")).andExpect(status().isForbidden());
     }
 
-    // ---------- CU-47 Modificar inscripción ----------
+    // ----------------------------------------------------------------------
+    // Modificar inscripción ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -354,7 +360,9 @@ class InscripcionGestionControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // ---------- CU-48 Corregir datos personales del certificado ----------
+    // ----------------------------------------------------------------------
+    // Corregir datos personales del certificado ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -390,7 +398,9 @@ class InscripcionGestionControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // ---------- CU-49 Dar de baja inscripción ----------
+    // ----------------------------------------------------------------------
+    // Dar de baja inscripción ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)

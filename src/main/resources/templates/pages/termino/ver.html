@@ -40,7 +40,7 @@
             </div>
 
             <section class="pn-card gl-contenedor" data-glosario th:attr="data-glosario-url=@{'/glosario/buscarPorTema/' + ${tema.idTema}}">
-                <!-- Buscador: filtra en el navegador mientras se escribe; por defecto busca en los términos y en las definiciones -->
+                <!-- Buscador: filtra en el navegador mientras se escribe. -->
                 <form class="gl-buscador" data-glosario-filtros>
                     <div class="gl-buscador-fila">
                         <input type="text" name="texto" class="pn-input" placeholder="Buscar en el glosario"
@@ -53,7 +53,7 @@
                     </div>
                 </form>
 
-                <!-- Índice, páginas y términos: los arma el servidor según el texto, la letra y la página (pages/termino/filtros.js los pide) -->
+                <!-- Índice, páginas y términos: los arma el servidor según el texto. -->
                 <div data-glosario-contenido th:fragment="contenido">
                 <nav class="gl-indice" aria-label="Índice alfabético">
                     <th:block th:each="l, estado : ${indiceLetras}">
@@ -117,7 +117,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar término (CU-33). El tema es la de este glosario -->
+<!-- Modal: registrar término. El tema es la de este glosario -->
 <div class="modal fade pn-modal" id="modalNuevoTermino" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -162,7 +162,7 @@
     </div>
 </div>
 
-<!-- Modales por término: modificar (CU-34) y dar de baja (CU-35) -->
+<!-- Modales por término: modificar y dar de baja -->
 <th:block th:each="grupo : ${grupos}">
     <th:block th:each="t : ${grupo.value}">
 
@@ -171,7 +171,7 @@
     </th:block>
 </th:block>
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:if="${puedeDarDeBaja}">
     <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaTermino', 'término', '¿Confirmas dar de baja?', '', '/termino/darDeBaja/0', null, null)}"></th:block>
 </th:block>

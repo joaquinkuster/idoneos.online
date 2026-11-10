@@ -5,15 +5,15 @@ import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.Rol;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el rol.
- */
+/** Servicio del rol. */
 public interface RolService extends CrudService<Rol> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
-     * Busca el rol por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca el rol por su atributo único 'nombre'.
      *
      * @param nombre el valor de 'nombre' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra

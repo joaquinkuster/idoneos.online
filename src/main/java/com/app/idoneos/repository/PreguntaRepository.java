@@ -6,18 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.Pregunta;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Pregunta} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link Pregunta}.
- */
+/** Repositorio de Pregunta. */
 @Repository
 public interface PreguntaRepository extends JpaRepository<Pregunta, Integer> {
 
-    /**
-     * Encuentra todos los registros activos (no dados de baja).
-     *
-     * @return Una lista de {@link Pregunta} activos.
-     */
+    /** Encuentra todos los registros activos (no dados de baja). */
     List<Pregunta> findByBajaFalse();
 
 }

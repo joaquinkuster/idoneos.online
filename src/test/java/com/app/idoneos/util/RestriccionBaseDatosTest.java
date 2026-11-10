@@ -18,11 +18,7 @@ import com.app.idoneos.model.Descuento;
 import com.app.idoneos.repository.CategoriaRepository;
 import com.app.idoneos.repository.DescuentoRepository;
 
-/**
- * Pruebas de la tercera validación (base de datos): se guarda directo por el repositorio, salteando el front y el
- * back, y se comprueba que la base rechaza el dato inválido indicando la restricción que se incumplió.
- * Cada rechazo va en su propio test porque la transacción queda inutilizable después del error.
- */
+/** Pruebas de la tercera validación (base de datos): se guarda directo por el repositorio. */
 @SpringBootTest
 @Transactional
 class RestriccionBaseDatosTest {

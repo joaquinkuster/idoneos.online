@@ -1,8 +1,8 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    DETALLE DESPLEGABLE DE UNA FILA (tabla dentro de la tabla)
    La fila de detalle va justo debajo de la fila del listado; si ésta se oculta (filtro o paginado), el detalle también.
    El alto se anima con grid-template-rows (0fr -> 1fr), así lo que está debajo se desplaza suavemente.
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .pn-tabla tbody tr[data-fila][hidden] + tr.pn-fila-detalle {
     display: none;
 }
@@ -37,8 +37,7 @@
     padding: 4px 16px 16px;
 }
 
-/* La tabla de temas ocupa el ancho de la fila, con un margen parejo a los lados, sobre el mismo gris del detalle, que
-   incluye el encabezado (se pisa el fondo blanco de .pn-tabla thead th). */
+/* La tabla de temas ocupa el ancho de la fila, con un margen parejo a los lados. */
 .pn-tabla.pn-tabla-anidada {
     width: 100%;
     margin: 0;
@@ -63,8 +62,7 @@
     }
 }
 
-/* La última columna de una tabla es la de acciones, fija a la derecha y con fondo blanco; en la tabla de detalle es una columna
-   más, así que no se fija ni se pinta. */
+/* La última columna de una tabla es la de acciones, fija a la derecha y con fondo blanco. */
 .pn-tabla.pn-tabla-anidada.pn-tabla-anidada thead th:last-child,
 .pn-tabla.pn-tabla-anidada.pn-tabla-anidada tbody td:last-child {
     position: static;

@@ -1,11 +1,4 @@
-/**
- * Formularios: validación de campos, formularios por pasos, contadores de caracteres, vista previa de imagen y
- * selectores múltiples.
- *
- * Las páginas pueden registrar validaciones propias de un formulario en window.PanelValidadores[nombre]
- * (el nombre es el atributo data-validador del formulario): reciben el número de paso (desde 1) y el formulario,
- * y devuelven true si el paso es válido.
- */
+/** Formularios: validación de campos, formularios por pasos, contadores de caracteres. */
 (function () {
     'use strict';
 
@@ -171,7 +164,7 @@
         if (!window.TomSelect) { return; }
         contenedor.querySelectorAll('select.ts-multiselect:not(.tomselected)').forEach(function (el) {
             new TomSelect(el, {
-                // En una ventana el menú se dibuja sobre la página y no dentro de ella (así el modal no lo recorta); en los filtros
+                // En una ventana el menú se dibuja sobre la página y no dentro de ella (así el modal no lo recorta). En los filtros
                 // queda pegado al campo
                 dropdownParent: el.closest('.pn-modal') ? 'body' : null,
                 plugins: ['remove_button', 'checkbox_options'],
@@ -199,8 +192,7 @@
         modal.addEventListener('show.bs.modal', function () { iniciarMultiselect(modal); });
     });
 
-    // Formularios por pasos. Un paso puede ocultarse (atributo hidden en el .pn-paso): se salta al avanzar y retroceder, y su punto del
-    // indicador desaparece. El que lo oculta o lo muestra llama a formulario.pasos.refrescar().
+    // Formularios por pasos.
     function iniciarPasos(formulario) {
         var pasos = Array.prototype.slice.call(formulario.querySelectorAll('.pn-paso'));
         var items = Array.prototype.slice.call(formulario.querySelectorAll('.pn-pasos-item'));
@@ -266,8 +258,7 @@
     document.querySelectorAll('form[data-pasos]').forEach(iniciarPasos);
     window.PanelIniciarPasos = iniciarPasos; // para formularios que llegan después de la carga (core/modalModificar.js)
 
-    // Cuando el servidor rechaza un formulario por pasos, se vuelve al paso del campo al que se refiere el error y se
-    // marca ese campo. El servidor responde con un mensaje, así que el campo se deduce de las palabras de su etiqueta.
+    // Cuando el servidor rechaza un formulario por pasos.
     var PALABRAS_VACIAS = ['de', 'del', 'la', 'el', 'los', 'las', 'y', 'o', 'en', 'con', 'al', 'por', 'para', 'una', 'que', 'sus', 'debe', 'error'];
 
     function palabras(texto) {
@@ -275,10 +266,7 @@
             .split(/[^a-z0-9]+/).filter(function (p) { return p.length >= 3 && PALABRAS_VACIAS.indexOf(p) < 0; });
     }
 
-    /**
-     * Lleva al paso del campo al que se refiere un error del servidor y lo marca con el mensaje. El servidor indica el
-     * campo por su nombre; si no lo indica, se deduce de las palabras de las etiquetas. Devuelve true si marcó un campo.
-     */
+    /** Lleva al paso del campo al que se refiere un error del servidor y lo marca con el mensaje. */
     window.PanelValidacion.irAlError = function (formulario, mensaje, nombreCampo) {
         var mejor = null;
         if (nombreCampo) {

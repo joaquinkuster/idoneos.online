@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Nivel de dificultad de un curso.
- */
+/** Entidad que representa el nivel de dificultad de un curso. */
 @Entity
 @Table(name = "Nivel")
 @Getter
@@ -15,34 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Nivel {
 
-    /**
-     * Identificador único del nivel.
-     */
+    /** Identificador único del nivel. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idNivel")
     private int idNivel;
 
-    /**
-     * Nombre.
-     */
+    /** Nombre. */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el nivel con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el nivel con los datos básicos. */
     public Nivel(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del nivel.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del nivel. */
     @Override
     public String toString() {
         return nombre;

@@ -8,94 +8,66 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link TipoAccionAuditoria}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link TipoAccionAuditoriaService}.
- */
+/** Implementación de TipoAccionAuditoriaService. */
 @Service
 public class TipoAccionAuditoriaServiceImpl implements TipoAccionAuditoriaService {
 
     @Autowired
     private TipoAccionAuditoriaRepository tipoAccionAuditoriaRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el tipo de acción auditada por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el tipo de acción auditada por su identificador. */
     @Override
     public Optional<TipoAccionAuditoria> buscarPorId(Integer id) {
         return tipoAccionAuditoriaRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<TipoAccionAuditoria> obtenerTodo() {
         return tipoAccionAuditoriaRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return tipoAccionAuditoriaRepository.existsById(id);
     }
 
-    /**
-     * Busca el tipo de acción auditada por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param nombre el valor de 'nombre' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el tipo de acción auditada por su atributo único 'nombre'. */
     @Override
     public Optional<TipoAccionAuditoria> buscarPorNombre(String nombre) {
         return tipoAccionAuditoriaRepository.findByNombre(nombre);
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el tipo de acción auditada en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el tipo de acción auditada en la base de datos. */
     @Override
     public TipoAccionAuditoria guardar(TipoAccionAuditoria entidad) {
         return tipoAccionAuditoriaRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public TipoAccionAuditoria modificar(TipoAccionAuditoria entidad) {
         return tipoAccionAuditoriaRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(TipoAccionAuditoria entidad) {
         tipoAccionAuditoriaRepository.delete(entidad);

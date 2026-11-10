@@ -23,11 +23,7 @@ import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.service.cohorte.CohorteService;
 import com.app.idoneos.service.temacronograma.TemaCronogramaService;
 
-/**
- * Pruebas de la exigencia de autoevaluaciones en los programas: CU-12 (registrar una cohorte) y CU-25 (modificar el
- * cronograma de un programa con cohortes en curso) piden que cada tema tenga al menos una autoevaluación visible.
- * "Macroeconomía de Coyuntura" tiene un programa de tres temas con una autoevaluación cada una y una cohorte abierta.
- */
+/** Pruebas de la exigencia de autoevaluaciones en los programas. */
 @SpringBootTest
 @Transactional
 class ReglasDeAutoevaluacionPorProgramaServiceTest {

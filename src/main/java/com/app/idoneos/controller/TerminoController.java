@@ -31,16 +31,7 @@ import com.app.idoneos.service.terminoglosario.TerminoGlosarioService;
 import com.app.idoneos.service.tema.TemaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador del glosario (MOD-F-02): CU-32 Buscar término (GET /glosario/buscar y GET /glosario/buscarPorTema/{temaId}),
- * CU-33 Registrar término (POST /termino/registrar), CU-34 Modificar término (POST /termino/modificar/{id}) y CU-35
- * Dar de baja término (POST /termino/darDeBaja/{id}).
- *
- * Cada tema tiene su glosario ("Glosario 1", "Glosario 2", … según el orden del tema en el programa). El docente
- * (titular o ayudante) registra, modifica, da de baja y busca los términos de los cursos en los que participa; el
- * administrador puede buscar y dar de baja los de cualquier curso; el alumno lo ve en lectura cuando tiene el tema
- * habilitada.
- */
+/** Controlador del término. */
 @Controller
 public class TerminoController {
 
@@ -53,19 +44,11 @@ public class TerminoController {
     @Autowired
     private TemaService temaService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Lista los glosarios de un curso, uno por tema del programa, cada uno con su cantidad de términos y su última
-     * actualización. Es el listado del ABM: desde cada fila se entra a la vista del glosario.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param temaId           Identificador del tema (opcional).
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /glosario/buscar: Lista los glosarios de un curso, uno por tema del programa. */
     @GetMapping("/glosario/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model model,
@@ -92,23 +75,7 @@ public class TerminoController {
         }
     }
 
-    /**
-     * CU-32: Muestra el glosario de un tema: sus términos agrupados por letra inicial, con buscador, índice
-     * alfabético y paginación. Si se indica {@code nuevo}, el docente ve abierto el formulario para registrar un
-     * término (es el destino de la opción Glosario del selector "Agregar recurso o actividad").
-     *
-     * @param temaId       Identificador del tema.
-     * @param texto          Texto a buscar (opcional).
-     * @param buscar         Presente cuando se envió el buscador (distingue "casilla destildada" de "sin buscar").
-     * @param enDefiniciones Si se busca también en las definiciones (por defecto sí; destildada, solo en el término).
-     * @param letra          Letra del índice: de la A a la Z, "#" para los especiales; vacío = todas (opcional).
-     * @param pagina         Número de página, desde 1; 0 muestra todos los términos en una sola página.
-     * @param terminoId      Identificador de un término: muestra solo ese término (es su enlace permanente).
-     * @param nuevo          Presente para abrir el formulario de registro (solo docente).
-     * @param model         El modelo de la vista.
-     * @param authentication           La autenticación actual.
-     * @return La vista del glosario.
-     */
+    /** GET /glosario/buscarPorTema/{temaId}: Muestra el glosario de un tema: sus términos agrupados por letra inicial, con buscador. */
     @GetMapping("/glosario/buscarPorTema/{temaId}")
     public String ver(@PathVariable("temaId") Integer temaId,
             @RequestParam(value = "texto", required = false) String texto,
@@ -141,7 +108,7 @@ public class TerminoController {
         }
         String buscado = texto == null ? "" : texto.trim();
         if (!buscado.isEmpty()) {
-            // Sin tildes ni mayúsculas; por defecto se busca también en las definiciones
+            // Sin tildes ni mayúsculas. Por defecto se busca también en las definiciones
             String clave = sinTildes(buscado);
             boolean enDefinicionesTambien = buscar == null || Boolean.TRUE.equals(enDefiniciones);
             encontrados = encontrados.stream().filter(t -> sinTildes(t.getTermino()).contains(clave)
@@ -178,18 +145,11 @@ public class TerminoController {
         return "pages/termino/ver";
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-33: Registra un término en el glosario de un tema. Responde en JSON para que el formulario muestre el
-     * resultado sin recargar la página.
-     *
-     * @param temaId   Identificador del tema.
-     * @param termino    El término.
-     * @param definicion La definición del término.
-     * @param authentication       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /termino/registrar: Registra un término en el glosario de un tema. */
     @PostMapping("/termino/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "temaId", required = false) Integer temaId,
@@ -205,17 +165,11 @@ public class TerminoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-34: Modifica un término del glosario. Responde en JSON.
-     *
-     * @param id         Identificador del término.
-     * @param termino    El término.
-     * @param definicion La definición del término.
-     * @param authentication       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /termino/modificar/{id}: Modifica un término del glosario. */
     @PostMapping("/termino/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "termino", required = false) String termino,
@@ -229,15 +183,11 @@ public class TerminoController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-35: Da de baja un término del glosario. Responde en JSON.
-     *
-     * @param id   Identificador del término.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /termino/darDeBaja/{id}: Da de baja un término del glosario. */
     @PostMapping("/termino/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -251,16 +201,11 @@ public class TerminoController {
         }
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de un término del glosario, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     El término.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /termino/modificar/{id}: Ventana de modificación de un término del glosario. */
     @GetMapping("/termino/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         TerminoGlosario t = terminoGlosarioService.buscarPorId(id)
@@ -273,7 +218,9 @@ public class TerminoController {
         return "pages/termino/modificar :: modal(t=${t})";
     }
 
-    // ---------------------------------------------------------------- Búsqueda del glosario (en el servidor)
+    // ----------------------------------------------------------------------
+    // Búsqueda del glosario (en el servidor)
+    // ----------------------------------------------------------------------
 
     /** Términos por página. */
     private static final int TERMINOS_POR_PAGINA = 10;
@@ -293,9 +240,11 @@ public class TerminoController {
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado de glosarios (motor común)
+        // ----------------------------------------------------------------------
+        // Listado de glosarios (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<TemaCronograma> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<TemaCronograma>("nombre", FiltroUtil.Tipo.TEXTO, u -> "Glosario " + u.getNumeroOrden()),
                 new FiltroUtil.Columna<TemaCronograma>("tema", FiltroUtil.Tipo.LISTA, u -> u.getTema().getTitulo()),

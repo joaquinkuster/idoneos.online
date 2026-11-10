@@ -11,10 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas unitarias de las reglas del acceso al curso (CU-27) que calcula el modelo: habilitación secuencial de
- * temas, días del cronograma, día esperado y atraso del alumno.
- */
+/** Pruebas unitarias de las reglas del acceso al curso que calcula el modelo. */
 class InscripcionTest {
 
     private final LocalDateTime ahora = LocalDateTime.now();

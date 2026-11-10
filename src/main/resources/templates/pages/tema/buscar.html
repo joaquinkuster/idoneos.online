@@ -108,8 +108,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar y editar temas. A la izquierda, los temas del curso; a la derecha, el formulario del tema elegido. Los
-     cambios quedan en cola (Nuevo / Modificado) y se guardan juntos al confirmar -->
+<!-- Modal: registrar y editar temas. -->
 <div class="modal fade pn-modal" id="modalTemas" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
     <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
@@ -209,9 +208,9 @@
     </div>
 </div>
 
-<!-- Bajas (CU-22): el tema se quita de todos los programas que lo incluyen -->
+<!-- Bajas: el tema se quita de todos los programas que lo incluyen -->
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaTema', 'tema', '¿Confirmas dar de baja?', '', '/tema/darDeBaja/0', null, null)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>

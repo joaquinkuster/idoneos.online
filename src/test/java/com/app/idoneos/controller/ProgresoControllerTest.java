@@ -19,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas de la pantalla de progreso de los alumnos (CU-55, MOD-F-03).
- */
+/** Pruebas de la pantalla de progreso de los alumnos. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

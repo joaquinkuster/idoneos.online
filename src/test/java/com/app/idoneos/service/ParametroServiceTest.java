@@ -18,10 +18,7 @@ import com.app.idoneos.repository.AdministradorRepository;
 import com.app.idoneos.repository.ParametroRepository;
 import com.app.idoneos.service.parametro.ParametroServiceImpl;
 
-/**
- * Pruebas de los parámetros del sistema: lectura, registro y cifrado de los parámetros sensibles (la contraseña de
- * MODO), sobre los datos de la semilla. Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de los parámetros del sistema: lectura. */
 @SpringBootTest
 @Transactional
 class ParametroServiceTest {

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /categoria/modificar/{id}). -->
+<!-- Ventana de modificación. -->
     <div th:fragment="modal(cat)" class="modal fade pn-modal" th:id="'modalModificarCategoria' + ${cat.idCategoria}" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -36,7 +36,7 @@
                         </fieldset>
                         <div class="pn-alerta pn-alerta-dorado" th:if="${bloqueada}">
                             <strong th:text="${'La categoría no se puede modificar: ' + 'hay cursos con cohortes publicadas en el catálogo' + '.'}">La categoría no se puede modificar.</strong>
-                            <span th:text="${@textos.avisoDiseno}">Lo publicado es un compromiso de la empresa.</span>
+                            <span th:text="${@mensajeErrorUtil.avisoDiseno}">Lo publicado es un compromiso de la empresa.</span>
                         </div>
                         <div class="pn-modal-pie">
                             <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>

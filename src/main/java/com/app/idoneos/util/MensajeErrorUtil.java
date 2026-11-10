@@ -1,35 +1,24 @@
 package com.app.idoneos.util;
 
-/**
- * Mensajes estándar que se muestran al usuario, con un criterio único para toda la aplicación:
- * <ul>
- * <li>Cantidades con su sustantivo bien escrito (nunca «curso(s)») y bajas bloqueadas con la misma estructura.</li>
- * <li>Validaciones de campo: qué campo falló y qué se espera, sin información de más.
- * Formato: «Error! El DNI no es válido. Formato válido: solo números.»; largo: «Error! El título es demasiado largo.
- * Máximo: 50 caracteres.»; corto: «Error! La clave es demasiado corta. Mínimo: 8 caracteres.»</li>
- * </ul>
- * El sujeto se pasa con su artículo («El título», «Las observaciones») para que el mensaje concuerde en género y número.
- */
-public final class MensajeErrorUtil {
+import org.springframework.stereotype.Component;
 
-    private MensajeErrorUtil() {
-    }
-
+/** Utilidad de mensajes estándar. Son los que se muestran al usuario, con un criterio único para toda la aplicación. */
+@Component("mensajeErrorUtil")
+public class MensajeErrorUtil {
 
     /**
-     * Escribe una cantidad con su sustantivo en singular o plural: "1 curso activo asociado" o
-     * "3 cursos activos asociados".
+     * Escribe una cantidad con su sustantivo en singular o plural.
      *
      * @param cantidad La cantidad.
      * @param singular El texto para una unidad.
-     * @param plural   El texto para cualquier otra cantidad.
+     * @param plural El texto para cualquier otra cantidad.
      * @return La cantidad seguida del texto que corresponde.
      */
     public static String formatearCantidad(long cantidad, String singular, String plural) {
         return cantidad + " " + (cantidad == 1 ? singular : plural);
     }
 
-    /** Motivo cuando el bloqueo lo causa el curso al que pertenece el registro (programa, cronograma, tema, categoría). */
+    /** Motivo cuando el bloqueo lo causa el curso al que pertenece el registro. */
     public static final String MOTIVO_CURSO_PUBLICADO = "el curso tiene cohortes publicadas en el catálogo";
 
     /** Motivo cuando el registro es el propio curso. */
@@ -63,10 +52,9 @@ public final class MensajeErrorUtil {
     public static final String AVISO_COHORTE = COMPROMISO_PUBLICADO_CORTO + " Podés consultar todos sus datos. " + CIERRE_COHORTE;
 
     /**
-     * Arma el mensaje de error cuando algo no se puede modificar porque el curso tiene cohortes publicadas en el catálogo. Es el único
-     * mensaje de este tipo de toda la aplicación (curso, programa, cronograma, cohorte, tema y categoría).
+     * Arma el mensaje de error cuando algo no se puede modificar porque el curso tiene cohortes publicadas en el catálogo.
      *
-     * @param tipo   El tipo de registro con su artículo, por ejemplo "el curso" o "el cronograma del programa".
+     * @param tipo El tipo de registro con su artículo, por ejemplo "el curso" o "el cronograma del programa".
      * @param nombre El nombre del registro.
      * @param motivo {@link #MOTIVO_PUBLICADO} o {@link #MOTIVO_CURSO_PUBLICADO} (o el de la cohorte).
      * @param cierre {@link #CIERRE_CURSO}, {@link #CIERRE_DISENO} o {@link #CIERRE_COHORTE}.
@@ -76,19 +64,18 @@ public final class MensajeErrorUtil {
         return armarAccionBloqueada("modificar", tipo, nombre, motivo, COMPROMISO_PUBLICADO + " " + cierre);
     }
 
-    /** Título del aviso de un formulario consultable: «El curso no se puede modificar: tiene cohortes publicadas en el catálogo.» */
+    /** Arma el título del aviso de un formulario consultable, por ejemplo "El curso no se puede modificar". */
     public static String tituloAviso(String sujeto, String motivo) {
         return sujeto + " no se puede modificar: " + motivo + ".";
     }
 
     /**
-     * Arma el mensaje de una baja que no se puede realizar, con la estructura
-     * {@code Error! No se puede dar de baja {tipo} «{nombre}»: {motivo}. {qué hacer}}.
+     * Arma el mensaje de una baja que no se puede realizar, con la estructura Error!
      *
-     * @param tipo    El tipo de registro con su artículo, por ejemplo "la categoría" o "el curso".
-     * @param nombre  El nombre del registro.
-     * @param motivo  Por qué no se puede, sin punto final, por ejemplo "tiene 2 cursos activos asociados".
-     * @param queHacer El paso que puede dar el usuario (con su punto final); vacío si no hay ninguno posible.
+     * @param tipo El tipo de registro con su artículo, por ejemplo "la categoría" o "el curso".
+     * @param nombre El nombre del registro.
+     * @param motivo Por qué no se puede, sin punto final, por ejemplo "tiene 2 cursos activos asociados".
+     * @param queHacer El paso que puede dar el usuario (con su punto final), vacío si no hay ninguno posible.
      * @return El mensaje listo para mostrar.
      */
     public static String armarBajaBloqueada(String tipo, String nombre, String motivo, String queHacer) {
@@ -96,16 +83,14 @@ public final class MensajeErrorUtil {
         return queHacer == null || queHacer.isBlank() ? mensaje : mensaje + " " + queHacer;
     }
 
-
-
     /**
      * No se puede hacer una acción sobre un registro (por ejemplo, ocultarlo).
      *
-     * @param accion   La acción en infinitivo, por ejemplo "ocultar".
-     * @param tipo     El tipo de registro con su artículo, por ejemplo "el material".
-     * @param nombre   El nombre del registro.
-     * @param motivo   Por qué no se puede, sin punto final.
-     * @param queHacer El paso que puede dar el usuario (con su punto final); vacío si no hay ninguno posible.
+     * @param accion La acción en infinitivo, por ejemplo "ocultar".
+     * @param tipo El tipo de registro con su artículo, por ejemplo "el material".
+     * @param nombre El nombre del registro.
+     * @param motivo Por qué no se puede, sin punto final.
+     * @param queHacer El paso que puede dar el usuario (con su punto final), vacío si no hay ninguno posible.
      * @return El mensaje listo para mostrar.
      */
     public static String armarAccionBloqueada(String accion, String tipo, String nombre, String motivo, String queHacer) {
@@ -114,31 +99,28 @@ public final class MensajeErrorUtil {
     }
 
     /**
-     * Cierre común de los motivos por los que no se puede quitar, ocultar o cambiar contenido de un curso con cohortes activas: el
-     * diseño del curso pasaría de completo a incompleto. Se usa en todos los pasos del diseño (temas, cronograma, material y
-     * autoevaluaciones) para que el mensaje sea siempre el mismo.
+     * Cierre común de los motivos por los que no se puede quitar.
      *
-     * @param detalle Lo que pasaría con el registro, sin punto final (por ejemplo, "es la única clase grabada publicada del tema «X»").
+     * @param detalle Lo que pasaría con el registro, sin punto final (por ejemplo, "es la única clase grabada publicada del tema "X"").
      * @return El motivo completo, sin punto final.
      */
     public static String motivoDisenoIncompleto(String detalle) {
         return detalle + " y el programa del curso quedaría incompleto";
     }
 
-    /** El valor no tiene el formato esperado. */
+    /** Arma el mensaje de que el valor no tiene el formato esperado. */
     public static String armarFormatoInvalido(String sujeto, String formatoValido) {
         return "Error! " + sujeto + " " + (esPlural(sujeto) ? "no son" : "no es") + " válid" + terminacion(sujeto)
                 + ". Formato válido: " + formatoValido + ".";
     }
 
-    /** El valor supera el largo máximo. */
+    /** Arma el mensaje de que el valor supera el largo máximo. */
     public static String armarDemasiadoLargo(String sujeto, Object maximo, String unidad) {
         return "Error! " + sujeto + " " + verbo(sujeto) + " demasiad" + terminacion(sujeto) + " larg" + terminacion(sujeto)
                 + ". Máximo: " + maximo + " " + unidad + ".";
     }
 
-
-    /** El archivo o la imagen supera el tamaño máximo. */
+    /** Arma el mensaje de que el archivo o la imagen supera el tamaño máximo. */
     public static String armarDemasiadoGrande(String sujeto, Object maximo, String unidad) {
         return "Error! " + sujeto + " " + verbo(sujeto) + " demasiad" + terminacion(sujeto) + " grande"
                 + (esPlural(sujeto) ? "s" : "") + ". Máximo: " + maximo + " " + unidad + ".";
@@ -152,9 +134,31 @@ public final class MensajeErrorUtil {
         return esPlural(sujeto) ? "son" : "es";
     }
 
-    /** Terminación del adjetivo según el artículo: o, a, os, as. */
+    /** Obtiene la terminación del adjetivo según el artículo: o, a, os, as. */
     private static String terminacion(String sujeto) {
         boolean femenino = sujeto.startsWith("La ") || sujeto.startsWith("Las ");
         return (femenino ? "a" : "o") + (esPlural(sujeto) ? "s" : "");
+    }
+
+    // Los avisos que usan las plantillas: ${@mensajeErrorUtil.avisoCurso}
+
+    public String getAvisoCurso() {
+        return AVISO_CURSO;
+    }
+
+    public String getAvisoDiseno() {
+        return AVISO_DISENO;
+    }
+
+    public String getAvisoCohorte() {
+        return AVISO_COHORTE;
+    }
+
+    public String getMotivoPublicado() {
+        return MOTIVO_PUBLICADO;
+    }
+
+    public String getMotivoCursoPublicado() {
+        return MOTIVO_CURSO_PUBLICADO;
     }
 }

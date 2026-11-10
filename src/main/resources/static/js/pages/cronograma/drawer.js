@@ -1,7 +1,4 @@
-/**
- * Cajón del cronograma de la vista del curso: se oculta con la cruz y se vuelve a mostrar con la pestaña del borde
- * derecho. En pantallas anchas se recuerda la elección; en las chicas arranca oculto y se abre sobre el contenido.
- */
+/** Cajón del cronograma de la vista del curso. */
 (function () {
     'use strict';
 

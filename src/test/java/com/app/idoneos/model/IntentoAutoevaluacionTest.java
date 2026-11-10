@@ -10,10 +10,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de la corrección de los intentos de autoevaluación (DSD corregir) y de las reglas derivadas del modelo de
- * evaluaciones: tiempo, resultado y tema aprobado. No usan la base de datos.
- */
+/** Pruebas de la corrección de los intentos de autoevaluación (DSD corregir) y de las reglas derivadas del modelo de evaluaciones: tiempo, resultado y tema aprobado. */
 class IntentoAutoevaluacionTest {
 
     private static final LocalDateTime INICIO = LocalDateTime.of(2026, 10, 1, 10, 0);
@@ -26,7 +23,7 @@ class IntentoAutoevaluacionTest {
         return autoevaluacion;
     }
 
-    /** Crea una pregunta; las opciones correctas llevan un asterisco inicial. */
+    /** Crea una pregunta. Las opciones correctas llevan un asterisco inicial. */
     private Pregunta pregunta(boolean opcionMultiple, String... opciones) {
         Pregunta pregunta = new Pregunta(new Pool(), "Pregunta " + siguienteId, opcionMultiple);
         pregunta.setIdPregunta(siguienteId++);

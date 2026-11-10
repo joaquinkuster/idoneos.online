@@ -1,8 +1,8 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    SQUIRCLE GEOMETRY & MODERN IOS GLASSMORPHISM ENGINE
    Aplicado globalmente a todas las pantallas, componentes, cards y botones
    Preservando paleta oficial (Navy #081426, Oro #D4A03D, Blanco #FFFFFF)
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 
 /* 4. CARDS, CONTENEDORES Y PANELES (iOS FROSTED GLASS EFECTO ULTRA-PULIDO) */
 .wf-card,
@@ -98,8 +98,7 @@
     border-radius: 50%;
 }
 
-/* MODALES RÁPIDOS: fondo sólido (sin desenfoque del fondo, que se recalcula en cada cuadro de la animación)
-   y animación corta. El efecto glass se mantiene en la navbar y en los elementos chicos. */
+/* MODALES RÁPIDOS: fondo sólido. */
 .modal-content {
     background: #FFFFFF !important;
     backdrop-filter: none !important;

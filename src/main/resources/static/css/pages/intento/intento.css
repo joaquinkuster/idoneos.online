@@ -1,6 +1,6 @@
-/* ==========================================================================
-   Autoevaluación del alumno (MOD-F-04, CU-70): ficha, cuestionario y resumen
-   ========================================================================== */
+/* ----------------------------------------------------------------------
+   Autoevaluación del alumno: ficha, cuestionario y resumen
+   ---------------------------------------------------------------------- */
 .in-ficha {
     padding: 20px 22px;
     margin-bottom: 18px;
@@ -8,7 +8,7 @@
 
 .in-frase {
     margin: 12px 0 6px;
-    font-size: 1.05rem;
+    font-size: 15px;
     line-height: 1.7;
     color: var(--pn-texto);
 }
@@ -33,7 +33,6 @@
     font-size: 0.88rem;
 }
 
-
 .in-accion {
     display: flex;
     align-items: center;
@@ -56,7 +55,10 @@
     color: var(--pn-texto);
 }
 
-/* ---- Modo foco: cuestionario y resumen, sin menú */
+/* ---------------------------------------------------------------------- */
+/* Modo foco: cuestionario y resumen, sin menú */
+/* ---------------------------------------------------------------------- */
+
 .in-body {
     min-height: 100vh;
     background: #F6F3EC; /* el mismo crema de los paneles y de "Mis cursos" */
@@ -64,7 +66,7 @@
     font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 
-/* Navbar reducido del cuestionario: logo, reloj y menú del usuario; queda fijo arriba */
+/* Navbar reducido del cuestionario: logo, reloj y menú del usuario. Queda fijo arriba */
 .nb.nb-intento {
     position: sticky;
     top: 0;
@@ -544,7 +546,10 @@ a.in-resumen-num:hover {
     }
 }
 
-/* ---- Navbar del cuestionario en pantallas chicas */
+/* ---------------------------------------------------------------------- */
+/* Navbar del cuestionario en pantallas chicas */
+/* ---------------------------------------------------------------------- */
+
 @media (max-width: 991.98px) {
     .nb.nb-intento {
         padding: 0 16px;
@@ -631,7 +636,10 @@ a.in-resumen-num:hover {
     }
 }
 
-/* ---- Calificaciones del alumno */
+/* ---------------------------------------------------------------------- */
+/* Calificaciones del alumno */
+/* ---------------------------------------------------------------------- */
+
 .ca-tema-numero {
     display: block;
     color: var(--pn-texto-suave);

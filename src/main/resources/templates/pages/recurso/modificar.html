@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /recurso/modificar/{id}). -->
-    <div th:fragment="modal(m, otrosUsos, esDuenio)" class="modal fade pn-modal" th:id="'modalModificarMaterial' + ${m.idTemaRecurso}" tabindex="-1" aria-hidden="true"
-         th:with="tipo=${m.tipo}, bibliografia=${m.recurso.bibliografia}, bloqueado=${otrosUsos > 0 or !esDuenio}">
+<!-- Ventana de modificación. -->
+    <div th:fragment="modal(m, usos)" class="modal fade pn-modal" th:id="'modalModificarMaterial' + ${m.idTemaRecurso}" tabindex="-1" aria-hidden="true"
+         th:with="tipo=${m.tipo}, bibliografia=${m.recurso.bibliografia}">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
@@ -21,8 +21,7 @@
         <span class="pn-pasos-item d-none"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Índice</span></span><span class="pn-pasos-linea d-none"></span>
         <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
     </div>
-    <!-- Si otros temas usan el mismo recurso, el formulario queda deshabilitado y se avisa debajo -->
-    <fieldset class="pn-fieldset-plano" th:disabled="${bloqueado}">
+    <!-- Desde el panel del curso solo se cambia la visibilidad. -->
     <div class="pn-paso" data-grupo="Datos">
         <div class="pn-seccion-titulo">
             <h4>Datos del recurso</h4>
@@ -34,7 +33,7 @@
                                     <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(m.titulo) + ' / 150'}">0 / 150</span>
                                 </div>
-                                <input type="text" name="titulo" class="pn-input" maxlength="150" th:value="${m.titulo}" data-contador required>
+                                <input type="text" name="titulo" class="pn-input" maxlength="150" th:value="${m.titulo}" data-contador required disabled>
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-md-4 pn-campo">
@@ -49,7 +48,7 @@
                                     <label class="pn-etiqueta">Descripción (opcional)</label>
                                     <span class="pn-contador" th:text="${#strings.length(m.recurso.descripcion != null ? m.recurso.descripcion : '') + ' / 500'}">0 / 500</span>
                                 </div>
-                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" data-contador th:text="${m.recurso.descripcion}"></textarea>
+                                <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" data-contador disabled th:text="${m.recurso.descripcion}"></textarea>
                                 <div class="pn-ayuda-error"></div>
                             </div>
         </div>
@@ -59,6 +58,7 @@
             <h4>Contenido del recurso</h4>
             <p>Archivo o enlace y datos de la obra</p>
         </div>
+        <fieldset class="pn-fieldset-plano" disabled>
         <div class="row g-3">
 <div class="col-12 pn-campo" th:if="${tipo == 'Enlace'}">
                                 <div class="pn-etiqueta-fila">
@@ -130,8 +130,11 @@
                                 <div class="pn-ayuda-error"></div>
                             </div>
         </div>
+        </fieldset>
     </div>
+    <fieldset class="pn-fieldset-plano" disabled>
     <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(@{'/recurso/indice/' + ${m.idTemaRecurso}}, ${m.recurso.estadoOcr != null ? m.recurso.estadoOcr.nombre : null})}"></th:block>
+    </fieldset>
 
     <div class="pn-paso">
         <div class="pn-seccion-titulo">
@@ -140,20 +143,17 @@
         </div>
         <div class="pn-arbol" data-resumen-arbol></div>
     </div>
-    </fieldset>
 
-    <div class="pn-alerta pn-alerta-dorado" th:if="${!esDuenio}">
-        El recurso pertenece a otro docente: solo su dueño puede <strong>modificarlo</strong>. Si ya no lo necesitás, podés darlo de baja de tu tema.
-    </div>
-    <div class="pn-alerta pn-alerta-dorado" th:if="${esDuenio and otrosUsos > 0}">
-        El recurso tiene <strong th:text="${otrosUsos + (otrosUsos == 1 ? ' otro tema asociado' : ' otros temas asociados')}">2 otros temas asociados</strong>: no se puede <strong>modificar</strong> mientras siga en uso, porque el cambio afectaría a quienes ya lo usan.
+    <!-- Mismo aviso que en la biblioteca. -->
+    <div class="pn-alerta pn-alerta-dorado">
+        El recurso tiene <strong th:text="${usos + (usos == 1 ? ' tema asociado' : ' temas asociados')}">2 temas asociados</strong>: no se puede <strong>modificar</strong> mientras siga en uso, porque el cambio afectaría a quienes ya lo usan.
     </div>
 
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar th:disabled="${bloqueado}">Confirmar cambios</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar cambios</button>
     </div>
 </form>
                 </div>

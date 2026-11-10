@@ -40,13 +40,7 @@ import com.app.idoneos.service.pago.PagoService.SolicitudPago;
 import com.app.idoneos.service.programa.ProgramaServiceImpl;
 import com.app.idoneos.support.PasarelaPagoMockeada;
 
-/**
- * Pruebas de las reglas de negocio de los pagos (CU-50 a CU-54), con la pasarela de pago mockeada (ver PasarelaPagoMockeada) y sobre los
- * datos de la semilla. Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- *
- * En la semilla, Lucía tiene su inscripción a Finanzas Personales ($ 80.000) pendiente de pago, con un pago de MODO
- * rechazado por fondos insuficientes; el resto de las inscripciones con costo tienen su pago aprobado.
- */
+/** Pruebas de las reglas de negocio de los pagos. */
 @SpringBootTest
 @Transactional
 class PagoServiceTest {
@@ -131,7 +125,9 @@ class PagoServiceTest {
                 null, motivo, null);
     }
 
-    // ---------- Descuento que le corresponde al pagar ----------
+    // ----------------------------------------------------------------------
+    // Descuento que le corresponde al pagar ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-51: el descuento sin condición se aplica a todos y se calcula el monto con él")
@@ -178,7 +174,9 @@ class PagoServiceTest {
         assertNotEquals("Alumno frecuente", pagoService.calcularDescuento(deValentina).orElseThrow().getNombre());
     }
 
-    // ---------- CU-51 Realizar pago / CU-52 Reintentar pago ----------
+    // ----------------------------------------------------------------------
+    // Realizar pago / Reintentar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-52: reintentar crea un pago nuevo; el rechazado conserva su identificador de intención y su motivo")
@@ -267,7 +265,7 @@ class PagoServiceTest {
         assertFalse(lucia.fueHabilitada());
         assertEquals(usosAntes, descuento("Descuento de bienvenida").getCantidadUsada());
         assertNull(pago.getComprobanteVigente());
-        // la inscripción vuelve a «Pendiente de pago» y libera el lugar que reservaba
+        // la inscripción vuelve a "Pendiente de pago" y libera el lugar que reservaba
         assertTrue(lucia.estaPendienteDePago());
         assertFalse(lucia.ocupaCupo());
         // y se puede reintentar con un pago nuevo
@@ -439,7 +437,7 @@ class PagoServiceTest {
         pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno()); // queda habilitada, sin pago
 
         // Lucía compró 1 curso (Mercado de Capitales). Si la inscripción sin pago contara, tendría 2 y le
-        // correspondería "Alumno frecuente" (20%); le corresponde solo el descuento de bienvenida (10%)
+        // correspondería "Alumno frecuente" (20%). Le corresponde solo el descuento de bienvenida (10%)
         Inscripcion otra = inscribirA("Contabilidad Básica para Inversores", LUCIA);
 
         assertEquals("Descuento de bienvenida", pagoService.calcularDescuento(otra).orElseThrow().getNombre());
@@ -520,7 +518,9 @@ class PagoServiceTest {
         assertTrue(pagoRepository.findById(solicitud.idPago()).orElseThrow().estaAprobado());
     }
 
-    // ---------- CU-53 Registrar pago ----------
+    // ----------------------------------------------------------------------
+    // Registrar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-54: en un pago de MODO el código de referencia son letras y números, y el número de comprobante, solo números")
@@ -655,7 +655,9 @@ class PagoServiceTest {
         assertEquals(1, nueva.getPagos().size());
     }
 
-    // ---------- CU-54 Modificar pago ----------
+    // ----------------------------------------------------------------------
+    // Modificar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-54: acredita un pago de MODO pendiente indicando el pagador: habilita el acceso y emite el comprobante")
@@ -757,7 +759,9 @@ class PagoServiceTest {
         assertEquals("Valentina Ruiz", pago.getComprobanteVigente().getNombrePagador());
     }
 
-    // ---------- CU-50 Buscar pago ----------
+    // ----------------------------------------------------------------------
+    // Buscar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-50: busca por estado, curso, alumno y fechas")
@@ -805,7 +809,9 @@ class PagoServiceTest {
         assertEquals(10, pagoService.plazoConfirmacionMinutos());
     }
 
-    // ---------- Cierre de la inscripción ----------
+    // ----------------------------------------------------------------------
+    // Cierre de la inscripción ----------
+    // ----------------------------------------------------------------------
 
     /** Hace que la inscripción a la cohorte ya haya terminado. */
     private void cerrarLaInscripcion(Inscripcion inscripcion) {
@@ -904,7 +910,7 @@ class PagoServiceTest {
         assertTrue(enCurso.estaConPagoEnCurso());
         assertFalse(enCurso.sePuedeCancelarPorFaltaDePago());
         assertTrue(parcial.sePuedeCancelarPorFaltaDePago());
-        // la del pago parcial se cancela (el pago queda registrado, sin devolución); la del pago en curso espera
+        // la del pago parcial se cancela (el pago queda registrado, sin devolución). La del pago en curso espera
         assertEquals(1, inscripcionService.cancelarPendientesDeInscripcionCerrada());
         assertTrue(enCurso.estaConPagoEnCurso() && parcial.estaCancelada() && parcial.tienePagoAprobado());
 

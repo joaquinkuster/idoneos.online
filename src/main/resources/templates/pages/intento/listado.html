@@ -36,7 +36,7 @@
                           th:text="${#lists.size(filas) + (#lists.size(filas) == 1 ? ' resultado encontrado' : ' resultados encontrados')}">0 resultados encontrados</span>
                 </div>
 
-                <!-- Filtros: se aplican en el navegador, sin recargar. Los mismos para todos; el docente suma la cohorte -->
+                <!-- Filtros: se aplican en el navegador, sin recargar. Los mismos para todos. El docente suma la cohorte -->
                 <form th:action="@{${urlListado}}" method="get" class="pn-filtros" data-filtro-front>
                     <div class="pn-filtros-campo" data-filtro-estatico="cohorte" th:if="${verAlumnos}">
                         <label class="pn-etiqueta">Cohorte</label>

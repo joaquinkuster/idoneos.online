@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Sección vacía: ícono, título en negrita, texto y, si se indica, un botón de contorno (todo centrado).
-         icon: clase de Font Awesome ('fa-folder-open'); url y etiqueta: del botón (null si no lleva). -->
+    <!-- Sección vacía: ícono, título en negrita, texto y, si se indica. -->
     <div th:fragment="bloque(icon, titulo, texto, url, etiqueta)" class="pn-card pn-empty-grande">
         <i class="fa-solid pn-empty-icon" th:classappend="${icon}"></i>
         <h3 th:text="${titulo}">Todavía no hay elementos</h3>

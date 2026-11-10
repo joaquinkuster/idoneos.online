@@ -60,10 +60,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.*;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Curso}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link CursoService}.
- */
+/** Implementación de CursoService. */
 @Service
 public class CursoServiceImpl implements CursoService {
 
@@ -102,6 +99,9 @@ public class CursoServiceImpl implements CursoService {
     private ProgramaRepository programaRepository;
 
     @Autowired
+    private com.app.idoneos.repository.CohorteRepository cohorteRepository;
+
+    @Autowired
     private TemaRepository temaRepository;
 
     @Autowired
@@ -110,77 +110,43 @@ public class CursoServiceImpl implements CursoService {
     @Autowired
     private ParametroService parametroService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca el curso por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca el curso por su identificador. */
     @Override
     public Optional<Curso> buscarPorId(Integer id) {
         return cursoRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Curso> obtenerTodo() {
         return cursoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return cursoRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-
-    /**
-     * Busca los registros vigentes de curso asociados a categoria.
-     *
-     * @param categoria el registro de Categoria asociado
-     * @return una lista de Curso asociados al Categoria indicado
-     */
+    /** Busca los registros vigentes de curso asociados a categoria. */
     @Override
     public List<Curso> buscarPorCategoria(Categoria categoria) {
         return cursoRepository.findByCategoriaAndBajaFalse(categoria);
     }
 
-    /**
-     * Busca el curso por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param nombre el valor de 'nombre' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca el curso por su atributo único 'nombre'. */
     @Override
     public Optional<Curso> buscarPorNombre(String nombre) {
         return cursoRepository.findByNombre(nombre);
     }
 
-    /**
-     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan siempre al final.
-     *
-     * @param texto parte del nombre o la descripción del curso (opcional)
-     * @param idCategoria identificador de la categoría (opcional)
-     * @param idNivel identificador del nivel (opcional)
-     * @param idDocente identificador de un docente del equipo docente (opcional)
-     * @param idModalidad identificador de una modalidad de dictado (opcional)
-     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevos primero)
-     * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que ese docente participa
-     * @return una lista de cursos que cumplen los criterios
-     */
+    /** Busca cursos aplicando filtros opcionales. */
     @Override
     public List<Curso> buscarConFiltros(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
             Integer idModalidad, String orden, Docente soloDeDocente) {
@@ -206,16 +172,7 @@ public class CursoServiceImpl implements CursoService {
                 .toList();
     }
 
-    /**
-     * Busca los cursos del catálogo público: cursos activos con al menos una cohorte con inscripción abierta o próxima.
-     *
-     * @param texto parte del nombre o la descripción del curso (opcional)
-     * @param idCategoria identificador de la categoría (opcional)
-     * @param idNivel identificador del nivel (opcional)
-     * @param idDocente identificador de un docente del equipo docente (opcional)
-     * @param idModalidad identificador de una modalidad de dictado (opcional)
-     * @return una lista de cursos con cohortes abiertas
-     */
+    /** Busca los cursos del catálogo público. */
     @Override
     public List<Curso> buscarEnCatalogo(String texto, Integer idCategoria, Integer idNivel, Integer idDocente,
             Integer idModalidad) {
@@ -240,12 +197,7 @@ public class CursoServiceImpl implements CursoService {
                 .mapToLong(cohorte -> cohorte.getInscripciones().size()).sum();
     }
 
-    /**
-     * Busca las cohortes con inscripción abierta de un curso.
-     *
-     * @param curso el curso a consultar
-     * @return una lista de cohortes abiertas, de la que abre antes a la que abre después
-     */
+    /** Busca las cohortes con inscripción abierta de un curso. */
     @Override
     public List<Cohorte> buscarCohortesAbiertas(Curso curso) {
         return curso.getProgramas().stream()
@@ -266,24 +218,13 @@ public class CursoServiceImpl implements CursoService {
                 .toList();
     }
 
-    /**
-     * Verifica si un curso tiene inscripciones activas asociadas.
-     *
-     * @param curso el curso a consultar
-     * @return {@code true} si tiene al menos una inscripción activa
-     */
+    /** Verifica si un curso tiene inscripciones activas asociadas. */
     @Override
     public boolean tieneInscripcionesActivas(Curso curso) {
         return inscripcionRepository.contarPorCurso(curso) > 0;
     }
 
-
-    /**
-     * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
-     *
-     * @param curso el curso a consultar
-     * @return una lista de inscripciones activas del curso
-     */
+    /** Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes. */
     @Override
     public List<Inscripcion> buscarInscripcionesActivas(Curso curso) {
         return curso.getProgramas().stream()
@@ -293,14 +234,7 @@ public class CursoServiceImpl implements CursoService {
                 .toList();
     }
 
-    /**
-     * Verifica que el docente pueda acceder al curso (CU-27).
-     *
-     * @param idCurso El identificador del curso.
-     * @param docente El docente que solicita el acceso.
-     * @return La participación del docente en el curso.
-     * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
-     */
+    /** Verifica que el docente pueda acceder al curso. */
     @Override
     public DocenteCurso validarAccesoDocente(int idCurso, Docente docente) {
         Curso curso = buscarActivoPorId(idCurso);
@@ -355,37 +289,17 @@ public class CursoServiceImpl implements CursoService {
                 .orElseThrow(() -> new IllegalArgumentException("Error! El curso no se encuentra activo."));
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda el curso en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda el curso en la base de datos. */
     @Override
     public Curso guardar(Curso entidad) {
         return cursoRepository.save(entidad);
     }
 
-    /**
-     * Registra un curso con sus modalidades de dictado y su equipo docente.
-     *
-     * @param nombre el nombre del curso
-     * @param descripcion la descripción del curso (opcional)
-     * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (opcional: la completa el docente)
-     * @param duracionDias la duración del curso, en días
-     * @param imagen la ruta de la imagen de portada (opcional)
-     * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel (opcional: lo completa el docente)
-     * @param emiteCertificado si el curso emite certificado al finalizar
-     * @param idsModalidades los identificadores de las modalidades de dictado
-     * @param idDocenteTitular el identificador del docente titular
-     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
-     * @return el curso registrado
-     * @throws IllegalArgumentException si no se cumple alguna regla de registro
-     */
+    /** Registra un curso con sus modalidades de dictado y su equipo docente. */
     @Override
     @Transactional
     public Curso registrar(String nombre, String descripcion, Float precio, Integer cargaHorariaMinutos,
@@ -415,39 +329,17 @@ public class CursoServiceImpl implements CursoService {
         return curso;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Curso modificar(Curso entidad) {
         return cursoRepository.save(entidad);
     }
 
-    /**
-     * Modifica un curso activo. Si tiene inscripciones activas, solo pueden modificarse el precio,
-     * el equipo docente y la imagen de portada.
-     *
-     * @param idCurso el identificador del curso
-     * @param nombre el nombre del curso
-     * @param descripcion la descripción del curso (opcional)
-     * @param precio el precio del curso
-     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (opcional)
-     * @param duracionDias la duración del curso, en días
-     * @param imagen la ruta de la imagen de portada (opcional, si es nula se conserva la actual)
-     * @param idCategoria el identificador de la categoría
-     * @param idNivel el identificador del nivel (opcional: si es nulo se conserva el actual)
-     * @param emiteCertificado si el curso emite certificado al finalizar
-     * @param idsModalidades los identificadores de las modalidades de dictado
-     * @param idDocenteTitular el identificador del docente titular
-     * @param idsDocentesAyudantes los identificadores de los docentes ayudantes (opcional)
-     * @return el curso modificado
-     * @throws IllegalArgumentException si no se cumple alguna regla de modificación
-     */
+    /** Modifica un curso activo. */
     @Override
     @Transactional
     public Curso modificar(Integer idCurso, String nombre, String descripcion, Float precio,
@@ -498,19 +390,7 @@ public class CursoServiceImpl implements CursoService {
         return curso;
     }
 
-    /**
-     * Completa los datos académicos de un curso activo: el nivel, la descripción, los objetivos y la carga horaria para el
-     * certificado. Los define el docente al diseñar el curso.
-     *
-     * @param idCurso el identificador del curso
-     * @param docente el docente que los completa (debe formar parte del equipo del curso)
-     * @param idNivel el identificador del nivel
-     * @param descripcion la descripción del curso (opcional)
-     * @param objetivos los objetivos del curso
-     * @param cargaHorariaMinutos la carga horaria para el certificado, en minutos (obligatoria si el curso emite certificado)
-     * @return el curso actualizado
-     * @throws IllegalArgumentException si el docente no participa en el curso o algún dato no es válido
-     */
+    /** Completa los datos académicos de un curso activo: el nivel, la descripción. */
     @Override
     @Transactional
     public Curso modificarPorDocente(Integer idCurso, Docente docente, Integer idNivel, String descripcion,
@@ -548,14 +428,7 @@ public class CursoServiceImpl implements CursoService {
         return cursoRepository.save(curso);
     }
 
-    /**
-     * Asigna la imagen de un curso activo.
-     *
-     * @param idCurso El identificador del curso.
-     * @param imagen  El nombre del archivo de la imagen dentro de la carpeta del curso.
-     * @return El curso actualizado.
-     * @throws IllegalArgumentException Si el curso no está activo.
-     */
+    /** Asigna la imagen de un curso activo. */
     @Override
     @Transactional
     public Curso actualizarImagen(Integer idCurso, String imagen) {
@@ -565,10 +438,7 @@ public class CursoServiceImpl implements CursoService {
         return cursoRepository.save(curso);
     }
 
-    /**
-     * Lleva las imágenes de los cursos a la estructura {@code curso{id}/imagen.{ext}}. La imagen se busca en la
-     * carpeta anterior ({@code cursos/}) y, si no está, entre las imágenes de ejemplo de la aplicación.
-     */
+    /** Lleva las imágenes de los cursos a la estructura curso{id/imagen.{ext}}. */
     @Override
     @Transactional
     public void migrarImagenes() {
@@ -607,52 +477,47 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Curso entidad) {
         entidad.marcarInactivo(); // Baja lógica
         cursoRepository.save(entidad);
     }
 
-    /**
-     * Da de baja un curso activo que no tenga programas ni temas activos asociadas.
-     *
-     * @param idCurso el identificador del curso
-     * @throws IllegalArgumentException si el curso no está activo o tiene programas o temas activos
-     */
+    /** Da de baja un curso activo que no tenga programas. */
     @Override
     @Transactional
     public void darDeBaja(Integer idCurso) {
         Curso curso = buscarActivoPorId(idCurso);
         int programasActivos = programaRepository.findByCursoAndBajaFalse(curso).size();
         int temasActivas = temaRepository.findByCursoAndBajaFalse(curso).size();
-        if (programasActivos > 0 || temasActivas > 0) {
-            String motivo = (programasActivos > 0
-                    ? MensajeErrorUtil.formatearCantidad(programasActivos, "programa activo", "programas activos") : "")
-                    + (programasActivos > 0 && temasActivas > 0 ? " y " : "")
-                    + (temasActivas > 0
-                            ? MensajeErrorUtil.formatearCantidad(temasActivas, "tema activo", "temas activos") : "");
+        int cohortesActivas = cohorteRepository.findByCursoAndBajaFalse(curso).size();
+        if (programasActivos > 0 || temasActivas > 0 || cohortesActivas > 0) {
+            List<String> partes = new ArrayList<>();
+            if (programasActivos > 0) {
+                partes.add(MensajeErrorUtil.formatearCantidad(programasActivos, "programa activo", "programas activos"));
+            }
+            if (temasActivas > 0) {
+                partes.add(MensajeErrorUtil.formatearCantidad(temasActivas, "tema activo", "temas activos"));
+            }
+            if (cohortesActivas > 0) {
+                partes.add(MensajeErrorUtil.formatearCantidad(cohortesActivas, "cohorte activa", "cohortes activas"));
+            }
+            String motivo = partes.size() == 1 ? partes.get(0)
+                    : String.join(", ", partes.subList(0, partes.size() - 1)) + " y " + partes.get(partes.size() - 1);
             throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el curso", curso.getNombre(),
-                    "tiene " + motivo, "Dé de baja primero sus programas y temas."));
+                    "tiene " + motivo, "Dé de baja primero sus programas, temas y cohortes."));
         }
         curso.marcarInactivo();
         curso.setUltimaModificacion(LocalDateTime.now());
         cursoRepository.save(curso);
     }
 
-    /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno y el mensaje indica cuál lo impidió.
-     *
-     * @param ids los identificadores de los registros
-     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
-     */
+    /** Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @Override
     @Transactional
     public void darDeBajaVarios(List<Integer> ids) {
@@ -697,7 +562,7 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    /** La carga horaria es opcional al registrar el curso; si se indica, debe ser válida. */
+    /** Valida la carga horaria, que es opcional al registrar el curso. Si se indica, debe ser válida. */
     private void validarCargaHoraria(Integer cargaHorariaMinutos, Integer duracionDias) {
         if (cargaHorariaMinutos == null) {
             return;
@@ -713,7 +578,7 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    /** La duración del curso es de al menos un día y el acceso de una cohorte (que la incluye) tiene un máximo. */
+    /** Valida la duración del curso, que es de al menos un día. El acceso de una cohorte, que la incluye, tiene un máximo. */
     private void validarDuracion(Integer duracionDias) {
         if (duracionDias <= 0 || duracionDias > Cohorte.DIAS_ACCESO_MAXIMOS) {
             throw RespuestaFormularioUtil.armarCampoInvalido("duracion", MensajeErrorUtil.armarFormatoInvalido(
@@ -721,10 +586,7 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    /**
-     * La duración del curso la define el administrador y no cambia mientras algún programa vigente la tenga repartida por completo o
-     * tenga cohortes activas; y nunca puede quedar por debajo del cronograma de un programa vigente.
-     */
+    /** Valida la duración contra los cronogramas. La define el administrador y no cambia mientras algún programa vigente la tenga repartida. */
     private void validarDuracionContraCronogramas(Curso curso, Integer duracionDias) {
         for (Programa programa : curso.getProgramas()) {
             if (!programa.esInactivo() && duracionDias != curso.getDuracionDias()
@@ -815,7 +677,7 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    /** Agregar la modalidad En vivo exige que las cohortes existentes tengan fechas de dictado. */
+    /** Valida que, al agregar la modalidad En vivo, las cohortes existentes tengan fechas de dictado. */
     private void validarModalidadEnVivoAgregada(Curso curso, List<Integer> idsNuevas) {
         if (curso.incluyeModalidad(Modalidad.EN_VIVO)) return;
         boolean agregaEnVivo = idsNuevas.stream().map(modalidadRepository::findById)
@@ -909,10 +771,10 @@ public class CursoServiceImpl implements CursoService {
         }
     }
 
-    /** Cuando el parámetro no está cargado, el mínimo de temas con material que se exige (el mismo de los programas). */
+    /** Cuando el parámetro no está cargado. */
     private static final int MINIMO_POR_DEFECTO = 1;
 
-    /** Si hay algún pool vigente del tema o de un tema anterior del programa, que se pueda usar para su autoevaluación. */
+    /** Verifica si hay algún pool vigente del tema o de un tema anterior del programa. */
     private boolean hayPoolsParaElTema(Programa programa, Tema tema) {
         if (tema.getPooles().stream().anyMatch(pool -> !pool.getBaja())) {
             return true;
@@ -931,38 +793,19 @@ public class CursoServiceImpl implements CursoService {
         return false;
     }
 
-    /**
-     * Calcula el estado del diseño de un curso.
-     *
-     * @param curso El curso.
-     * @return El estado de su diseño.
-     */
+    /** Calcula el estado del diseño de un curso. */
     @Override
     public EstadoDiseno calcularEstadoDiseno(Curso curso) {
         return calcularEstadoDiseno(curso, curso.getProgramaVigente());
     }
 
-    /**
-     * Calcula el estado del diseño de un curso para una cohorte: el programa es el de la cohorte (ninguno si todavía no
-     * se le asignó). Sin cohorte, el del programa vigente del curso.
-     *
-     * @param curso   El curso.
-     * @param cohorte La cohorte de trabajo, o {@code null}.
-     * @return El estado de su diseño.
-     */
+    /** Calcula el estado del diseño de un curso para una cohorte. */
     @Override
     public EstadoDiseno calcularEstadoDiseno(Curso curso, Cohorte cohorte) {
         return calcularEstadoDiseno(curso, cohorte == null ? curso.getProgramaVigente() : cohorte.getPrograma());
     }
 
-    /**
-     * Calcula el estado del diseño de un curso tomando como programa el de una cohorte (el campo
-     * {@code programaVigente} del resultado es ese programa).
-     *
-     * @param curso    El curso.
-     * @param programa El programa cuyo cronograma y contenido se miran, o {@code null} si todavía no hay.
-     * @return El estado de su diseño.
-     */
+    /** Calcula el estado del diseño de un curso tomando como programa el de una cohorte (el campo programaVigente del resultado es ese programa). */
     @Override
     public EstadoDiseno calcularEstadoDiseno(Curso curso, Programa programa) {
         int minimo = parametroService.obtenerEntero(Parametro.MINIMO_TEMAS_CON_MATERIAL, MINIMO_POR_DEFECTO);
@@ -979,29 +822,14 @@ public class CursoServiceImpl implements CursoService {
                 vigente != null && vigente.estaDuracionAsignadaCompleta(), contenido, pendientes.size(), primera);
     }
 
-    /**
-     * Indica si un programa está completo: asigna toda la duración del curso y todos sus temas tienen su contenido.
-     *
-     * @param curso    El curso del programa.
-     * @param programa El programa.
-     * @return {@code true} si está completo.
-     */
+    /** Indica si un programa está completo. */
     @Override
     public boolean estaDisenoCompleto(Curso curso, Programa programa) {
         return programa.estaDuracionAsignadaCompleta() && programa.getCronogramaOrdenado().stream()
                 .allMatch(cronograma -> buscarContenidoDeTema(curso, cronograma.getTema()).getFaltantes().isEmpty());
     }
 
-    /**
-     * Calcula el siguiente recurso que le falta a un tema: primero el material (se propone una bibliografía), después la
-     * autoevaluación (si no hay pools que se puedan usar, se propone registrar uno) y por último lo que pide la modalidad del
-     * curso (por ejemplo, la grabación).
-     *
-     * @param curso    El curso.
-     * @param programa El programa en que está el tema (de él salen los temas anteriores, cuyos pools también sirven).
-     * @param tema     El tema.
-     * @return El próximo recurso, o uno sin opción si el tema está completo o lo que falta no se agrega a mano.
-     */
+    /** Calcula el siguiente recurso que le falta a un tema: primero el material (se propone una bibliografía). */
     @Override
     public SiguienteRecurso buscarSiguienteRecurso(Curso curso, Programa programa, Tema tema) {
         Map<String, Boolean> celdas = buscarContenidoDeTema(curso, tema).celdas();
@@ -1020,12 +848,7 @@ public class CursoServiceImpl implements CursoService {
         return new SiguienteRecurso(null, null);
     }
 
-    /**
-     * Las columnas de contenido que corresponden a un curso, según sus modalidades.
-     *
-     * @param curso El curso.
-     * @return Por ejemplo "Video clon", "Material", "Autoevaluación".
-     */
+    /** Busca las columnas de contenido que corresponden a un curso, según sus modalidades. */
     @Override
     public List<String> buscarColumnasDeContenido(Curso curso) {
         List<String> columnas = new ArrayList<>();
@@ -1040,14 +863,7 @@ public class CursoServiceImpl implements CursoService {
         return columnas;
     }
 
-    /**
-     * Calcula el contenido de un tema: lo que prometen las modalidades del curso (video clon y clase grabada, solo si el
-     * curso las ofrece), más el material y la autoevaluación, que siempre se piden.
-     *
-     * @param curso El curso (de él salen las modalidades).
-     * @param tema  El tema.
-     * @return Lo que el tema tiene y lo que le falta.
-     */
+    /** Calcula el contenido de un tema: lo que prometen las modalidades del curso. */
     @Override
     public ContenidoDeTema buscarContenidoDeTema(Curso curso, Tema tema) {
         Map<String, Boolean> celdas = new LinkedHashMap<>();

@@ -22,10 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link ConsultaForo}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link ConsultaForoService}.
- */
+/** Implementación de ConsultaForoService. */
 @Service
 public class ConsultaForoServiceImpl implements ConsultaForoService {
 
@@ -44,57 +41,37 @@ public class ConsultaForoServiceImpl implements ConsultaForoService {
     @Autowired
     private ParametroService parametroService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la consulta del foro por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la consulta del foro por su identificador. */
     @Override
     public Optional<ConsultaForo> buscarPorId(Integer id) {
         return consultaForoRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<ConsultaForo> obtenerTodo() {
         return consultaForoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return consultaForoRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de consultaForo asociados a tema.
-     *
-     * @param tema el registro de Tema asociado
-     * @return una lista de ConsultaForo asociados al Tema indicado
-     */
+    /** Busca los registros vigentes de consultaForo asociados a tema. */
     @Override
     public List<ConsultaForo> buscarPorTema(Tema tema) {
         return consultaForoRepository.findByTemaAndBajaFalse(tema);
     }
 
-
-    /**
-     * CU-35: Busca las consultas de un tema por texto y rango de fechas.
-     */
+    /** Busca las consultas de un tema por texto y rango de fechas. */
     @Override
     public List<ConsultaForo> buscarConFiltros(Tema tema, String texto, LocalDate desde, LocalDate hasta) {
         String buscado = TextoUtil.normalizar(texto);
@@ -104,22 +81,17 @@ public class ConsultaForoServiceImpl implements ConsultaForoService {
                 .filter(c -> hasta == null || !c.getFechaCreacion().toLocalDate().isAfter(hasta)).toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda la consulta del foro en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la consulta del foro en la base de datos. */
     @Override
     public ConsultaForo guardar(ConsultaForo entidad) {
         return consultaForoRepository.save(entidad);
     }
 
-    /**
-     * CU-36: Registra una consulta en el foro de un tema.
-     */
+    /** Registra una consulta en el foro de un tema. */
     @Override
     @Transactional
     public ConsultaForo registrar(Alumno alumno, Integer temaId, String texto) {
@@ -135,22 +107,17 @@ public class ConsultaForoServiceImpl implements ConsultaForoService {
         return consulta;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public ConsultaForo modificar(ConsultaForo entidad) {
         return consultaForoRepository.save(entidad);
     }
 
-    /**
-     * CU-37: Modifica una consulta propia dentro del plazo de edición.
-     */
+    /** Modifica una consulta propia dentro del plazo de edición. */
     @Override
     @Transactional
     public ConsultaForo modificar(Integer id, Alumno alumno, String texto) {
@@ -170,33 +137,24 @@ public class ConsultaForoServiceImpl implements ConsultaForoService {
         return consultaForoRepository.save(consulta);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(ConsultaForo entidad) {
         entidad.marcarInactivo(); // Baja lógica
         consultaForoRepository.save(entidad);
     }
 
-    /**
-     * CU-38: Da de baja una consulta y sus respuestas.
-     */
+    /** Da de baja una consulta. */
     @Override
     @Transactional
     public void darDeBaja(Integer id) {
         ConsultaForo consulta = consultaForoRepository.findById(id == null ? -1 : id).filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La consulta no se encuentra activa."));
         LocalDateTime ahora = LocalDateTime.now();
-        consulta.getRespuestasVigentes().forEach(respuesta -> {
-            respuesta.marcarInactivo();
-            respuesta.setUltimaModificacion(ahora);
-            respuestaForoRepository.save(respuesta);
-        });
         consulta.marcarInactivo();
         consulta.setUltimaModificacion(ahora);
         consultaForoRepository.save(consulta);

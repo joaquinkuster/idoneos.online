@@ -6,24 +6,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-/**
- * Controlador del inicio de sesión. El procesamiento del formulario lo realiza Spring Security.
- */
+/** Controlador del inicio de sesión. */
 @Controller
 public class LoginController {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Muestra el formulario de inicio de sesión. Si el usuario ya tiene una sesión iniciada,
-     * lo redirige al inicio.
-     *
-     * @param error  Indica que el inicio de sesión anterior falló.
-     * @param logout Indica que el usuario acaba de cerrar sesión.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual, si existe.
-     * @return La vista de inicio de sesión.
-     */
+    /** GET /login: Muestra el formulario de inicio de sesión. */
     @GetMapping("/login")
     public String ver(@RequestParam(value = "error", required = false) String error,
             @RequestParam(value = "logout", required = false) String logout, Model model, Authentication authentication) {

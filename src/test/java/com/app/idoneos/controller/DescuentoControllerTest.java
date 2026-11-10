@@ -23,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.service.descuento.DescuentoServiceImpl;
 
-/**
- * Pruebas de las pantallas de descuentos (CU-56 a CU-59): solo las ve el Administrador.
- */
+/** Pruebas de las pantallas de descuentos: solo las ve el Administrador. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

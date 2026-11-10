@@ -22,10 +22,7 @@ import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.PoolRepository;
 import com.app.idoneos.repository.TemaRepository;
 
-/**
- * Pruebas de las vistas y los formularios del ABM de pools (CU-60 a CU-63). Fausto Spotorno es titular de "Mercado de
- * Capitales Argentino": su pool "Marco regulatorio" tiene intentos asociados y "Renta fija" lo usa una autoevaluación.
- */
+/** Pruebas de las vistas y los formularios del ABM de pools. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

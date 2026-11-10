@@ -1,17 +1,4 @@
-/**
- * Índice del documento (paso «Índice» de los formularios de recursos): cuando el recurso es un PDF, el navegador arma solo el índice y
- * el docente puede corregirlo antes de guardar. No es obligatorio revisarlo: si no abre el paso, se guarda como se detectó.
- *
- *  - De dónde sale: primero los marcadores del propio PDF (los que Word y Google Docs generan a partir de los títulos). Si no tiene, se
- *    infieren de los títulos del texto: líneas con una letra más grande que el cuerpo, con numeración («1.», «1.1», «Ejercicio 1») o con
- *    una palabra de título («Introducción», «Bibliografía»), sin los textos que se repiten en muchas páginas (encabezados y pies).
- *  - Un PDF escaneado (sin texto) no tiene títulos que leer: se avisa y el índice se arma a mano.
- *  - Al modificar un recurso se muestra el índice guardado; si no tiene, se detecta sobre el archivo actual. Al elegir un archivo
- *    nuevo, se detecta de nuevo.
- *  - Lo que se envía con el formulario es el campo oculto «indiceJson»: [{ titulo, pagina, nivel }]. Sin PDF, el paso se oculta y no se envía.
- *
- * Usa PDF.js (se carga la primera vez que hace falta). El paso aparece y desaparece con data-paso-oculto: ver core/validacion.js.
- */
+/** Índice del documento (paso "Índice" de los formularios de recursos): cuando el recurso es un PDF. */
 (function () {
     'use strict';
 
@@ -20,7 +7,10 @@
     var MAXIMO_DE_ENTRADAS = 300;
     var MAXIMO_DEL_TITULO = 150;
 
-    // ------------------------------------------------------------------ PDF.js
+    // ----------------------------------------------------------------------
+    // PDF.js
+    // ----------------------------------------------------------------------
+
     var promesaPdfjs = null;
 
     function cargarPdfjs() {
@@ -40,7 +30,10 @@
         return promesaPdfjs;
     }
 
-    // ------------------------------------------------------------------ detección
+    // ----------------------------------------------------------------------
+    // detección
+    // ----------------------------------------------------------------------
+
     function paginaDeDestino(doc, destino) {
         if (!destino) { return Promise.resolve(null); }
         var resuelto = typeof destino === 'string' ? doc.getDestination(destino) : Promise.resolve(destino);
@@ -89,7 +82,7 @@
     }
 
     var NUMERADO = /^(\d{1,2}(?:\.\d{1,2}){0,3})[.)]?\s+\S/;
-    // Un título numerado de una línea con la letra del cuerpo: «1 Introducción», «2.1 Métodos» (no «1.1.2 Texto…» ni «60 funciones…»)
+    // Un título numerado de una línea con la letra del cuerpo: "1 Introducción", "2.1 Métodos" (no "1.1.2 Texto…" ni "60 funciones…")
     var NUMERADO_DE_TITULO = /^\d{1,2}(?:\.\d{1,2})?[.)]?\s+\p{Lu}/u;
     var ROMANO = /^[IVXL]{1,6}\.\s+\S/;
     var PALABRA_DE_TITULO = /^(cap[ií]tulo|unidad|parte|secci[oó]n|anexo|ap[eé]ndice|ejercicio|introducci[oó]n|conclusi[oó]n(es)?|bibliograf[ií]a|referencias|resumen|abstract|introduction|conclusions?|references|appendix|chapter)\b/i;
@@ -153,7 +146,7 @@
                 }
             });
 
-            // Niveles: los tamaños de letra distintos, del más grande al más chico; con numeración manda la profundidad del número
+            // Niveles: los tamaños de letra distintos, del más grande al más chico. Con numeración manda la profundidad del número
             var tamanios = candidatas.filter(function (c) { return c.mayor; }).map(function (c) { return Math.round(c.tam * 2) / 2; })
                 .filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return b - a; });
             var maximo = tamanios.length ? tamanios[0] : 0;
@@ -195,7 +188,10 @@
         return cargarPdfjs().then(function (pdfjs) { return pdfjs.getDocument({ url: url, withCredentials: true }).promise; });
     }
 
-    // ------------------------------------------------------------------ el paso del formulario
+    // ----------------------------------------------------------------------
+    // el paso del formulario
+    // ----------------------------------------------------------------------
+
     function esc(texto) {
         return String(texto == null ? '' : texto).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
@@ -338,7 +334,7 @@
             }
         }
 
-        /** Al modificar: el índice guardado; si no tiene, el que se detecta en el archivo actual. */
+        /** Al modificar: el índice guardado. Si no tiene, el que se detecta en el archivo actual. */
         function cargarGuardado() {
             if (!urlGuardado && !urlArchivoActual) { mostrarPaso(false); return; }
             var turno = ++estado.turno;
@@ -355,7 +351,7 @@
                     fijarBase();
                     mostrarPaso(true);
                     dibujar();
-                    // Lo guardado es el «antes» del resumen: solo lo que se corrija después cuenta como cambio
+                    // Lo guardado es el "antes" del resumen: solo lo que se corrija después cuenta como cambio
                     if (formulario.hojaDeRuta) { formulario.hojaDeRuta.fijarOriginal(); }
                 } else if (ocrEstado === 'Pendiente' || ocrEstado === 'Procesando') {
                     // El archivo se está procesando: todavía no hay texto del que sacar el índice

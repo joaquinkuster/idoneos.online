@@ -1,4 +1,4 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    BOTONES: un único diseño para todo el sitio
    --------------------------------------------------------------------------
    Se carga al final. Los botones del panel (pn-btn, en panel.css) ya siguen este mismo diseño; acá están los del sitio
@@ -10,7 +10,7 @@
      - Tamaño:      normal 38px, grande 46px (hero, ficha del curso e inicio de sesión) y chico 30px.
      - Movimiento:  el color cambia con una transición corta; al hacer clic baja 1px. Nunca se levantan ni se agrandan.
      - Colores:     dorado, navy, contorno (gris, navy, blanco o dorado según el fondo) y gris.
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 :root {
     --boton-radio: 8px;
     --boton-alto: 38px;
@@ -21,7 +21,10 @@
     --boton-navy: #0A192F;
 }
 
-/* ---------- Base común ---------- */
+/* ---------------------------------------------------------------------- */
+/* Base común */
+/* ---------------------------------------------------------------------- */
+
 .wf-btn,
 .wf-btn-gold,
 .wf-btn-manage-course,
@@ -65,8 +68,7 @@
     transform: translateY(1px);
 }
 
-/* Los botones con enlace estirado (.cc-boton, .wf-btn-manage-course) no se mueven al hacer clic: un transform los vuelve
-   el contenedor de su ::after y el clic dejaría de caer sobre el enlace */
+/* Los botones con enlace estirado (.cc-boton,.wf-btn-manage-course) no se mueven al hacer clic. */
 
 .wf-btn:focus-visible,
 .wf-btn-gold:focus-visible,
@@ -102,7 +104,10 @@
     margin-top: 16px;
 }
 
-/* ---------- Dorado ---------- */
+/* ---------------------------------------------------------------------- */
+/* Dorado */
+/* ---------------------------------------------------------------------- */
+
 .wf-btn-gold,
 .wf-btn-manage-course,
 .auth-boton,
@@ -125,7 +130,10 @@
     color: #081426;
 }
 
-/* ---------- Navy ---------- */
+/* ---------------------------------------------------------------------- */
+/* Navy */
+/* ---------------------------------------------------------------------- */
+
 .wf-btn-primary {
     background: var(--boton-navy);
     border-color: var(--boton-navy);
@@ -139,7 +147,10 @@
     color: #FFFFFF;
 }
 
-/* ---------- Contorno gris (sobre fondo claro; el mismo que pn-btn-contorno) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Contorno gris (sobre fondo claro. El mismo que pn-btn-contorno) */
+/* ---------------------------------------------------------------------- */
+
 .wf-btn-outline {
     background: #FFFFFF;
     border-color: #CBD5E1;
@@ -152,7 +163,10 @@
     color: #334155;
 }
 
-/* ---------- Contorno navy (inicio y cards de curso): se llena de navy al pasar el mouse ---------- */
+/* ---------------------------------------------------------------------- */
+/* Contorno navy (inicio y cards de curso): se llena de navy al pasar el mouse */
+/* ---------------------------------------------------------------------- */
+
 .ix-boton,
 .cc-boton {
     background: transparent;
@@ -175,8 +189,7 @@
     inset: 0;
 }
 
-/* Cards de "Mis cursos" (alumno, docente y administrador): también son clicables en toda su superficie; los botones de
-   acción de la card (Editar, Dar de baja) quedan por encima del enlace */
+/* Cards de "Mis cursos" (alumno, docente y administrador): también son clicables en toda su superficie. */
 .wf-course-card {
     position: relative;
 }
@@ -195,7 +208,10 @@
     position: relative;
 }
 
-/* ---------- Contorno blanco (sobre fondos oscuros) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Contorno blanco (sobre fondos oscuros) */
+/* ---------------------------------------------------------------------- */
+
 .ix-hero-boton-contorno {
     background: transparent;
     border-color: rgba(255, 255, 255, 0.7);
@@ -209,7 +225,10 @@
     color: var(--boton-navy);
 }
 
-/* ---------- Contorno dorado (panel de registro del inicio de sesión) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Contorno dorado (panel de registro del inicio de sesión) */
+/* ---------------------------------------------------------------------- */
+
 .auth-promo-boton {
     background: transparent;
     border-color: var(--boton-dorado);
@@ -222,7 +241,10 @@
     color: #081426;
 }
 
-/* ---------- Gris (acción secundaria dentro de un formulario) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Gris (acción secundaria dentro de un formulario) */
+/* ---------------------------------------------------------------------- */
+
 .auth-boton-secundario {
     background: #F1F5F9;
     color: #334155;
@@ -233,7 +255,10 @@
     background: #E2E8F0;
 }
 
-/* ---------- Deshabilitado (el último, para que gane sobre el resto de los estados) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Deshabilitado (el último, para que gane sobre el resto de los estados) */
+/* ---------------------------------------------------------------------- */
+
 .wf-btn:disabled,
 .wf-btn-gold:disabled,
 .wf-btn-manage-course:disabled,

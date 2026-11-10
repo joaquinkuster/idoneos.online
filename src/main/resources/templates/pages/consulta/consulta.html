@@ -105,7 +105,7 @@
     </div>
 </div>
 
-<!-- Modal: responder (CU-40, docente) -->
+<!-- Modal: responder -->
 <div class="modal fade pn-modal" id="modalResponder" tabindex="-1" aria-hidden="true" th:if="${esDocente}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -141,7 +141,7 @@
     </div>
 </div>
 
-<!-- Modal: modificar la consulta propia (CU-37, alumno dentro del plazo) -->
+<!-- Modal: modificar la consulta propia -->
 <div class="modal fade pn-modal" id="modalModificarConsulta" tabindex="-1" aria-hidden="true"
      th:if="${consulta.puedeModificar(alumnoActual, plazoEdicion)}">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -177,7 +177,7 @@
     </div>
 </div>
 
-<!-- Modal: dar de baja la consulta (CU-38, administrador) -->
+<!-- Modal: dar de baja la consulta -->
 <div class="modal fade pn-modal pn-modal-alerta" id="modalBajaConsulta" tabindex="-1" aria-hidden="true" th:if="${esAdministrador}">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -200,14 +200,14 @@
     </div>
 </div>
 
-<!-- Modales por respuesta: modificar (CU-41, docente autor dentro del plazo) y dar de baja (CU-42, administrador) -->
+<!-- Modales por respuesta: modificar y dar de baja. -->
 <th:block th:each="r : ${respuestas}">
 
     <th:block th:if="${esAdministrador}">
     </th:block>
 </th:block>
 
-<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción, la pregunta y la nota (core/modalBaja.js) -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:if="${esAdministrador}">
     <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaRespuesta', 'respuesta', '¿Confirmas dar de baja?', '', '/respuesta/darDeBaja/0', null, null)}"></th:block>
 </th:block>

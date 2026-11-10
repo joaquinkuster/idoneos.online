@@ -11,9 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Conjunto de preguntas de un tema, del que se arman las autoevaluaciones.
- */
+/** Entidad que representa un conjunto de preguntas de un tema, del que se arman las autoevaluaciones. */
 @Entity
 @Table(name = "Pool", uniqueConstraints = { @UniqueConstraint(columnNames = {"idTema", "nombre"}) })
 @Check(name = "ck_pool_nombre", constraints = "trim(nombre) <> ''")
@@ -22,129 +20,81 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Pool {
 
-    /**
-     * Identificador único del pool.
-     */
+    /** Identificador único del pool. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idPool")
     private int idPool;
 
-    /**
-     * Relación con Tema.
-     */
+    /** Tema de este registro. */
     @ManyToOne
     @JoinColumn(name = "idTema", nullable = false)
     private Tema tema;
 
-    /**
-     * Nombre del pool.
-     */
+    /** Nombre del pool. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    /**
-     * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
-     */
+    /** Fecha y hora de creación del registro. */
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de la última modificación del registro.
-     */
+    /** Fecha y hora de la última modificación del registro. */
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
-    /**
-     * Indica si el registro fue dado de baja (baja lógica). El valor predeterminado es "false", indicando que está vigente.
-     */
+    /** Indica si el registro fue dado de baja (baja lógica). */
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
-    /**
-     * Conjunto de preguntas asociados.
-     */
+    /** Preguntas que referencian a este registro. */
     @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
     private Set<Pregunta> preguntas = new HashSet<>();
 
-    /**
-     * Conjunto de autoevaluacionPools asociados.
-     */
+    /** Autoevaluacion pools que referencian a este registro. */
     @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
     private Set<AutoevaluacionPool> autoevaluacionPools = new HashSet<>();
 
-    /**
-     * Constructor para crear el pool con los datos básicos.
-     *
-     * @param tema relación con Tema.
-     * @param nombre nombre del pool.
-     */
+    /** Crea el pool con los datos básicos. */
     public Pool(Tema tema, String nombre) {
         this.tema = tema;
         this.nombre = nombre;
     }
 
-    /**
-     * Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true.
-     */
+    /** Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true. */
     public void marcarInactivo() {
         baja = true;
     }
 
-    /**
-     * Verifica si el registro está dado de baja.
-     *
-     * @return true si está dado de baja (baja = true), false si está vigente.
-     */
+    /** Verifica si el registro está dado de baja. */
     public boolean esInactivo() {
         return baja;
     }
 
-    /**
-     * Obtiene las preguntas vigentes del pool.
-     *
-     * @return Las preguntas, en el orden en que se cargaron.
-     */
+    /** Obtiene las preguntas vigentes del pool. */
     public List<Pregunta> getPreguntasActivas() {
         return preguntas.stream().filter(pregunta -> !pregunta.getBaja())
                 .sorted(Comparator.comparingInt(Pregunta::getIdPregunta)).toList();
     }
 
-    /**
-     * Cuenta las preguntas vigentes del pool.
-     *
-     * @return La cantidad de preguntas cargadas.
-     */
+    /** Cuenta las preguntas vigentes del pool. */
     public int getCantidadPreguntas() {
         return getPreguntasActivas().size();
     }
 
-    /**
-     * Obtiene las autoevaluaciones vigentes que usan el pool.
-     *
-     * @return Las autoevaluaciones asociadas, en el orden en que se cargaron.
-     */
+    /** Obtiene las autoevaluaciones vigentes que usan el pool. */
     public List<Autoevaluacion> getAutoevaluacionesActivas() {
         return autoevaluacionPools.stream().map(AutoevaluacionPool::getAutoevaluacion)
                 .filter(autoevaluacion -> !autoevaluacion.getBaja()).distinct()
                 .sorted(Comparator.comparingInt(Autoevaluacion::getIdAutoevaluacion)).toList();
     }
 
-    /**
-     * Indica si alguna autoevaluación que usa el pool tiene intentos vigentes: en ese caso su contenido no puede alterarse,
-     * porque sería inconsistente con lo que algún alumno ya rindió.
-     *
-     * @return {@code true} si el pool tiene intentos vigentes asociados.
-     */
+    /** Indica si alguna autoevaluación que usa el pool tiene intentos vigentes. */
     public boolean tieneIntentosActivos() {
         return getAutoevaluacionesActivas().stream().anyMatch(Autoevaluacion::tieneIntentosActivos);
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del pool.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del pool. */
     @Override
     public String toString() {
         return nombre;

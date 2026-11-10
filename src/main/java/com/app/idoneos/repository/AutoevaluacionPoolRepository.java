@@ -5,13 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.AutoevaluacionPool;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link AutoevaluacionPool} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link AutoevaluacionPool}.
- */
+/** Repositorio de AutoevaluacionPool. */
 @Repository
 public interface AutoevaluacionPoolRepository extends JpaRepository<AutoevaluacionPool, Integer> {
-
-
 
 }

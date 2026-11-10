@@ -1,14 +1,11 @@
 package com.app.idoneos.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Categoría de un material de lectura (presentación, resumen...).
- */
+/** Entidad que representa la categoría de un material de lectura, por ejemplo presentación o resumen. */
 @Entity
 @Table(name = "CategoriaMaterialLectura")
 @Getter
@@ -16,34 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CategoriaMaterialLectura {
 
-    /**
-     * Identificador único.
-     */
+    /** Identificador único. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idCategoriaMaterialLectura")
     private int idCategoriaMaterialLectura;
 
-    /**
-     * Nombre.
-     */
+    /** Nombre. */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el registro con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el registro con los datos básicos. */
     public CategoriaMaterialLectura(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena. */
     @Override
     public String toString() {
         return nombre;

@@ -37,10 +37,7 @@ import com.app.idoneos.service.pago.PagoServiceImpl;
 import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 import com.app.idoneos.support.PasarelaPagoMockeada;
 
-/**
- * Pruebas de las pantallas y rutas de los pagos (CU-50 a CU-54): quién puede usar cada una y qué responde, con la
- * pasarela de pago mockeada (ver PasarelaPagoMockeada).
- */
+/** Pruebas de las pantallas y rutas de los pagos: quién puede usar cada una y qué responde. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -90,7 +87,9 @@ class PagoControllerTest {
         return inscripcionService.buscarConFiltros(null, correo, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0).getPagoAprobado();
     }
 
-    // ---------- CU-50 Buscar pago ----------
+    // ----------------------------------------------------------------------
+    // Buscar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -204,7 +203,9 @@ class PagoControllerTest {
                 .andExpect(content().string(not(containsString("data-pagar"))));
     }
 
-    // ---------- CU-51 Realizar pago / CU-52 Reintentar pago ----------
+    // ----------------------------------------------------------------------
+    // Realizar pago / Reintentar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
@@ -356,7 +357,9 @@ class PagoControllerTest {
         assertTrue(lucia.getPagoAprobado() == null);
     }
 
-    // ---------- CU-53 Registrar pago ----------
+    // ----------------------------------------------------------------------
+    // Registrar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -406,7 +409,9 @@ class PagoControllerTest {
                 .andExpect(jsonPath("$.destino").value(containsString("/pago/buscar?registrarPara=")));
     }
 
-    // ---------- CU-54 Modificar pago ----------
+    // ----------------------------------------------------------------------
+    // Modificar pago ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
@@ -452,7 +457,9 @@ class PagoControllerTest {
                 .andExpect(status().isForbidden());
     }
 
-    // ---------- Comprobante ----------
+    // ----------------------------------------------------------------------
+    // Comprobante ----------
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)

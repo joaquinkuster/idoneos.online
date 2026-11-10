@@ -6,15 +6,12 @@ import java.util.List;
 import com.app.idoneos.model.ClaseEnVivo;
 import com.app.idoneos.model.Cohorte;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con la clase en vivo.
- */
+/** Servicio de la clase en vivo. */
 public interface ClaseEnVivoService extends CrudService<ClaseEnVivo> {
 
-    // ---------------------------------------------------------------- Lecturas
-
-
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros vigentes de claseEnVivo asociados a cohorte.

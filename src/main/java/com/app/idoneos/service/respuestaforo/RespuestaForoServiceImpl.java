@@ -19,10 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link RespuestaForo}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link RespuestaForoService}.
- */
+/** Implementación de RespuestaForoService. */
 @Service
 public class RespuestaForoServiceImpl implements RespuestaForoService {
 
@@ -38,60 +35,41 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
     @Autowired
     private ParametroService parametroService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la respuesta del foro por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la respuesta del foro por su identificador. */
     @Override
     public Optional<RespuestaForo> buscarPorId(Integer id) {
         return respuestaForoRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<RespuestaForo> obtenerTodo() {
         return respuestaForoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return respuestaForoRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la respuesta del foro en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la respuesta del foro en la base de datos. */
     @Override
     public RespuestaForo guardar(RespuestaForo entidad) {
         return respuestaForoRepository.save(entidad);
     }
 
-    /**
-     * CU-40: Registra la respuesta de un docente a una consulta.
-     */
+    /** Registra la respuesta de un docente a una consulta. */
     @Override
     @Transactional
     public RespuestaForo registrar(Docente docente, Integer consultaId, String texto) {
@@ -105,22 +83,17 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
         return respuesta;
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public RespuestaForo modificar(RespuestaForo entidad) {
         return respuestaForoRepository.save(entidad);
     }
 
-    /**
-     * CU-41: Modifica una respuesta propia dentro del plazo de edición.
-     */
+    /** Modifica una respuesta propia dentro del plazo de edición. */
     @Override
     @Transactional
     public RespuestaForo modificar(Integer id, Docente docente, String texto) {
@@ -140,22 +113,18 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
         return respuestaForoRepository.save(respuesta);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(RespuestaForo entidad) {
         entidad.marcarInactivo(); // Baja lógica
         respuestaForoRepository.save(entidad);
     }
 
-    /**
-     * CU-42: Da de baja una respuesta.
-     */
+    /** Da de baja una respuesta. */
     @Override
     @Transactional
     public void darDeBaja(Integer id) {

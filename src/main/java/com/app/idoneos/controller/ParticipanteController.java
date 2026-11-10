@@ -28,10 +28,7 @@ import com.app.idoneos.service.docentecurso.DocenteCursoService;
 
 import java.util.List;
 
-/**
- * Participantes de un curso (CU-25 y CU-27): su equipo docente ({@code DocenteCurso}) y sus alumnos ({@code Alumno}). Lo ven el docente y el administrador desde la
- * gestión del curso (con todas las cohortes) y el alumno desde el acceso a su curso (con los de su cohorte).
- */
+/** Controlador del participante. */
 @Controller
 @RequestMapping("/participante")
 public class ParticipanteController {
@@ -51,17 +48,11 @@ public class ParticipanteController {
     @Autowired
     private CohorteService cohorteService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Muestra los participantes del curso (equipo docente y alumnos) al docente o al administrador.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param model             Modelo de la vista.
-     * @param authentication               Autenticación de la persona que consulta.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección con el motivo si no se puede mostrar.
-     */
+    /** GET /participante/buscar: Muestra los participantes del curso (equipo docente y alumnos) al docente o al administrador. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -81,7 +72,7 @@ public class ParticipanteController {
                 return "pages/participante/buscar :: filas"; // solo las filas de la página pedida
             }
             model.addAttribute("cohortes", cohorteService.buscarPorCurso(curso));
-            // Se entra viendo a todos los participantes del curso (de cualquier cohorte); se filtra a mano por cohorte. Preseleccionar la
+            // Se entra viendo a todos los participantes del curso (de cualquier cohorte). Se filtra a mano por cohorte. Preseleccionar la
             // cohorte de trabajo ocultaba a los alumnos de las demás
             model.addAttribute("cohorteSeleccionada", null);
             model.addAttribute("soloCohorte", false);
@@ -93,15 +84,7 @@ public class ParticipanteController {
         }
     }
 
-    /**
-     * Muestra el equipo docente y los alumnos de su cohorte al alumno, desde el acceso a su curso.
-     *
-     * @param idInscripcion      Identificador de la inscripción del alumno.
-     * @param model             Modelo de la vista.
-     * @param authentication               Autenticación del alumno.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección con el motivo si no se puede mostrar.
-     */
+    /** GET /participante/ver/{idInscripcion}: Muestra el equipo docente y los alumnos de su cohorte al alumno, desde el acceso a su curso. */
     @GetMapping("/ver/{idInscripcion}")
     public String ver(@PathVariable("idInscripcion") int idInscripcion, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -135,14 +118,15 @@ public class ParticipanteController {
         }
     }
 
-    // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
+    // ----------------------------------------------------------------------
+    // Listado (filtros y página en el servidor)
+    // ----------------------------------------------------------------------
 
     /** Una fila del listado: un docente del equipo o un alumno con su inscripción. */
     public record FilaParticipante(DocenteCurso docente, Alumno alumno, Inscripcion inscripcion) {
     }
 
-
-    /** Arma una sola lista con el equipo docente y los alumnos, y deja en el modelo los datos del paginador. Devuelve la página pedida. */
+    /** Arma una sola lista con el equipo docente y los alumnos, y deja en el modelo los datos del paginador. */
     private List<FilaParticipante> paginar(Model model, jakarta.servlet.http.HttpServletRequest request, List<DocenteCurso> equipo,
             List<Alumno> alumnos, Curso curso) {
         List<FilaParticipante> todas = new java.util.ArrayList<>();
@@ -159,7 +143,7 @@ public class ParticipanteController {
         private Filtros() {
         }
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<FilaParticipante> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<FilaParticipante>("nombreYApellido", FiltroUtil.Tipo.TEXTO,
                         f -> f.docente() != null ? nombre(f.docente().getDocente().getUsuario()) : nombre(f.alumno().getUsuario())),

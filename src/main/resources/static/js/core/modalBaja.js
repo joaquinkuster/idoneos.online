@@ -1,10 +1,4 @@
-/**
- * Ventana de baja compartida de los listados: una sola por pantalla (fragments/modalBaja.html) en lugar de una por fila.
- *
- * El botón "Dar de baja" de cada fila lleva data-bs-target (el id de la ventana), data-baja-accion (la ruta de la baja),
- * data-baja-pregunta (la confirmación, con el nombre del registro) y data-baja-nota (la aclaración). Al abrirse, la ventana
- * toma esos datos del botón que la abrió.
- */
+/** Ventana de baja compartida de los listados. */
 (function () {
     'use strict';
 

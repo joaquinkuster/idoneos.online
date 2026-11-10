@@ -2,10 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Cajón del cronograma de la vista del curso (a la derecha, se oculta y se vuelve a mostrar).
-         Con cohorte en curso muestra el día actual y, al alumno, su atraso; sin comenzar, solo el cronograma.
-         programa: programa del curso; cohorte: cohorte actual (puede ser null para el docente); inscripcion: del alumno
-         (null para el docente). Cada tema muestra su estado: del avance del alumno o, para el docente, del calendario. -->
+    <!-- Cajón del cronograma de la vista del curso (a la derecha, se oculta y se vuelve a mostrar). -->
     <th:block th:fragment="drawer(programa, cohorte, inscripcion)"
         th:with="duracion=${programa.duracionTotalDias},
                  comenzo=${cohorte != null and cohorte.haComenzadoCronograma()},
@@ -43,7 +40,7 @@
                 <span th:text="${T(com.app.idoneos.util.DuracionUtil).formatear(duracion)}">9 semanas</span>
             </div>
 
-            <!-- Grilla: una columna por unidad (día, semana o mes) y una fila por tema (pasar el mouse muestra los días y el estado) -->
+            <!-- Grilla: una columna por unidad. -->
             <div class="ac-drawer-pista-envoltura" th:style="${'--columnas:' + columnas}">
             <div class="ac-drawer-pista" th:style="${'--columnas:' + columnas}">
                 <div class="ac-drawer-actual" th:if="${comenzo and !finalizo}"

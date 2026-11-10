@@ -1,6 +1,4 @@
-/**
- * Menú desplegable del usuario: abre y cierra el menú y cambia el rol por defecto.
- */
+/** Menú desplegable del usuario: abre y cierra el menú y cambia el rol por defecto. */
 (function () {
     'use strict';
 

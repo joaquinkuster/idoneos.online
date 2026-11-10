@@ -37,11 +37,7 @@ import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.service.pasarelapago.PasarelaPagoModoServiceImpl;
 import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 
-/**
- * Pruebas de la conexión con la API de MODO contra un servidor simulado: autenticación con token (que se reutiliza),
- * creación de solicitudes y consulta de su resultado, con los cuerpos que devuelve MODO. Los parámetros de la cuenta de
- * MODO se leen de {@link ParametroService} (acá, un mock respaldado por un mapa que cada prueba puede cambiar).
- */
+/** Pruebas de la conexión con la API de MODO contra un servidor simulado. */
 class PasarelaPagoModoServiceImplTest {
 
     private static final String BASE = "https://modo.test";
@@ -54,7 +50,7 @@ class PasarelaPagoModoServiceImplTest {
     /** Los parámetros de MODO que lee la pasarela: cada prueba puede cambiarlos. */
     private Map<String, String> valores;
 
-    /** El plazo de confirmación del pago (en minutos) que informan los parámetros; nulo: el valor por defecto. */
+    /** El plazo de confirmación del pago (en minutos) que informan los parámetros. Nulo: el valor por defecto. */
     private Integer plazoMinutos;
 
     private PasarelaPagoModoServiceImpl pasarela(String usuario, String clave, String urlPublica) {

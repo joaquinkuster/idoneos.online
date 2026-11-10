@@ -9,9 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Pregunta sorteada para un intento de autoevaluación, con su posición en el cuestionario y la marca de revisión del alumno.
- */
+/** Entidad que representa una pregunta sorteada para un intento de autoevaluación. */
 @Entity
 @Table(name = "PreguntaIntento", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"idIntentoAutoevaluacion", "idPregunta"}),
@@ -21,104 +19,63 @@ import lombok.Setter;
 @NoArgsConstructor
 public class PreguntaIntento {
 
-    /**
-     * Identificador único de la pregunta del intento.
-     */
+    /** Identificador único de la pregunta del intento. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idPreguntaIntento")
     private int idPreguntaIntento;
 
-    /**
-     * Relación con IntentoAutoevaluacion.
-     */
+    /** Intento autoevaluacion de este registro. */
     @ManyToOne
     @JoinColumn(name = "idIntentoAutoevaluacion", nullable = false)
     private IntentoAutoevaluacion intentoAutoevaluacion;
 
-    /**
-     * Relación con Pregunta.
-     */
+    /** Pregunta de este registro. */
     @ManyToOne
     @JoinColumn(name = "idPregunta", nullable = false)
     private Pregunta pregunta;
 
-    /**
-     * Posición de la pregunta en el cuestionario, empezando en 1.
-     */
+    /** Posición de la pregunta en el cuestionario, empezando en 1. */
     @Column(name = "orden", nullable = false)
     private int orden;
 
-    /**
-     * Indica si el alumno marcó la pregunta para revisarla antes de entregar.
-     */
+    /** Indica si el alumno marcó la pregunta para revisarla antes de entregar. */
     @Column(name = "marcada", nullable = false)
     private Boolean marcada = false;
 
-
-    /**
-     * En un cuestionario secuencial (sin navegación libre), indica que el alumno ya pasó por la pregunta (respondida o no) y
-     * no puede volver a ella. Es el mismo dato que {@code marcada}: un cuestionario secuencial no permite marcar preguntas
-     * para revisarlas y uno de navegación libre no pasa por las preguntas, así que nunca se usan a la vez.
-     *
-     * @return true si el alumno ya pasó por la pregunta.
-     */
+    /** Indica si la pregunta ya fue pasada en un cuestionario secuencial, sin navegación libre. */
     public Boolean getPasada() {
         return marcada;
     }
 
-    /**
-     * Indica que el alumno pasó por la pregunta en un cuestionario secuencial.
-     *
-     * @param pasada true si ya pasó por ella.
-     */
+    /** Indica que el alumno pasó por la pregunta en un cuestionario secuencial. */
     public void setPasada(Boolean pasada) {
         this.marcada = pasada;
     }
 
-    /**
-     * Conjunto de respuestasIntento asociados.
-     */
+    /** Respuestas intento que referencian a este registro. */
     @OneToMany(mappedBy = "preguntaIntento", cascade = CascadeType.ALL)
     private Set<RespuestaIntento> respuestasIntento = new HashSet<>();
 
-    /**
-     * Constructor para crear la pregunta del intento con los datos básicos.
-     *
-     * @param intentoAutoevaluacion relación con IntentoAutoevaluacion.
-     * @param pregunta relación con Pregunta.
-     * @param orden posición de la pregunta en el cuestionario.
-     */
+    /** Crea la pregunta del intento con los datos básicos. */
     public PreguntaIntento(IntentoAutoevaluacion intentoAutoevaluacion, Pregunta pregunta, int orden) {
         this.intentoAutoevaluacion = intentoAutoevaluacion;
         this.pregunta = pregunta;
         this.orden = orden;
     }
 
-    /**
-     * Indica si el alumno eligió al menos una opción para la pregunta.
-     *
-     * @return {@code true} si la pregunta tiene respuestas.
-     */
+    /** Indica si el alumno eligió al menos una opción para la pregunta. */
     public boolean estaRespondida() {
         return !respuestasIntento.isEmpty();
     }
 
-    /**
-     * Obtiene las opciones que el alumno eligió para la pregunta.
-     *
-     * @return Las opciones elegidas, en el orden en que se cargaron.
-     */
+    /** Obtiene las opciones que el alumno eligió para la pregunta. */
     public List<OpcionRespuesta> getOpcionesElegidas() {
         return respuestasIntento.stream().map(RespuestaIntento::getOpcionRespuesta)
                 .sorted(Comparator.comparingInt(OpcionRespuesta::getIdOpcionRespuesta)).toList();
     }
 
-    /**
-     * Devuelve una representación en forma de cadena de la pregunta del intento.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena de la pregunta del intento. */
     @Override
     public String toString() {
         return "PreguntaIntento #" + idPreguntaIntento;

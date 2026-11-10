@@ -7,20 +7,11 @@ import org.springframework.stereotype.Repository;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.CursoModalidad;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link CursoModalidad} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link CursoModalidad}.
- */
+/** Repositorio de CursoModalidad. */
 @Repository
 public interface CursoModalidadRepository extends JpaRepository<CursoModalidad, Integer> {
 
-    /**
-     * Busca los registros de cursoModalidad asociados a curso.
-     *
-     * @param curso el registro de Curso asociado
-     * @return una lista de CursoModalidad asociados al Curso indicado
-     */
+    /** Busca los registros de cursoModalidad asociados a curso. */
     List<CursoModalidad> findByCurso(Curso curso);
-
 
 }

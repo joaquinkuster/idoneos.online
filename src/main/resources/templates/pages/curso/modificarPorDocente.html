@@ -1,5 +1,4 @@
-<!-- Formulario por pasos "Editar curso" del docente: los datos académicos del curso (nivel, carga horaria, descripción,
-     objetivos e imagen). Parámetro: curso (el curso que se completa). -->
+<!-- Formulario por pasos "Editar curso" del docente: los datos académicos del curso. -->
 <form th:fragment="formulario(curso)" th:action="@{'/curso/modificarPorDocente/' + ${curso.idCurso}}" method="post" enctype="multipart/form-data"
       class="form-ajax" data-validar data-pasos data-resumen="Curso" data-modo="modificacion" th:attr="data-resumen-nombre=${curso.nombre}" novalidate>
 
@@ -90,10 +89,10 @@
         <div class="pn-arbol" data-resumen-arbol></div>
     </div>
 
-    <!-- Con cohortes publicadas en el catálogo los datos del curso son lo que los alumnos ven: solo se pueden consultar -->
+    <!-- Con cohortes publicadas en el catálogo los datos del curso son lo que los alumnos ven. -->
     <div class="pn-alerta pn-alerta-dorado" th:if="${cursoBloqueado == true}">
-        <strong th:text="${'El curso no se puede modificar: ' + @textos.motivoPublicado + '.'}">El curso no se puede modificar: tiene cohortes publicadas en el catálogo.</strong>
-        <span th:text="${@textos.avisoCurso}">Lo publicado es un compromiso de la empresa.</span>
+        <strong th:text="${'El curso no se puede modificar: ' + @mensajeErrorUtil.motivoPublicado + '.'}">El curso no se puede modificar: tiene cohortes publicadas en el catálogo.</strong>
+        <span th:text="${@mensajeErrorUtil.avisoCurso}">Lo publicado es un compromiso de la empresa.</span>
     </div>
 
     <div class="pn-modal-pie">

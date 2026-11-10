@@ -28,12 +28,7 @@ import com.app.idoneos.repository.AutoevaluacionRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.intentoautoevaluacion.IntentoAutoevaluacionService;
 
-/**
- * Pruebas de CU-70 (realizar un intento) con los datos de la semilla. Valentina Ruiz cursa "Mercado de Capitales Argentino"
- * (cohorte en dictado): tiene completada el tema 1, cuya autoevaluación permite navegar libremente y salir (5 preguntas,
- * nota mínima 6, 3 intentos de los que ya usó 2); el tema 2 está habilitada y su autoevaluación es secuencial, descuenta
- * por error, no permite salir y dura 20 minutos (5 preguntas, nota mínima 7); el tema 3 todavía está bloqueada.
- */
+/** Pruebas con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class IntentoAutoevaluacionServiceTest {

@@ -1,4 +1,7 @@
-/* ---------- Acordeón de temas (estilo Moodle) ---------- */
+/* ---------------------------------------------------------------------- */
+/* Acordeón de temas (estilo Moodle) */
+/* ---------------------------------------------------------------------- */
+
 .ac-acordeon {
     display: flex;
     flex-direction: column;

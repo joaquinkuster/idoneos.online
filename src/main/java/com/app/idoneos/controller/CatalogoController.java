@@ -30,12 +30,7 @@ import com.app.idoneos.service.modalidad.ModalidadService;
 import com.app.idoneos.service.nivel.NivelService;
 import com.app.idoneos.service.programa.ProgramaService;
 
-/**
- * Controlador del catálogo público de cursos (MOD-F-01).
- *
- * Mapea las pantallas de los casos de uso:
- * CU-06 Explorar catálogo de cursos (GET /catalogo) y su ficha de curso (GET /catalogo/ficha/{id}).
- */
+/** Controlador del catálogo. */
 @Controller
 @RequestMapping("/catalogo")
 public class CatalogoController {
@@ -73,20 +68,11 @@ public class CatalogoController {
     @Autowired
     private com.app.idoneos.service.interesalumno.InteresAlumnoService interesAlumnoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-06: Explora el catálogo público de cursos con cohortes con inscripción abierta, con o sin sesión
-     * iniciada. Entrega todos los cursos: los filtros y la paginación se aplican en el navegador.
-     *
-     * @param busqueda    Parte del nombre o la descripción del curso.
-     * @param categoriaId Identificador de la categoría.
-     * @param nivelId     Identificador del nivel.
-     * @param docenteId   Identificador de un docente del equipo docente.
-     * @param modalidadId Identificador de la modalidad de dictado.
-     * @param model      El modelo de la vista.
-     * @return La vista del catálogo de cursos.
-     */
+    /** GET /catalogo: Explora el catálogo público de cursos con cohortes con inscripción abierta. */
     @GetMapping
     public String explorar(@RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "categoriaId", required = false) Integer categoriaId,
@@ -121,7 +107,7 @@ public class CatalogoController {
         List<Curso> aDibujar = new java.util.ArrayList<>(cursos);
         recomendados.stream().filter(curso -> !aDibujar.contains(curso)).forEach(aDibujar::add);
 
-        // Los cursos que todavía no tienen una cohorte con la inscripción abierta, solo próximas: la card dice «Próximamente»
+        // Los cursos que todavía no tienen una cohorte con la inscripción abierta, solo próximas: la card dice "Próximamente"
         java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();
         aDibujar.stream().filter(curso -> cursoService.buscarCohortesAbiertas(curso).isEmpty())
                 .forEach(curso -> cursosProximamente.add(curso.getIdCurso()));
@@ -157,15 +143,7 @@ public class CatalogoController {
         return "pages/catalogo";
     }
 
-    /**
-     * CU-06: Muestra la ficha de un curso: sus datos, la estructura de contenidos por tema y las cohortes
-     * con inscripción abierta.
-     *
-     * @param id                 Identificador del curso.
-     * @param model             El modelo de la vista.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de la ficha del curso, o una redirección al catálogo si el curso no está activo.
-     */
+    /** GET /catalogo/ficha/{id}: Muestra la ficha de un curso: sus datos. */
     @GetMapping("/ficha/{id}")
     public String verFichaCurso(@PathVariable("id") Integer id, Model model, RedirectAttributes redirectAttributes,
             Authentication authentication) {
@@ -200,7 +178,7 @@ public class CatalogoController {
         return "pages/curso/ficha";
     }
 
-    /** El alumno que está mirando, o {@code null} si es un visitante o no es alumno. */
+    /** Obtiene el alumno que está mirando, o {@code null} si es un visitante o no es alumno. */
     private Alumno alumnoDe(Authentication authentication) {
         return authentication != null && authentication.getPrincipal() instanceof Usuario usuario ? usuario.getAlumno() : null;
     }

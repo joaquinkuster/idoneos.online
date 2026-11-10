@@ -18,9 +18,7 @@ import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.progreso.ProgresoService.DetalleProgreso;
 import com.app.idoneos.service.progreso.ProgresoService;
 
-/**
- * Pruebas de la búsqueda de progreso (CU-55, MOD-F-03).
- */
+/** Pruebas de la búsqueda de progreso. */
 @SpringBootTest
 @Transactional
 class ProgresoServiceTest {

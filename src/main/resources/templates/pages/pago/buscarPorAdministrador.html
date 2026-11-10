@@ -28,7 +28,7 @@
                           th:text="${tablaTotal + (tablaTotal == 1 ? ' pago encontrado' : ' pagos encontrados')}">0 pagos encontrados</span>
                 </div>
 
-                <!-- Filtros (CU-50): curso, alumno, estado y rango de fechas -->
+                <!-- Filtros: curso, alumno, estado y rango de fechas -->
                 <form th:action="@{/pago/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <a th:href="@{/pago/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
@@ -115,7 +115,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar pago por transferencia (CU-53) -->
+<!-- Modal: registrar pago por transferencia -->
 <div class="modal fade pn-modal" id="modalRegistrarPago" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -234,7 +234,7 @@
     </div>
 </div>
 
-<!-- Modales por pago: modificar (CU-54) -->
+<!-- Modales por pago: modificar -->
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
 <script th:src="@{/js/core/modalModificar.js}"></script>
@@ -242,7 +242,7 @@
 <script th:src="@{/js/pages/pago/resumen.js}"></script>
 <script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 <script>
-    // Modificar un pago: se muestran solo los campos del estado elegido (acreditar pide los datos del comprobante; rechazar, el motivo)
+    // Modificar un pago: se muestran solo los campos del estado elegido (acreditar pide los datos del comprobante. Rechazar, el motivo)
     function iniciarModificarPago(raiz) {
     raiz.querySelectorAll('[id^=modalModificarPago] form').forEach(function (formulario) {
         var estado = formulario.elements['estado'];

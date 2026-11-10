@@ -1,5 +1,4 @@
-/* Vista previa de los recursos en los formularios: la primera página de un PDF o un cuadro de un video, en una miniatura con un borde
-   fino, igual para los dos (sin margen ni esquinas redondeadas entre la imagen y el borde). */
+/* Vista previa de los recursos en los formularios: la primera página de un PDF o un cuadro de un video. */
 .rc-vista-previa {
     display: block;
     width: fit-content;

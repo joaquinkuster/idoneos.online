@@ -5,14 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Estado del ciclo de vida de una inscripción.
- *
- * <p>Cambia por un evento (inscribirse, iniciar un pago, aprobarlo, suspender el acceso, vencer el acceso o terminar el plazo de inscripción
- * sin pagar) y se guarda siempre: una tarea periódica mueve de estado las inscripciones cuando llega la fecha (por ejemplo, de «Acceso habilitado»
- * a «Acceso vencido»). Las reglas importantes (si puede acceder o no) igual leen las fechas. El avance del alumno se guarda aparte
- * ({@link EstadoAvance}).</p>
- */
+/** Entidad que representa el estado del ciclo de vida de una inscripción. */
 @Entity
 @Table(name = "EstadoInscripcion")
 @Getter
@@ -29,49 +22,33 @@ public class EstadoInscripcion {
     /** Pagó, es gratuita o la habilitó el administrador: tiene acceso y ocupa cupo. */
     public static final String HABILITADA = "Acceso habilitado";
 
-    /** El administrador le suspendió el acceso, que antes estaba habilitado. Conserva su pago y su cupo, y se puede reactivar. */
+    /** El administrador le suspendió el acceso, que antes estaba habilitado. */
     public static final String SUSPENDIDA = "Acceso suspendido";
 
-    /**
-     * Llegó la fecha de vencimiento de su acceso (se calcula una sola vez, al habilitarla, y no se modifica): ya no puede entrar. Es irreversible y
-     * conserva su cupo.
-     */
+    /** Llegó la fecha de vencimiento de su acceso (se calcula una sola vez, al habilitarla, y no se modifica). */
     public static final String VENCIDA = "Acceso vencido";
 
-    /** La canceló el sistema: terminó la inscripción sin que se pagara (aunque hubiera un pago parcial, que queda registrado). No ocupa cupo. */
+    /** La canceló el sistema: terminó la inscripción sin que se pagara. */
     public static final String CANCELADA = "Cancelada por falta de pago";
 
     /** El alumno o el administrador la dio de baja. No ocupa cupo. */
     public static final String DADA_DE_BAJA = "Dada de baja";
 
-    /**
-     * Identificador único del estado de la inscripción.
-     */
+    /** Identificador único del estado de la inscripción. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idEstadoInscripcion")
     private int idEstadoInscripcion;
 
-    /**
-     * Nombre.
-     */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el estado de la inscripción con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el estado de la inscripción con los datos básicos. */
     public EstadoInscripcion(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del estado de la inscripción.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del estado de la inscripción. */
     @Override
     public String toString() {
         return nombre;

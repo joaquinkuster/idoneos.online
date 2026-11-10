@@ -96,7 +96,7 @@
     padding-left: 46px;
 }
 
-/* El conector va de cada número al siguiente; el último paso no tiene */
+/* El conector va de cada número al siguiente. El último paso no tiene */
 .dg-paso:not(:last-child)::before {
     content: '';
     position: absolute;

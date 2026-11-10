@@ -1,5 +1,4 @@
-// Ficha del curso: la card de inscripción sigue a la cohorte elegida. Si está abierta, muestra «Inscribirme»; si es próxima,
-// «Recordarme» (el sistema le avisa al alumno unos días antes de que abra la inscripción) o el aviso de que ya tiene el recordatorio.
+// Ficha del curso: la card de inscripción sigue a la cohorte elegida.
 (function () {
     'use strict';
     var selector = document.querySelector('[data-cohortes]');
@@ -30,7 +29,7 @@
             if (botonAyuda) { botonAyuda.setAttribute('aria-expanded', 'false'); botonAyuda.classList.remove('activa'); }
         }
         if (botonRecordar) {
-            // Con el recordatorio pedido, el mismo botón pasa a «Quitar recordatorio», con la campana tachada
+            // Con el recordatorio pedido, el mismo botón pasa a "Quitar recordatorio", con la campana tachada
             var recordada = o.getAttribute('data-recordada') === 'true';
             botonRecordar.querySelector('[data-recordar-texto]').textContent = recordada ? 'Quitar recordatorio' : 'Recordarme';
             var icon = botonRecordar.querySelector('[data-recordar-icon]');

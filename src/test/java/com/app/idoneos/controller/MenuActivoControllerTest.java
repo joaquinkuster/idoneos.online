@@ -23,9 +23,7 @@ import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.TemaRecursoRepository;
 import com.app.idoneos.repository.TemaRepository;
 
-/**
- * Todas las vistas con menú lateral (panel del administrador y panel del curso) marcan una, y solo una, opción activa.
- */
+/** Todas las vistas con menú lateral (panel del administrador y panel del curso) marcan una, y solo una, opción activa. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

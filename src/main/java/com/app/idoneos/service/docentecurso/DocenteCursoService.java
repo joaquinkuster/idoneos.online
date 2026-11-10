@@ -7,12 +7,12 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.DocenteCurso;
 import java.util.List;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con la participación docente.
- */
+/** Servicio de la participación docente. */
 public interface DocenteCursoService extends CrudService<DocenteCurso> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros vigentes de docenteCurso asociados a curso.

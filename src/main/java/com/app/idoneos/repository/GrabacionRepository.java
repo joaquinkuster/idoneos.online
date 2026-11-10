@@ -5,9 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.Grabacion;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Grabacion} en la base de datos.
- */
+/** Repositorio de Grabacion. */
 @Repository
 public interface GrabacionRepository extends JpaRepository<Grabacion, Integer> {
 }

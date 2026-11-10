@@ -16,24 +16,13 @@ import javax.imageio.ImageIO;
 
 import org.springframework.web.multipart.MultipartFile;
 
-/**
- * Gestiona los archivos del sistema en el sistema de archivos local del servidor (fuera del código de la
- * aplicación): materiales (videos, documentos, presentaciones) e imágenes. Valida por contenido real, guarda,
- * elimina y arma las rutas de las carpetas de cada curso y tema:
- * {@code {base}/curso{id}/} (imagen del curso) y {@code {base}/curso{id}/tema{id}/} (archivos del tema).
- * Las rutas que se guardan en la base de datos son relativas a la carpeta base (los materiales) o solo el nombre
- * del archivo (las imágenes); se publican según {@code WebConfig}.
- */
+/** Utilidad de archivos. Gestiona los materiales (videos, documentos, presentaciones) e imágenes en el sistema de archivos local del servidor, fuera del código de la aplicación. */
 public class ManejadorArchivosUtil {
 
-    /**
-     * Tamaño máximo permitido para una imagen, en bytes (2 MB).
-     */
+    /** Tamaño máximo permitido para una imagen, en bytes (2 MB). */
     public static final long TAMANIO_MAXIMO_IMAGEN = 2L * 1024 * 1024;
 
-    /**
-     * Ancho máximo, en píxeles, con el que se guardan las imágenes (las más anchas se achican).
-     */
+    /** Ancho máximo, en píxeles, con el que se guardan las imágenes (las más anchas se achican). */
     public static final int ANCHO_MAXIMO_IMAGEN = 1280;
 
     private static final List<String> EXTENSIONES_IMAGEN = List.of("jpg", "png", "webp");
@@ -41,7 +30,7 @@ public class ManejadorArchivosUtil {
     /**
      * Obtiene la carpeta de un curso.
      *
-     * @param base    La carpeta base de los cursos.
+     * @param base La carpeta base de los cursos.
      * @param idCurso El identificador del curso.
      * @return La carpeta {@code curso{id}} dentro de la carpeta base.
      */
@@ -52,8 +41,8 @@ public class ManejadorArchivosUtil {
     /**
      * Obtiene la carpeta de un tema.
      *
-     * @param base     La carpeta base de los cursos.
-     * @param idCurso  El identificador del curso del tema.
+     * @param base La carpeta base de los cursos.
+     * @param idCurso El identificador del curso del tema.
      * @param idTema El identificador del tema.
      * @return La carpeta {@code curso{id}/tema{id}} dentro de la carpeta base.
      */
@@ -62,9 +51,9 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Resuelve la carpeta de la biblioteca de un docente, donde se guardan los recursos que carga sin asociarlos a un tema.
+     * Resuelve la carpeta de la biblioteca de un docente.
      *
-     * @param base      La carpeta base de los archivos de cursos.
+     * @param base La carpeta base de los archivos de cursos.
      * @param idDocente El identificador del docente.
      * @return La carpeta {@code biblioteca/docente{id}} dentro de la carpeta base.
      */
@@ -83,12 +72,11 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Valida un archivo sin guardarlo: que no esté vacío, que no supere el tamaño máximo y que su extensión sea
-     * una de las permitidas y coincida con el contenido real del archivo (no alcanza con renombrarlo).
+     * Valida un archivo sin guardarlo: que no esté vacío.
      *
-     * @param archivo                El archivo subido por el usuario.
-     * @param tamanioMaximo          El tamaño máximo permitido, en bytes.
-     * @param extensionesPermitidas  Las extensiones permitidas, en minúscula y sin punto.
+     * @param archivo El archivo subido por el usuario.
+     * @param tamanioMaximo El tamaño máximo permitido, en bytes.
+     * @param extensionesPermitidas Las extensiones permitidas, en minúscula y sin punto.
      * @return La extensión del archivo, en minúscula.
      * @throws IllegalArgumentException Si el archivo no cumple alguna condición, con el motivo.
      */
@@ -116,13 +104,12 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Valida y guarda un archivo con el nombre indicado (más su extensión). La carpeta se crea si no existe y, si
-     * ya había un archivo con ese nombre, se reemplaza.
+     * Valida y guarda un archivo con el nombre indicado (más su extensión).
      *
-     * @param archivo               El archivo subido por el usuario.
-     * @param directorio            La carpeta donde se guarda el archivo.
-     * @param nombre                El nombre del archivo, sin extensión.
-     * @param tamanioMaximo         El tamaño máximo permitido, en bytes.
+     * @param archivo El archivo subido por el usuario.
+     * @param directorio La carpeta donde se guarda el archivo.
+     * @param nombre El nombre del archivo, sin extensión.
+     * @param tamanioMaximo El tamaño máximo permitido, en bytes.
      * @param extensionesPermitidas Las extensiones permitidas, en minúscula y sin punto.
      * @return El nombre con el que se guardó el archivo (nombre más extensión).
      * @throws IllegalArgumentException Si el archivo no es válido o no se pudo guardar.
@@ -140,11 +127,10 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Elimina un archivo guardado (material o imagen), indicado por su ruta relativa a la carpeta base. Si no
-     * existe o es un enlace externo, no hace nada. Nunca elimina archivos fuera de la carpeta base.
+     * Elimina un archivo guardado (material o imagen), indicado por su ruta relativa a la carpeta base.
      *
      * @param rutaRelativa La ruta guardada del archivo (o el nombre, si es una imagen de la carpeta indicada).
-     * @param base         La carpeta base (o la carpeta de la imagen).
+     * @param base La carpeta base (o la carpeta de la imagen).
      */
     public static void eliminar(String rutaRelativa, Path base) {
         if (rutaRelativa == null || rutaRelativa.isBlank() || esEnlaceExterno(rutaRelativa)) {
@@ -182,9 +168,7 @@ public class ManejadorArchivosUtil {
         return String.join(", ", nombres.subList(0, nombres.size() - 1)) + " o " + nombres.get(nombres.size() - 1);
     }
 
-    /**
-     * Verifica que el contenido real del archivo corresponda a su extensión, mirando su cabecera.
-     */
+    /** Verifica que el contenido real del archivo corresponda a su extensión, mirando su cabecera. */
     private static boolean verificarFirma(byte[] cabecera, String extension) {
         return switch (extension) {
             case "pdf" -> empieza(cabecera, 0, '%', 'P', 'D', 'F');
@@ -212,10 +196,9 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Obtiene la ruta de un archivo relativa a la carpeta base, con barras normales (es la que se guarda en la
-     * base de datos).
+     * Obtiene la ruta de un archivo relativa a la carpeta base.
      *
-     * @param base    La carpeta base de los cursos.
+     * @param base La carpeta base de los cursos.
      * @param archivo La ruta del archivo guardado.
      * @return La ruta relativa, por ejemplo {@code curso3/tema12/material45.mp4}.
      */
@@ -227,8 +210,8 @@ public class ManejadorArchivosUtil {
     /**
      * Obtiene la ruta completa de un archivo a partir de su ruta relativa guardada.
      *
-     * @param base          La carpeta base de los cursos.
-     * @param rutaRelativa  La ruta guardada del archivo.
+     * @param base La carpeta base de los cursos.
+     * @param rutaRelativa La ruta guardada del archivo.
      * @return La ruta del archivo, o {@code null} si no es un archivo del servidor o su ruta sale de la carpeta base.
      */
     public static Path resolver(Path base, String rutaRelativa) {
@@ -240,11 +223,12 @@ public class ManejadorArchivosUtil {
         return archivo.startsWith(carpeta) ? archivo : null;
     }
 
-    // ---------------------------------------------------------------- Imágenes
+    // ----------------------------------------------------------------------
+    // Imágenes
+    // ----------------------------------------------------------------------
 
     /**
-     * Valida una imagen sin guardarla. Solo se aceptan imágenes JPG, PNG o WebP de hasta 2 MB; el formato se
-     * verifica con el contenido real del archivo y no solo con su extensión o su tipo declarado.
+     * Valida una imagen sin guardarla.
      *
      * @param archivo El archivo subido por el usuario.
      * @return La extensión que corresponde al formato real de la imagen (jpg, png o webp).
@@ -269,13 +253,11 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Valida y guarda una imagen con el nombre indicado (más la extensión de su formato real). La carpeta se crea
-     * si no existe. Si ya había una imagen con ese nombre, se reemplaza, aunque tuviera otra extensión. Las
-     * imágenes más anchas que {@link #ANCHO_MAXIMO_IMAGEN} se achican.
+     * Valida y guarda una imagen con el nombre indicado (más la extensión de su formato real).
      *
-     * @param archivo    El archivo subido por el usuario.
+     * @param archivo El archivo subido por el usuario.
      * @param directorio La carpeta donde se guarda la imagen.
-     * @param nombre     El nombre del archivo, sin extensión.
+     * @param nombre El nombre del archivo, sin extensión.
      * @return El nombre con el que se guardó el archivo (nombre más extensión).
      * @throws IllegalArgumentException Si el archivo está vacío, supera el tamaño máximo o no es una imagen válida.
      */
@@ -301,11 +283,9 @@ public class ManejadorArchivosUtil {
     }
 
     /**
-     * Si la imagen (JPG o PNG) es más ancha que {@link #ANCHO_MAXIMO_IMAGEN}, la guarda achicada para que cargue
-     * más rápido.
+     * Si la imagen (JPG o PNG) es más ancha que #ANCHO_MAXIMO_IMAGEN, la guarda achicada para que cargue más rápido.
      *
-     * @return {@code true} si guardó la imagen achicada; {@code false} si no hizo falta (o no pudo) y debe
-     *         guardarse el archivo original.
+     * @return {@code true} si guardó la imagen achicada, {@code false} si no hizo falta (o no pudo) y debe guardarse el archivo original.
      */
     private static boolean guardarAchicada(InputStream entrada, String extension, Path destino) {
         if (!extension.equals("jpg") && !extension.equals("png")) {
@@ -345,7 +325,9 @@ public class ManejadorArchivosUtil {
         return null;
     }
 
-    // ---------------------------------------------------------------- Comunes
+    // ----------------------------------------------------------------------
+    // Comunes
+    // ----------------------------------------------------------------------
 
     private static Path crearCarpeta(Path directorio) throws IOException {
         Path carpeta = directorio.toAbsolutePath().normalize();

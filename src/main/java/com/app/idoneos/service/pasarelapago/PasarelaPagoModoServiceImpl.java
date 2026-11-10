@@ -21,24 +21,7 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 
-/**
- * Conexión con la API de MODO (https://merchants.modo.com.ar/docs): autenticación con token, creación de solicitudes de
- * pago (payment requests) y consulta de su resultado. El comprador paga en el sitio de pagos de MODO, adonde se lo redirige
- * ({@link #urlCheckout}); no hay QR ni modal embebido.
- *
- * Todo lo que depende de la cuenta de MODO del cliente (credenciales, dirección de la API, códigos del gateway, etc.)
- * es un parámetro del sistema ({@code modo.*} en {@link Parametro}) y se lee en cada pedido: cuando el cliente
- * reemplaza las credenciales de prueba por las de su cuenta no hace falta reiniciar. Si falta algún parámetro, el pago
- * online no se puede iniciar y se informa que no está disponible.
- *
- * Si el parámetro {@code modo.url_publica} (la dirección pública del sistema) está cargado, cada solicitud lleva la
- * dirección del webhook ({@link #RUTA_WEBHOOK}) para que MODO avise los cambios de estado. Sin ella MODO no puede avisar
- * y el pago se confirma consultándolo.
- *
- * El token dura una semana y se reutiliza (el servicio de tokens admite pocos pedidos por hora); se pide uno nuevo si
- * cambian las credenciales o la dirección de la API. Todos los pedidos llevan el nombre del comercio en
- * {@code User-Agent}, que MODO exige.
- */
+/** Implementación de PasarelaPagoService para MODO. Se conecta con la API de MODO (https://merchants.modo.com.ar/docs) y se autentica con token. */
 @Service
 public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
 
@@ -50,10 +33,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
     private static final int VIGENCIA_MINIMA_SEGUNDOS = 5 * 60;
     private static final int VIGENCIA_MAXIMA_SEGUNDOS = 10 * 60;
 
-    /**
-     * Colchón que se suma al plazo: MODO cuenta el vencimiento desde que recibe la solicitud, así que con el plazo en 5 minutos, "ahora más 5
-     * minutos" llegaría como 4 minutos y 59 segundos y MODO rechazaría la creación.
-     */
+    /** Colchón que se suma al plazo: MODO cuenta el vencimiento desde que recibe la solicitud. */
     private static final int COLCHON_SEGUNDOS = 10;
 
     /** Margen antes del vencimiento del token para pedir uno nuevo. */
@@ -77,7 +57,9 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         this.parametros = parametros;
     }
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     @Override
     public Resultado consultarPago(String idSolicitud) {
@@ -94,12 +76,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         }
     }
 
-    /**
-     * Interpreta la respuesta de la consulta de un pago (público para poder probar cada caso).
-     *
-     * @param respuesta El JSON que devolvió MODO.
-     * @return El resultado del pago.
-     */
+    /** Interpreta la respuesta de la consulta de un pago (público para poder probar cada caso). */
     Resultado interpretar(JsonNode respuesta) {
         JsonNode transaccion = respuesta.path("transaction_data");
         String estado = texto(respuesta, "status");
@@ -109,7 +86,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         boolean aprobado = "ACCEPTED".equals(estado) || "APPROVED".equals(estadoDelPago);
         boolean rechazado = "REJECTED".equals(estado) || "REJECTED".equals(estadoDelPago);
         if (!aprobado && !rechazado) {
-            // Processing: el pago está en vuelo y puede terminar aprobado; Created y Scanned: todavía nadie está pagando
+            // Processing: el pago está en vuelo y puede terminar aprobado. Created y Scanned: todavía nadie está pagando
             boolean procesando = "PROCESSING".equals(estado) || "PROCESSING".equals(estadoDelPago);
             return procesando ? Resultado.procesando(solicitud, vencimiento) : Resultado.pendiente(solicitud, vencimiento);
         }
@@ -125,7 +102,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
                 texto(transaccion, "reference_code"), aprobado ? null : motivoDelError(transaccion), fechaPago, vencimiento);
     }
 
-    /** El momento hasta el que se puede pagar la solicitud, que MODO informa en UTC (nulo si no vino o no se pudo leer). */
+    /** Obtiene el momento hasta el que se puede pagar la solicitud. */
     private static LocalDateTime vencimientoDe(JsonNode respuesta) {
         String vencimiento = texto(respuesta, "expiration_date");
         if (vencimiento == null) {
@@ -157,7 +134,9 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
                 .build().encode().toUriString();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     @Override
     public Solicitud crearSolicitud(String idExterno, float monto, String descripcion, String nombre, String correo,
@@ -178,7 +157,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         cuerpo.put("cc_code", requerido(Parametro.MODO_CC_CODE));
         cuerpo.put("processor_code", requerido(Parametro.MODO_PROCESSOR_CODE));
         cuerpo.put("external_intention_id", idExterno);
-        // El vencimiento va en UTC con la zona explícita (la «Z»): sin ella MODO lo leería desfasado. Pasado ese momento no acepta el pago
+        // El vencimiento va en UTC con la zona explícita (la "Z"): sin ella MODO lo leería desfasado. Pasado ese momento no acepta el pago
         cuerpo.put("expiration_date", java.time.format.DateTimeFormatter.ISO_INSTANT
                 .format(Instant.now().plusSeconds(vigenciaSolicitudSegundos()).truncatedTo(java.time.temporal.ChronoUnit.MILLIS)));
         String urlWebhook = urlWebhook();
@@ -230,7 +209,7 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
         return motivo != null ? MotivoPagoUtil.traducir(motivo) : "El pago fue rechazado.";
     }
 
-    /** Los parámetros obligatorios que no están cargados o están vacíos. */
+    /** Busca los parámetros obligatorios que no están cargados o están vacíos. */
     private List<String> parametrosFaltantes() {
         List<String> faltantes = new ArrayList<>();
         for (String clave : PARAMETROS_OBLIGATORIOS) {
@@ -246,18 +225,18 @@ public class PasarelaPagoModoServiceImpl implements PasarelaPagoService {
                 .orElseThrow(() -> new IllegalStateException("Falta el parámetro «" + clave + "» de MODO"));
     }
 
-    /** La dirección de la API (preproducción o producción), sin barra final. */
+    /** Obtiene la dirección de la API (preproducción o producción), sin barra final. */
     private String urlApi() {
         return requerido(Parametro.MODO_URL_API).replaceAll("/+$", "");
     }
 
-    /** La dirección del webhook, o {@code null} si el sistema no tiene una dirección pública a la que MODO pueda llegar. */
+    /** Obtiene la dirección del webhook, o null si el sistema no tiene una dirección pública a la que MODO pueda llegar. */
     private String urlWebhook() {
         return parametros.obtenerTexto(Parametro.MODO_URL_PUBLICA).map(String::trim).filter(valor -> !valor.isEmpty())
                 .map(url -> url.replaceAll("/+$", "") + RUTA_WEBHOOK).orElse(null);
     }
 
-    /** Ejecuta el pedido con un token vigente; si MODO lo rechaza por vencido, pide uno nuevo y reintenta una vez. */
+    /** Ejecuta el pedido con un token vigente. Si MODO lo rechaza por vencido, pide uno nuevo y reintenta una vez. */
     private <T> T conToken(java.util.function.Supplier<T> pedido) {
         asegurarToken(false);
         try {

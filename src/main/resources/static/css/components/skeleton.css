@@ -1,6 +1,4 @@
-/* Skeleton de los listados que se piden al servidor (filtrar, ordenar, paginar): mientras llegan las filas, las que están a la vista
-   se dibujan como bloques grises que pulsan. Usa las mismas filas, cards o ítems que ya estaban, así la altura no salta y no hay que
-   saber cuántas columnas tiene cada listado. Lo activa core/tabla.js y pages/termino/filtros.js con la clase pn-cargando. */
+/* Skeleton de los listados que se piden al servidor (filtrar, ordenar, paginar): mientras llegan las filas. */
 
 :root { --sk-bloque: #E2E8F0; }
 
@@ -9,7 +7,10 @@
     50% { opacity: 1; }
 }
 
-/* ---------------------------------------------------------------- Tabla: una barra por celda */
+/* ---------------------------------------------------------------------- */
+/* Tabla: una barra por celda */
+/* ---------------------------------------------------------------------- */
+
 [data-tabla].pn-cargando tbody { pointer-events: none; }
 [data-tabla].pn-cargando tbody td { position: relative; }
 [data-tabla].pn-cargando tbody td > * { visibility: hidden; }
@@ -33,7 +34,10 @@
 /* Texto suelto dentro de la celda (sin etiqueta): también se oculta */
 [data-tabla].pn-cargando tbody td { color: transparent; }
 
-/* ---------------------------------------------------------------- Cards y listas: cada hoja de la card es un bloque */
+/* ---------------------------------------------------------------------- */
+/* Cards y listas: cada hoja de la card es un bloque */
+/* ---------------------------------------------------------------------- */
+
 [data-tabla].pn-cargando [data-cards],
 [data-glosario].pn-cargando [data-glosario-contenido] { pointer-events: none; }
 [data-tabla].pn-cargando [data-cards] :not(:has(*)):not(img):not(.pn-grupo):not(.pn-grupo *),
@@ -56,10 +60,16 @@
     [data-glosario].pn-cargando [data-glosario-contenido] * { animation: none !important; }
 }
 
-/* ---------------------------------------------------------------- Bloques sueltos (los usan las piezas de abajo) */
+/* ---------------------------------------------------------------------- */
+/* Bloques sueltos (los usan las piezas de abajo) */
+/* ---------------------------------------------------------------------- */
+
 .pn-sk { display: block; background: var(--sk-bloque); border-radius: 6px; animation: pnSkeleton 1.3s ease-in-out infinite; }
 
-/* ---------------------------------------------------------------- Ventana de modificación que se está pidiendo */
+/* ---------------------------------------------------------------------- */
+/* Ventana de modificación que se está pidiendo */
+/* ---------------------------------------------------------------------- */
+
 .pn-sk-ventana {
     position: fixed;
     inset: 0;
@@ -82,14 +92,20 @@
 .pn-sk-ventana-caja .pn-sk-pie { display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
 .pn-sk-ventana-caja .pn-sk-pie .pn-sk { height: 36px; width: 96px; }
 
-/* ---------------------------------------------------------------- Tablero del cronograma antes de que lo dibuje el script */
+/* ---------------------------------------------------------------------- */
+/* Tablero del cronograma antes de que lo dibuje el script */
+/* ---------------------------------------------------------------------- */
+
 .pn-sk-board { padding: 6px 0; }
 .pn-sk-board-semanas { display: grid; grid-template-columns: repeat(20, 1fr); gap: 4px; margin-bottom: 14px; }
 .pn-sk-board-semanas .pn-sk { height: 12px; }
 .pn-sk-board-fila { height: 34px; margin-bottom: 12px; }
 .pn-sk-lista .pn-sk { height: 38px; margin-bottom: 10px; }
 
-/* ---------------------------------------------------------------- Visor de recursos mientras llega el documento */
+/* ---------------------------------------------------------------------- */
+/* Visor de recursos mientras llega el documento */
+/* ---------------------------------------------------------------------- */
+
 .mv-estado-skeleton { align-items: flex-start; padding-top: 28px; }
 .mv-estado-skeleton::before {
     content: '';
@@ -102,7 +118,10 @@
     animation: pnSkeleton 1.3s ease-in-out infinite;
 }
 
-/* ---------------------------------------------------------------- Imagen de una card mientras llega (carga diferida) */
+/* ---------------------------------------------------------------------- */
+/* Imagen de una card mientras llega (carga diferida) */
+/* ---------------------------------------------------------------------- */
+
 .cc-imagen:has(> img)::before {
     content: '';
     position: absolute;

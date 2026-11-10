@@ -29,13 +29,7 @@ import com.app.idoneos.service.autoevaluacion.AutoevaluacionService;
 import com.app.idoneos.service.autoevaluacion.AutoevaluacionService.SolicitudAutoevaluacion;
 import com.app.idoneos.service.pool.PoolService;
 
-/**
- * Pruebas del ABM de autoevaluaciones (CU-64 a CU-67) con los datos de la semilla. "Mercado de Capitales Argentino"
- * (titular Fausto Spotorno) tiene un programa con tres temas y cohortes en curso: el tema 1 tiene la autoevaluación
- * "Autoevaluación Tema 1: Marco regulatorio" con intentos de Valentina (pool "Marco regulatorio"); el tema 2, la
- * "Tema 2: Ejercicios de rendimiento" sin intentos (pool "Renta fija", 6 preguntas, sortea 5); y el tema 3 (la
- * última), una autoevaluación básica con su pool de 4 preguntas. Sebastián Bordato no participa en "Macroeconomía".
- */
+/** Pruebas del ABM de autoevaluaciones con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class AutoevaluacionServiceTest {

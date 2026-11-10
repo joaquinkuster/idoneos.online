@@ -2,12 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Campo de tiempo escrito en partes (static/js/components/tiempo.js): horas y minutos, o meses, semanas y días. Cada casilla lleva su
-         unidad arriba, a la izquierda, y ocupa una parte igual del ancho de la columna. El servidor recibe un solo número: el
-         total en minutos o en días (campo "nombre") y su unidad ("nombreUnidad"). La línea de abajo muestra el total mientras
-         se escribe (0 si no se escribió nada).
-         nombre: name del campo; valor: total guardado (o null); bloqueado: solo lectura; mensaje: aviso de campo obligatorio;
-         condicional: el campo solo es obligatorio en algunos modos del formulario (lo activa data-requerido). -->
+    <!-- Campo de tiempo escrito en partes (static/js/components/tiempo.js): horas y minutos, o meses. -->
     <div th:fragment="minutos(nombre, valor, bloqueado, mensaje, condicional)" class="pn-tiempo" data-tiempo="minutos">
         <input type="text" class="pn-tiempo-total" th:name="${nombre}" th:value="${valor}" th:required="${mensaje != null}" tabindex="-1" aria-hidden="true"
                data-tiempo-total th:attr="data-mensaje-obligatorio=${mensaje}, data-requerido=${condicional ? '' : null}">

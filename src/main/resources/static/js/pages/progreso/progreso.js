@@ -1,7 +1,4 @@
-/**
- * Progreso de los alumnos (CU-55): el botón "Ver detalle" de cada fila despliega, debajo, la tabla de temas del alumno.
- * El despliegue se anima con CSS (ver .pn-detalle en panel.css); acá solo se alterna la clase y el texto del botón.
- */
+/** Progreso de los alumnos: el botón "Ver detalle" de cada fila despliega, debajo. */
 (function () {
     'use strict';
 

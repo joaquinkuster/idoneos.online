@@ -1,7 +1,4 @@
-/**
- * Pantalla de inicio de sesión: fondo con imágenes que se alternan, botón para mostrar u ocultar la contraseña
- * y aviso de la recuperación de contraseña.
- */
+/** Pantalla de inicio de sesión: fondo con imágenes que se alternan. */
 (function () {
     'use strict';
 
@@ -17,7 +14,7 @@
         }, INTERVALO);
     }
 
-    // La recuperación de contraseña se incorporará con su caso de uso; por ahora se informa cómo proceder
+    // La recuperación de contraseña se incorporará con su caso de uso. Por ahora se informa cómo proceder
     var olvide = document.getElementById('olvideClave');
     if (olvide) {
         olvide.addEventListener('click', function () {

@@ -1,4 +1,7 @@
-/* ---------- Selector "Agregar un recurso o actividad" ---------- */
+/* ---------------------------------------------------------------------- */
+/* Selector "Agregar un recurso o actividad" */
+/* ---------------------------------------------------------------------- */
+
 .ac-selector {
     display: flex;
     min-height: 320px;
@@ -88,7 +91,7 @@
     }
 }
 
-/* Pestañas «Nuevo» / «De la biblioteca» */
+/* Pestañas "Nuevo" / "De la biblioteca" */
 .ac-selector-pestanas {
     display: flex;
     gap: 18px;
@@ -257,7 +260,7 @@
     padding: 10px 10px 0;
 }
 
-/* Barra de desplazamiento de las listas del selector: fina, redondeada y discreta; se marca al pasar el mouse por la lista */
+/* Barra de desplazamiento de las listas del selector: fina, redondeada y discreta. */
 .ac-selector-lista,
 .ac-selector-biblioteca {
     scrollbar-width: thin;

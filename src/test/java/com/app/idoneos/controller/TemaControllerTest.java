@@ -24,11 +24,7 @@ import com.app.idoneos.model.Tema;
 import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 
-/**
- * Pruebas de las vistas y los formularios del ABM de temas (CU-19 a CU-22) y de lo que cambia en la vista del curso y
- * en el menú lateral. Fausto Spotorno es titular de "Mercado de Capitales Argentino" (tres temas, con inscripciones) y
- * de "Macroeconomía de Coyuntura" (sin inscripciones).
- */
+/** Pruebas de las vistas y los formularios del ABM de temas y de lo que cambia en la vista del curso y en el menú lateral. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -78,7 +74,9 @@ class TemaControllerTest {
         return String.valueOf(programaDe(curso).getIdPrograma());
     }
 
-    // ------------------------------------------------------------------ Listado
+    // ----------------------------------------------------------------------
+    // Listado
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -219,7 +217,9 @@ class TemaControllerTest {
         mockMvc.perform(post("/tema/darDeBaja/1")).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ Formularios
+    // ----------------------------------------------------------------------
+    // Formularios
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -245,7 +245,9 @@ class TemaControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // ------------------------------------------------------------------ Menú lateral y vista del curso
+    // ----------------------------------------------------------------------
+    // Menú lateral y vista del curso
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

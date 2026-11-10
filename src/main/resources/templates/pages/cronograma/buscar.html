@@ -23,16 +23,16 @@
                 <strong>Cronogramas</strong>
             </nav>
 
-            <!-- La misma card de cabecera del inicio del curso, con el selector de programa (sin cohorte por defecto ni pestañas) -->
+            <!-- La misma card de cabecera del inicio del curso. -->
             <div class="ac-principal">
                 <th:block th:replace="~{pages/curso/cabecera :: cabecera(false, true)}"></th:block>
             </div>
 
-            <!-- Con cohortes publicadas en el catálogo el cronograma es un compromiso con los alumnos: solo se puede consultar -->
+            <!-- Con cohortes publicadas en el catálogo el cronograma es un compromiso con los alumnos. -->
             <div class="ac-aviso ac-aviso-atraso" th:if="${programa != null and soloLecturaPorInscripciones}">
                 <div>
                     <strong>Cronograma en solo lectura</strong>
-                    <span th:text="${'El programa no se puede modificar: ' + @textos.motivoPublicado + '. ' + @textos.avisoDiseno}">El programa no se puede modificar: tiene cohortes publicadas en el catálogo.</span>
+                    <span th:text="${'El programa no se puede modificar: ' + @mensajeErrorUtil.motivoPublicado + '. ' + @mensajeErrorUtil.avisoDiseno}">El programa no se puede modificar: tiene cohortes publicadas en el catálogo.</span>
                 </div>
             </div>
 

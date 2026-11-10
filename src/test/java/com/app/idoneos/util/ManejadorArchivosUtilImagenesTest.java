@@ -18,9 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.mock.web.MockMultipartFile;
 
-/**
- * Pruebas de {@link ManejadorArchivosUtil}: guardado y eliminación de imágenes en el sistema de archivos.
- */
+/** Pruebas de ManejadorArchivosUtil: guardado y eliminación de imágenes en el sistema de archivos. */
 class ManejadorArchivosUtilImagenesTest {
 
     private static final byte[] JPG = { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0, 0x10, 'J', 'F', 'I', 'F' };

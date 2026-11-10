@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    CAJÓN DEL CRONOGRAMA (vista del curso): a la derecha, se oculta y se vuelve a mostrar
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .ac-con-drawer.ac-tiene-drawer {
     display: grid;
     grid-template-columns: minmax(0, 1fr) 340px;
@@ -223,7 +223,7 @@
     background: #DC2626;
 }
 
-/* Las tres partes de abajo del cajón (temas, autoevaluaciones pendientes y la leyenda de «Hoy») se separan con una línea gris suave y el mismo margen */
+/* Las tres partes de abajo del cajón. */
 .ac-drawer-pendientes,
 .ac-drawer-leyenda-hoy {
     margin-top: 10px;

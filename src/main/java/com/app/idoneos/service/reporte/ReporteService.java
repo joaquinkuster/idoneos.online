@@ -7,14 +7,12 @@ import java.util.List;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Reporte;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el reporte.
- */
+/** Servicio del reporte. */
 public interface ReporteService extends CrudService<Reporte> {
 
-    // ---------------------------------------------------------------- Lecturas
-
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros de reporte asociados a curso.

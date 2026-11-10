@@ -5,13 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import com.app.idoneos.model.RespuestaIntento;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link RespuestaIntento} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link RespuestaIntento}.
- */
+/** Repositorio de RespuestaIntento. */
 @Repository
 public interface RespuestaIntentoRepository extends JpaRepository<RespuestaIntento, Integer> {
-
-
 
 }

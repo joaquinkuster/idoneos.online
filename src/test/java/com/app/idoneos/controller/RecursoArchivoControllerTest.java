@@ -25,12 +25,7 @@ import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.service.recurso.RecursoService;
 
-/**
- * Pruebas de la entrega del contenido de los materiales ({@code GET /recurso/archivo/{id}}): solo la reciben quienes
- * tienen acceso y solo cuando el pedido lo hace la propia página del material (nunca por navegación directa, iframe ni
- * desde otro sitio); los videos admiten pedidos por rangos. Valentina Ruiz es alumna de la cohorte en dictado de
- * "Mercado de Capitales Argentino" (con el tema 2 habilitada y la 3 bloqueada).
- */
+/** Pruebas de la entrega del contenido de los materiales (GET /recurso/archivo/{id}). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

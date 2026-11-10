@@ -47,7 +47,7 @@
                             data-termino-uno="alumno inscripto o clase en vivo activa" data-termino-varios="alumnos inscriptos o clases en vivo activas">Dar de baja seleccionado/s</button>
                 </div>
 
-                <!-- Filtros (CU-11): programa, nombre, estado, rango de fechas de inscripción y orden -->
+                <!-- Filtros: programa, nombre, estado, rango de fechas de inscripción y orden -->
                 <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
@@ -142,7 +142,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar cohorte (CU-12) -->
+<!-- Modal: registrar cohorte -->
 <div class="modal fade pn-modal" id="modalNuevaCohorte" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -270,7 +270,7 @@
     </div>
 </div>
 
-<!-- Las ventanas de modificar y de baja de las cohortes no se dibujan por fila: la de modificar se pide al abrirla (core/modalModificar.js) y la de baja es una sola, más abajo -->
+<!-- Las ventanas de modificar y de baja de las cohortes no se dibujan por fila. -->
 <!-- Una sola ventana de baja para todas las cohortes: el botón de cada fila le pasa la acción y la pregunta -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaCohorte', 'cohorte', '¿Confirmas dar de baja la cohorte?', 'Se desvinculará de los docentes que la tienen como cohorte de trabajo.', '/cohorte/darDeBaja/0', null, null)}"></th:block>
 
@@ -279,7 +279,7 @@
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/core/abrirModal.js}"></script>
 <script>
-    // Validaciones propias de las cohortes (reglas de CU-12 y CU-13)
+    // Validaciones propias de las cohortes
     (function () {
         var marcar = window.PanelValidacion.marcar;
 
@@ -413,7 +413,7 @@
             actualizar();
         }
 
-        // El acceso total del alumno: la duración del curso más la tolerancia extra; lo muestra el resumen del formulario
+        // El acceso total del alumno: la duración del curso más la tolerancia extra. Lo muestra el resumen del formulario
         function accesoTotal(formulario) {
             var linea = formulario.querySelector('[data-acceso-total]');
             var extra = campo(formulario, 'tiempoExtra');

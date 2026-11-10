@@ -1,6 +1,4 @@
-<!-- Formulario por pasos para registrar (pool == null) o modificar un pool y sus preguntas.
-     Parámetros: pool (el pool a modificar o null), datos (JSON con el nombre y las preguntas del pool, que dibuja
-     static/js/pages/pool/pool.js). Usa del modelo: curso y temas (temas del programa de trabajo, para el alta). -->
+<!-- Formulario por pasos para registrar (pool == null) o modificar un pool y sus preguntas. -->
 <form th:fragment="formulario(pool, datos)"
       th:action="@{${pool == null ? '/pool/registrar' : '/pool/modificar/' + pool.idPool}}"
       method="post" class="form-ajax" data-validar data-pasos data-resumen="Pool" data-pool-formulario

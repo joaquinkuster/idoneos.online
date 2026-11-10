@@ -26,10 +26,7 @@ import com.app.idoneos.service.pago.PagoServiceImpl;
 import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 import com.app.idoneos.support.PasarelaPagoMockeada;
 
-/**
- * Prueba de concurrencia del cupo: dos alumnos inician el pago a la vez por el último lugar de la cohorte y solo uno lo
- * consigue. No es transaccional (cada hilo necesita su propia transacción confirmada), por eso reinicia el contexto al terminar.
- */
+/** Prueba de concurrencia del cupo: dos alumnos inician el pago a la vez por el último lugar de la cohorte y solo uno lo consigue. */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 class PagoConcurrenciaTest {
@@ -57,7 +54,7 @@ class PagoConcurrenciaTest {
     void dosPagosPorUnSoloLugar() throws Exception {
         new PasarelaPagoMockeada(pasarelaMock).dejarPendiente();
 
-        // Lucía ya está pendiente en una cohorte; Valentina se inscribe a la misma y queda un solo lugar libre
+        // Lucía ya está pendiente en una cohorte. Valentina se inscribe a la misma y queda un solo lugar libre
         Integer[] datos = transaccion.execute(estado -> {
             Inscripcion lucia = inscripcionService.buscarConFiltros(null, LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO).get(0);
             Alumno valentina = inscripcionService.buscarConFiltros(null, VALENTINA, null).get(0).getAlumno();
@@ -86,7 +83,7 @@ class PagoConcurrenciaTest {
         assertEquals(1, conseguidos, "solo uno de los dos pagos puede reservar el último lugar");
     }
 
-    /** Inicia el pago de una inscripción en su propia transacción; devuelve si lo logró (false si no había lugar). */
+    /** Inicia el pago de una inscripción en su propia transacción. Devuelve si lo logró (false si no había lugar). */
     private Callable<Boolean> iniciar(CountDownLatch salida, Integer idInscripcion, Integer idAlumno) {
         return () -> {
             salida.await();

@@ -1,7 +1,4 @@
-/**
- * Listado de intentos (CU-68): "Aprobar intento" (CU-71) pide la confirmación con la alerta del sistema y, si el docente
- * confirma, envía el formulario del intento (que lo procesa form-ajax y muestra el resultado).
- */
+/** Listado de intentos: "Aprobar intento" pide la confirmación con la alerta del sistema y. */
 (function () {
     'use strict';
 

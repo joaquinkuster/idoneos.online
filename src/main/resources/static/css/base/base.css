@@ -1,9 +1,9 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    ESTILO OFICIAL DEFINITIVO — IDÓNEOS ONLINE
    Paleta: Deep Navy (#081426, #0F233D), Acento Oro (#D4A03D, #C59030), Blanco (#FFFFFF)
    Tipografía Ultra-Nítida (Font Smoothing + Inter Variable Weights)
    Diseño Full-Width, Fluido y 100% Responsivo.
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
 
@@ -333,14 +333,12 @@ i {
     letter-spacing: 0.4px;
 }
 
-/* ══════════════════════════════════════════
-   UNIT BOX — Glassmorphism Premium
-   ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════ UNIT BOX. */
 
 /* Helper Grid Classes */
 .row { display: flex; flex-wrap: wrap; margin-right: -12px; margin-left: -12px; }
 
-/* g-3: las columnas no llevan relleno ni margen; la separación es solo el gap de 20px (entre filas y entre columnas) */
+/* g-3: las columnas no llevan relleno ni margen. */
 .g-3 { margin-right: 0; margin-left: 0; gap: 20px; }
 .g-3 > [class*="col-"] { padding: 0; }
 .g-3 > .col-12 { flex: 0 0 100%; max-width: 100%; }

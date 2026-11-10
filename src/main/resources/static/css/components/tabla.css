@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    LISTADOS EN TABLA
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .pn-lista-cabecera {
     padding: 20px 22px 0;
     display: flex;
@@ -91,7 +91,7 @@
     overflow-x: auto;
 }
 
-/* Barra de desplazamiento de las listas: fina y gris, como la del resumen y la del menú lateral (más oscura al pasar el mouse) */
+/* Barra de desplazamiento de las listas: fina y gris. */
 .pn-tabla-contenedor {
     scrollbar-width: thin;
     scrollbar-color: rgba(100, 116, 139, 0.45) transparent;
@@ -173,12 +173,12 @@
     color: var(--pn-texto);
 }
 
-/* Fila que abre su vista al hacer clic (data-ver-url); el título es el enlace accesible */
+/* Fila que abre su vista al hacer clic (data-ver-url). El título es el enlace accesible */
 tr[data-ver-url] {
     cursor: pointer;
 }
 
-/* Como el título de una consulta del foro: enlace en negrita con el color de "ver"; se subraya al pasar el mouse por el título o por la fila */
+/* Como el título de una consulta del foro: enlace en negrita con el color de "ver". */
 a.pn-enlace-ver {
     font-weight: 700;
     color: var(--pn-ver);
@@ -191,9 +191,7 @@ a.pn-enlace-ver:focus-visible {
     text-decoration: underline;
 }
 
-/* Limita el largo de un texto en las celdas de las tablas: al llegar al límite corta con "..." (el texto completo se ve
-   al pasar el mouse; panel.js completa el title). Tamaños: pn-truncar-corto (12), por defecto (16) y pn-truncar-largo (20)
-   caracteres aproximados (los renglones de las tablas no se parten). Se usa sobre un span dentro de la celda: <span class="pn-truncar">texto</span> */
+/* Limita el largo de un texto en las celdas de las tablas. */
 .pn-truncar {
     display: inline-block;
     max-width: var(--pn-truncar-largo, 16ch);
@@ -322,14 +320,14 @@ a.pn-enlace-ver:focus-visible {
     color: #334155;
 }
 
-/* Celda con una insignia y, a su derecha, un dato chico en gris centrado verticalmente (por ejemplo, «0 de 30») */
+/* Celda con una insignia y, a su derecha, un dato chico en gris centrado verticalmente (por ejemplo, "0 de 30") */
 .pn-celda-con-detalle {
     display: inline-flex;
     align-items: center;
     gap: 8px;
 }
 
-/* Marca junto al nombre, como «(Vigente)» o «(Por defecto)»: mismo tamaño que el nombre, en gris y separada */
+/* Marca junto al nombre, como "(Vigente)" o "(Por defecto)": mismo tamaño que el nombre, en gris y separada */
 .pn-marca-estado {
     margin-left: 3px;
     font-weight: 400;

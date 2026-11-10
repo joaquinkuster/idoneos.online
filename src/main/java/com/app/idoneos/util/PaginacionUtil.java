@@ -4,13 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Paginación de los listados del panel, resuelta en el servidor: recorta la lista a la página pedida y deja en el modelo
- * lo que la pantalla necesita para dibujar el paginador. Los filtros y el orden se aplican antes, con
- * {@link FiltroUtil}.
- *
- * <p>Parámetros que entiende: {@code pagina} (desde 1) y {@code tamanio} (filas por página; 0 = todo; por defecto 10).</p>
- */
+/** Utilidad de paginación de los listados del panel. */
 public final class PaginacionUtil {
 
     /** Filas por página cuando la solicitud no indica otra cosa. */
@@ -22,13 +16,12 @@ public final class PaginacionUtil {
     /**
      * Una página de un listado.
      *
-     * @param filas    las filas de la página pedida.
-     * @param total    cuántas filas hay en total (todas las páginas), ya filtradas.
-     * @param pagina   la página devuelta (desde 1).
-     * @param paginas  cuántas páginas hay.
-     * @param tamanio  el tamaño de página usado (0 = todo).
+     * @param filas las filas de la página pedida.
+     * @param total cuántas filas hay en total (todas las páginas), ya filtradas.
+     * @param pagina la página devuelta (desde 1).
+     * @param paginas cuántas páginas hay.
+     * @param tamanio el tamaño de página usado (0 = todo).
      * @param opciones las opciones de las columnas de lista, para los filtros.
-     * @param <T>      el tipo de fila.
      */
     public record Pagina<T>(List<T> filas, int total, int pagina, int paginas, int tamanio, Map<String, List<String>> opciones) {
     }
@@ -37,9 +30,8 @@ public final class PaginacionUtil {
      * Recorta la lista a la página que piden los parámetros.
      *
      * @param filtradas la lista ya filtrada y ordenada.
-     * @param params    los parámetros de la solicitud.
-     * @param opciones  las opciones de los filtros de lista, que viajan junto con la página.
-     * @param <T>       el tipo de fila.
+     * @param params los parámetros de la solicitud.
+     * @param opciones las opciones de los filtros de lista, que viajan junto con la página.
      * @return la página pedida, acotada a las páginas que existen.
      */
     public static <T> Pagina<T> paginar(List<T> filtradas, Map<String, String[]> params, Map<String, List<String>> opciones) {
@@ -47,8 +39,7 @@ public final class PaginacionUtil {
     }
 
     /**
-     * Igual que {@link #paginar(List, Map, Map)} pero con otro tamaño de página por defecto (las vistas de cards
-     * muestran 8).
+     * Igual que paginar, pero con otro tamaño de página por defecto (las vistas de cards muestran 8).
      *
      * @param tamanioPorDefecto las filas por página cuando la solicitud no indica otro tamaño.
      */
@@ -79,8 +70,7 @@ public final class PaginacionUtil {
     }
 
     /**
-     * Deja en el modelo los datos del paginador y de los filtros que necesita la pantalla: tablaTotal, tablaPagina,
-     * tablaPaginas, tablaTamanio y tablaOpciones (las opciones de las listas, en JSON).
+     * Deja en el modelo los datos del paginador y de los filtros que necesita la pantalla: tablaTotal.
      *
      * @param model el modelo de la vista.
      * @param pagina lo que devolvió {@link #paginar}.
@@ -98,7 +88,7 @@ public final class PaginacionUtil {
     }
 
     /**
-     * Indica si la solicitud pide solo las filas de la tabla (la que hace el navegador al filtrar, ordenar o cambiar de página).
+     * Indica si la solicitud pide solo las filas de la tabla.
      *
      * @param request la solicitud HTTP.
      * @return {@code true} si trae el encabezado {@code X-Tabla: filas}.

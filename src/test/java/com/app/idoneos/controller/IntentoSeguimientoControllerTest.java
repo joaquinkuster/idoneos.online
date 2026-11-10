@@ -22,10 +22,7 @@ import com.app.idoneos.model.IntentoAutoevaluacion;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.IntentoAutoevaluacionRepository;
 
-/**
- * Pruebas de las pantallas de seguimiento: intentos (CU-68, CU-71, CU-72) y calificaciones (CU-69). Valentina Ruiz es la
- * alumna con intentos de 4,00 y 8,00 en la autoevaluación del tema 1.
- */
+/** Pruebas de las pantallas de seguimiento: intentos y calificaciones. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

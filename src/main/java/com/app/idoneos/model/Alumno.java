@@ -7,9 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Perfil de un usuario con el rol de alumno. Se inscribe en cohortes, rinde autoevaluaciones y consulta el foro.
- */
+/** Entidad que representa el perfil de un usuario con el rol de alumno. */
 @Entity
 @Table(name = "Alumno")
 @Getter
@@ -17,52 +15,33 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Alumno {
 
-    /**
-     * Identificador único del alumno.
-     */
+    /** Identificador único del alumno. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idAlumno")
     private int idAlumno;
 
-    /**
-     * Usuario al que pertenece este perfil de rol.
-     */
+    /** Usuario al que pertenece este perfil de rol. */
     @OneToOne
     @JoinColumn(name = "idUsuario", nullable = false, unique = true)
     private Usuario usuario;
 
-    /**
-     * Conjunto de inscripciones asociados.
-     */
+    /** Inscripciones que referencian a este registro. */
     @OneToMany(mappedBy = "alumno", cascade = CascadeType.ALL)
     private Set<Inscripcion> inscripciones = new HashSet<>();
 
-    /**
-     * Constructor para crear el alumno con los datos básicos.
-     *
-     * @param usuario usuario al que pertenece este perfil de rol.
-     */
+    /** Crea el alumno con los datos básicos. */
     public Alumno(Usuario usuario) {
         this.usuario = usuario;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del alumno.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del alumno. */
     @Override
     public String toString() {
         return "Alumno #" + idAlumno;
     }
 
-    /**
-     * Devuelve la inscripción activa del alumno a alguna cohorte del curso.
-     *
-     * @param curso el curso
-     * @return la inscripción activa, o {@code null} si el alumno no está inscripto al curso
-     */
+    /** Devuelve la inscripción activa del alumno a alguna cohorte del curso. */
     public Inscripcion getInscripcionActivaEn(Curso curso) {
         return inscripciones.stream()
                 .filter(i -> !i.esInactivo() && i.getCohorte().getCurso().getIdCurso() == curso.getIdCurso())

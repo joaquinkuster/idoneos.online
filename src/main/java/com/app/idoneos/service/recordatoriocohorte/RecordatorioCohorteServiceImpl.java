@@ -25,9 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Implementación de {@link RecordatorioCohorteService}.
- */
+/** Implementación de RecordatorioCohorteService. */
 @Service
 public class RecordatorioCohorteServiceImpl implements RecordatorioCohorteService {
 
@@ -129,7 +127,7 @@ public class RecordatorioCohorteServiceImpl implements RecordatorioCohorteServic
         return creadas;
     }
 
-    /** Cada hora revisa qué recordatorios ya tienen que avisar. */
+    /** Revisa cada hora qué recordatorios ya tienen que avisar y crea sus notificaciones. */
     @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 3_600_000, initialDelay = 60_000)
     @org.springframework.transaction.annotation.Transactional
     public void crearNotificacionesPendientesPeriodicamente() {

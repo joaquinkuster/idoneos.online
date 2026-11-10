@@ -1,14 +1,11 @@
 package com.app.idoneos.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Estado de la generación de un video con clon de inteligencia artificial.
- */
+/** Entidad que representa el estado de la generación de un video con clon de inteligencia artificial. */
 @Entity
 @Table(name = "EstadoGeneracion")
 @Getter
@@ -16,34 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EstadoGeneracion {
 
-    /**
-     * Identificador único.
-     */
+    /** Identificador único. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idEstadoGeneracion")
     private int idEstadoGeneracion;
 
-    /**
-     * Nombre.
-     */
+    /** Nombre. */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el registro con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el registro con los datos básicos. */
     public EstadoGeneracion(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena. */
     @Override
     public String toString() {
         return nombre;

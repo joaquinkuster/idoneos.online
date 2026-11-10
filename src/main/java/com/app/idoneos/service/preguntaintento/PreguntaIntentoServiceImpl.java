@@ -9,86 +9,60 @@ import com.app.idoneos.model.PreguntaIntento;
 import com.app.idoneos.repository.PreguntaIntentoRepository;
 import com.app.idoneos.service.CrudService;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link PreguntaIntento}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link PreguntaIntentoService}.
- */
+/** Implementación de PreguntaIntentoService. */
 @Service
 public class PreguntaIntentoServiceImpl implements PreguntaIntentoService {
 
     @Autowired
     private PreguntaIntentoRepository preguntaIntentoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la pregunta del intento por su identificador. Devuelve el registro si existe.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la pregunta del intento por su identificador. */
     @Override
     public Optional<PreguntaIntento> buscarPorId(Integer id) {
         return preguntaIntentoRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Devuelve todos los registros.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<PreguntaIntento> obtenerTodo() {
         return preguntaIntentoRepository.findAll();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return preguntaIntentoRepository.existsById(id);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-
-
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la pregunta del intento en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la pregunta del intento en la base de datos. */
     @Override
     public PreguntaIntento guardar(PreguntaIntento entidad) {
         return preguntaIntentoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public PreguntaIntento modificar(PreguntaIntento entidad) {
         return preguntaIntentoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Elimina el registro de la base de datos. Esta entidad no tiene baja lógica.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Elimina el registro de la base de datos. */
     @Override
     public void borrar(PreguntaIntento entidad) {
         preguntaIntentoRepository.delete(entidad);

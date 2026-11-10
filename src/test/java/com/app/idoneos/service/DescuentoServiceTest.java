@@ -17,10 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Descuento;
 import com.app.idoneos.service.descuento.DescuentoServiceImpl;
 
-/**
- * Pruebas de las reglas de negocio de los descuentos (CU-56 a CU-59), sobre los datos de la semilla.
- * Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de las reglas de negocio de los descuentos, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class DescuentoServiceTest {

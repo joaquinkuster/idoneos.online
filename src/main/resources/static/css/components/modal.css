@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    FORMULARIOS EN VENTANAS MODALES
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .pn-modal .modal-content {
     border: 0;
     border-radius: 16px;
@@ -56,7 +56,7 @@
     margin-top: 20px;
 }
 
-/* Ventanas de baja: el mismo aspecto de las alertas del sistema (460 px, sin franja de título, texto y botones centrados) */
+/* Ventanas de baja: el mismo aspecto de las alertas del sistema. */
 .pn-modal-alerta .modal-dialog {
     max-width: 460px;
 }
@@ -117,11 +117,7 @@
     margin-bottom: 20px;
 }
 
-/*
- * Ritmo vertical del cuerpo de los modales: todo lo que se apila (campos, alertas, ayudas) es una fila con 10px arriba y 10px abajo,
- * es decir 20px entre filas. Las grillas de Bootstrap ya separan sus filas con --bs-gutter-y; los campos sueltos y las alertas
- * usan la misma medida.
- */
+/* Ritmo vertical del cuerpo de los modales: todo lo que se apila. */
 .pn-modal-cuerpo .row {
     --bs-gutter-y: 0; /* sin margin-top en las columnas: la separación entre filas es row-gap */
     row-gap: 20px;

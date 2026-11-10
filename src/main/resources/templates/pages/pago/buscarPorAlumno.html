@@ -23,7 +23,7 @@
                                   th:text="${#lists.size(pagos) + (#lists.size(pagos) == 1 ? ' pago encontrado' : ' pagos encontrados')}">0 pagos encontrados</span>
                         </div>
 
-                        <!-- Filtros (CU-50): curso, estado y rango de fechas -->
+                        <!-- Filtros: curso, estado y rango de fechas -->
                         <form th:action="@{/pago/buscar}" method="get" class="pn-filtros" data-filtro-front>
                             <a th:href="@{/pago/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                         </form>

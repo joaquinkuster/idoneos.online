@@ -41,13 +41,7 @@ import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.service.pasarelapago.PasarelaPagoService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de los pagos de las inscripciones (MOD-F-03).
- *
- * Mapea las pantallas y operaciones de los casos de uso: CU-50 Buscar pago (GET /pago/buscar del Administrador y
- * GET /pago/buscar del Alumno, con la descarga del comprobante), CU-51 Realizar pago (POST /pago/pagar y el aviso
- * de MODO en POST /pago/webhook), CU-52 Reintentar pago, CU-53 Registrar pago (transferencia) y CU-54 Modificar pago.
- */
+/** Controlador del pago. */
 @Controller
 @RequestMapping("/pago")
 public class PagoController {
@@ -69,16 +63,11 @@ public class PagoController {
     @Autowired
     private ComprobanteService comprobanteService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-50: Lista los pagos de todos los alumnos (vista del Administrador). El listado llega completo y los filtros
-     * se aplican en la pantalla.
-     *
-     * @param registrarPara Inscripción para la que se abre la ventana de registro de pago (opcional).
-     * @param model        El modelo de la vista.
-     * @return La vista de búsqueda de pagos.
-     */
+    /** GET /pago/buscar: Lista los pagos de todos los alumnos (vista del Administrador). */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "registrarPara", required = false) Integer registrarPara, Model model,
             Authentication authentication, jakarta.servlet.http.HttpServletRequest request) {
@@ -119,13 +108,7 @@ public class PagoController {
         return "pages/pago/buscarPorAdministrador";
     }
 
-    /**
-     * CU-50: Lista los pagos del alumno. Desde acá reintenta los rechazados (CU-52) y descarga los comprobantes.
-     *
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return La vista de "Mis pagos".
-     */
+    /** Lista los pagos del alumno. */
     private String buscarPorAlumno(Model model, Authentication authentication, jakarta.servlet.http.HttpServletRequest request) {
         Alumno alumno = ((Usuario) authentication.getPrincipal()).getAlumno();
         List<Pago> pagos = pagoService.buscarConFiltros(null, null, null, null, null, alumno);
@@ -142,16 +125,7 @@ public class PagoController {
         return "pages/pago/buscarPorAlumno";
     }
 
-    /**
-     * CU-51: Muestra la caja de una inscripción pendiente de pago: qué se compra, el descuento aplicado, el total y el
-     * botón para pagar. A ella llevan la inscripción a un curso con costo y el botón «Pagar» de Mis cursos.
-     *
-     * @param idInscripcion      Identificador de la inscripción.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de la caja, o una redirección a Mis cursos si la inscripción no se puede pagar.
-     */
+    /** GET /pago/caja/{idInscripcion}: Muestra la caja de una inscripción pendiente de pago: qué se compra, el descuento aplicado. */
     @GetMapping("/caja/{idInscripcion}")
     public String verCaja(@PathVariable("idInscripcion") Integer idInscripcion, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes,
@@ -187,14 +161,7 @@ public class PagoController {
         return "pages/pago/caja";
     }
 
-    /**
-     * Consulta el estado de un pago (lo concilia con MODO si está pendiente). El navegador la consulta cada pocos
-     * segundos mientras el alumno paga. Responde en JSON.
-     *
-     * @param idPago Identificador del pago.
-     * @param authentication   La autenticación actual.
-     * @return El estado del pago y, si fue rechazado, el motivo.
-     */
+    /** GET /pago/estado/{idPago}: Consulta el estado de un pago (lo concilia con MODO si está pendiente). */
     @GetMapping("/estado/{idPago}")
     public ResponseEntity<Map<String, Object>> estado(@PathVariable("idPago") Integer idPago, Authentication authentication) {
         try {
@@ -212,15 +179,7 @@ public class PagoController {
         }
     }
 
-    /**
-     * Retorno del sitio de pagos de MODO cuando el pago se aprobó. El aviso de MODO (webhook) puede tardar unos segundos,
-     * así que si el pago todavía figura pendiente la página lo consulta hasta que se resuelva.
-     *
-     * @param idPago Identificador del pago.
-     * @param model  El modelo de la vista.
-     * @param authentication La autenticación actual.
-     * @return La página del resultado, o la del error si el pago resultó rechazado.
-     */
+    /** GET /pago/exito/{idPago}: Retorno del sitio de pagos de MODO cuando el pago se aprobó. */
     @GetMapping("/exito/{idPago}")
     public String exito(@PathVariable("idPago") Integer idPago, Model model, Authentication authentication) {
         Pago pago = buscarPagoDelRetorno(idPago, authentication);
@@ -231,14 +190,7 @@ public class PagoController {
         return "pages/pago/retorno";
     }
 
-    /**
-     * Retorno del sitio de pagos de MODO cuando el pago se rechazó, falló o el alumno lo abandonó. Ofrece reintentarlo.
-     *
-     * @param idPago Identificador del pago.
-     * @param model  El modelo de la vista.
-     * @param authentication La autenticación actual.
-     * @return La página del resultado, o la de éxito si en realidad el pago se aprobó.
-     */
+    /** GET /pago/error/{idPago}: Retorno del sitio de pagos de MODO cuando el pago se rechazó, falló o el alumno lo abandonó. */
     @GetMapping("/error/{idPago}")
     public String error(@PathVariable("idPago") Integer idPago, Model model, Authentication authentication) {
         Pago pago = buscarPagoDelRetorno(idPago, authentication);
@@ -249,7 +201,7 @@ public class PagoController {
         return "pages/pago/retorno";
     }
 
-    /** El pago al que vuelve el alumno, conciliado con MODO; si no es suyo o no existe, no se encuentra. */
+    /** Busca el pago al que vuelve el alumno, conciliado con MODO. Si no es suyo o no existe, no se encuentra. */
     private Pago buscarPagoDelRetorno(Integer idPago, Authentication authentication) {
         try {
             return pagoService.consultarEstado(idPago, solicitante((Usuario) authentication.getPrincipal()));
@@ -267,13 +219,7 @@ public class PagoController {
         model.addAttribute("titulo", "Resultado del pago | Idóneos Online");
     }
 
-    /**
-     * CU-50: Descarga el comprobante (PDF) de un pago aprobado: el alumno el de sus pagos y el administrador cualquiera.
-     *
-     * @param idPago Identificador del pago.
-     * @param authentication   La autenticación actual.
-     * @return El archivo PDF.
-     */
+    /** GET /pago/comprobante/{idPago}: Descarga el comprobante (PDF) de un pago aprobado. */
     @GetMapping("/comprobante/{idPago}")
     public ResponseEntity<byte[]> comprobante(@PathVariable("idPago") Integer idPago, Authentication authentication) {
         Pago pago;
@@ -291,18 +237,11 @@ public class PagoController {
                 .body(comprobanteService.generarPdf(comprobante));
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-51: El alumno paga una inscripción pendiente de pago. Registra el pago pendiente y crea la solicitud en MODO;
-     * responde con la dirección del sitio de pagos de MODO a la que el navegador redirige al alumno. Responde en JSON.
-     *
-     * @param idInscripcion Identificador de la inscripción.
-     * @param monto         El monto que el alumno vio en la caja (opcional): si cambió, no se cobra y se avisa.
-     * @param authentication          La autenticación actual.
-     * @param request                 La petición (de ahí sale la dirección de retorno si el sistema no tiene una pública).
-     * @return Los datos de la solicitud de pago o el mensaje de error.
-     */
+    /** POST /pago/pagar/{idInscripcion}: El alumno paga una inscripción pendiente de pago. */
     @PostMapping("/pagar/{idInscripcion}")
     public ResponseEntity<Map<String, Object>> pagar(@PathVariable("idInscripcion") Integer idInscripcion,
             @RequestParam(value = "monto", required = false) Float monto, Authentication authentication,
@@ -318,15 +257,7 @@ public class PagoController {
         }
     }
 
-    /**
-     * CU-53: El administrador registra el pago por transferencia bancaria de una inscripción. Responde en JSON.
-     *
-     * @param idInscripcion Identificador de la inscripción.
-     * @param monto         El monto recibido.
-     * @param numeroComprobante El número de comprobante de la transferencia.
-     * @param observaciones Notas (opcional).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /pago/registrar: El administrador registra el pago por transferencia bancaria de una inscripción. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "idInscripcion", required = false) Integer idInscripcion,
@@ -350,21 +281,11 @@ public class PagoController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-54: El administrador acredita o rechaza un pago pendiente o rechazado. Responde en JSON.
-     *
-     * @param id            Identificador del pago.
-     * @param estado        Aprobado o Rechazado.
-     * @param monto         El monto.
-     * @param referencia    El código de referencia de MODO.
-     * @param numeroComprobante El número de comprobante (de la transferencia o de MODO).
-     * @param nombrePagador El nombre del pagador (al aprobar un pago de MODO).
-     * @param dniPagador    El DNI del pagador (al aprobar un pago de MODO).
-     * @param motivo        El motivo del rechazo (obligatorio al rechazar).
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /pago/modificar/{id}: El administrador acredita o rechaza un pago pendiente o rechazado. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "estado", required = false) String estado,
@@ -384,13 +305,7 @@ public class PagoController {
         }
     }
 
-    /**
-     * CU-52: El alumno reintenta un pago rechazado, reutilizando su registro. Responde en JSON.
-     *
-     * @param idPago Identificador del pago rechazado.
-     * @param authentication   La autenticación actual.
-     * @return Los datos de la nueva solicitud de pago o el mensaje de error.
-     */
+    /** POST /pago/reintentar/{idPago}: El alumno reintenta un pago rechazado, reutilizando su registro. */
     @PostMapping("/reintentar/{idPago}")
     public ResponseEntity<Map<String, Object>> reintentar(@PathVariable("idPago") Integer idPago, Authentication authentication,
             jakarta.servlet.http.HttpServletRequest request) {
@@ -402,14 +317,7 @@ public class PagoController {
         }
     }
 
-    /**
-     * Aviso de MODO de que cambió el estado de un pago (webhook). Responde siempre 200 de inmediato, como exige MODO: el
-     * aviso solo identifica el pago, y el resultado se toma consultándolo a MODO (por eso un aviso falso no puede
-     * aprobar nada).
-     *
-     * @param cuerpo El contenido del aviso.
-     * @return Una respuesta vacía con estado 200.
-     */
+    /** POST /pago/webhook: Aviso de MODO de que cambió el estado de un pago (webhook). */
     @PostMapping("/webhook")
     public ResponseEntity<Map<String, Object>> webhook(@RequestBody(required = false) Map<String, Object> cuerpo) {
         try {
@@ -426,9 +334,7 @@ public class PagoController {
         return RespuestaFormularioUtil.armarRespuestaConDatos(Map.of("recibido", true));
     }
 
-    /**
-     * Resuelve para quién se consulta un pago: {@code null} si es el administrador (ve todos) o el alumno si es uno.
-     */
+    /** Resuelve para quién se consulta un pago: null si es el administrador (ve todos) o el alumno si es uno. */
     private Alumno solicitante(Usuario usuario) {
         if (usuario.esAdministradorActivo()) {
             return null;
@@ -460,15 +366,11 @@ public class PagoController {
         return valor == null || valor.toString().isBlank() ? null : valor.toString();
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de un pago, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     El pago.
-     * @param model El modelo de la vista.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /pago/modificar/{id}: Ventana de modificación de un pago, que el listado pide al abrirla (en lugar de dibujar una por fila). */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
         Pago p = pagoService.buscarPorId(id).filter(Pago::estaPendiente)
@@ -478,16 +380,17 @@ public class PagoController {
         return "pages/pago/modificar :: modal(p=${p})";
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
+        // Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Pago> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Pago>("alumno", FiltroUtil.Tipo.TEXTO,
                         p -> p.getInscripcion().getAlumno().getUsuario().getNombreCompleto() + " "
@@ -507,7 +410,7 @@ public class PagoController {
                         p -> FiltroUtil.formatearFechaHora(p.getFechaCreacion()))),
                 p -> false);
 
-        /** Las columnas de "Mis pagos": lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas de "Mis pagos", que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Pago> tablaAlumno = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Pago>("curso", FiltroUtil.Tipo.LISTA, p -> p.getInscripcion().getCurso().getNombre()),
                 new FiltroUtil.Columna<Pago>("monto", FiltroUtil.Tipo.NUMERO, p -> String.valueOf(p.getMonto())),

@@ -38,14 +38,7 @@ import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de las inscripciones.
- *
- * Mapea las pantallas de los casos de uso CU-02 Ver mis cursos (GET /inscripcion/buscar), CU-27 Acceder curso
- * (GET /inscripcion/acceder/{idInscripcion}) y, en el módulo de inscripciones (MOD-F-03), CU-44 Buscar inscripción
- * (GET /inscripcion/buscar, del Administrador), CU-45 Inscribir al curso, CU-46 Registrar inscripción,
- * CU-47 Modificar inscripción y CU-49 Dar de baja inscripción.
- */
+/** Controlador de la inscripción. */
 @Controller
 @RequestMapping("/inscripcion")
 public class InscripcionController {
@@ -65,19 +58,11 @@ public class InscripcionController {
     @Autowired
     private PagoService pagoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-02: Lista los cursos en los que el alumno está inscripto, con su progreso general,
-     * filtrando por nombre del curso, estado de la inscripción y avance.
-     *
-     * @param busqueda           Parte del nombre del curso.
-     * @param estado             Estado de la inscripción.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de "Ver mis cursos".
-     */
+    /** Lista los cursos en los que el alumno está inscripto, con su progreso general. */
     private String buscarPorAlumno(@RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado, Model model, Authentication authentication,
             RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -126,13 +111,7 @@ public class InscripcionController {
         }
     }
 
-    /**
-     * CU-44: Lista las inscripciones activas de todos los alumnos (vista del Administrador). El listado llega
-     * completo y los filtros por curso, alumno y estado de acceso se aplican en la pantalla.
-     *
-     * @param model El modelo de la vista.
-     * @return La vista de búsqueda de inscripciones.
-     */
+    /** GET /inscripcion/buscar: Lista las inscripciones activas de todos los alumnos (vista del Administrador). */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "busqueda", required = false) String busqueda,
             @RequestParam(value = "estado", required = false) String estado, Model model, Authentication authentication,
@@ -177,17 +156,7 @@ public class InscripcionController {
         return "pages/inscripcion/buscarPorAdministrador";
     }
 
-    /**
-     * CU-27: Permite al alumno acceder a un curso en el que está inscripto: los temas con su contenido (acordeón),
-     * el cronograma con su avance o las clases en vivo de su cohorte.
-     *
-     * @param idInscripcion      El identificador de la inscripción del alumno.
-     * @param seccion            La sección a mostrar: "temas" (por defecto), "cronograma" o "clases".
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de "Acceder curso", o una redirección a "Mis cursos" si no puede acceder.
-     */
+    /** GET /inscripcion/acceder/{idInscripcion}: Permite al alumno acceder a un curso en el que está inscripto. */
     @GetMapping("/acceder/{idInscripcion}")
     public String accederCurso(@PathVariable("idInscripcion") int idInscripcion,
             @RequestParam(value = "seccion", defaultValue = "temas") String seccion, Model model,
@@ -218,16 +187,11 @@ public class InscripcionController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-45: El alumno se inscribe a una cohorte con inscripción abierta. Responde en JSON y lleva a Mis cursos.
-     *
-     * @param cohorteId Identificador de la cohorte elegida.
-     * @param terminos  Si aceptó los términos y condiciones de las políticas de privacidad.
-     * @param authentication      La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y el destino) o el mensaje de error.
-     */
+    /** POST /inscripcion/inscribir: El alumno se inscribe a una cohorte con inscripción abierta. */
     @PostMapping("/inscribir")
     public ResponseEntity<Map<String, String>> inscribir(
             @RequestParam(value = "cohorteId", required = false) Integer cohorteId,
@@ -236,7 +200,7 @@ public class InscripcionController {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             Inscripcion inscripcion = inscripcionService.inscribir(usuario.getAlumno(), cohorteId, terminos);
             if (!inscripcion.fueHabilitada()) {
-                // Con costo: sin alerta de éxito (sugeriría que el lugar está asegurado); la caja avisa que falta el pago
+                // Con costo: sin alerta de éxito (sugeriría que el lugar está asegurado). La caja avisa que falta el pago
                 return RespuestaFormularioUtil.armarRespuestaDeRedireccion(
                         "/pago/caja/" + inscripcion.getIdInscripcion() + "?inscripcionNueva");
             }
@@ -248,14 +212,7 @@ public class InscripcionController {
         }
     }
 
-    /**
-     * CU-46: El administrador registra manualmente la inscripción de un alumno. Responde en JSON.
-     *
-     * @param alumnoId  Identificador del alumno.
-     * @param cohorteId Identificador de la cohorte.
-     * @param terminos  Si confirmó que el alumno acepta los términos y condiciones.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /inscripcion/registrar: El administrador registra manualmente la inscripción de un alumno. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "alumnoId", required = false) Integer alumnoId,
@@ -273,16 +230,11 @@ public class InscripcionController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-47: El administrador modifica las observaciones y la suspensión del acceso (el vencimiento no se modifica). Responde en JSON.
-     *
-     * @param id            Identificador de la inscripción.
-     * @param observaciones Las observaciones (opcional).
-     * @param habilitada    {@code false} suspende el acceso y {@code true} lo reactiva.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /inscripcion/modificar/{id}: El administrador modifica las observaciones y la suspensión del acceso (el vencimiento no se modifica). */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "observaciones", required = false) String observaciones,
@@ -295,16 +247,11 @@ public class InscripcionController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-49: Da de baja una inscripción: el alumno la suya (abandono) o el administrador cualquiera. Responde en JSON.
-     *
-     * @param id     Identificador de la inscripción.
-     * @param motivo El motivo u observación de la baja (opcional).
-     * @param authentication   La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /inscripcion/darDeBaja/{id}: Da de baja una inscripción: el alumno la suya (abandono) o el administrador cualquiera. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id,
             @RequestParam(value = "motivo", required = false) String motivo, Authentication authentication) {
@@ -317,12 +264,7 @@ public class InscripcionController {
         }
     }
 
-    /**
-     * Da de baja varias inscripciones a la vez (solo el Administrador). Es de todo o nada. Responde en JSON.
-     *
-     * @param ids Identificadores de las inscripciones seleccionadas.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /inscripcion/darDeBajaMasiva: Da de baja varias inscripciones a la vez (solo el Administrador). */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarias(
             @RequestParam(value = "ids", required = false) List<Integer> ids) {
@@ -334,15 +276,11 @@ public class InscripcionController {
         }
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de una inscripción, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     La inscripción.
-     * @param model El modelo de la vista.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /inscripcion/modificar/{id}: Ventana de modificación de una inscripción. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model) {
         model.addAttribute("i", inscripcionService.buscarPorId(id)
@@ -350,13 +288,7 @@ public class InscripcionController {
         return "pages/inscripcion/modificar :: modal(i=${i})";
     }
 
-    /**
-     * Ventana de corrección de los datos del certificado de una inscripción, que el listado pide al abrirla.
-     *
-     * @param id     La inscripción.
-     * @param model El modelo de la vista.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /inscripcion/modalCertificado/{id}: Ventana de corrección de los datos del certificado de una inscripción, que el listado pide al abrirla. */
     @GetMapping("/modalCertificado/{id}")
     public String ventanaCertificado(@PathVariable("id") Integer id, Model model) {
         com.app.idoneos.model.Inscripcion i = inscripcionService.buscarPorId(id)
@@ -366,16 +298,17 @@ public class InscripcionController {
         return "pages/certificado/corregir :: modal(i=${i})";
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
+        // Listado del administrador (motor común)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Inscripcion> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Inscripcion>("alumno", FiltroUtil.Tipo.TEXTO,
                         i -> i.getAlumno().getUsuario().getNombreCompleto() + " " + i.getAlumno().getUsuario().getDni() + " "
@@ -395,7 +328,7 @@ public class InscripcionController {
                         i -> FiltroUtil.formatearFechaHora(i.getFechaCreacion()))),
                 Inscripcion::esInactivo);
 
-        /** Las columnas de "Mis cursos" del alumno: lo que se filtra en el servidor. */
+        /** Define las columnas de "Mis cursos" del alumno, que se filtran en el servidor. */
         public static final FiltroUtil<Inscripcion> cards = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Inscripcion>("busqueda", FiltroUtil.Tipo.TEXTO,
                         i -> i.getCurso().getNombre() + " " + (i.getCurso().getDescripcion() == null ? "" : i.getCurso().getDescripcion())),

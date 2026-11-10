@@ -1,14 +1,4 @@
-/**
- * Comportamiento del navbar único (fragments/navbar.html).
- *
- *  1. Marca como activo el enlace de la página actual.
- *  2. Color: en el sitio público con banner oscuro es transparente arriba y pasa a blanco al hacer scroll. Los paneles y
- *     las páginas sin banner oscuro (inicio de sesión, error) lo muestran siempre blanco.
- *  3. Botón del menú lateral (solo si la página lo tiene): contrae o expande el menú en pantallas grandes y lo abre como
- *     cajón en pantallas chicas.
- *  4. Pantallas chicas: el botón de la derecha abre y cierra los enlaces y el menú del usuario (también con Escape, con un
- *     clic afuera y al agrandarse la ventana).
- */
+/** Comportamiento del navbar único (fragments/navbar.html). */
 (function () {
     'use strict';
 
@@ -30,9 +20,7 @@
             }
         });
 
-        // Opciones del usuario (Mis cursos, Panel administrador, etc.): la de la página actual también se marca. Se compara la ruta y los parámetros
-        // de la opción (por ejemplo «Cursos» es /curso/buscar?vista=cards y «Panel administrador» es /curso/buscar): si coinciden varias, queda
-        // marcada la que tiene más parámetros, la más específica.
+        // Opciones del usuario (Mis cursos, Panel administrador, etc.): la de la página actual también se marca.
         var parametrosActuales = new URLSearchParams(window.location.search);
         var coincidencias = [];
         navbar.querySelectorAll('.um-item[href]').forEach(function (opcion) {

@@ -20,10 +20,7 @@ import com.app.idoneos.model.Pago;
 import com.app.idoneos.service.comprobante.ComprobanteServiceImpl;
 import com.app.idoneos.service.inscripcion.InscripcionServiceImpl;
 
-/**
- * Pruebas de la emisión del comprobante de un pago aprobado y de su archivo PDF (CU-50), sobre los datos de la
- * semilla. Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de la emisión del comprobante de un pago aprobado y de su archivo PDF. */
 @SpringBootTest
 @Transactional
 class ComprobanteServiceTest {

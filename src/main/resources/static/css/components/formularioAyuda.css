@@ -17,8 +17,7 @@
     font-size: 14px;
 }
 
-/* El aviso desplegable dentro de una fila de formulario no deja el espacio entre filas mientras está cerrado: el margen negativo
-   cancela el row-gap de 20px; abierto, lo deja */
+/* El aviso desplegable dentro de una fila de formulario no deja el espacio entre filas mientras está cerrado: el margen negativo cancela el row-gap de 20px. Abierto, lo deja */
 .pn-modal-cuerpo .row > .ayuda-desplegable {
     margin-top: -20px;
     padding-bottom: 0;

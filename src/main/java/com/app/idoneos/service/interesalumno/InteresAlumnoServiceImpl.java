@@ -16,9 +16,7 @@ import com.app.idoneos.repository.AlumnoRepository;
 import com.app.idoneos.repository.InteresAlumnoRepository;
 import com.app.idoneos.service.categoria.CategoriaService;
 
-/**
- * Implementación del servicio de los intereses del alumno.
- */
+/** Implementación de InteresAlumnoService. */
 @Service
 public class InteresAlumnoServiceImpl implements InteresAlumnoService {
 
@@ -31,7 +29,9 @@ public class InteresAlumnoServiceImpl implements InteresAlumnoService {
     @Autowired
     private CategoriaService categoriaService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     @Override
     public List<Categoria> buscarCategorias(Alumno alumno) {
@@ -50,7 +50,9 @@ public class InteresAlumnoServiceImpl implements InteresAlumnoService {
                 .sorted(Comparator.comparing(Categoria::getNombre, String.CASE_INSENSITIVE_ORDER)).toList();
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     @Override
     @Transactional

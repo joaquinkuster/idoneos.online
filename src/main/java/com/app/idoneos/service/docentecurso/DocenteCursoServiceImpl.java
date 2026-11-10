@@ -11,58 +11,38 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link DocenteCurso}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link DocenteCursoService}.
- */
+/** Implementación de DocenteCursoService. */
 @Service
 public class DocenteCursoServiceImpl implements DocenteCursoService {
 
     @Autowired
     private DocenteCursoRepository docenteCursoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la participación docente por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la participación docente por su identificador. */
     @Override
     public Optional<DocenteCurso> buscarPorId(Integer id) {
         return docenteCursoRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<DocenteCurso> obtenerTodo() {
         return docenteCursoRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return docenteCursoRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-    /**
-     * Busca los registros vigentes de docenteCurso asociados a curso.
-     *
-     * @param curso el registro de Curso asociado
-     * @return una lista de DocenteCurso asociados al Curso indicado
-     */
+    /** Busca los registros vigentes de docenteCurso asociados a curso. */
     @Override
     public List<DocenteCurso> buscarEquipoPorCurso(Curso curso) {
         return buscarPorCurso(curso).stream().sorted(Comparator.comparing((DocenteCurso d) -> !d.getEsTitular())).toList();
@@ -73,51 +53,37 @@ public class DocenteCursoServiceImpl implements DocenteCursoService {
         return docenteCursoRepository.findByCursoAndBajaFalse(curso);
     }
 
-    /**
-     * Busca los registros vigentes de docenteCurso asociados a docente.
-     *
-     * @param docente el registro de Docente asociado
-     * @return una lista de DocenteCurso asociados al Docente indicado
-     */
+    /** Busca los registros vigentes de docenteCurso asociados a docente. */
     @Override
     public List<DocenteCurso> buscarPorDocente(Docente docente) {
         return docenteCursoRepository.findByDocenteAndBajaFalse(docente);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la participación docente en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la participación docente en la base de datos. */
     @Override
     public DocenteCurso guardar(DocenteCurso entidad) {
         return docenteCursoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public DocenteCurso modificar(DocenteCurso entidad) {
         return docenteCursoRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(DocenteCurso entidad) {
         entidad.marcarInactivo(); // Baja lógica

@@ -21,10 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.repository.CursoRepository;
 
-/**
- * Pruebas de un curso que todavía no tiene programas (o los dio de baja todos): el docente igual puede abrirlo, porque
- * desde ahí registra el primero. "Macroeconomía de Coyuntura" tiene un solo programa, que estas pruebas dan de baja.
- */
+/** Pruebas de un curso que todavía no tiene programas (o los dio de baja todos). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

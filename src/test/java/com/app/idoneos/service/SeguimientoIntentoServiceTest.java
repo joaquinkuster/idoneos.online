@@ -22,11 +22,7 @@ import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.intentoautoevaluacion.IntentoAutoevaluacionService;
 
-/**
- * Pruebas de CU-68 (buscar intentos), CU-71 (aprobar intento) y CU-72 (dar de baja intento) con los datos de la semilla.
- * Valentina Ruiz tiene en la autoevaluación del tema 1 un intento de 4,00 (no aprobado) y otro de 8,00 (aprobado, con el
- * que completó el tema); fausto.spotorno es docente del curso.
- */
+/** Pruebas con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class SeguimientoIntentoServiceTest {

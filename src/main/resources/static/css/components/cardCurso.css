@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    CARD DE CURSO (catálogo e inicio), mismo lenguaje que Acerca de
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .cc-card {
     position: relative;
     display: flex;
@@ -211,7 +211,7 @@
     cursor: grabbing;
 }
 
-/* Grillas de cards de curso (catálogo, Mis cursos): cuatro por fila en PC, dos en pantallas medianas y una en celulares */
+/* Grillas de cards de curso (catálogo, Mis cursos): cuatro por fila en PC. */
 .wf-cards-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 26px;
@@ -229,7 +229,7 @@
     }
 }
 
-/* Transición "zoom y escala" de las fotos del hero: la que sale se achica y se apaga, y la que entra crece desde el centro */
+/* Transición "zoom y escala" de las fotos del hero: la que sale se achica y se apaga. */
 #heroCarousel.carousel-fade .carousel-item {
     transform: scale(0.82);
     transition: opacity 0.6s ease, transform 0.6s ease;

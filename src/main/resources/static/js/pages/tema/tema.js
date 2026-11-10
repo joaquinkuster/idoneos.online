@@ -1,13 +1,4 @@
-/**
- * ABM de temas de un curso (MOD-F-02, CU-19 a CU-22).
- *
- *  1. La ventana "Registrar tema" tiene a la izquierda la lista de temas del curso y a la derecha el formulario del tema
- *     elegido (o de uno nuevo). Lo que se agrega o se modifica queda "en cola" (Nuevo / Modificado) hasta confirmar:
- *     todos los cambios se guardan juntos.
- *  2. El resumen del último paso muestra, por cada tema con cambios, lo nuevo o el antes → después.
- *  3. Si la página se abre con ?nuevo o ?editar=<id>, abre sola la ventana (y elige el tema); se quitan esos parámetros
- *     de la dirección para que al recargar no vuelva a abrirse.
- */
+/** ABM de temas de un curso. */
 (function () {
     'use strict';
 
@@ -108,7 +99,7 @@
         contenedorItems.appendChild(boton);
     }
 
-    /** Valida el título del formulario y lo aplica al tema elegido (o lo agrega como nuevo). Devuelve false si no es válido. */
+    /** Valida el título del formulario y lo aplica al tema elegido (o lo agrega como nuevo). */
     function aplicar() {
         var escrito = leerFormulario();
         if (!escrito.titulo) {
@@ -136,7 +127,7 @@
         return true;
     }
 
-    /** Cambia de tema; si había cambios sin aplicar los aplica antes (y si no son válidos, se queda donde está). */
+    /** Cambia de tema. Si había cambios sin aplicar los aplica antes (y si no son válidos, se queda donde está). */
     function intentarElegir(tema) {
         if (hayCambiosSinAplicar() && !aplicar()) { return; }
         elegir(tema);
@@ -182,7 +173,10 @@
         return true;
     };
 
-    // ---------------------------------------------------------------- resumen
+    // ----------------------------------------------------------------------
+    // resumen
+    // ----------------------------------------------------------------------
+
     function crear(etiqueta, clase, html) {
         var e = document.createElement(etiqueta);
         if (clase) { e.className = clase; }
@@ -239,7 +233,10 @@
         }));
     });
 
-    // ---------------------------------------------------------------- apertura
+    // ----------------------------------------------------------------------
+    // apertura
+    // ----------------------------------------------------------------------
+
     function mostrar() {
         if (window.bootstrap) { window.bootstrap.Modal.getOrCreateInstance(ventana).show(); }
     }

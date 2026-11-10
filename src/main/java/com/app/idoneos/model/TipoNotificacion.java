@@ -1,14 +1,11 @@
 package com.app.idoneos.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Tipo de notificación que el sistema envía por correo.
- */
+/** Entidad que representa un tipo de notificación que el sistema envía por correo. */
 @Entity
 @Table(name = "TipoNotificacion")
 @Getter
@@ -16,34 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TipoNotificacion {
 
-    /**
-     * Identificador único.
-     */
+    /** Identificador único. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idTipoNotificacion")
     private int idTipoNotificacion;
 
-    /**
-     * Nombre.
-     */
+    /** Nombre. */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el registro con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el registro con los datos básicos. */
     public TipoNotificacion(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena. */
     @Override
     public String toString() {
         return nombre;
@@ -55,6 +40,6 @@ public class TipoNotificacion {
     /** Aviso de que una cohorte pendiente se canceló. */
     public static final String COHORTE_CANCELADA = "Cohorte cancelada";
 
-    /** Aviso que recibe el alumno que marcó «Recordarme» en una cohorte próxima, unos días antes de que abra su inscripción. */
+    /** Aviso que recibe el alumno que marcó "Recordarme" en una cohorte próxima. */
     public static final String RECORDATORIO_COHORTE = "Recordatorio de cohorte";
 }

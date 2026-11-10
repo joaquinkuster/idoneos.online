@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Certificado;
 import com.app.idoneos.repository.CertificadoRepository;
 
-/**
- * Pruebas de "Mis certificados": el alumno ve y descarga los suyos (Martín Gómez tiene uno en la semilla), no los de otro
- * alumno, y el administrador puede descargar cualquiera.
- */
+/** Pruebas de "Mis certificados": el alumno ve y descarga los suyos (Martín Gómez tiene uno en la semilla). */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

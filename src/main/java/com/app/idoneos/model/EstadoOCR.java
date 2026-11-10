@@ -1,14 +1,11 @@
 package com.app.idoneos.model;
 
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Estado del reconocimiento de texto (OCR) de un archivo PDF escaneado. Un archivo que no necesita OCR no tiene estado.
- */
+/** Entidad que representa el estado del reconocimiento de texto (OCR) de un PDF escaneado. */
 @Entity
 @Table(name = "EstadoOCR")
 @Getter
@@ -16,34 +13,20 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EstadoOCR {
 
-    /**
-     * Identificador único.
-     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idEstadoOCR")
     private int idEstadoOCR;
 
-    /**
-     * Nombre.
-     */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el registro con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el registro con los datos básicos. */
     public EstadoOCR(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena. */
     @Override
     public String toString() {
         return nombre;

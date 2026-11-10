@@ -2,9 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Ventana de intereses del alumno: elige las categorías de cursos que le interesan. Se abre sola al ingresar si todavía no eligió
-         ninguna (se cierra como cualquier otra ventana: Ahora no, la X, Esc o un clic afuera) y se abre a mano desde «Mis intereses» del menú del usuario o «Editar intereses» del catálogo.
-         static/js/layout/intereses.js la mueve al final del body y maneja los botones. -->
+    <!-- Ventana de intereses del alumno: elige las categorías de cursos que le interesan. -->
     <div th:fragment="bloque" th:if="${usuario != null and usuario.esAlumnoActivo() and interesesCategorias != null}"
          class="modal fade pn-modal" id="modalIntereses" tabindex="-1" aria-hidden="true" th:attr="data-preguntar=${preguntarIntereses}">
         <div class="modal-dialog modal-dialog-centered modal-lg">

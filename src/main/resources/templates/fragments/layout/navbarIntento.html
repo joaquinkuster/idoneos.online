@@ -1,6 +1,4 @@
-<!-- Navbar reducido del cuestionario: solo el logo (sin enlace, para no salir del intento sin querer) y el menú del usuario con
-     la única opción de cerrar sesión. Usa los mismos estilos del navbar del sistema (navbar.css y layout/userMenu.js), pero no
-     el reloj del intento va en el medio y el navbar queda fijo arriba mientras se hace scroll. -->
+<!-- Navbar reducido del cuestionario: solo el logo. -->
 <header th:fragment="navbar(segundos)" class="nb nb-intento" data-navbar>
     <div class="nb-izq">
         <span class="nb-marca">
@@ -32,10 +30,7 @@
     </div>
 </header>
 
-<!-- Cabecera del cuestionario (modo foco: sin menú lateral). Parámetros: curso, autoevaluacion y segundos (los que le quedan al
-     intento según el servidor, o null si no tiene tiempo límite). El navbar reducido lleva el logo, el reloj (que dibuja
-     static/js/pages/intento/intento.js) y el menú con "Cerrar sesión", que está permitido: no termina el intento, el tiempo sigue corriendo y
-     al volver a ingresar se retoma el cuestionario. Debajo del navbar va el título de la autoevaluación. -->
+<!-- Cabecera del cuestionario (modo foco: sin menú lateral). -->
 <th:block th:fragment="cabecera(curso, autoevaluacion, segundos)">
 <th:block th:replace="~{fragments/layout/navbarIntento :: navbar(${segundos})}"></th:block>
 <div class="in-titulo-intento">

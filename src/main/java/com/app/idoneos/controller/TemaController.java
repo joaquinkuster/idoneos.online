@@ -29,15 +29,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.tema.TemaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador del ABM de temas (MOD-F-02): CU-19 Buscar tema (GET /tema/buscar), CU-20 y CU-21 Registrar y modificar temas
- * (POST /tema/guardar, que guarda de una vez los temas nuevos y los modificados de un curso) y CU-22 Dar de baja tema
- * (POST /tema/darDeBaja/{id}: del curso, o solo del cronograma de un programa si se indica).
- *
- * Los temas son del curso, no de un programa: el listado muestra todos los del curso con los programas que los incluyen. El
- * docente (titular o ayudante) registra y modifica los temas de los cursos en los que participa; el administrador puede
- * buscar y dar de baja los de cualquier curso.
- */
+/** Controlador del tema. */
 @Controller
 @RequestMapping("/tema")
 public class TemaController {
@@ -51,20 +43,11 @@ public class TemaController {
     @Autowired
     private TemaService temaService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-19: Lista los temas de un curso, con los programas que incluye cada uno. Con {@code nuevo} abre sola la ventana
-     * para registrar temas; con {@code editar} abre esa ventana con el tema elegido para modificarlo.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param nuevo              Presente para abrir la ventana de registro (solo docente).
-     * @param editar             Identificador de un tema para abrir la ventana con ese tema elegido (solo docente).
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /tema/buscar: Lista los temas de un curso, con los programas que incluye cada uno. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
@@ -93,7 +76,7 @@ public class TemaController {
                 return "pages/tema/buscar :: filas"; // solo las filas de la página pedida
             }
             model.addAttribute("puedeGestionar", puedeGestionar);
-            // Desde la vista del curso: «Dar de baja» abre la confirmación de ese tema (el docente y el administrador pueden)
+            // Desde la vista del curso: "Dar de baja" abre la confirmación de ese tema (el docente y el administrador pueden)
             boolean bajaDesdeElCurso = "baja".equals(accion) && temaId != null
                     && temas.stream().anyMatch(t -> t.getIdTema() == temaId);
             model.addAttribute("abrirModal", bajaDesdeElCurso ? "modalBajaTema" + temaId
@@ -106,19 +89,11 @@ public class TemaController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda de una vez los temas nuevos y los modificados de un curso (el formulario los arma en la ventana de registro,
-     * con la lista de temas del curso y el formulario de cada tema). Responde en JSON.
-     *
-     * @param cursoId Identificador del curso.
-     * @param cambios Los cambios, en JSON: una lista de {@code {id, titulo, descripcion, contenido}} ({@code id} nulo si es
-     *                un tema nuevo).
-     * @param authentication    La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito (y, si el curso todavía necesita su programa, la alerta que lo propone)
-     *         o el mensaje de error.
-     */
+    /** POST /tema/guardar: Guarda de una vez los temas nuevos y los modificados de un curso (el formulario los arma en la ventana de registro, con la lista de temas del curso y el formulario de cada tema). */
     @PostMapping("/guardar")
     public ResponseEntity<Map<String, String>> guardar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "cambios", required = false) String cambios, Authentication authentication) {
@@ -151,15 +126,11 @@ public class TemaController {
         return valor == null ? null : valor.toString();
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-22: Da de baja un tema del curso (y lo quita del cronograma de los programas que lo incluyen). Responde en JSON.
-     *
-     * @param id             Identificador del tema.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /tema/darDeBaja/{id}: Da de baja un tema del curso (y lo quita del cronograma de los programas que lo incluyen). */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -170,13 +141,7 @@ public class TemaController {
         }
     }
 
-    /**
-     * CU-22: Da de baja varios temas del curso a la vez, todos o ninguno. Responde en JSON.
-     *
-     * @param ids            Identificadores de los temas seleccionados.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /tema/darDeBajaMasiva: Da de baja varios temas del curso a la vez, todos o ninguno. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
@@ -194,17 +159,17 @@ public class TemaController {
         return usuario.esAdministradorActivo() ? null : usuario.getDocente();
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (motor común)
+        // ----------------------------------------------------------------------
+        // Listado (motor común)
+        // ----------------------------------------------------------------------
 
-
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Tema> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Tema>("titulo", FiltroUtil.Tipo.TEXTO, Tema::getTitulo),
                 new FiltroUtil.Columna<Tema>("descripcion", FiltroUtil.Tipo.TEXTO, Tema::getDescripcion),

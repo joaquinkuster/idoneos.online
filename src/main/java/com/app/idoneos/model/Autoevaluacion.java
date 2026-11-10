@@ -11,9 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Evaluación de un tema, armada a partir de pools de preguntas, con tiempo límite, nota mínima e intentos permitidos.
- */
+/** Entidad que representa la evaluación de un tema, armada con pools de preguntas y con tiempo límite. */
 @Entity
 @Table(name = "Autoevaluacion")
 @Check(name = "ck_autoevaluacion_nombre", constraints = "trim(nombre) <> ''")
@@ -27,128 +25,82 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Autoevaluacion {
 
-    /**
-     * Identificador único de la autoevaluación.
-     */
+    /** Identificador único de la autoevaluación. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idAutoevaluacion")
     private int idAutoevaluacion;
 
-    /**
-     * Relación con Tema.
-     */
+    /** Tema de este registro. */
     @ManyToOne
     @JoinColumn(name = "idTema", nullable = false)
     private Tema tema;
 
-    /**
-     * Nombre de la autoevaluación.
-     */
+    /** Nombre de la autoevaluación. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;
 
-    /**
-     * Tiempo límite para resolverla, en minutos. Es opcional.
-     */
+    /** Tiempo límite para resolverla, en minutos. */
     @Column(name = "tiempoLimiteMinutos", nullable = true)
     private Integer tiempoLimite;
 
-    /**
-     * Cantidad de preguntas que se extraen de los pools.
-     */
+    /** Cantidad de preguntas que se extraen de los pools. */
     @Column(name = "cantidadPreguntas", nullable = false)
     private int cantidadPreguntas;
 
-    /**
-     * Nota mínima para aprobar.
-     */
+    /** Nota mínima para aprobar. */
     @Column(name = "notaMinima", nullable = false)
     private float notaMinima;
 
-    /**
-     * Cantidad de intentos permitidos. Es opcional.
-     */
+    /** Cantidad de intentos permitidos. */
     @Column(name = "intentosPermitidos", nullable = true)
     private Integer intentosPermitidos;
 
-    /**
-     * Fecha y hora desde la que está disponible.
-     */
+    /** Fecha y hora desde la que está disponible. */
     @Column(name = "fechaApertura", nullable = false)
     private LocalDateTime fechaApertura;
 
-    /**
-     * Fecha y hora hasta la que está disponible. Es opcional.
-     */
+    /** Fecha y hora hasta la que está disponible. */
     @Column(name = "fechaCierre", nullable = true)
     private LocalDateTime fechaCierre;
 
-    /**
-     * Indica si cada opción incorrecta que elige el alumno resta lo que vale una opción correcta de esa pregunta.
-     */
+    /** Indica si cada opción incorrecta que elige el alumno resta lo que vale una opción correcta de esa pregunta. */
     @Column(name = "descuentoPorError", nullable = false)
     private Boolean descuentoPorError = false;
 
-    /**
-     * Indica si el alumno puede desplazarse libremente entre las preguntas y modificar sus respuestas. Si no, el
-     * cuestionario es secuencial: las preguntas se presentan en orden y no se puede volver a una anterior.
-     */
+    /** Indica si el alumno puede desplazarse libremente entre las preguntas y modificar sus respuestas. */
     @Column(name = "navegacionLibre", nullable = false)
     private Boolean navegacionLibre = false;
 
-    /**
-     * Indica si el alumno puede salir del cuestionario y retomarlo. Si no, mientras el intento está en curso solo puede
-     * acceder al cuestionario.
-     */
+    /** Indica si el alumno puede salir del cuestionario y retomarlo. */
     @Column(name = "permiteSalir", nullable = false)
     private Boolean permiteSalir = false;
 
-    /**
-     * Indica si el elemento está oculto para los alumnos.
-     */
+    /** Indica si el elemento está oculto para los alumnos. */
     @Column(name = "oculto", nullable = false)
     private Boolean oculto = false;
 
-    /**
-     * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
-     */
+    /** Fecha y hora de creación del registro. */
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de la última modificación del registro.
-     */
+    /** Fecha y hora de la última modificación del registro. */
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
-    /**
-     * Indica si el registro fue dado de baja (baja lógica). El valor predeterminado es "false", indicando que está vigente.
-     */
+    /** Indica si el registro fue dado de baja (baja lógica). */
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
-    /**
-     * Conjunto de autoevaluacionPools asociados.
-     */
+    /** Autoevaluacion pools que referencian a este registro. */
     @OneToMany(mappedBy = "autoevaluacion", cascade = CascadeType.ALL)
     private Set<AutoevaluacionPool> autoevaluacionPools = new HashSet<>();
 
-    /**
-     * Conjunto de intentosAutoevaluacion asociados.
-     */
+    /** Intentos autoevaluacion que referencian a este registro. */
     @OneToMany(mappedBy = "autoevaluacion", cascade = CascadeType.ALL)
     private Set<IntentoAutoevaluacion> intentosAutoevaluacion = new HashSet<>();
 
-    /**
-     * Constructor para crear la autoevaluación con los datos básicos.
-     *
-     * @param tema relación con Tema.
-     * @param nombre nombre de la autoevaluación.
-     * @param cantidadPreguntas cantidad de preguntas que se extraen de los pools.
-     * @param notaMinima nota mínima para aprobar.
-     * @param fechaApertura fecha y hora desde la que está disponible.
-     */
+    /** Crea la autoevaluación con los datos básicos. */
     public Autoevaluacion(Tema tema, String nombre, int cantidadPreguntas, float notaMinima, LocalDateTime fechaApertura) {
         this.tema = tema;
         this.nombre = nombre;
@@ -157,133 +109,75 @@ public class Autoevaluacion {
         this.fechaApertura = fechaApertura;
     }
 
-    /**
-     * Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true.
-     */
+    /** Marca el registro como dado de baja (baja lógica), estableciendo el atributo 'baja' a true. */
     public void marcarInactivo() {
         baja = true;
     }
 
-    /**
-     * Verifica si el registro está dado de baja.
-     *
-     * @return true si está dado de baja (baja = true), false si está vigente.
-     */
+    /** Verifica si el registro está dado de baja. */
     public boolean esInactivo() {
         return baja;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena de la autoevaluación.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena de la autoevaluación. */
     @Override
     public String toString() {
         return nombre;
     }
 
-    /**
-     * Indica si la autoevaluación está vigente y los alumnos la ven (no está dada de baja ni oculta).
-     *
-     * @return {@code true} si es visible para los alumnos.
-     */
+    /** Indica si la autoevaluación está vigente y los alumnos la ven (no está dada de baja ni oculta). */
     public boolean esVisible() {
         return !baja && !oculto;
     }
 
-    /**
-     * Calcula cuántos puntos (sobre 10) vale cada pregunta del cuestionario.
-     *
-     * @return El valor de una pregunta, o 0 si la autoevaluación no sortea preguntas.
-     */
+    /** Calcula cuántos puntos (sobre 10) vale cada pregunta del cuestionario. */
     public double getValorDeCadaPregunta() {
         return cantidadPreguntas <= 0 ? 0 : 10d / cantidadPreguntas;
     }
 
-    /**
-     * Indica si la autoevaluación combina pools de otros temas (anteriores a la suya): un repaso o una evaluación final.
-     *
-     * @return {@code true} si alguno de sus pools es de otro tema.
-     */
+    /** Indica si la autoevaluación combina pools de otros temas (anteriores a la suya). */
     public boolean esEvaluacionFinal() {
         return getPoolsActivos().stream().anyMatch(pool -> pool.getTema().getIdTema() != tema.getIdTema());
     }
 
-    /**
-     * Indica si la fecha dada está dentro del período habilitado: desde la fecha de apertura y, si tiene, hasta la fecha de
-     * cierre.
-     *
-     * @param momento La fecha y hora a consultar.
-     * @return {@code true} si se puede iniciar un intento en ese momento.
-     */
+    /** Indica si la fecha dada está dentro del período habilitado: desde la fecha de apertura y, si tiene. */
     public boolean estaAbierta(LocalDateTime momento) {
         return !momento.isBefore(fechaApertura) && (fechaCierre == null || !momento.isAfter(fechaCierre));
     }
 
-    /**
-     * Obtiene los pools vigentes asociados a la autoevaluación.
-     *
-     * @return Los pools, en el orden en que se cargaron.
-     */
+    /** Obtiene los pools vigentes asociados a la autoevaluación. */
     public List<Pool> getPoolsActivos() {
         return autoevaluacionPools.stream().map(AutoevaluacionPool::getPool).filter(pool -> !pool.getBaja()).distinct()
                 .sorted(Comparator.comparingInt(Pool::getIdPool)).toList();
     }
 
-    /**
-     * Obtiene las preguntas vigentes de los pools asociados, de las que se sortea cada intento.
-     *
-     * @return Las preguntas disponibles, agrupadas por pool.
-     */
+    /** Obtiene las preguntas vigentes de los pools asociados, de las que se sortea cada intento. */
     public List<Pregunta> getPreguntasDisponibles() {
         return getPoolsActivos().stream().flatMap(pool -> pool.getPreguntasActivas().stream()).toList();
     }
 
-    /**
-     * Indica si los pools asociados reúnen, en conjunto, la cantidad de preguntas necesaria para sortear un intento.
-     *
-     * @return {@code true} si hay preguntas suficientes.
-     */
+    /** Indica si los pools asociados reúnen, en conjunto. */
     public boolean tienePreguntasSuficientes() {
         return getPreguntasDisponibles().size() >= cantidadPreguntas;
     }
 
-    /**
-     * Obtiene los intentos vigentes de todos los alumnos sobre la autoevaluación, incluidos los que están en curso.
-     *
-     * @return Los intentos vigentes, del más antiguo al más reciente.
-     */
+    /** Obtiene los intentos vigentes de todos los alumnos sobre la autoevaluación. */
     public List<IntentoAutoevaluacion> getIntentosActivos() {
         return intentosAutoevaluacion.stream().filter(intento -> !intento.getBaja())
                 .sorted(Comparator.comparingInt(IntentoAutoevaluacion::getIdIntentoAutoevaluacion)).toList();
     }
 
-    /**
-     * Indica si algún alumno registra intentos vigentes sobre la autoevaluación: en ese caso su contenido queda protegido.
-     *
-     * @return {@code true} si tiene intentos vigentes.
-     */
+    /** Indica si algún alumno registra intentos vigentes sobre la autoevaluación. */
     public boolean tieneIntentosActivos() {
         return intentosAutoevaluacion.stream().anyMatch(intento -> !intento.getBaja());
     }
 
-    /**
-     * Obtiene el intento que un alumno tiene en curso sobre la autoevaluación.
-     *
-     * @param inscripcion La inscripción del alumno.
-     * @return El intento en curso, o {@code null} si no tiene ninguno.
-     */
+    /** Obtiene el intento que un alumno tiene en curso sobre la autoevaluación. */
     public IntentoAutoevaluacion getIntentoEnCurso(Inscripcion inscripcion) {
         return intentosDe(inscripcion).stream().filter(IntentoAutoevaluacion::estaEnCurso).findFirst().orElse(null);
     }
 
-    /**
-     * Obtiene los intentos vigentes que un alumno registró sobre la autoevaluación.
-     *
-     * @param inscripcion La inscripción del alumno.
-     * @return Los intentos, del más antiguo al más reciente.
-     */
+    /** Obtiene los intentos vigentes que un alumno registró sobre la autoevaluación. */
     public List<IntentoAutoevaluacion> intentosDe(Inscripcion inscripcion) {
         return intentosAutoevaluacion.stream()
                 .filter(intento -> !intento.getBaja()
@@ -291,33 +185,18 @@ public class Autoevaluacion {
                 .sorted(Comparator.comparingInt(IntentoAutoevaluacion::getIdIntentoAutoevaluacion)).toList();
     }
 
-    /**
-     * Calcula cuántos intentos le quedan a un alumno.
-     *
-     * @param inscripcion La inscripción del alumno.
-     * @return Los intentos restantes, o {@code null} si la autoevaluación no limita los intentos.
-     */
+    /** Calcula cuántos intentos le quedan a un alumno. */
     public Integer intentosRestantes(Inscripcion inscripcion) {
         return intentosPermitidos == null ? null : Math.max(0, intentosPermitidos - intentosDe(inscripcion).size());
     }
 
-    /**
-     * Obtiene la mejor nota que un alumno obtuvo entre sus intentos entregados.
-     *
-     * @param inscripcion La inscripción del alumno.
-     * @return La mejor nota, o {@code null} si todavía no entregó ningún intento.
-     */
+    /** Obtiene la mejor nota que un alumno obtuvo entre sus intentos entregados. */
     public Float mejorNota(Inscripcion inscripcion) {
         return intentosDe(inscripcion).stream().map(IntentoAutoevaluacion::getNota).filter(nota -> nota != null)
                 .max(Comparator.naturalOrder()).orElse(null);
     }
 
-    /**
-     * Indica si un alumno aprobó la autoevaluación en alguno de sus intentos (automática o manualmente).
-     *
-     * @param inscripcion La inscripción del alumno.
-     * @return {@code true} si algún intento está aprobado.
-     */
+    /** Indica si un alumno aprobó la autoevaluación en alguno de sus intentos (automática o manualmente). */
     public boolean estaAprobadaPor(Inscripcion inscripcion) {
         return intentosDe(inscripcion).stream().anyMatch(intento -> Boolean.TRUE.equals(intento.getAprobado()));
     }

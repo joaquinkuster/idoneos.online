@@ -23,10 +23,7 @@ import com.app.idoneos.service.curso.CursoServiceImpl;
 import com.app.idoneos.service.docente.DocenteServiceImpl;
 import com.app.idoneos.service.programa.ProgramaServiceImpl;
 
-/**
- * Pruebas de las reglas de negocio de las cohortes (CU-11 a CU-14), sobre los datos de la semilla.
- * Cada prueba se ejecuta en una transacción que se revierte al finalizar.
- */
+/** Pruebas de las reglas de negocio de las cohortes, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class CohorteServiceTest {
@@ -147,7 +144,7 @@ class CohorteServiceTest {
         assertEquals("Error! Los días de acceso (" + (curso.getDuracionDias() - 1)
                 + ") no pueden ser menores a la duración del curso (" + curso.getDuracionDias() + " días).", error.getMessage());
 
-        // con la duración justa se registra; lo que se agrega es el tiempo extra para quien se atrase
+        // con la duración justa se registra. Lo que se agrega es el tiempo extra para quien se atrase
         Cohorte justa = cohorteService.registrar(curso.getIdCurso(), null, INICIO, INICIO.plusDays(30), null,
                 curso.getDuracionDias(), null);
         assertEquals(curso.getDuracionDias(), justa.getAccesoDias());
@@ -259,7 +256,7 @@ class CohorteServiceTest {
         Programa completo = programaDe("Mercado de Capitales Argentino");
         org.junit.jupiter.api.Assumptions.assumeTrue(cohorteService.faltantesDeContenido(completo).isEmpty());
 
-        // sin programa no se activa; con uno completo, sí
+        // sin programa no se activa. Con uno completo, sí
         assertEquals(0, cohorteService.activarPendientesConContenidoCompleto());
         assertTrue(cohorte.esPendiente());
         cohorte.setPrograma(completo);

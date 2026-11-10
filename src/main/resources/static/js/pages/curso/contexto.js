@@ -1,10 +1,4 @@
-/**
- * Selectores de programa y cohorte por defecto de la vista del curso (docente): al elegir una opción se guarda en la
- * participación del docente en el curso y la página se recarga con ese contexto.
- *
- * El selector indica su destino en data-url. Si tiene data-parametro, el valor se envía con ese nombre; si no, la
- * dirección lleva el marcador {valor}, que se reemplaza por el valor elegido.
- */
+/** Selectores de programa y cohorte por defecto de la vista del curso (docente). */
 (function () {
     'use strict';
 

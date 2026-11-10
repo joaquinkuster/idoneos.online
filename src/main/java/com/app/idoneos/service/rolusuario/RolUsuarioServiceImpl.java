@@ -9,86 +9,60 @@ import com.app.idoneos.model.RolUsuario;
 import com.app.idoneos.repository.RolUsuarioRepository;
 import com.app.idoneos.service.CrudService;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link RolUsuario}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link RolUsuarioService}.
- */
+/** Implementación de RolUsuarioService. */
 @Service
 public class RolUsuarioServiceImpl implements RolUsuarioService {
 
     @Autowired
     private RolUsuarioRepository rolUsuarioRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la asignación de rol por su identificador. Incluye los registros dados de baja o anulados, para poder consultarlos.
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la asignación de rol por su identificador. */
     @Override
     public Optional<RolUsuario> buscarPorId(Integer id) {
         return rolUsuarioRepository.findById(id);
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<RolUsuario> obtenerTodo() {
         return rolUsuarioRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado. */
     @Override
     public boolean existePorId(Integer id) {
         return rolUsuarioRepository.existsById(id);
     }
 
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-
-
-    // ---------------------------------------------------------------- Creaciones
-
-    /**
-     * Guarda la asignación de rol en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la asignación de rol en la base de datos. */
     @Override
     public RolUsuario guardar(RolUsuario entidad) {
         return rolUsuarioRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public RolUsuario modificar(RolUsuario entidad) {
         return rolUsuarioRepository.save(entidad);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(RolUsuario entidad) {
         entidad.marcarInactivo(); // Baja lógica

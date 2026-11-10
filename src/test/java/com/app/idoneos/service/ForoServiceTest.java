@@ -30,11 +30,7 @@ import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.service.consultaforo.ConsultaForoService;
 import com.app.idoneos.service.respuestaforo.RespuestaForoService;
 
-/**
- * Pruebas del foro (CU-35 a CU-42) con los datos de la semilla: el tema 1 de "Mercado de Capitales Argentino" tiene una
- * consulta de Valentina Ruiz con una respuesta de Fausto Spotorno; el tema 2, una consulta sin responder; la 3 no tiene
- * consultas. Valentina tiene habilitadas los temas 1 y 2; el plazo de edición es de 15 minutos.
- */
+/** Pruebas del foro con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class ForoServiceTest {
@@ -100,7 +96,9 @@ class ForoServiceTest {
         return assertThrows(IllegalArgumentException.class, accion).getMessage();
     }
 
-    // ------------------------------------------------------------------ CU-35 Buscar consulta
+    // ----------------------------------------------------------------------
+    // Buscar consulta
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-35: se buscan las consultas por texto y por rango de fechas, sin distinguir mayúsculas ni tildes")
@@ -127,7 +125,9 @@ class ForoServiceTest {
         assertEquals(2, consultas.size());
     }
 
-    // ------------------------------------------------------------------ CU-36 Registrar consulta
+    // ----------------------------------------------------------------------
+    // Registrar consulta
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-36: el alumno con el tema habilitado registra una consulta")
@@ -164,7 +164,9 @@ class ForoServiceTest {
         assertTrue(mensaje(() -> consultaService.registrar(null, tema, "Hola")).contains("rol de alumno"));
     }
 
-    // ------------------------------------------------------------------ CU-37 Modificar consulta
+    // ----------------------------------------------------------------------
+    // Modificar consulta
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-37: el alumno modifica su consulta dentro del plazo")
@@ -199,7 +201,9 @@ class ForoServiceTest {
                 .contains("no se encuentra activa"));
     }
 
-    // ------------------------------------------------------------------ CU-38 Dar de baja consulta
+    // ----------------------------------------------------------------------
+    // Dar de baja consulta
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-38: dar de baja una consulta también da de baja sus respuestas")
@@ -216,7 +220,9 @@ class ForoServiceTest {
                 .contains("no se encuentra activa"));
     }
 
-    // ------------------------------------------------------------------ CU-40 a CU-42 Respuestas
+    // ----------------------------------------------------------------------
+    // Respuestas
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-40: el docente del curso responde una consulta y esta deja de estar sin responder")

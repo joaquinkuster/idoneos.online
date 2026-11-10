@@ -23,12 +23,7 @@ import com.app.idoneos.service.pool.PoolService;
 import com.app.idoneos.service.pool.PoolService.SolicitudOpcion;
 import com.app.idoneos.service.pool.PoolService.SolicitudPregunta;
 
-/**
- * Pruebas del ABM de pools (CU-60 a CU-63) con los datos de la semilla: en "Mercado de Capitales Argentino" (titular
- * Fausto Spotorno; Sebastián Bordato no participa en "Macroeconomía de Coyuntura") el pool "Marco regulatorio" de la
- * tema 1 tiene intentos (los de Valentina) y el pool "Renta fija" del tema 2 tiene 6 preguntas y lo usa una
- * autoevaluación que sortea 5.
- */
+/** Pruebas del ABM de pools con los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class PoolServiceTest {
@@ -65,7 +60,7 @@ class PoolServiceTest {
                 .filter(p -> p.getNombre().equals(nombre)).findFirst().orElseThrow();
     }
 
-    /** Pregunta de la solicitud; las opciones correctas llevan un asterisco inicial. */
+    /** Pregunta de la solicitud. Las opciones correctas llevan un asterisco inicial. */
     private SolicitudPregunta pregunta(String texto, boolean multiple, String... opciones) {
         return new SolicitudPregunta(null, texto, multiple, java.util.Arrays.stream(opciones)
                 .map(o -> new SolicitudOpcion(null, o.startsWith("*") ? o.substring(1) : o, o.startsWith("*"))).toList());

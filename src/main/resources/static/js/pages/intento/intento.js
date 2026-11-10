@@ -1,15 +1,11 @@
-/**
- * Autoevaluación del alumno (CU-70): el cuestionario, su resumen y la ficha (confirmación de inicio).
- *
- * Temporizador: el tiempo lo manda el servidor. Cada respuesta del servidor trae los segundos que le quedan al intento y el
- * navegador calcula el vencimiento con performance.now() (un reloj monótono: no le afecta que el alumno cambie la hora de la
- * computadora ni los atrasos de las pestañas inactivas). Además se resincroniza al volver a la pestaña y cada minuto. Al
- * llegar a cero se entrega el intento: aunque no lo hiciera, el servidor lo cierra solo, con las respuestas ya guardadas.
- */
+/** Autoevaluación del alumno: el cuestionario, su resumen y la ficha (confirmación de inicio). */
 (function () {
     'use strict';
 
-    // ------------------------------------------------------------------ Ficha: confirmar el inicio cuando no se puede salir
+    // ----------------------------------------------------------------------
+    // Ficha: confirmar el inicio cuando no se puede salir
+    // ----------------------------------------------------------------------
+
     document.querySelectorAll('form[data-confirmar-inicio]').forEach(function (formulario) {
         formulario.addEventListener('submit', function (evento) {
             if (formulario.dataset.confirmado || formulario.getAttribute('data-sin-salida') !== 'true') {
@@ -36,7 +32,10 @@
     var urlFicha = raiz.dataset.urlFicha;
     var libre = raiz.dataset.libre === 'true';
 
-    // ------------------------------------------------------------------ Utilidades
+    // ----------------------------------------------------------------------
+    // Utilidades
+    // ----------------------------------------------------------------------
+
     function enviar(url, datos, metodo) {
         var opciones = { method: metodo || 'POST', headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' },
             credentials: 'same-origin' };
@@ -56,7 +55,10 @@
         return window.mostrarAviso({ tipo: icon === 'error' ? 'error' : 'info', titulo: titulo, texto: texto, bloquear: true });
     }
 
-    // ------------------------------------------------------------------ Temporizador sincronizado con el servidor
+    // ----------------------------------------------------------------------
+    // Temporizador sincronizado con el servidor
+    // ----------------------------------------------------------------------
+
     var reloj = document.querySelector('[data-reloj]');
     var cajaReloj = document.querySelector('[data-reloj-caja]');
     var venceEn = null; // instante (performance.now) en el que se agota el tiempo
@@ -118,7 +120,10 @@
         }
     }
 
-    // ------------------------------------------------------------------ Entrega
+    // ----------------------------------------------------------------------
+    // Entrega
+    // ----------------------------------------------------------------------
+
     function entregar(tiempoAgotado) {
         if (entregando) { return; }
         entregando = true;
@@ -153,7 +158,10 @@
         });
     }
 
-    // ------------------------------------------------------------------ Cuestionario: guardar respuestas, marcar y avanzar
+    // ----------------------------------------------------------------------
+    // Cuestionario: guardar respuestas, marcar y avanzar
+    // ----------------------------------------------------------------------
+
     var preguntaId = raiz.dataset.pregunta;
     if (!preguntaId) {
         return;

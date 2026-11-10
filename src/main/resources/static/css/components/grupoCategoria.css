@@ -1,4 +1,4 @@
-/* Listados agrupados por categoría (ABM de cursos, Mis cursos, catálogo): cabecera de cada grupo y chips de categoría. */
+/* Listados agrupados por categoría (ABM de cursos, Mis cursos, catálogo). */
 .pn-grupo {
     cursor: pointer;
     user-select: none;
@@ -39,8 +39,7 @@
     color: var(--pn-texto-suave, #64748B);
 }
 
-/* En las cards: una carta blanca por categoría. Arriba el encabezado (etiqueta dorada, nombre con la cantidad y el label que colapsa);
-   debajo, una línea y las cards. Mismos estilos que las secciones del index. */
+/* En las cards: una carta blanca por categoría. */
 .pn-grupos {
     display: flex;
     flex-direction: column;
@@ -53,9 +52,7 @@
     border-radius: 14px;
 }
 
-/* Cartas destacadas (la misma carta de una categoría, con el borde de color, la cabecera teñida, un ícono y el cuerpo en un tono más claro):
-   - pendientes de contenido (docente): dorado.
-   - recomendados según los intereses (alumno): azul. */
+/* Cartas destacadas. */
 .pn-grupo-pendiente .pn-grupo-cabecera,
 .pn-grupo-recomendado .pn-grupo-cabecera {
     justify-content: flex-start;
@@ -177,7 +174,7 @@
 .pn-grupo-titulo {
     margin: 0;
     font-family: 'Fraunces', Georgia, serif;
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
     color: var(--pn-navy, #0F233D);
     line-height: 1.2;
@@ -231,7 +228,7 @@
 
 @media (max-width: 575.98px) {
     .pn-grupo-cabecera { flex-wrap: wrap; }
-    .pn-grupo-titulo { font-size: 24px; }
+    .pn-grupo-titulo { font-size: 22px; }
 }
 
 /* Chips de categoría bajo los filtros */

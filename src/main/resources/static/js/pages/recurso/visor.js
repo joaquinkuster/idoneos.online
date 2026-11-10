@@ -1,24 +1,4 @@
-/**
- * Visor de PDF integrado (MOD-F-02): muestra el documento de a una página, con botones de página anterior y
- * siguiente, número de página, zoom, pantalla completa, navegación con el teclado, un panel lateral con las miniaturas y el
- * índice del documento, y un buscador de palabras.
- *
- *  - Zoom: botones de acercar y alejar (de 50% a 300% del ajuste al ancho), clic en el porcentaje para volver al 100%,
- *    Ctrl + rueda del mouse y las teclas + , - y 0. Con la página más grande que el recuadro se desplaza con las
- *    barras o arrastrando con el mouse.
- *  - Teclado: flechas izquierda y derecha para cambiar de página; Ctrl + F lleva al buscador.
- *  - Miniaturas: una por página, que se dibujan al aparecer en el panel; un clic lleva a la página.
- *  - Índice: el guardado del documento (el que armó el sistema y revisó el docente) y, si no tiene, el propio del PDF (sus marcadores),
- *    anidado por niveles; un clic lleva a la página. Si no hay ninguno, se avisa.
- *  - Anotaciones (solo el alumno): lápiz, marcador y goma, con cinco tamaños y diez colores. Los trazos se dibujan sobre la página y se guardan
- *    solos, por página, en la plataforma (son solo del alumno y no tocan el archivo); al volver a abrir el documento siguen ahí.
- *  - Buscador: busca en el texto de todas las páginas (sin distinguir mayúsculas ni tildes), cuenta las coincidencias, las resalta
- *    en la página y salta de una a otra (Enter, Mayús + Enter o las flechas). Sobre la página hay una capa de texto transparente que
- *    solo sirve para ubicar los resaltados: el texto no se puede seleccionar ni copiar (ver proteccion.js).
- *
- * Usa PDF.js (cargado desde un CDN antes de este script). El archivo se pide a la plataforma con la sesión del usuario
- * (/recurso/archivo/{id}), que controla el acceso.
- */
+/** Visor de PDF integrado: muestra el documento de a una página. */
 (function () {
     'use strict';
 
@@ -96,7 +76,10 @@
         marcarListas();
     }
 
-    // ------------------------------------------------------------------ página
+    // ----------------------------------------------------------------------
+    // página
+    // ----------------------------------------------------------------------
+
     /** Dibuja una página ajustada al ancho del visor (y al alto, en pantalla completa), multiplicada por el zoom. */
     function dibujar(numero) {
         if (renderizando) { pendiente = numero; return; }
@@ -163,7 +146,7 @@
         });
     }
 
-    /** La capa de texto transparente sobre la página: sirve para ubicar los resaltados del buscador. Si falla, la página se ve igual. */
+    /** La capa de texto transparente sobre la página: sirve para ubicar los resaltados del buscador. */
     function dibujarTexto(paginaPdf, vista) {
         capaTexto.textContent = '';
         divsTexto = [];
@@ -191,7 +174,10 @@
         dibujar(pagina);
     }
 
-    // ------------------------------------------------------------------ miniaturas
+    // ----------------------------------------------------------------------
+    // miniaturas
+    // ----------------------------------------------------------------------
+
     var observador = null;
 
     function pintarMiniatura(boton) {
@@ -231,7 +217,10 @@
         });
     }
 
-    // ------------------------------------------------------------------ índice
+    // ----------------------------------------------------------------------
+    // índice
+    // ----------------------------------------------------------------------
+
     function paginaDeDestino(destino) {
         if (!destino) { return Promise.resolve(null); }
         var resuelto = typeof destino === 'string' ? documento.getDestination(destino) : Promise.resolve(destino);
@@ -334,7 +323,10 @@
         if (documento) { dibujar(pagina); } // cambió el ancho disponible
     });
 
-    // ------------------------------------------------------------------ buscador
+    // ----------------------------------------------------------------------
+    // buscador
+    // ----------------------------------------------------------------------
+
     var textos = {};   // número de página -> los textos de sus fragmentos (se leen una sola vez)
     var busqueda = { consulta: '', resultados: [], actual: -1, turno: 0 };
 
@@ -416,7 +408,7 @@
         irAlResultado();
     }
 
-    /** Resalta en la página dibujada las coincidencias; la actual, más fuerte. Con desplazar, la lleva al centro de la vista. */
+    /** Resalta en la página dibujada las coincidencias. La actual, más fuerte. */
     function marcarPagina(desplazar) {
         divsTexto.forEach(function (d) {
             if (d.dataset.original !== undefined) { d.textContent = d.dataset.original; delete d.dataset.original; }
@@ -470,10 +462,13 @@
     botonResultadoAnterior.addEventListener('click', function () { moverResultado(-1); });
     botonResultadoSiguiente.addEventListener('click', function () { moverResultado(1); });
 
-    // ------------------------------------------------------------------ anotaciones del alumno
+    // ----------------------------------------------------------------------
+    // anotaciones del alumno
+    // ----------------------------------------------------------------------
+
     var TAMANIOS = [2, 4, 8, 14, 22];   // grosor en píxeles de pantalla (el marcador es más ancho)
     var COLORES = ['#FCA5A5', '#FDE68A', '#86EFAC', '#93C5FD', '#FDBA74', '#F87171', '#FACC15', '#4ADE80', '#60A5FA', '#C4B5FD'];
-    var trazosPorPagina = {};           // número de página -> lista de trazos { t, c, w, p: [[x, y], ...] } (todo relativo a la página)
+    var trazosPorPagina = {};           // número de página -> lista de trazos { t, c, w, p: [[x, y],...] } (todo relativo a la página)
     var anotando = false;
     var herramienta = 'marcador';
     var indiceTamanio = 2;
@@ -658,7 +653,10 @@
         });
     }
 
-    // ------------------------------------------------------------------ apertura del documento
+    // ----------------------------------------------------------------------
+    // apertura del documento
+    // ----------------------------------------------------------------------
+
     window.pdfjsLib.getDocument({ url: visor.dataset.url, withCredentials: true }).promise.then(function (doc) {
         documento = doc;
         total = doc.numPages;

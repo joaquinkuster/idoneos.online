@@ -10,11 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Recurso didáctico de un docente: una grabación, un material de lectura, una bibliografía, un enlace o un video con clon.
- * Los datos propios de cada clase están en su tabla (relación uno a uno con {@code idRecurso}). Un recurso se usa en los
- * temas que lo incluyen ({@link TemaRecurso}).
- */
+/** Entidad que representa un recurso didáctico de un docente. Puede ser una grabación, un material de lectura o una bibliografía. */
 @Entity
 @Table(name = "Recurso")
 @Check(name = "ck_recurso_titulo", constraints = "trim(titulo) <> ''")
@@ -41,141 +37,92 @@ public class Recurso {
     /** Tipo de recurso: video con clon de inteligencia artificial. */
     public static final String VIDEO_CLON = "Video clon";
 
-    /**
-     * Identificador único del recurso.
-     */
+    /** Identificador único del recurso. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idRecurso")
     private int idRecurso;
 
-    /**
-     * Relación con Docente: el docente dueño del recurso.
-     */
+    /** Relación con Docente: el docente dueño del recurso. */
     @ManyToOne
     @JoinColumn(name = "idDocente", nullable = false)
     private Docente docente;
 
-    /**
-     * Título.
-     */
+    /** Título. */
     @Column(name = "titulo", nullable = false, length = 150)
     private String titulo;
 
-    /**
-     * Descripción. Es opcional.
-     */
+    /** Descripción. */
     @Column(name = "descripcion", nullable = true, length = 500)
     private String descripcion;
 
-    /**
-     * Indica si el recurso es privado (solo lo puede usar su dueño) o puede usarlo cualquier docente.
-     */
+    /** Indica si el recurso es privado (solo lo puede usar su dueño) o puede usarlo cualquier docente. */
     @Column(name = "privado", nullable = false)
     private Boolean privado = true;
 
-    /**
-     * Fecha y hora en que el docente aceptó los términos y condiciones del recurso (derechos sobre su contenido).
-     */
+    /** Fecha y hora en que el docente aceptó los términos y condiciones del recurso (derechos sobre su contenido). */
     @Column(name = "fechaAceptacionTyc", nullable = false)
     private LocalDateTime fechaAceptacionTyc = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de creación.
-     */
+    /** Fecha y hora de creación. */
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de la última modificación. Es opcional.
-     */
+    /** Fecha y hora de la última modificación. */
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
-    /**
-     * Baja lógica.
-     */
+    /** Baja lógica. */
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
 
-    /**
-     * Datos del recurso si es un enlace externo.
-     */
+    /** Datos del recurso si es un enlace externo. */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
     private Enlace enlace;
 
-    /**
-     * Datos del recurso si es una grabación.
-     */
+    /** Datos del recurso si es una grabación. */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
     private Grabacion grabacion;
 
-    /**
-     * Datos del recurso si es un material de lectura (presentación, resumen...).
-     */
+    /** Datos del recurso si es un material de lectura (presentación, resumen...). */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
     private MaterialLectura materialLectura;
 
-    /**
-     * Datos del recurso si es una bibliografía.
-     */
+    /** Datos del recurso si es una bibliografía. */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
     private Bibliografia bibliografia;
 
-    /**
-     * Datos del recurso si es un video con clon.
-     */
+    /** Datos del recurso si es un video con clon. */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
     private VideoClon videoClon;
 
-    /**
-     * Conjunto de temas que usan el recurso.
-     */
+    /** Conjunto de temas que usan el recurso. */
     @OneToMany(mappedBy = "recurso", cascade = CascadeType.ALL)
     private Set<TemaRecurso> temasRecurso = new HashSet<>();
 
-    /**
-     * Constructor para crear el recurso con los datos básicos.
-     *
-     * @param docente el docente dueño.
-     * @param titulo  título.
-     */
+    /** Crea el recurso con los datos básicos. */
     public Recurso(Docente docente, String titulo) {
         this.docente = docente;
         this.titulo = titulo;
     }
 
-    /**
-     * Da de baja el recurso (baja lógica).
-     */
+    /** Da de baja el recurso (baja lógica). */
     public void marcarInactivo() {
         baja = true;
     }
 
-    /**
-     * Verifica si el recurso está dado de baja.
-     *
-     * @return true si está dado de baja.
-     */
+    /** Verifica si el recurso está dado de baja. */
     public boolean esInactivo() {
         return baja;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del recurso.
-     *
-     * @return El título.
-     */
+    /** Devuelve una representación en forma de cadena del recurso. */
     @Override
     public String toString() {
         return titulo;
     }
 
-    /**
-     * Obtiene el tipo del recurso según la tabla que guarda sus datos.
-     *
-     * @return "Presentación", "Resumen", "Bibliografía", "Grabación", "Enlace" o "Video clon".
-     */
+    /** Obtiene el tipo del recurso según la tabla que guarda sus datos. */
     public String getTipo() {
         if (materialLectura != null) {
             return materialLectura.getCategoriaMaterialLectura().getNombre();
@@ -192,11 +139,7 @@ public class Recurso {
         return ENLACE;
     }
 
-    /**
-     * Obtiene la ruta del archivo del recurso, o su dirección si es un enlace externo.
-     *
-     * @return La ruta o la dirección, o {@code null} si no tiene ninguna.
-     */
+    /** Obtiene la ruta del archivo del recurso, o su dirección si es un enlace externo. */
     public String getRutaArchivo() {
         if (materialLectura != null) {
             return materialLectura.getRutaArchivo();
@@ -213,11 +156,7 @@ public class Recurso {
         return enlace == null ? null : enlace.getUrl();
     }
 
-    /**
-     * Obtiene el estado del reconocimiento de texto (OCR) del archivo del recurso (de un material de lectura o de una bibliografía).
-     *
-     * @return El estado, o {@code null} si el archivo no necesita OCR.
-     */
+    /** Obtiene el estado del reconocimiento de texto (OCR) del archivo del recurso (de un material de lectura o de una bibliografía). */
     public EstadoOCR getEstadoOcr() {
         if (materialLectura != null) {
             return materialLectura.getEstadoOcr();
@@ -225,11 +164,7 @@ public class Recurso {
         return bibliografia == null ? null : bibliografia.getEstadoOcr();
     }
 
-    /**
-     * Cambia el estado del OCR del archivo del recurso (solo lo tienen los materiales de lectura y las bibliografías).
-     *
-     * @param estado El estado, o {@code null} si el archivo no necesita OCR.
-     */
+    /** Cambia el estado del OCR del archivo del recurso (solo lo tienen los materiales de lectura y las bibliografías). */
     public void setEstadoOcr(EstadoOCR estado) {
         if (materialLectura != null) {
             materialLectura.setEstadoOcr(estado);
@@ -238,11 +173,7 @@ public class Recurso {
         }
     }
 
-    /**
-     * Actualiza el tamaño del archivo del recurso (por ejemplo, cuando el OCR lo reemplaza por la versión con texto).
-     *
-     * @param bytes El tamaño nuevo, en bytes.
-     */
+    /** Actualiza el tamaño del archivo del recurso. */
     public void actualizarTamanioBytes(long bytes) {
         if (materialLectura != null) {
             materialLectura.setTamanioBytes(bytes);
@@ -251,11 +182,7 @@ public class Recurso {
         }
     }
 
-    /**
-     * Obtiene el autor del recurso (de un material de lectura o de una bibliografía).
-     *
-     * @return El autor, o {@code null} si el recurso no lo tiene.
-     */
+    /** Obtiene el autor del recurso (de un material de lectura o de una bibliografía). */
     public String getAutor() {
         if (materialLectura != null) {
             return materialLectura.getAutor();
@@ -263,39 +190,23 @@ public class Recurso {
         return bibliografia == null ? null : bibliografia.getAutor();
     }
 
-    /**
-     * Indica si el recurso lo generó una inteligencia artificial.
-     *
-     * @return true si es un material de lectura generado por IA o un video con clon.
-     */
+    /** Indica si el recurso lo generó una inteligencia artificial. */
     public boolean getGeneradoPorIa() {
         return videoClon != null || (materialLectura != null && materialLectura.getGeneradoPorIa());
     }
 
-    /**
-     * Indica si el recurso es un enlace externo.
-     *
-     * @return true si su contenido es una dirección web.
-     */
+    /** Indica si el recurso es un enlace externo. */
     public boolean esEnlaceExterno() {
         return enlace != null;
     }
 
-    /**
-     * Indica si el recurso tiene un archivo guardado en la plataforma.
-     *
-     * @return true si tiene archivo.
-     */
+    /** Indica si el recurso tiene un archivo guardado en la plataforma. */
     public boolean tieneArchivo() {
         String ruta = getRutaArchivo();
         return ruta != null && enlace == null;
     }
 
-    /**
-     * Obtiene la extensión del archivo del recurso.
-     *
-     * @return La extensión en minúsculas, o una cadena vacía si no tiene archivo.
-     */
+    /** Obtiene la extensión del archivo del recurso. */
     public String getExtension() {
         String ruta = getRutaArchivo();
         if (!tieneArchivo() || !ruta.contains(".")) {
@@ -304,12 +215,7 @@ public class Recurso {
         return ruta.substring(ruta.lastIndexOf('.') + 1).toLowerCase();
     }
 
-    /**
-     * Obtiene la modalidad del curso a la que corresponde el recurso: En vivo si es la grabación de una clase en vivo,
-     * Grabada si es una grabación suelta, Clon de IA si es un video con clon.
-     *
-     * @return La modalidad, o {@code null} si el recurso no corresponde a ninguna (lectura, bibliografía, enlace).
-     */
+    /** Obtiene la modalidad del curso a la que corresponde el recurso. */
     public String getModalidadAsociada() {
         if (grabacion != null) {
             return grabacion.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja()) ? Modalidad.EN_VIVO

@@ -1,6 +1,4 @@
-/* Ancho de contenido de todo el sitio: el mismo que el del navbar. El contenido arranca donde arranca el logo y termina donde termina el
-   menú del usuario (--nb-relleno a cada lado, sin ancho máximo), tanto en el sitio público y las páginas del alumno como en el panel.
-   Va al final de la lista de estilos para ganar sobre los anchos y rellenos de cada página. */
+/* Ancho de contenido de todo el sitio: el mismo que el del navbar. */
 :root {
     --wf-ancho-contenedor: 100%;
 }

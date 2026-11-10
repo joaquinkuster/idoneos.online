@@ -23,12 +23,7 @@ import com.app.idoneos.service.curso.CursoService.ContextoCurso;
 import com.app.idoneos.service.progreso.ProgresoService.DetalleProgreso;
 import com.app.idoneos.service.progreso.ProgresoService;
 
-/**
- * Controlador del progreso de los alumnos de un curso (MOD-F-03).
- *
- * Mapea la pantalla de CU-55 Buscar progreso (GET /progreso/buscar), para el docente y el administrador. El detalle de
- * cada alumno por tema se despliega debajo de su fila.
- */
+/** Controlador del progreso. */
 @Controller
 @RequestMapping("/progreso")
 public class ProgresoController {
@@ -39,18 +34,11 @@ public class ProgresoController {
     @Autowired
     private ProgresoService progresoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-55: Lista los alumnos inscriptos en el curso, de todas sus cohortes, con su avance y, desplegable debajo de
-     * cada uno, el detalle por tema. El filtro por alumno se aplica en la pantalla.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del progreso, o una redirección a la lista de cursos si no se puede acceder.
-     */
+    /** GET /progreso/buscar: Lista los alumnos inscriptos en el curso, de todas sus cohortes, con su avance y el detalle por tema de cada uno. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
@@ -58,11 +46,11 @@ public class ProgresoController {
             ContextoCurso contexto = panel.contextoDelPanel(cursoId, (Usuario) authentication.getPrincipal());
             panel.cargarContexto(model, contexto, "progreso");
             List<Inscripcion> inscripciones = progresoService.buscarConFiltros(contexto.curso().getIdCurso(), null);
-            // El docente entra con el filtro en su cohorte de trabajo; el administrador ve todas
+            // El docente entra con el filtro en su cohorte de trabajo. El administrador ve todas
             Integer cohorteSeleccionada = contexto.participacion() == null ? null
                     : contexto.participacion().getCohorteDeTrabajo() == null ? null
                             : contexto.participacion().getCohorteDeTrabajo().getIdCohorte();
-            // Entra con el filtro en la cohorte de trabajo; si el navegador pide otra página o cambia el filtro, manda su propia elección
+            // Entra con el filtro en la cohorte de trabajo. Si el navegador pide otra página o cambia el filtro, manda su propia elección
             java.util.Map<String, String[]> parametros = new java.util.HashMap<>(request.getParameterMap());
             if (!PaginacionUtil.pideSoloFilas(request) && !parametros.containsKey("cohorte") && cohorteSeleccionada != null) {
                 parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
@@ -91,16 +79,17 @@ public class ProgresoController {
         }
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (filtros y página en el servidor)
+        // ----------------------------------------------------------------------
+        // Listado (filtros y página en el servidor)
+        // ----------------------------------------------------------------------
 
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Inscripcion> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Inscripcion>("alumno", FiltroUtil.Tipo.TEXTO,
                         i -> i.getAlumno().getUsuario().getNombreCompleto() + " " + i.getAlumno().getUsuario().getDni() + " "

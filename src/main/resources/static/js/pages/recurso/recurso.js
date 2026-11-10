@@ -1,16 +1,4 @@
-/**
- * Comportamiento del ABM de materiales (MOD-F-02).
- *
- *  1. Selector "Agregar un recurso o actividad" (vista del curso): muestra la descripción de lo elegido y, al
- *     confirmar, redirige al ABM de materiales con el tema y el tipo elegidos o, si se elige Glosario, al
- *     glosario del tema con el formulario de alta abierto.
- *  2. Formulario de alta: el tipo de material es un campo del formulario y los datos que pide (formatos y tamaño del
- *     archivo, enlace externo y autor) se adaptan al tipo.
- *  3. Si la página se abre con ?nuevo={tipo}, abre sola el formulario con ese tipo elegido.
- *  4. Validación del archivo (formato y tamaño) y aviso "Subiendo…" mientras se envía.
- *
- * Los formatos, tamaños y reglas de cada tipo vienen del servidor (atributos data- de las opciones).
- */
+/** Comportamiento del ABM de materiales. */
 (function () {
     'use strict';
 
@@ -21,9 +9,10 @@
         return window.bootstrap.Modal.getOrCreateInstance(elemento);
     }
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // 1. Selector de recurso o actividad
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
     function opciones() {
         return Array.prototype.slice.call(selector.querySelectorAll('.ac-selector-opcion:not(.ac-selector-opcion-deshabilitada)'));
     }
@@ -33,7 +22,7 @@
         return marcada ? marcada.closest('.ac-selector-opcion') : null;
     }
 
-    // Qué se hace en la pestaña «Desde cero» de cada tipo de recurso
+    // Qué se hace en la pestaña "Desde cero" de cada tipo de recurso
     var DESDE_CERO = {
         PRESENTACION: 'Registrás una nueva presentación: subís las diapositivas de una clase en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
         BIBLIOGRAFIA: 'Registrás una nueva bibliografía: cargás un texto o material de lectura con su autor y su ISBN (el archivo PDF es opcional) y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
@@ -52,9 +41,10 @@
         prepararPestanas(elegida);
     }
 
-    // ------------------------------------------------------------------
-    // Pestañas «Nuevo» / «De la biblioteca»: reutilizar un recurso de la biblioteca digital en un tema del curso
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+    // Pestañas "Nuevo" / "De la biblioteca": reutilizar un recurso de la biblioteca digital en un tema del curso
+    // ----------------------------------------------------------------------
+
     var biblioteca = { pestana: 'nuevo', tipo: null, recursos: [], elegidos: [], pedido: 0, cerrados: {}, pagina: 1, tamanio: 5, irAlElegido: false };
 
     function elementoDe(atributo) { return selector.querySelector('[' + atributo + ']'); }
@@ -79,7 +69,7 @@
         elementoDe('data-selector-pie').hidden = true;
     }
 
-    /** Cambiar de página o de filas por página se muestra con el mismo esqueleto que la carga, un instante antes de dibujar la lista. */
+    /** Cambiar de página o de filas por página se muestra con el mismo esqueleto que la carga. */
     function pintarConEsqueleto() {
         var turno = ++biblioteca.pedido;
         mostrarEsqueleto();
@@ -102,7 +92,7 @@
         var texto = (elementoDe('data-selector-buscar').value || '').trim().toLowerCase();
         contenedor.classList.remove('pn-sk-lista');
         contenedor.textContent = '';
-        // Los del docente primero y luego los de otros docentes; la página se arma sobre ese orden
+        // Los del docente primero y luego los de otros docentes. La página se arma sobre ese orden
         var visibles = biblioteca.recursos.filter(function (r) {
             return !texto || [r.titulo, r.autor, r.isbn].some(function (v) { return v && v.toLowerCase().indexOf(texto) >= 0; });
         });
@@ -122,7 +112,7 @@
             if (!filas.length) { return; }
             // La cantidad del divisor es la de todo el listado filtrado, no solo la de la página
             var enTotal = visibles.filter(function (r) { return r.propio === grupo.propio; }).length;
-            // Divisor con el mismo estilo que los de tipo de recurso de la biblioteca: flecha, nombre y cantidad; al hacerle clic se colapsa el grupo
+            // Divisor con el mismo estilo que los de tipo de recurso de la biblioteca: flecha, nombre y cantidad. Al hacerle clic se colapsa el grupo
             var cabecera = document.createElement('div');
             cabecera.className = 'ac-bib-grupo' + (biblioteca.cerrados[grupo.titulo] ? ' cerrado' : '');
             cabecera.setAttribute('role', 'button');
@@ -277,7 +267,7 @@
         }
     }
 
-    /** Abre el selector en la pestaña de la biblioteca con ese recurso elegido (viene de «Registrar en un tema» de la biblioteca digital). */
+    /** Abre el selector en la pestaña de la biblioteca con ese recurso elegido (viene de "Registrar en un tema" de la biblioteca digital). */
     window.abrirSelectorConRecurso = function (idRecurso) {
         if (!selector) { return; }
         fetch('/recurso/reutilizables', { headers: { 'Accept': 'application/json' }, credentials: 'same-origin' })
@@ -376,13 +366,11 @@
         modal(selector).show();
     });
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // 2 y 3. Formulario de alta según el tipo (y apertura automática desde ?nuevo={tipo})
-    // ------------------------------------------------------------------
-    /**
-     * Qué pide cada tipo de material (los formatos y tamaños vienen del servidor, en la opción elegida): si lleva
-     * archivo y si es obligatorio, y los demás campos que muestra con los que son obligatorios.
-     */
+    // ----------------------------------------------------------------------
+
+    /** Qué pide cada tipo de material (los formatos y tamaños vienen del servidor, en la opción elegida). */
     var TIPOS = {
         PRESENTACION: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo de la presentación' },
         BIBLIOGRAFIA: { archivo: true, archivoObligatorio: false, campos: ['autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion'], obligatorios: ['autor', 'isbn'], etiqueta: 'Archivo (opcional)' },
@@ -465,9 +453,10 @@
         modal(document.getElementById(principal.dataset.abrirModal)).show();
     }
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // 4. Validación del archivo y aviso de subida
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
     window.PanelValidadores = window.PanelValidadores || {};
     window.PanelValidadores.material = function (paso, formulario) {
         if (paso !== 2) { return true; } // el archivo y los datos de la obra se piden en el segundo paso
@@ -479,8 +468,7 @@
         return true;
     };
 
-    // Cuenta las páginas de un PDF con PDF.js (se carga la primera vez que hace falta): leer el texto del archivo no alcanza porque los
-    // PDF modernos guardan sus páginas dentro de objetos comprimidos. Si PDF.js no se puede cargar, se cuenta como antes.
+    // Cuenta las páginas de un PDF con PDF.js (se carga la primera vez que hace falta).
     var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
     var cargaPdfjs = null;
     function cargarPdfjs() {
@@ -515,9 +503,10 @@
         }).then(function (pdf) { return pdf.numPages; }).catch(function () { return contarPaginasAlMenos(archivo); });
     }
 
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // 5. Vista previa: la primera página de un PDF o un cuadro de un video, en una miniatura
-    // ------------------------------------------------------------------
+    // ----------------------------------------------------------------------
+
     var ANCHO_VISTA_PREVIA = 180;
 
     var turnoVistaPrevia = 0;
@@ -596,7 +585,7 @@
         }
     });
 
-    // Páginas y duración: los calcula el navegador al elegir el archivo (un PDF cuenta sus páginas; un video lee su duración)
+    // Páginas y duración: los calcula el navegador al elegir el archivo (un PDF cuenta sus páginas. Un video lee su duración)
     document.addEventListener('change', function (e) {
         var entrada = e.target;
         if (!entrada.matches || !entrada.matches('input[type="file"][name="archivo"]') || !entrada.files || !entrada.files[0]) { return; }
@@ -615,7 +604,7 @@
             video.preload = 'metadata';
             video.onloadedmetadata = function () {
                 URL.revokeObjectURL(video.src);
-                // El servidor guarda los minutos (redondeados hacia arriba); los segundos se muestran para que se vea lo que dura el video
+                // El servidor guarda los minutos (redondeados hacia arriba). Los segundos se muestran para que se vea lo que dura el video
                 var total = isFinite(video.duration) ? Math.max(1, Math.round(video.duration)) : 0;
                 duracion.value = total ? Math.ceil(total / 60) : '';
                 if (duracionMin) { duracionMin.value = total ? Math.floor(total / 60) : ''; }

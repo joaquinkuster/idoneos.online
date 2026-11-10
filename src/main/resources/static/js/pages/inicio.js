@@ -1,7 +1,4 @@
-/**
- * Índice de categorías del inicio: muestra de a 5 filas por página (data-por-pagina) y arma el paginador (anterior,
- * números y siguiente). Si hay una sola página no muestra el paginador.
- */
+/** Índice de categorías del inicio: muestra de a 5 filas por página (data-por-pagina) y arma el paginador (anterior, números y siguiente). */
 (function () {
     'use strict';
 
@@ -42,10 +39,7 @@
     dibujar();
 })();
 
-/**
- * Hero del inicio: puntos del mismo estilo que los de "Acerca de" (siguen a la imagen que se muestra y llevan a ella) y
- * la imagen se puede arrastrar para pasar a la anterior o a la siguiente.
- */
+/** Hero del inicio: puntos del mismo estilo que los de "Acerca de" (siguen a la imagen que se muestra y llevan a ella) y la imagen se puede arrastrar para pasar a la anterior o a la siguiente. */
 (function () {
     'use strict';
 

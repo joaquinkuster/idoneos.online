@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-/** Agrupa las filas de una página de un listado por categoría, para dibujar una carta por cada una. */
+/** Utilidad de agrupación de listados. Agrupa las filas de una página por categoría, para dibujar una carta por cada una. */
 public final class AgrupacionUtil {
 
     private AgrupacionUtil() {
@@ -15,8 +15,7 @@ public final class AgrupacionUtil {
      * Un grupo de filas consecutivas de una misma categoría.
      *
      * @param categoria La categoría del grupo.
-     * @param filas     Las filas de la página que son de esa categoría, en el orden del listado.
-     * @param <T>       El tipo de fila.
+     * @param filas Las filas de la página que son de esa categoría, en el orden del listado.
      */
     public record Grupo<T>(Categoria categoria, List<T> filas) {
     }
@@ -24,9 +23,8 @@ public final class AgrupacionUtil {
     /**
      * Agrupa las filas en grupos de categorías consecutivas (el listado ya viene ordenado por categoría).
      *
-     * @param filas     Las filas de la página.
+     * @param filas Las filas de la página.
      * @param categoria La categoría de cada fila.
-     * @param <T>       El tipo de fila.
      * @return Los grupos, en el orden en que aparecen las filas.
      */
     public static <T> List<Grupo<T>> agrupar(List<T> filas, Function<T, Categoria> categoria) {

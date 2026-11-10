@@ -37,9 +37,7 @@
     overflow-y: auto;
 }
 
-/* Árbol del resumen: mismo estilo que el organigrama (RRHH). Cada nodo tiene una línea vertical con un codo, un punto y
-   un título. Colores: curso (dorado), programa (azul), los niveles siguientes alternan dorado y azul, lo que se registra (verde) y lo
-   que se modifica (naranja). */
+/* Árbol del resumen: mismo estilo que el organigrama (RRHH). */
 .pn-nodo {
     --color: #94A3B8;
     position: relative;

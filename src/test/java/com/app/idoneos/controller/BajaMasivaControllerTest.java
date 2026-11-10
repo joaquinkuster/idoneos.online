@@ -20,10 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.categoria.CategoriaServiceImpl;
 
-/**
- * Pruebas de la baja masiva (todos o ninguno) y de las pantallas del catálogo y de la ficha del curso.
- * No son transaccionales: comprueban que, ante un error, la base de datos queda sin cambios.
- */
+/** Pruebas de la baja masiva (todos o ninguno) y de las pantallas del catálogo y de la ficha del curso. */
 @SpringBootTest
 @AutoConfigureMockMvc
 class BajaMasivaControllerTest {

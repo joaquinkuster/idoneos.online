@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Tipo de acción auditada (crear, modificar, eliminar).
- */
+/** Entidad que representa un tipo de acción auditada. Puede ser crear, modificar o eliminar. */
 @Entity
 @Table(name = "TipoAccionAuditoria")
 @Getter
@@ -15,34 +13,22 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TipoAccionAuditoria {
 
-    /**
-     * Identificador único del tipo de acción auditada.
-     */
+    /** Identificador único del tipo de acción auditada. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idTipoAuditoria")
     private int idTipoAuditoria;
 
-    /**
-     * Nombre.
-     */
+    /** Nombre. */
     @Column(name = "nombre", nullable = false, length = 50, unique = true)
     private String nombre;
 
-    /**
-     * Constructor para crear el tipo de acción auditada con los datos básicos.
-     *
-     * @param nombre nombre.
-     */
+    /** Crea el tipo de acción auditada con los datos básicos. */
     public TipoAccionAuditoria(String nombre) {
         this.nombre = nombre;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del tipo de acción auditada.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del tipo de acción auditada. */
     @Override
     public String toString() {
         return nombre;

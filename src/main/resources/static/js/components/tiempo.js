@@ -1,11 +1,4 @@
-/**
- * Campos de tiempo escritos en partes (fragments/campoTiempo.html): horas y minutos, o meses, semanas y días.
- *
- * Cada campo tiene un total oculto (el que se envía al servidor, en minutos o en días) y una casilla por parte. Al escribir,
- * el total se recalcula y una línea debajo lo muestra ("= 400 minutos", o 0 si no se escribió nada); al salir de una casilla, las partes se normalizan
- * (6 h 90 min pasan a 7 h 30 min). Las casillas vacías cuentan como 0; si todas están vacías, el total queda vacío.
- * El total guarda también su texto ("6 h 40 min") para el resumen del formulario.
- */
+/** Campos de tiempo escritos en partes (fragments/campoTiempo.html): horas y minutos, o meses. */
 (function () {
     'use strict';
 
@@ -18,7 +11,7 @@
         return Array.prototype.slice.call(contenedor.querySelectorAll('[data-tiempo-parte]'));
     }
 
-    /** Suma las partes; null si todas están vacías. */
+    /** Suma las partes. Null si todas están vacías. */
     function calcular(contenedor) {
         var factores = FACTORES[contenedor.dataset.tiempo];
         var total = 0;

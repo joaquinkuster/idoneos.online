@@ -28,11 +28,7 @@ import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.service.recurso.RecursoService;
 import com.app.idoneos.service.recurso.RecursoService.DatosRecurso;
 
-/**
- * Pruebas del ABM de materiales (CU-28 a CU-31): cada material es un recurso del docente (con los datos propios de su
- * tipo) usado en un tema. El docente Fausto Spotorno es titular de "Mercado de Capitales Argentino" y Sebastián Bordato no
- * participa en "Macroeconomía de Coyuntura".
- */
+/** Pruebas del ABM de materiales. */
 @SpringBootTest
 @Transactional
 class RecursoServiceTest {
@@ -88,7 +84,9 @@ class RecursoServiceTest {
         return assertThrows(IllegalArgumentException.class, accion::run).getMessage();
     }
 
-    // ------------------------------------------------------------------ CU-29 Subir material
+    // ----------------------------------------------------------------------
+    // Subir material
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-29: sube una grabación como recurso del docente y la guarda en curso{id}/tema{id}/recurso{id}.mp4")
@@ -186,60 +184,58 @@ class RecursoServiceTest {
                 datos("Clase", null, null, null), archivo("clase.mp4", MP4), true)).contains("rol de docente"));
     }
 
-    // ------------------------------------------------------------------ CU-30 Modificar material
+    // ----------------------------------------------------------------------
+    // Modificar material
+    // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-30: modifica el título, la descripción y la visibilidad, y reemplaza el archivo sin dejar el anterior")
-    void modifica() {
+    @DisplayName("CU-30: desde el panel del curso solo se cambia la visibilidad del material; los datos del recurso no se tocan")
+    void cambiaLaVisibilidad() {
         TemaRecurso material = subirGrabacion("Clase original");
         String rutaAnterior = material.getRutaArchivo();
 
-        recursoService.modificar(material.getIdTemaRecurso(), fausto(),
-                new DatosRecurso("Clase nueva", "Con descripción", true, null, null, null, null, null, null, 45),
-                archivo("clase.webm", WEBM));
+        recursoService.cambiarVisibilidad(material.getIdTemaRecurso(), fausto(), true);
 
-        assertEquals("Clase nueva", material.getTitulo());
-        assertEquals("Con descripción", material.getRecurso().getDescripcion());
         assertTrue(material.getOculto());
         assertFalse(material.estaPublicado());
-        assertEquals(45, material.getRecurso().getGrabacion().getDuracionMinutos());
-        assertTrue(material.getRutaArchivo().endsWith(".webm"));
-        assertFalse(Files.exists(directorioCursos.resolve(rutaAnterior)));
+        assertEquals("Clase original", material.getTitulo());
+        assertEquals(rutaAnterior, material.getRutaArchivo());
         assertNotNull(material.getUltimaModificacion());
+
+        recursoService.cambiarVisibilidad(material.getIdTemaRecurso(), fausto(), false);
+        assertTrue(material.estaPublicado());
     }
 
     @Test
-    @DisplayName("CU-30: una bibliografía se modifica con sus datos propios, y un material dado de baja no se modifica")
-    void modificaUnaBibliografia() {
+    @DisplayName("CU-30: la visibilidad la cambia un docente del curso, y un material dado de baja no se modifica")
+    void cambiaLaVisibilidadDeUnaBibliografia() {
         TemaRecurso bibliografia = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "BIBLIOGRAFIA",
                 datos("Manual", "Autor", null, "978-0-00-000000-0"), null, true);
 
-        recursoService.modificar(bibliografia.getIdTemaRecurso(), fausto(),
-                new DatosRecurso("Manual 2", null, false, "Otro autor", null, "978-1-11-111111-1", "Editorial", 300, null, null),
-                null);
-
-        assertEquals("Otro autor", bibliografia.getAutor());
-        assertEquals("Editorial", bibliografia.getRecurso().getBibliografia().getEditorial());
-        assertEquals(300, bibliografia.getRecurso().getBibliografia().getPaginas());
-        assertTrue(mensaje(() -> recursoService.modificar(bibliografia.getIdTemaRecurso(), fausto(),
-                datos(" ", "Autor", null, "978"), null)).contains("título"));
+        assertTrue(mensaje(() -> recursoService.cambiarVisibilidad(bibliografia.getIdTemaRecurso(),
+                docente("sebastian.bordato@idoneos.online"), true)).contains("No participás"));
+        recursoService.cambiarVisibilidad(bibliografia.getIdTemaRecurso(), fausto(), true);
+        assertTrue(bibliografia.getOculto());
+        assertEquals("Manual", bibliografia.getTitulo());
 
         recursoService.darDeBaja(bibliografia.getIdTemaRecurso(), fausto());
-        assertTrue(mensaje(() -> recursoService.modificar(bibliografia.getIdTemaRecurso(), fausto(),
-                datos("Otro", "Autor", null, "978"), null)).contains("no se encuentra activo"));
+        assertTrue(mensaje(() -> recursoService.cambiarVisibilidad(bibliografia.getIdTemaRecurso(), fausto(), false))
+                .contains("no se encuentra activo"));
     }
 
-    // ------------------------------------------------------------------ CU-31 Dar de baja material
+    // ----------------------------------------------------------------------
+    // Dar de baja material
+    // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-31: la baja da de baja el uso en el tema y el recurso (si nadie más lo usa), y conserva el archivo")
+    @DisplayName("CU-31: la baja da de baja el uso en el tema; el recurso sigue en la biblioteca para reutilizarlo y conserva el archivo")
     void daDeBaja() {
         TemaRecurso material = subirGrabacion("Clase a borrar");
 
         recursoService.darDeBaja(material.getIdTemaRecurso(), fausto());
 
         assertTrue(material.getBaja());
-        assertTrue(material.getRecurso().getBaja());
+        assertFalse(material.getRecurso().getBaja());
         assertFalse(material.estaPublicado());
         assertTrue(Files.exists(directorioCursos.resolve(material.getRutaArchivo())));
     }
@@ -274,7 +270,9 @@ class RecursoServiceTest {
         assertTrue(dos.getBaja());
     }
 
-    // ------------------------------------------------------------------ CU-28 Buscar material
+    // ----------------------------------------------------------------------
+    // Buscar material
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("CU-28: la búsqueda incluye el material oculto y filtra por tema, tipo, título y estado")
@@ -296,7 +294,9 @@ class RecursoServiceTest {
                 .stream().noneMatch(m -> m.getCurso().getNombre().equals("Macroeconomía de Coyuntura")));
     }
 
-    // ------------------------------------------------------------------ Biblioteca: privado o público y recurso compartido
+    // ----------------------------------------------------------------------
+    // Biblioteca: privado o público y recurso compartido
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("Biblioteca: un recurso nuevo es privado salvo que se suba como público")
@@ -312,11 +312,10 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("Biblioteca: si otro tema usa el mismo recurso, no se puede modificar ni dar de baja el material")
-    void noModificaNiDaDeBajaUnRecursoCompartido() {
+    @DisplayName("Panel del curso: se puede quitar un recurso de un tema aunque otro tema lo use; el recurso sigue en la biblioteca")
+    void quitaUnRecursoCompartidoDeUnTema() {
         TemaRecurso material = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "ENLACE",
                 datos("Enlace compartido", null, "https://sitio.com/compartido", null), null, true);
-        assertEquals(0, recursoService.contarOtrosUsos(material));
 
         // otro tema del mismo curso usa el mismo recurso
         Tema otroTema = temaRepository.findAll().stream().filter(u -> u.getCurso().getIdCurso() == material.getTema().getCurso().getIdCurso()
@@ -324,23 +323,16 @@ class RecursoServiceTest {
         TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(otroTema, material.getRecurso(), material.getDocenteCurso(), 1));
         material.getRecurso().getTemasRecurso().add(uso);
 
-        assertEquals(1, recursoService.contarOtrosUsos(material));
-        String modificar = mensaje(() -> recursoService.modificar(material.getIdTemaRecurso(), fausto(),
-                datos("Otro título", null, "https://sitio.com/compartido", null), null));
-        assertTrue(modificar.contains("No se puede modificar") && modificar.contains("1 otro tema asociado"), modificar);
-        String baja = mensaje(() -> recursoService.darDeBaja(material.getIdTemaRecurso(), fausto()));
-        assertTrue(baja.contains("No se puede dar de baja") && baja.contains("1 otro tema asociado"), baja);
-        assertFalse(material.getBaja());
+        recursoService.darDeBaja(material.getIdTemaRecurso(), fausto());
 
-        // cuando el otro tema deja de usarlo, vuelve a poder modificarse
-        uso.marcarInactivo();
-        assertEquals(0, recursoService.contarOtrosUsos(material));
-        recursoService.modificar(material.getIdTemaRecurso(), fausto(),
-                datos("Otro título", null, "https://sitio.com/compartido", null), null);
-        assertEquals("Otro título", material.getRecurso().getTitulo());
+        assertTrue(material.getBaja());
+        assertFalse(uso.getBaja());
+        assertFalse(material.getRecurso().getBaja());
     }
 
-    // ------------------------------------------------------------------ Biblioteca: recursos del docente, sin tema
+    // ----------------------------------------------------------------------
+    // Biblioteca: recursos del docente, sin tema
+    // ----------------------------------------------------------------------
 
     @Test
     @DisplayName("Biblioteca: registra un recurso sin tema, en la carpeta de la biblioteca del docente, y lo lista entre sus recursos")
@@ -578,7 +570,6 @@ class RecursoServiceTest {
         TemaRecurso unico = temaRecursoRepository.findAll().stream().filter(m -> !m.getBaja() && m.getModalidadAsociada() == null)
                 .filter(m -> m.getTema().getProgramasQueLaIncluyen().stream().anyMatch(p -> p.tieneCohortesActivas()))
                 .filter(m -> m.getTema().getMaterialesPublicados().stream().filter(x -> x.getModalidadAsociada() == null).count() == 1)
-                .filter(m -> recursoService.contarOtrosUsos(m) == 0)
                 .findFirst().orElse(null);
         org.junit.jupiter.api.Assumptions.assumeTrue(unico != null, "la semilla no tiene un tema con un único material en un curso en marcha");
         Docente docente = unico.getRecurso().getDocente();

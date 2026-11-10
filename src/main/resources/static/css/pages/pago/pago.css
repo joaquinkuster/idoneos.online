@@ -15,8 +15,7 @@
     margin-top: 18px;
 }
 
-
-/* «Esperando el pago…»: los tres puntos aparecen y desaparecen en orden, sin mover la etiqueta (cada uno ya tiene su lugar) */
+/* "Esperando el pago…": los tres puntos aparecen y desaparecen en orden. */
 @keyframes pago-punto {
     0%, 10% { opacity: 0; }
     25%, 75% { opacity: 1; }

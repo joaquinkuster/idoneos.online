@@ -1,11 +1,4 @@
-/**
- * Duración escrita en días, semanas o meses, o en una combinación de las tres (opción "Mixto"), de fragments/campoDuracion.html.
- *
- * El campo tiene un total oculto (el que se envía al servidor, en días) y, para escribir, una cantidad con su unidad o, en
- * "Mixto", una casilla para meses, otra para semanas y otra para días. Al cambiar de unidad el valor se convierte: con
- * "Mixto" se reparte en meses, semanas y días; al volver a una sola unidad se redondea. Un mes son 30 días y una semana 7.
- * El total guarda también su texto ("1 mes, 2 semanas y 3 días") para el resumen del formulario.
- */
+/** Duración escrita en días, semanas o meses, o en una combinación de las tres (opción "Mixto"). */
 (function () {
     'use strict';
 
@@ -16,7 +9,7 @@
         return cantidad + ' ' + (cantidad === 1 ? singular : plural);
     }
 
-    /** Mismo formato que DuracionUtilidad.formatear en el servidor: la unidad más grande que expresa la duración exacta. */
+    /** Mismo formato que DuracionUtilidad.formatear en el servidor. */
     function texto(dias) {
         if (!dias) { return ''; }
         if (dias % DIAS_POR_MES === 0) { return plural(dias / DIAS_POR_MES, 'mes', 'meses'); }
@@ -68,7 +61,7 @@
             total.dispatchEvent(new CustomEvent('duracion:cambio', { bubbles: true }));
         }
 
-        /** Muestra las casillas que corresponden a la unidad elegida; el campo ocupa todo el ancho si es mixto. */
+        /** Muestra las casillas que corresponden a la unidad elegida. El campo ocupa todo el ancho si es mixto. */
         function mostrar() {
             var m = esMixto();
             simple.hidden = m;

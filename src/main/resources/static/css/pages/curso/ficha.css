@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    FICHA DEL CURSO (mismo lenguaje que Acerca de y el inicio)
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .fx-ficha .wf-migas-barra {
     background: #F6F3EC;
 }
@@ -172,4 +172,32 @@
     .fx-datos {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+}
+
+/* ----------------------------------------------------------------------
+   Formulario de inscripción: grilla con separación de 20px, como los formularios por pasos
+   ---------------------------------------------------------------------- */
+
+.fx-inscripcion,
+.fx-inscripcion [data-bloque],
+.fx-inscripcion .fx-form-inscripcion {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.fx-inscripcion [hidden] {
+    display: none;
+}
+
+.fx-inscripcion > *,
+.fx-inscripcion [data-bloque] > *,
+.fx-inscripcion .fx-form-inscripcion > * {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* La etiqueta queda pegada a su campo */
+.fx-inscripcion .fx-etiqueta-campo {
+    margin-bottom: -12px;
 }

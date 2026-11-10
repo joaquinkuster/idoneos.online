@@ -26,14 +26,7 @@ import com.app.idoneos.service.tema.TemaService;
 import com.app.idoneos.service.temacronograma.TemaCronogramaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador del cronograma (MOD-F-02): CU-23 Buscar cronograma (GET /cronograma/buscar) y CU-24 Modificar cronograma
- * (POST /cronograma/modificar).
- *
- * La página muestra el cronograma del programa por defecto del docente (o el vigente, si lo ve el administrador). El
- * docente (titular o ayudante) lo modifica mientras el programa no tenga inscripciones activas; en ese caso, y para el
- * administrador, se muestra en solo lectura. El alumno ve el cronograma desde la vista de su curso.
- */
+/** Controlador del cronograma. */
 @Controller
 @RequestMapping("/cronograma")
 public class CronogramaController {
@@ -43,7 +36,6 @@ public class CronogramaController {
 
     @Autowired
     private com.app.idoneos.service.parametro.ParametroService parametroService;
-
 
     /** Mínimo de temas con material que se usa si el parámetro no está cargado. */
     private static final int MINIMO_POR_DEFECTO = 1;
@@ -57,18 +49,11 @@ public class CronogramaController {
     @Autowired
     private com.app.idoneos.repository.ProgramaRepository programaRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-23: Muestra el cronograma del programa de trabajo de un curso, con sus temas, el orden, los días de cada
-     * una y el material cargado. Si el docente puede modificarlo, la misma página permite hacerlo (CU-24).
-     *
-     * @param cursoId            Identificador del curso.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del cronograma, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /cronograma/buscar: Muestra el cronograma del programa de trabajo de un curso, con sus temas, el orden. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "programaId", required = false) Integer programaId, Model model,
@@ -77,7 +62,7 @@ public class CronogramaController {
             ContextoCurso contexto = panel.contextoDelPanel(cursoId, (Usuario) authentication.getPrincipal());
             boolean esAdministrador = contexto.esAdministrador();
             Curso curso = contexto.curso();
-            // Por defecto, el programa de la cohorte de trabajo; con el selector se mira el de cualquier otro programa del curso.
+            // Por defecto, el programa de la cohorte de trabajo. Con el selector se mira el de cualquier otro programa del curso.
             // Si la cohorte no tiene programa, el cronograma se muestra vacío
             List<Programa> programasDelCurso = curso.getProgramasActivos();
             Programa programa = programasDelCurso.stream().filter(p -> p.getIdPrograma() == (programaId == null ? -1 : programaId))
@@ -107,18 +92,11 @@ public class CronogramaController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-24: Modifica el cronograma de un programa: los temas que lo componen, su orden y sus días. Responde en
-     * JSON.
-     *
-     * @param programaId Identificador del programa.
-     * @param ids        Identificadores de los temas, en el orden del cronograma.
-     * @param dias       Días de cada tema, en el mismo orden.
-     * @param authentication       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /cronograma/modificar: Modifica el cronograma de un programa: los temas que lo componen, su orden y sus días. */
     @PostMapping("/modificar")
     public ResponseEntity<Map<String, String>> modificar(
             @RequestParam(value = "programaId", required = false) Integer programaId,

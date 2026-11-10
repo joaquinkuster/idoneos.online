@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
-<!-- Ventana de modificación. No va dentro del listado: el servidor la devuelve cuando se la pide (GET /autoevaluacion/modificar/{id}). -->
+<!-- Ventana de modificación. -->
     <div th:fragment="modal(a)" class="modal fade pn-modal" th:id="'modalModificarAutoevaluacion' + ${a.idAutoevaluacion}" tabindex="-1" aria-hidden="true"
         >
         <div class="modal-dialog modal-dialog-centered modal-lg">

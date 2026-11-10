@@ -21,13 +21,12 @@ import com.app.idoneos.model.Usuario;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el curso.
- */
+/** Servicio del curso. */
 public interface CursoService extends CrudService<Curso> {
 
-    // ---------------------------------------------------------------- Lecturas
-
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros vigentes de curso asociados a categoria.
@@ -38,7 +37,7 @@ public interface CursoService extends CrudService<Curso> {
     List<Curso> buscarPorCategoria(Categoria categoria);
 
     /**
-     * Busca el curso por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
+     * Busca el curso por su atributo único 'nombre'.
      *
      * @param nombre el valor de 'nombre' a buscar
      * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
@@ -46,14 +45,14 @@ public interface CursoService extends CrudService<Curso> {
     Optional<Curso> buscarPorNombre(String nombre);
 
     /**
-     * Busca cursos aplicando filtros opcionales. Incluye los cursos dados de baja, que se ordenan siempre al final.
+     * Busca cursos aplicando filtros opcionales.
      *
      * @param texto parte del nombre o la descripción del curso (opcional)
      * @param idCategoria identificador de la categoría (opcional)
      * @param idNivel identificador del nivel (opcional)
      * @param idDocente identificador de un docente del equipo docente (opcional)
      * @param idModalidad identificador de una modalidad de dictado (opcional)
-     * @param orden el orden de los resultados: "nombre" (A–Z, por defecto) o "recientes" (más nuevos primero)
+     * @param orden el orden de los resultados: "nombre" (A,Z, por defecto) o "recientes" (más nuevos primero)
      * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que ese docente participa
      * @return una lista de cursos que cumplen los criterios
      */
@@ -74,9 +73,7 @@ public interface CursoService extends CrudService<Curso> {
             Integer idModalidad);
 
     /**
-     * Busca los cursos destacados del catálogo: los que tienen cohortes con inscripción abierta, de los que más
-     * inscripciones históricas acumularon (incluidas las bajas y las de cohortes ya finalizadas) a los que menos.
-     * A igual cantidad va primero el curso más reciente.
+     * Busca los cursos destacados del catálogo: los que tienen cohortes con inscripción abierta.
      *
      * @param cantidad la cantidad máxima de cursos a devolver
      * @return los cursos destacados, del más al menos inscripto
@@ -100,8 +97,7 @@ public interface CursoService extends CrudService<Curso> {
     List<Cohorte> buscarCohortesAbiertas(Curso curso);
 
     /**
-     * Busca las cohortes próximas de un curso: activas, cuya inscripción todavía no abrió. Los alumnos pueden pedir que el sistema
-     * les avise antes de que abra.
+     * Busca las cohortes próximas de un curso: activas, cuya inscripción todavía no abrió.
      *
      * @param curso el curso a consultar
      * @return una lista de cohortes próximas, de la que abre antes a la que abre después
@@ -116,7 +112,6 @@ public interface CursoService extends CrudService<Curso> {
      */
     boolean tieneInscripcionesActivas(Curso curso);
 
-
     /**
      * Busca las inscripciones activas (no dadas de baja) de un curso, a través de sus programas y cohortes.
      *
@@ -126,8 +121,7 @@ public interface CursoService extends CrudService<Curso> {
     List<Inscripcion> buscarInscripcionesActivas(Curso curso);
 
     /**
-     * Verifica que el docente pueda acceder al curso: el curso debe estar activo, el docente debe participar en
-     * él. No hace falta que el curso tenga programas (CU-27): desde la página del curso el docente registra el primero.
+     * Verifica que el docente pueda acceder al curso: el curso debe estar activo.
      *
      * @param idCurso El identificador del curso.
      * @param docente El docente que solicita el acceso.
@@ -146,7 +140,7 @@ public interface CursoService extends CrudService<Curso> {
     Curso buscarActivoPorId(Integer idCurso);
 
     /**
-     * Reúne, para cada curso de una lista, sus inscripciones y programas activos y si tiene inscripción abierta.
+     * Reúne, para cada curso de una lista.
      *
      * @param cursos Los cursos del listado.
      * @return El resumen de los cursos.
@@ -154,8 +148,7 @@ public interface CursoService extends CrudService<Curso> {
     ResumenCursos resumir(List<Curso> cursos);
 
     /**
-     * Resuelve con qué rol y programa entra una persona al panel de un curso que se abre con su identificador: el
-     * administrador trabaja con el programa vigente y el docente, con el que tiene elegido.
+     * Resuelve con qué rol y programa entra una persona al panel de un curso que se abre con su identificador.
      *
      * @param idCurso El identificador del curso (obligatorio).
      * @param usuario El usuario autenticado.
@@ -165,17 +158,17 @@ public interface CursoService extends CrudService<Curso> {
     ContextoCurso resolverContextoDelPanel(Integer idCurso, Usuario usuario);
 
     /**
-     * Resuelve el contexto de una pantalla que se abre desde un tema (foro, glosario, material): el administrador y
-     * los docentes del curso entran como tales; el alumno, por su inscripción con acceso al tema. Quien la llame
-     * debe haber comprobado antes que la persona puede ver el contenido.
+     * Resuelve el contexto de una pantalla que se abre desde un tema (foro, glosario, material).
      *
-     * @param tema  El tema de la pantalla.
+     * @param tema El tema de la pantalla.
      * @param usuario El usuario autenticado.
      * @return El contexto, o vacío si no es de la gestión del curso ni tiene una inscripción con acceso.
      */
     Optional<ContextoCurso> resolverContextoDeLaTema(Tema tema, Usuario usuario);
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
     /**
      * Registra un curso con sus modalidades de dictado y su equipo docente.
@@ -200,11 +193,12 @@ public interface CursoService extends CrudService<Curso> {
             Integer idNivel, boolean emiteCertificado, List<Integer> idsModalidades, Integer idDocenteTitular,
             List<Integer> idsDocentesAyudantes);
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
     /**
-     * Modifica un curso activo. Si tiene inscripciones activas, solo pueden modificarse el precio,
-     * el equipo docente y la imagen de portada.
+     * Modifica un curso activo.
      *
      * @param idCurso el identificador del curso
      * @param nombre el nombre del curso
@@ -246,19 +240,18 @@ public interface CursoService extends CrudService<Curso> {
      * Asigna la imagen de un curso activo (el archivo ya se guardó en la carpeta del curso).
      *
      * @param idCurso El identificador del curso.
-     * @param imagen  El nombre del archivo de la imagen dentro de la carpeta del curso.
+     * @param imagen El nombre del archivo de la imagen dentro de la carpeta del curso.
      * @return El curso actualizado.
      * @throws IllegalArgumentException Si el curso no está activo.
      */
     Curso actualizarImagen(Integer idCurso, String imagen);
 
-    /**
-     * Lleva las imágenes de los cursos a la estructura {@code curso{id}/imagen.{ext}}: copia las que estaban en la
-     * carpeta anterior o entre las imágenes de ejemplo de la aplicación y actualiza el nombre guardado.
-     */
+    /** Lleva las imágenes de los cursos a la estructura curso{id/imagen.{ext}}. */
     void migrarImagenes();
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
     /**
      * Da de baja un curso activo que no tenga programas ni temas activos asociadas.
@@ -269,7 +262,7 @@ public interface CursoService extends CrudService<Curso> {
     void darDeBaja(Integer idCurso);
 
     /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja ninguno.
+     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja.
      *
      * @param ids los identificadores de los registros
      * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
@@ -277,15 +270,14 @@ public interface CursoService extends CrudService<Curso> {
     void darDeBajaVarios(java.util.List<Integer> ids);
 
     /**
-     * Contexto con el que se muestra una pantalla del panel de un curso: quién la ve, sobre qué curso y programa trabaja y
-     * a dónde vuelve. Lo resuelve {@link CursoService} y las plantillas lo reciben como atributos del modelo.
+     * Contexto con el que se muestra una pantalla del panel de un curso: quién la ve.
      *
-     * @param curso         El curso abierto.
-     * @param programa      El programa con el que se trabaja (puede ser {@code null} si el curso todavía no tiene).
-     * @param rol           El rol con el que la persona entra al curso.
+     * @param curso El curso abierto.
+     * @param programa El programa con el que se trabaja (puede ser {@code null} si el curso todavía no tiene).
+     * @param rol El rol con el que la persona entra al curso.
      * @param participacion La participación del docente en el curso ({@code null} si no entra como docente).
-     * @param urlBase       La ruta de la página principal del curso para ese rol.
-     * @param urlMisCursos  La ruta del listado de cursos para ese rol.
+     * @param urlBase La ruta de la página principal del curso para ese rol.
+     * @param urlMisCursos La ruta del listado de cursos para ese rol.
      */
     public record ContextoCurso(Curso curso, Programa programa, Rol rol, DocenteCurso participacion,
             String urlBase, String urlMisCursos) {
@@ -343,8 +335,8 @@ public interface CursoService extends CrudService<Curso> {
     /**
      * Datos de un conjunto de cursos que necesita el listado para validar la baja y la modificación de cada uno.
      *
-     * @param inscripcionesPorCurso       Las inscripciones activas de cada curso, por identificador del curso.
-     * @param programasPorCurso           Los programas activos de cada curso, por identificador del curso.
+     * @param inscripcionesPorCurso Las inscripciones activas de cada curso, por identificador del curso.
+     * @param programasPorCurso Los programas activos de cada curso, por identificador del curso.
      * @param cursosConInscripcionAbierta Los identificadores de los cursos que tienen alguna cohorte con inscripción abierta.
      */
     public record ResumenCursos(Map<Integer, List<Inscripcion>> inscripcionesPorCurso,
@@ -354,12 +346,12 @@ public interface CursoService extends CrudService<Curso> {
     /**
      * El contenido de un tema del programa vigente, según lo que prometen las modalidades del curso.
      *
-     * @param tema   El tema.
+     * @param tema El tema.
      * @param celdas Para cada columna que corresponde al curso (por ejemplo "Video clon"), si el tema ya la tiene.
      */
     public record ContenidoDeTema(Tema tema, Map<String, Boolean> celdas) {
 
-        /** Los nombres de lo que le falta al tema. */
+        /** Obtiene los nombres de lo que le falta al tema. */
         public List<String> getFaltantes() {
             return celdas.entrySet().stream().filter(celda -> !celda.getValue()).map(Map.Entry::getKey).toList();
         }
@@ -368,51 +360,51 @@ public interface CursoService extends CrudService<Curso> {
     /**
      * Estado del diseño de un curso.
      *
-     * @param faltantesDeDatos     Lo que falta de los datos del curso (nivel, objetivos, carga horaria).
-     * @param cantidadTemas        La cantidad de temas vigentes del curso.
-     * @param minimoTemas          El mínimo de temas que exige el sistema.
-     * @param programaVigente      El programa de la cohorte de trabajo (el vigente del curso sin cohorte), o {@code null} si no tiene.
-     * @param duracionAsignada     Si el programa vigente asigna toda la duración del curso.
-     * @param contenido            El contenido de cada tema vigente del curso.
-     * @param cohortesPendientes   La cantidad de cohortes pendientes del curso.
-     * @param primeraInscripcion   El inicio de inscripción más próximo de las cohortes pendientes, o {@code null}.
+     * @param faltantesDeDatos Lo que falta de los datos del curso (nivel, objetivos, carga horaria).
+     * @param cantidadTemas La cantidad de temas vigentes del curso.
+     * @param minimoTemas El mínimo de temas que exige el sistema.
+     * @param programaVigente El programa de la cohorte de trabajo (el vigente del curso sin cohorte), o {@code null} si no tiene.
+     * @param duracionAsignada Si el programa vigente asigna toda la duración del curso.
+     * @param contenido El contenido de cada tema vigente del curso.
+     * @param cohortesPendientes La cantidad de cohortes pendientes del curso.
+     * @param primeraInscripcion El inicio de inscripción más próximo de las cohortes pendientes, o {@code null}.
      */
     public record EstadoDiseno(List<String> faltantesDeDatos, int cantidadTemas, int minimoTemas, Programa programaVigente,
             boolean duracionAsignada, List<ContenidoDeTema> contenido, int cohortesPendientes,
             LocalDateTime primeraInscripcion) {
 
-        /** Si el docente completó los datos del curso (paso 1 del diseño: Datos). */
+        /** Indica si el docente completó los datos del curso (paso 1 del diseño: Datos). */
         public boolean isDatosCompletos() {
             return faltantesDeDatos.isEmpty();
         }
 
-        /** Los temas del curso que ya tienen todo su contenido. */
+        /** Obtiene los temas del curso que ya tienen todo su contenido. */
         public List<ContenidoDeTema> getTemasConContenido() {
             return contenido.stream().filter(c -> c.getFaltantes().isEmpty()).toList();
         }
 
-        /** Si el curso tiene el mínimo de temas con el contenido completo (paso 2 del diseño: Temas y contenido). */
+        /** Indica si el curso tiene el mínimo de temas con el contenido completo (paso 2 del diseño: Temas y contenido). */
         public boolean isTemasCompletos() {
             return getTemasConContenido().size() >= minimoTemas;
         }
 
-        /** Cuántos temas con el contenido completo le faltan al curso para llegar al mínimo. */
+        /** Calcula cuántos temas con el contenido completo le faltan al curso para llegar al mínimo. */
         public int getTemasQueFaltan() {
             return Math.max(0, minimoTemas - getTemasConContenido().size());
         }
 
-        /** Los temas del curso a los que les falta contenido. */
+        /** Obtiene los temas del curso a los que les falta contenido. */
         public List<ContenidoDeTema> getTemasIncompletos() {
             return contenido.stream().filter(c -> !c.getFaltantes().isEmpty()).toList();
         }
 
-        /** Los identificadores de los temas a los que les falta contenido, separados por coma. */
+        /** Obtiene los identificadores de los temas a los que les falta contenido, separados por coma. */
         public String getIdsIncompletos() {
             return getTemasIncompletos().stream().map(c -> String.valueOf(c.tema().getIdTema()))
                     .collect(java.util.stream.Collectors.joining(","));
         }
 
-        /** Si el programa está completo: asigna toda la duración y todos sus temas tienen su contenido. */
+        /** Indica si el programa está completo, es decir si asigna toda la duración y todos sus temas tienen su contenido. */
         public boolean isProgramaCompleto() {
             if (programaVigente == null || !duracionAsignada) {
                 return false;
@@ -422,10 +414,7 @@ public interface CursoService extends CrudService<Curso> {
             return programaVigente.getCronogramaOrdenado().stream().allMatch(c -> completos.contains(c.getTema().getIdTema()));
         }
 
-        /**
-         * El paso del diseño en el que está el curso: 1 datos, 2 temas y contenido (los del curso, sin programa todavía) y 3 programa
-         * (el de la cohorte, con su cronograma); 4 si el diseño está completo.
-         */
+        /** Obtiene el paso del diseño en el que está el curso: 1 datos, 2 temas y contenido. */
         public int getPasoActual() {
             if (!isDatosCompletos()) {
                 return 1;
@@ -436,10 +425,7 @@ public interface CursoService extends CrudService<Curso> {
             return isProgramaCompleto() ? 4 : 3;
         }
 
-        /**
-         * Hasta qué parte del menú se habilita: el contenido (temas, recursos y demás) desde el paso 2, cuando el curso ya tiene sus datos, y
-         * los programas desde el 3, cuando ya tiene sus temas con contenido.
-         */
+        /** Calcula hasta qué parte del menú se habilita: el contenido (temas, recursos y demás) desde el paso 2. */
         public int getNivelDeMenu() {
             // Cada paso se mira por sí solo, igual que las marcas de la línea de tiempo
             int nivel = 1;
@@ -455,7 +441,7 @@ public interface CursoService extends CrudService<Curso> {
             return nivel;
         }
 
-        /** Si el diseño del curso está completo. */
+        /** Indica si el diseño del curso está completo. */
         public boolean isCompleto() {
             return isDatosCompletos() && isTemasCompletos() && isProgramaCompleto();
         }
@@ -464,9 +450,8 @@ public interface CursoService extends CrudService<Curso> {
     /**
      * El próximo recurso que el docente debe agregar a un tema para completar su contenido.
      *
-     * @param opcion Qué opción del selector de recursos corresponde: {@code BIBLIOGRAFIA}, {@code AUTOEVALUACION}, {@code POOL},
-     *               {@code GRABACION}, o {@code null} si no hay nada que se pueda agregar a mano (por ejemplo, el video clon).
-     * @param aviso  Una nota para el docente (por ejemplo, que primero tiene que registrar un pool), o {@code null}.
+     * @param opcion Qué opción del selector de recursos corresponde: {@code BIBLIOGRAFIA}, {@code AUTOEVALUACION}, {@code POOL}, {@code GRABACION}, o {@code null} si no hay nada que se pueda agregar a mano (por ejemplo, el video clon).
+     * @param aviso Una nota para el docente (por ejemplo, que primero tiene que registrar un pool), o {@code null}.
      */
     public record SiguienteRecurso(String opcion, String aviso) {
     }
@@ -480,42 +465,38 @@ public interface CursoService extends CrudService<Curso> {
     EstadoDiseno calcularEstadoDiseno(Curso curso);
 
     /**
-     * Calcula el estado del diseño de un curso para una cohorte: el programa es el de la cohorte (ninguno si todavía no
-     * se le asignó). Sin cohorte, el del programa vigente del curso.
+     * Calcula el estado del diseño de un curso para una cohorte.
      *
-     * @param curso   El curso.
+     * @param curso El curso.
      * @param cohorte La cohorte de trabajo, o {@code null}.
      * @return El estado de su diseño.
      */
     EstadoDiseno calcularEstadoDiseno(Curso curso, Cohorte cohorte);
 
     /**
-     * Calcula el estado del diseño de un curso tomando como programa el de una cohorte (el campo
-     * {@code programaVigente} del resultado es ese programa).
+     * Calcula el estado del diseño de un curso tomando como programa el de una cohorte (el campo programaVigente del resultado es ese programa).
      *
-     * @param curso    El curso.
+     * @param curso El curso.
      * @param programa El programa cuyo cronograma y contenido se miran, o {@code null} si todavía no hay.
      * @return El estado de su diseño.
      */
     EstadoDiseno calcularEstadoDiseno(Curso curso, Programa programa);
 
     /**
-     * Indica si un programa está completo: asigna toda la duración del curso y todos sus temas tienen su contenido.
+     * Indica si un programa está completo.
      *
-     * @param curso    El curso del programa.
+     * @param curso El curso del programa.
      * @param programa El programa.
      * @return {@code true} si está completo.
      */
     boolean estaDisenoCompleto(Curso curso, Programa programa);
 
     /**
-     * Calcula el siguiente recurso que le falta a un tema: primero el material (se propone una bibliografía), después la
-     * autoevaluación (si no hay pools que se puedan usar, se propone registrar uno) y por último lo que pide la modalidad del
-     * curso (por ejemplo, la grabación).
+     * Calcula el siguiente recurso que le falta a un tema: primero el material (se propone una bibliografía).
      *
-     * @param curso    El curso.
+     * @param curso El curso.
      * @param programa El programa en que está el tema (de él salen los temas anteriores, cuyos pools también sirven).
-     * @param tema     El tema.
+     * @param tema El tema.
      * @return El próximo recurso, o uno sin opción si el tema está completo o lo que falta no se agrega a mano.
      */
     SiguienteRecurso buscarSiguienteRecurso(Curso curso, Programa programa, Tema tema);
@@ -529,11 +510,10 @@ public interface CursoService extends CrudService<Curso> {
     List<String> buscarColumnasDeContenido(Curso curso);
 
     /**
-     * Calcula el contenido de un tema: lo que prometen las modalidades del curso (video clon y clase grabada, solo si el
-     * curso las ofrece), más el material y la autoevaluación, que siempre se piden.
+     * Calcula el contenido de un tema: lo que prometen las modalidades del curso.
      *
      * @param curso El curso (de él salen las modalidades).
-     * @param tema  El tema.
+     * @param tema El tema.
      * @return Lo que el tema tiene y lo que le falta.
      */
     ContenidoDeTema buscarContenidoDeTema(Curso curso, Tema tema);

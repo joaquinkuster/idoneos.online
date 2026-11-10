@@ -21,10 +21,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.respuestaforo.RespuestaForoService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador de las respuestas del foro (MOD-F-02): CU-40 Registrar respuesta (POST /respuesta/registrar), CU-41 Modificar
- * respuesta (GET y POST /respuesta/modificar/{id}) y CU-42 Dar de baja respuesta (POST /respuesta/darDeBaja/{id}).
- */
+/** Controlador de la respuesta. */
 @Controller
 @RequestMapping("/respuesta")
 public class RespuestaController {
@@ -32,18 +29,10 @@ public class RespuestaController {
     @Autowired
     private PanelCursoComponent panel;
 
-
     @Autowired
     private RespuestaForoService respuestaService;
 
-    /**
-     * CU-40: Registra la respuesta de un docente a una consulta. Responde en JSON.
-     *
-     * @param consultaId Identificador de la consulta.
-     * @param texto      El texto de la respuesta.
-     * @param authentication       La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /respuesta/registrar: Registra la respuesta de un docente a una consulta. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "consultaId", required = false) Integer consultaId,
@@ -57,14 +46,7 @@ public class RespuestaController {
         }
     }
 
-    /**
-     * CU-41: Modifica una respuesta propia, dentro del plazo de edición. Responde en JSON.
-     *
-     * @param id    Identificador de la respuesta.
-     * @param texto El texto nuevo.
-     * @param authentication  La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /respuesta/modificar/{id}: Modifica una respuesta propia, dentro del plazo de edición. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "texto", required = false) String texto, Authentication authentication) {
@@ -77,12 +59,7 @@ public class RespuestaController {
         }
     }
 
-    /**
-     * CU-42: Da de baja una respuesta (administrador). Responde en JSON.
-     *
-     * @param id Identificador de la respuesta.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /respuesta/darDeBaja/{id}: Da de baja una respuesta (administrador). */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id) {
         try {
@@ -93,16 +70,11 @@ public class RespuestaController {
         }
     }
 
-    // ---------------------------------------------------------------- Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
+    // Ventana de modificación a pedido
+    // ----------------------------------------------------------------------
 
-    /**
-     * Ventana de modificación de una respuesta del foro, que la consulta pide al abrirla (en lugar de dibujar una por respuesta).
-     *
-     * @param id     La respuesta.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /respuesta/modificar/{id}: Ventana de modificación de una respuesta del foro. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         RespuestaForo r = respuestaService.buscarPorId(id)

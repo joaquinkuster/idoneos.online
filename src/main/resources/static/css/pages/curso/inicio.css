@@ -1,6 +1,6 @@
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    INICIO DEL CURSO: card "Estado de la cohorte"
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .ec-card {
     border: 1px solid var(--pn-borde);
     border-radius: 12px;
@@ -30,7 +30,7 @@ a.ec-chip:hover { filter: brightness(.96); }
 .ec-pie { margin-top: 10px; }
 .ec-pie .ec-nota { margin: 0; flex: 1; min-width: 220px; }
 
-/* Lo que queda después de la duración máxima del curso: gris suave con rayas, como las zonas inalcanzables de un cronograma */
+/* Lo que queda después de la duración máxima del curso: gris suave con rayas. */
 .cn-unidad.cn-fuera,
 .cn-cabecera-fila .cn-fuera {
     background: repeating-linear-gradient(135deg, rgba(148, 163, 184, .22) 0, rgba(148, 163, 184, .22) 6px, rgba(241, 245, 249, .7) 6px, rgba(241, 245, 249, .7) 12px);
@@ -163,10 +163,10 @@ a.ec-chip:hover { filter: brightness(.96); }
     display: none;
 }
 
-/* ==========================================================================
+/* ----------------------------------------------------------------------
    Diseño del curso con encabezado de grupo: dorado mientras falta completar (como las cartas de "Pendientes de contenido") y verde cuando
    está completo. Los pasos y el detalle van dentro de una carta blanca.
-   ========================================================================== */
+   ---------------------------------------------------------------------- */
 .ec-card.ec-grupo {
     padding: 0;
     overflow: hidden;
@@ -194,7 +194,7 @@ a.ec-chip:hover { filter: brightness(.96); }
     min-width: 0;
 }
 
-/* Encabezado de la carta del diseño (completo o pendiente): más chico que el de las secciones de página, para que no compita con el contenido */
+/* Encabezado de la carta del diseño (completo o pendiente): más chico que el de las secciones de página. */
 .ec-grupo .pn-grupo-etiqueta {
     font-size: 11px;
 }
@@ -297,7 +297,7 @@ a.ec-chip:hover { filter: brightness(.96); }
     box-shadow: none;
 }
 
-/* Completo: marco, encabezado y fondo en verde; los pasos ya son verdes */
+/* Completo: marco, encabezado y fondo en verde. Los pasos ya son verdes */
 .ec-card.ec-grupo.completo {
     border-color: #86EFAC;
     background: #F0FDF4;
@@ -328,8 +328,7 @@ a.ec-chip:hover { filter: brightness(.96); }
     border-top-color: #BBF7D0;
 }
 
-/* Contenido del detalle (título, descripción, badge y botones): el título y la descripción con el tamaño de los de los modales, el badge
-   al lado del título y los botones abajo a la derecha, con el principal en el extremo */
+/* Contenido del detalle (título, descripción, badge y botones). */
 .ec-grupo .ec-cab {
     align-items: center;
     justify-content: flex-start;

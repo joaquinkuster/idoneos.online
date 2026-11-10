@@ -65,7 +65,7 @@
                     </section>
                     <div class="pn-chips" data-chips-categorias></div>
 
-                    <!-- Sin cursos: si hay filtros se avisa que no hay coincidencias; si no, se invita a explorar el catálogo -->
+                    <!-- Sin cursos: si hay filtros se avisa que no hay coincidencias. Si no, se invita a explorar el catálogo -->
                     <div th:if="${inscripciones == null or #lists.isEmpty(inscripciones)}" class="pn-card pn-empty-grande"
                          th:with="hayFiltros=${(busqueda != null and !#strings.isEmpty(busqueda)) or (estadoSeleccionado != null and !#strings.isEmpty(estadoSeleccionado))}">
                         <i class="fa-solid fa-book-open pn-empty-icon"></i>
@@ -121,7 +121,7 @@
         </div>
     </div>
 
-    <!-- Baja de la inscripción (CU-49): una sola ventana para todas las cards; el botón de cada una le pasa la acción y la pregunta (core/modalBaja.js) -->
+    <!-- Baja de la inscripción: una sola ventana para todas las cards. -->
     <th:block th:replace="~{pages/inscripcion/baja :: bloque('modalBajaInscripcion', '¿Confirmas darte de baja?', 0)}"></th:block>
 
     <!-- Scripts Globales y SweetAlert2 -->

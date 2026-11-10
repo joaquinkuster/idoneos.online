@@ -6,25 +6,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link Categoria} en la base de datos.
- * Extiende de {@link JpaRepository}, proporcionando métodos CRUD básicos para la entidad {@link Categoria}.
- */
+/** Repositorio de Categoria. */
 @Repository
 public interface CategoriaRepository extends JpaRepository<Categoria, Integer> {
 
-    /**
-     * Encuentra todos los registros activos (no dados de baja).
-     *
-     * @return Una lista de {@link Categoria} activos.
-     */
+    /** Encuentra todos los registros activos (no dados de baja). */
     List<Categoria> findByBajaFalse();
 
-    /**
-     * Busca la categoría por su atributo único 'nombre'. Incluye los registros dados de baja, para poder reactivarlos en lugar de duplicarlos.
-     *
-     * @param nombre el valor de 'nombre' a buscar
-     * @return un {@link Optional} con el registro si existe, o vacío si no se encuentra
-     */
+    /** Busca la categoría por su atributo único 'nombre'. */
     Optional<Categoria> findByNombre(String nombre);
 }

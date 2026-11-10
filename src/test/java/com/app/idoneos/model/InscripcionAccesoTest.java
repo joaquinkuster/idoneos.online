@@ -11,9 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas unitarias de los estados de la inscripción (CU-44) y de las fechas que calcula el modelo (CU-45, CU-47).
- */
+/** Pruebas unitarias de los estados de la inscripción y de las fechas que calcula el modelo. */
 class InscripcionAccesoTest {
 
     private final LocalDateTime ahora = LocalDateTime.now();
@@ -26,7 +24,7 @@ class InscripcionAccesoTest {
         return new EstadoInscripcion(nombre);
     }
 
-    /** Cohorte sin fechas de dictado, de 12 semanas de acceso, y una inscripción habilitada que vence en 12 semanas. */
+    /** Cohorte sin fechas de dictado, de 12 semanas de acceso. */
     @BeforeEach
     void armar() {
         programa = new Programa(null, "Programa 2026");

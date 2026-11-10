@@ -31,7 +31,7 @@
                             data-termino-uno="inscripción" data-termino-varios="inscripciones">Dar de baja seleccionado/s</button>
                 </div>
 
-                <!-- Filtros (CU-44): curso, cohorte, alumno, estado de acceso y fecha de inscripción -->
+                <!-- Filtros: curso, cohorte, alumno, estado de acceso y fecha de inscripción -->
                 <form th:action="@{/inscripcion/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <a th:href="@{/inscripcion/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
@@ -134,7 +134,7 @@
     </div>
 </div>
 
-<!-- Modal: registrar inscripción (CU-46) -->
+<!-- Modal: registrar inscripción -->
 <div class="modal fade pn-modal" id="modalNuevaInscripcion" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -231,7 +231,7 @@
     </div>
 </div>
 
-<!-- La ventana de modificar (CU-47) y la de corregir el certificado (CU-48) se piden al abrirlas (core/modalModificar.js); la de baja (CU-49) es una sola -->
+<!-- La ventana de modificar y la de corregir el certificado se piden al abrirlas (core/modalModificar.js). La de baja es una sola -->
 <th:block th:replace="~{pages/inscripcion/baja :: bloque('modalBajaInscripcion', '¿Confirmas dar de baja la inscripción?', 0)}"></th:block>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
@@ -239,7 +239,7 @@
 <script th:src="@{/js/pages/pago/resumen.js}"></script>
 <script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 <script>
-    // Recuadro «Pago de esta inscripción»: con el alumno y la cohorte elegidos, muestra el precio, el descuento que le
+    // Recuadro "Pago de esta inscripción": con el alumno y la cohorte elegidos, muestra el precio, el descuento que le
     // corresponde a ese alumno y el total a pagar
     (function () {
         var formulario = document.querySelector('#modalNuevaInscripcion form');

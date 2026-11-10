@@ -12,11 +12,7 @@ import com.app.idoneos.service.interesalumno.InteresAlumnoService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
-/**
- * Consejo (advice) de controladores con el contexto de la sesión que necesitan todas las pantallas: el usuario autenticado (por
- * ejemplo, para la barra de navegación) y el mensaje que se muestra una sola vez después de un inicio de sesión.
- * Spring lo aplica a todos los controladores, así que ninguno tiene que agregarlos al modelo por su cuenta.
- */
+/** Consejo (advice) de controladores con el contexto de la sesión que necesitan todas las pantallas. */
 @ControllerAdvice
 public class ContextoSesionAdvice {
 
@@ -29,13 +25,7 @@ public class ContextoSesionAdvice {
     @Autowired
     private InteresAlumnoService interesAlumnoService;
 
-    /**
-     * Si hay un mensaje guardado en la sesión (por ejemplo, el de inicio de sesión exitoso), lo agrega al modelo
-     * como "mensaje", para que se muestre una sola vez, y lo elimina de la sesión.
-     *
-     * @param request La solicitud HTTP.
-     * @param model    El modelo de la vista.
-     */
+    /** Agrega el mensaje guardado en la sesión, si lo hay, por ejemplo el de inicio de sesión exitoso. */
     @ModelAttribute
     public void agregarMensajeDeSesion(HttpServletRequest request, Model model) {
         HttpSession sesion = request.getSession(false); // no crea sesiones para los visitantes
@@ -48,15 +38,7 @@ public class ContextoSesionAdvice {
         }
     }
 
-    /**
-     * Para el alumno con sesión iniciada agrega lo que necesita la ventana de intereses del menú: las categorías que puede elegir, las
-     * que ya eligió y si hay que preguntarle qué le interesa al ingresar (todavía no eligió ninguna, no llegó al máximo de «Ahora no» y
-     * no se le preguntó ya en esta sesión). Solo en las páginas completas: no en las peticiones de filas ni en las de datos.
-     *
-     * @param authentication La autenticación actual, si existe.
-     * @param request        La solicitud HTTP.
-     * @param model          El modelo de la vista.
-     */
+    /** Agrega, para el alumno con sesión iniciada, lo que necesita la ventana de intereses del menú. */
     @ModelAttribute
     public void agregarIntereses(Authentication authentication, HttpServletRequest request, Model model) {
         if (!"GET".equals(request.getMethod()) || request.getHeader("X-Tabla") != null
@@ -74,12 +56,7 @@ public class ContextoSesionAdvice {
         model.addAttribute("preguntarIntereses", preguntar);
     }
 
-    /**
-     * Agrega el usuario autenticado al modelo de todas las vistas.
-     *
-     * @param authentication La autenticación actual, si existe.
-     * @return El usuario autenticado, o {@code null} si no hay sesión iniciada.
-     */
+    /** Agrega el usuario autenticado al modelo de todas las vistas. */
     @ModelAttribute("usuario")
     public Usuario agregarUsuario(Authentication authentication) {
         if (authentication != null && authentication.getPrincipal() instanceof Usuario) {

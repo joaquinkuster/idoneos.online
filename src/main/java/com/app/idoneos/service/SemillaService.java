@@ -123,13 +123,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Servicio para insertar datos iniciales en la base de datos (semilla).
- * Crea los catálogos básicos, los usuarios de prueba de cada rol (administrador, docentes y alumnos)
- * y los datos académicos necesarios para probar el módulo de gestión de cursos:
- * categorías, cursos con su equipo docente, programas con cronograma y material, cohortes en
- * distintos estados e inscripciones.
- */
+/** Servicio de carga de semilla (datos iniciales). */
 @Service
 public class SemillaService {
 
@@ -145,9 +139,7 @@ public class SemillaService {
     /** La duración del cronograma más largo de cada curso de la semilla. */
     private final java.util.Map<Integer, Integer> duracionMaximaDelCurso = new java.util.HashMap<>();
 
-    /**
-     * Contraseña de todos los usuarios de prueba.
-     */
+    /** Contraseña de todos los usuarios de prueba. */
     private static final String CLAVE_DE_PRUEBA = "123456";
 
     @jakarta.persistence.PersistenceContext
@@ -341,13 +333,7 @@ public class SemillaService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    /**
-     * Método que se ejecuta automáticamente para insertar datos iniciales
-     * en la base de datos cuando el contexto de la aplicación se haya inicializado.
-     *
-     * Verifica si ya existe el usuario administrador y, si no existe, crea los catálogos, los usuarios
-     * de prueba y los datos académicos del módulo de cursos.
-     */
+    /** Inserta los datos iniciales en la base de datos cuando el contexto de Spring termina de cargar. */
     @Transactional
     public void insertarSemilla() {
         cursosAbiertosDeLaSemilla.clear();
@@ -355,59 +341,28 @@ public class SemillaService {
         if (usuarioRepository.findByCorreo(correoAdmin).isPresent()) {
             return;
         }
-
-        // Roles
-        Rol rolAdministrador = rolRepository.save(new Rol("Administrador"));
-        Rol rolDocente = rolRepository.save(new Rol("Docente"));
-        Rol rolAlumno = rolRepository.save(new Rol("Alumno"));
-
-        // Catálogos
-        Nivel basico = nivelRepository.save(new Nivel("Básico"));
-        Nivel intermedio = nivelRepository.save(new Nivel("Intermedio"));
-        Nivel avanzado = nivelRepository.save(new Nivel("Avanzado"));
-        Modalidad enVivo = modalidadRepository.save(new Modalidad(Modalidad.EN_VIVO));
-        Modalidad grabada = modalidadRepository.save(new Modalidad(Modalidad.GRABADA));
-        Modalidad clonIa = modalidadRepository.save(new Modalidad(Modalidad.CLON_IA));
-        categoriaMaterialLecturaRepository.save(new CategoriaMaterialLectura(CategoriaMaterialLectura.PRESENTACION));
-        categoriaMaterialLecturaRepository.save(new CategoriaMaterialLectura(CategoriaMaterialLectura.RESUMEN));
-        for (String estado : List.of(EstadoGeneracion.PENDIENTE, EstadoGeneracion.GENERANDO, EstadoGeneracion.GENERADO,
-                EstadoGeneracion.ERROR)) {
-            estadoGeneracionRepository.save(new EstadoGeneracion(estado));
-        }
-        for (String estado : List.of(com.app.idoneos.model.EstadoOCR.PENDIENTE, com.app.idoneos.model.EstadoOCR.PROCESANDO,
-                com.app.idoneos.model.EstadoOCR.LISTO, com.app.idoneos.model.EstadoOCR.ERROR)) {
-            estadoOcrRepository.save(new com.app.idoneos.model.EstadoOCR(estado));
-        }
-        for (String estado : List.of(EstadoEnvio.PENDIENTE, EstadoEnvio.ENVIADO, EstadoEnvio.ERROR)) {
-            estadoEnvioRepository.save(new EstadoEnvio(estado));
-        }
-        tipoNotificacionRepository.save(new TipoNotificacion(TipoNotificacion.COHORTE_ACTIVADA));
-        tipoNotificacionRepository.save(new TipoNotificacion(TipoNotificacion.COHORTE_CANCELADA));
-        tipoNotificacionRepository.save(new TipoNotificacion(TipoNotificacion.RECORDATORIO_COHORTE));
+        // Los valores predefinidos (niveles, modalidades, roles, estados...) no son datos de demostración: los inserta siempre el script
+        // valoresPredefinidos.sql, también con la semilla apagada. Acá solo se buscan.
+        Rol rolAdministrador = predefinido(rolRepository.findByNombre("Administrador"), "el rol Administrador");
+        Rol rolDocente = predefinido(rolRepository.findByNombre("Docente"), "el rol Docente");
+        Rol rolAlumno = predefinido(rolRepository.findByNombre("Alumno"), "el rol Alumno");
+        Nivel basico = predefinido(nivelRepository.findByNombre("Básico"), "el nivel Básico");
+        Nivel intermedio = predefinido(nivelRepository.findByNombre("Intermedio"), "el nivel Intermedio");
+        Nivel avanzado = predefinido(nivelRepository.findByNombre("Avanzado"), "el nivel Avanzado");
+        Modalidad enVivo = predefinido(modalidadRepository.findByNombre(Modalidad.EN_VIVO), "la modalidad En vivo");
+        Modalidad grabada = predefinido(modalidadRepository.findByNombre(Modalidad.GRABADA), "la modalidad Grabada");
+        Modalidad clonIa = predefinido(modalidadRepository.findByNombre(Modalidad.CLON_IA), "la modalidad Con clon de IA");
         TipoRecurso presentacion = TipoRecurso.PRESENTACION;
         TipoRecurso grabacion = TipoRecurso.GRABACION;
         TipoRecurso bibliografia = TipoRecurso.BIBLIOGRAFIA;
-        EstadoClaseEnVivo claseProgramada = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Programada"));
-        EstadoClaseEnVivo claseEnVivoAhora = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo(EstadoClaseEnVivo.EN_VIVO));
-        EstadoClaseEnVivo claseFinalizada = estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Finalizada"));
-        for (String nombre : new String[] {EstadoCohorte.PENDIENTE, EstadoCohorte.PROXIMA, EstadoCohorte.ABIERTA, EstadoCohorte.CERRADA,
-                EstadoCohorte.EN_DICTADO, EstadoCohorte.DICTADO_FINALIZADO, EstadoCohorte.CURSADA_FINALIZADA, EstadoCohorte.CANCELADA}) {
-            estadoCohorteRepository.save(new EstadoCohorte(nombre));
-        }
-        for (String nombre : new String[] {com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO,
-                com.app.idoneos.model.EstadoInscripcion.PAGO_EN_CURSO, com.app.idoneos.model.EstadoInscripcion.HABILITADA,
-                com.app.idoneos.model.EstadoInscripcion.SUSPENDIDA, com.app.idoneos.model.EstadoInscripcion.VENCIDA,
-                com.app.idoneos.model.EstadoInscripcion.CANCELADA, com.app.idoneos.model.EstadoInscripcion.DADA_DE_BAJA}) {
-            estadoInscripcionRepository.save(new com.app.idoneos.model.EstadoInscripcion(nombre));
-        }
-        estadoAvanceRepository.save(new com.app.idoneos.model.EstadoAvance(com.app.idoneos.model.EstadoAvance.EN_PROGRESO));
-        estadoAvanceRepository.save(new com.app.idoneos.model.EstadoAvance(com.app.idoneos.model.EstadoAvance.FINALIZADO));
-        EstadoPago pagoPendiente = estadoPagoRepository.save(new EstadoPago(EstadoPago.PENDIENTE));
-        EstadoPago pagoAprobado = estadoPagoRepository.save(new EstadoPago(EstadoPago.APROBADO));
-        EstadoPago pagoRechazado = estadoPagoRepository.save(new EstadoPago(EstadoPago.RECHAZADO));
-        MetodoPago pagoModo = metodoPagoRepository.save(new MetodoPago(MetodoPago.MODO));
-        MetodoPago pagoTransferencia = metodoPagoRepository.save(new MetodoPago(MetodoPago.TRANSFERENCIA));
-        estadoClaseEnVivoRepository.save(new EstadoClaseEnVivo("Cancelada"));
+        EstadoClaseEnVivo claseProgramada = predefinido(estadoClaseEnVivoRepository.findByNombre("Programada"), "el estado de clase Programada");
+        EstadoClaseEnVivo claseEnVivoAhora = predefinido(estadoClaseEnVivoRepository.findByNombre(EstadoClaseEnVivo.EN_VIVO), "el estado de clase En vivo");
+        EstadoClaseEnVivo claseFinalizada = predefinido(estadoClaseEnVivoRepository.findByNombre("Finalizada"), "el estado de clase Finalizada");
+        EstadoPago pagoPendiente = predefinido(estadoPagoRepository.findByNombre(EstadoPago.PENDIENTE), "el estado de pago Pendiente");
+        EstadoPago pagoAprobado = predefinido(estadoPagoRepository.findByNombre(EstadoPago.APROBADO), "el estado de pago Aprobado");
+        EstadoPago pagoRechazado = predefinido(estadoPagoRepository.findByNombre(EstadoPago.RECHAZADO), "el estado de pago Rechazado");
+        MetodoPago pagoModo = predefinido(metodoPagoRepository.findByNombre(MetodoPago.MODO), "el método de pago MODO");
+        MetodoPago pagoTransferencia = predefinido(metodoPagoRepository.findByNombre(MetodoPago.TRANSFERENCIA), "el método de pago Transferencia bancaria");
 
         // Administrador y parámetros
         Usuario usuarioAdmin = crearUsuario("Admin", "Idóneos", "20111222", correoAdmin, "+54 376 4000000", rolAdministrador);
@@ -427,7 +382,7 @@ public class SemillaService {
         parametroRepository.save(new Parametro(admin, Parametro.GRACIA_ENTREGA_AUTOEVALUACION,
                 String.valueOf(Parametro.GRACIA_ENTREGA_AUTOEVALUACION_POR_DEFECTO)));
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
-        // El cliente las reemplaza por las de su cuenta; la contraseña se guarda cifrada.
+        // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
         parametroService.registrarTexto(admin, Parametro.MODO_CLAVE, "318979-P75V/QLKfVKX");
         parametroService.registrarTexto(admin, Parametro.MODO_URL_API, "https://merchants.preprod.playdigital.com.ar");
@@ -504,7 +459,7 @@ public class SemillaService {
         Inscripcion luciaMercado = crearInscripcion(abierta1, lucia, ahora, tema1);
         Inscripcion martinMercado = crearInscripcion(abierta1, martin, ahora, null);
         Inscripcion inscripcionValentina = crearInscripcion(enDictado1, valentina, ahora, tema1);
-        // Pagos de las inscripciones a un curso con costo (CU-50): aprobados por MODO, con su comprobante
+        // Pagos de las inscripciones a un curso con costo: aprobados por MODO, con su comprobante
         registrarPago(luciaMercado, pagoAprobado, pagoModo, "Tarjeta de crédito Mastercard", "0008", "QRL3M0A1", null,
                 ahora.minusDays(9));
         registrarPago(martinMercado, pagoAprobado, pagoModo, "Cuenta bancaria Macro", "6168", "QRM4R7B2", null,
@@ -518,7 +473,7 @@ public class SemillaService {
         claseEnVivoRepository.save(new ClaseEnVivo(titular1, claseEnVivoAhora, tema2, enDictado1,
                 "Clase magistral: Operatoria de renta fija en BYMA", ahora.minusMinutes(20), 90));
 
-        // Contenido de los temas 1 y 2 (acceso al curso del alumno en dictado, CU-27)
+        // Contenido de los temas 1 y 2 (acceso al curso del alumno en dictado)
         agregarMaterial(tema1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
         agregarMaterial(tema1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
         agregarMaterial(tema2, titular1, bibliografia, "Guía teórica de renta fija");
@@ -528,7 +483,7 @@ public class SemillaService {
         agregarGlosario(tema1, "ON", "Obligación negociable: título de deuda que emiten las empresas para financiarse.");
         agregarGlosario(tema2, "TIR", "Tasa interna de retorno: rendimiento anual de un bono si se lo mantiene hasta el vencimiento.");
         agregarGlosario(tema2, "Duration", "Plazo promedio ponderado en que se recibe el dinero de un bono.");
-        // Autoevaluaciones (MOD-F-04): la 1 deja navegar libremente y salir; la 2 es secuencial, descuenta por error y no deja salir
+        // Autoevaluaciones: la 1 deja navegar libremente y salir. La 2 es secuencial, descuenta por error y no deja salir
         Pool poolMarcoRegulatorio = crearPool(tema1, "Marco regulatorio");
         agregarPregunta(poolMarcoRegulatorio, "¿Qué organismo regula y controla el mercado de capitales argentino?", false,
                 "*Comisión Nacional de Valores", "Banco Central de la República Argentina",
@@ -632,7 +587,7 @@ public class SemillaService {
         pendienteDePago.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
         pendienteDePago.setFechaVencimientoAcceso(null); // el vencimiento se calcula cuando se habilite
         inscripcionRepository.save(pendienteDePago);
-        // Su pago con MODO fue rechazado: puede reintentarlo (CU-52) o lo puede acreditar el administrador (CU-54)
+        // Su pago con MODO fue rechazado: puede reintentarlo o lo puede acreditar el administrador
         registrarPago(pendienteDePago, pagoRechazado, pagoModo, "Tarjeta de crédito Visa", "0008", null,
                 MotivoPagoUtil.traducir("INSUFFICIENT_FUNDS"), ahora.minusHours(3));
 
@@ -776,65 +731,47 @@ public class SemillaService {
 
         completarElContenidoDeLosProgramas(ahora);
         dejarIncompletosLaMayoriaDeLosCursosAbiertos(ahora);
-        pasarAPendientesLasCohortesConContenidoIncompleto(ahora);
-        actualizarEstadosDeLasCohortes(ahora);
+        publicarLasCohortes(ahora);
     }
 
-    /**
-     * Una cohorte publicada (inscripción próxima o posterior) siempre tiene su programa completo. Si la semilla dejó alguna con falta de
-     * contenido (del curso, del programa o de sus temas) y todavía sin alumnos, pasa a pendiente de contenido sin programa, con la
-     * inscripción lejos en el futuro, como el resto de los casos incompletos.
-     */
-    private void pasarAPendientesLasCohortesConContenidoIncompleto(LocalDateTime ahora) {
+    /** Obtiene un valor predefinido que tiene que haber cargado el script valoresPredefinidos.sql. */
+    private static <T> T predefinido(java.util.Optional<T> valor, String descripcion) {
+        return valor.orElseThrow(() -> new IllegalStateException("Falta " + descripcion + ": lo carga el script valoresPredefinidos.sql"));
+    }
+
+    /** Publica las cohortes. Es lo último que hace la semilla. */
+    private void publicarLasCohortes(LocalDateTime ahora) {
         int plazo = Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO;
-        // La semilla corre en una sola transacción y agrega materiales y evaluaciones por los repositorios: las listas de cada tema quedaron
-        // desactualizadas. Se vuelve a leer todo de la base para juzgar el contenido por lo que realmente tiene.
+        // La semilla corre en una sola transacción y agrega materiales y evaluaciones por los repositorios.
         entityManager.flush();
         entityManager.clear();
         for (Cohorte cohorte : cohorteRepository.findByBajaFalse()) {
-            if (cohorte.esPendiente() || cohorte.esCancelada() || cohorte.getPrograma() == null
-                    || !inscripcionRepository.findByCohorteAndBajaFalse(cohorte).isEmpty() // se cuentan en la base: la lista de la cohorte puede estar desactualizada
-                    || cohorteService.faltantesDeContenido(cohorte.getPrograma()).isEmpty()) {
+            if (cohorte.esCancelada() || (cohorte.esPendiente() && cohorte.getPrograma() == null)) {
                 continue;
             }
-            cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PENDIENTE).orElseThrow());
-            cohorte.setPrograma(null);
-            cohorte.setFechaInicioInscripcion(ahora.plusDays(plazo + 30L));
-            cohorte.setFechaFinInscripcion(ahora.plusDays(plazo + 75L));
-            if (cohorte.getFechaInicioDictado() != null) {
-                cohorte.setFechaInicioDictado(ahora.plusDays(plazo + 90L));
-                cohorte.setFechaFinDictado(ahora.plusDays(plazo + 90L + cohorte.getCurso().getDuracionDias() - 1));
-            }
-            cohorteRepository.saveAndFlush(cohorte);
-        }
-    }
-
-    /**
-     * Deja cada cohorte que sigue el calendario (no pendiente ni cancelada) en el estado que le corresponde por sus fechas y por si le quedan
-     * inscripciones en juego. Se hace al final, cuando ya están todas las inscripciones; después lo mantiene la tarea periódica.
-     */
-    private void actualizarEstadosDeLasCohortes(LocalDateTime ahora) {
-        for (Cohorte cohorte : cohorteRepository.findAll()) {
-            if (cohorte.esPendiente() || cohorte.esCancelada()) {
+            // Se cuentan en la base: la lista de inscripciones de la cohorte puede estar desactualizada
+            boolean sinAlumnos = inscripcionRepository.findByCohorteAndBajaFalse(cohorte).isEmpty();
+            if (sinAlumnos && !cohorteService.faltantesDeContenido(cohorte.getPrograma()).isEmpty()) {
+                cohorte.setPrograma(null);
+                cohorte.setFechaInicioInscripcion(ahora.plusDays(plazo + 30L));
+                cohorte.setFechaFinInscripcion(ahora.plusDays(plazo + 75L));
+                if (cohorte.getFechaInicioDictado() != null) {
+                    cohorte.setFechaInicioDictado(ahora.plusDays(plazo + 90L));
+                    cohorte.setFechaFinDictado(ahora.plusDays(plazo + 90L + cohorte.getCurso().getDuracionDias() - 1));
+                }
+                cohorteRepository.saveAndFlush(cohorte);
                 continue;
             }
             boolean enJuego = inscripcionRepository.contarEnJuego(cohorte, ahora) > 0;
             cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(cohorte.calcularEstado(ahora, enJuego)).orElseThrow());
-            cohorteRepository.save(cohorte);
+            cohorteRepository.saveAndFlush(cohorte);
         }
     }
 
-    /** Los cursos con inscripción abierta que crea la semilla, en orden: de dos de cada tres se deja el diseño incompleto. */
+    /** Los cursos con inscripción abierta que crea la semilla, en orden. */
     private final List<Curso> cursosAbiertosDeLaSemilla = new java.util.ArrayList<>();
 
-    /**
-     * Para poder probar el diseño de curso, deja pendientes dos de cada tres cursos con inscripción abierta (junto con
-     * «Introducción a las Finanzas» y los cursos completos, quedan la mitad y la mitad). Cada uno se queda en una etapa
-     * distinta del diseño: sin datos completos (paso 1), con los temas sin su contenido (paso 2) o con los temas listos pero sin
-     * programa asignado (paso 3, con el programa ya registrado o sin ninguno). Un programa nunca está incompleto y una cohorte pendiente
-     * de contenido nunca tiene programa, así que las cohortes de esos cursos pasan a Pendiente sin programa, con la inscripción lejos en
-     * el futuro, y los programas que no pueden existir en esa etapa se dan de baja.
-     */
+    /** Deja incompletos la mayoría de los cursos abiertos, para poder probar el diseño de curso. */
     private void dejarIncompletosLaMayoriaDeLosCursosAbiertos(LocalDateTime ahora) {
         int etapa = 0;
         for (int i = 0; i < cursosAbiertosDeLaSemilla.size(); i++) {
@@ -866,20 +803,21 @@ public class SemillaService {
                     // Paso 3: los temas están completos y todavía no hay programa
                     for (Programa programa : programas) {
                         programa.marcarInactivo();
-                        programaRepository.save(programa);
+                        programaRepository.saveAndFlush(programa);
                     }
                 }
                 case 2 -> {
-                    // Paso 2: a los temas les falta contenido (sin autoevaluación visible), así que tampoco puede haber programa
+                    // Paso 2: a los temas les falta contenido (sin autoevaluación visible).
                     for (Programa programa : programas) {
-                        for (TemaCronograma cronograma : temaCronogramaRepository.findByProgramaAndBajaFalse(programa)) {
+                        List<TemaCronograma> cronogramas = temaCronogramaRepository.findByProgramaAndBajaFalse(programa);
+                        programa.marcarInactivo();
+                        programaRepository.saveAndFlush(programa);
+                        for (TemaCronograma cronograma : cronogramas) {
                             autoevaluacionRepository.findByTemaAndBajaFalse(cronograma.getTema()).forEach(autoevaluacion -> {
                                 autoevaluacion.setOculto(true);
-                                autoevaluacionRepository.save(autoevaluacion);
+                                autoevaluacionRepository.saveAndFlush(autoevaluacion);
                             });
                         }
-                        programa.marcarInactivo();
-                        programaRepository.save(programa);
                     }
                 }
                 default -> {
@@ -890,11 +828,7 @@ public class SemillaService {
         }
     }
 
-    /**
-     * Deja el contenido de todos los programas de la semilla completo y coherente con las modalidades de su curso: cada tema
-     * tiene su material, su autoevaluación y, si el curso es grabado o con clon, su grabación o su video con clon. Así un
-     * programa de la semilla nunca figura como incompleto mientras tiene cohortes activas.
-     */
+    /** Deja el contenido de todos los programas de la semilla completo y coherente con las modalidades de su curso: cada tema tiene su material, su autoevaluación y, si el curso es grabado o con clon, su grabación o su video con clon. */
     private void completarElContenidoDeLosProgramas(LocalDateTime ahora) {
         for (Curso curso : cursoRepository.findAll()) {
             DocenteCurso titular = docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
@@ -928,7 +862,7 @@ public class SemillaService {
         }
     }
 
-    /** Los archivos de ejemplo de una clase ("pdf" o "mp4"), ordenados por nombre; vacío si la carpeta no existe. */
+    /** Busca los archivos de ejemplo de una clase ("pdf" o "mp4"), ordenados por nombre. Devuelve vacío si la carpeta no existe. */
     private List<java.nio.file.Path> archivosDeEjemplo(String extension) {
         java.nio.file.Path carpeta = java.nio.file.Path.of(carpetaDeRecursosDeEjemplo);
         if (!java.nio.file.Files.isDirectory(carpeta)) {
@@ -941,12 +875,7 @@ public class SemillaService {
         }
     }
 
-    /**
-     * Sube al servidor un archivo de ejemplo con la ruta que usa la subida de materiales: curso{id}/tema{id}/recurso{id}.ext
-     * (relativa a la carpeta de cursos). Si no hay archivos de ejemplo, devuelve una ruta de ejemplo sin archivo.
-     *
-     * @return la ruta relativa y el tamaño en bytes (nulo si no se subió ningún archivo)
-     */
+    /** Sube al servidor un archivo de ejemplo con la ruta que usa la subida de materiales. */
     private Object[] subirArchivoDeEjemplo(Tema tema, Recurso recurso, String extension) {
         List<java.nio.file.Path> disponibles = archivosDeEjemplo(extension);
         String relativa = "curso" + tema.getCurso().getIdCurso() + "/tema" + tema.getIdTema() + "/recurso" + recurso.getIdRecurso()
@@ -989,9 +918,7 @@ public class SemillaService {
         return material;
     }
 
-    /**
-     * Crea un curso sin imagen con un programa de dos temas con material y una cohorte con inscripción abierta.
-     */
+    /** Crea un curso sin imagen con un programa de dos temas con material y una cohorte con inscripción abierta. */
     private void crearCursoAbierto(String nombre, String descripcion, float precio, Categoria categoria, Nivel nivel,
             List<Modalidad> modalidades, Docente titular, TipoRecurso tipoMaterial, String tema1, String tema2,
             LocalDateTime ahora) {
@@ -1009,16 +936,7 @@ public class SemillaService {
                 enVivo ? ahora.plusDays(100) : null, 8, 30);
     }
 
-    /**
-     * Crea un usuario con su rol vigente y lo establece como su rol por defecto.
-     *
-     * @param nombre El nombre del usuario.
-     * @param apellido El apellido del usuario.
-     * @param dni El DNI del usuario.
-     * @param correo El correo electrónico del usuario.
-     * @param rol El rol del usuario.
-     * @return El usuario guardado.
-     */
+    /** Crea un usuario con su rol vigente y lo establece como su rol por defecto. */
     private Usuario crearUsuario(String nombre, String apellido, String dni, String correo, String telefono, Rol rol) {
         Usuario usuario = new Usuario(nombre, apellido, dni, correo, passwordEncoder.encode(CLAVE_DE_PRUEBA));
         usuario.setTelefono(telefono);
@@ -1050,11 +968,7 @@ public class SemillaService {
         return categoria;
     }
 
-    /**
-     * Crea un curso con sus modalidades y su equipo docente.
-     *
-     * @return La participación del docente titular (de la que se obtiene el curso).
-     */
+    /** Crea un curso con sus modalidades y su equipo docente. */
     private DocenteCurso crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
             Docente titular, List<Docente> ayudantes) {
@@ -1072,7 +986,7 @@ public class SemillaService {
         return docenteCursoRepository.save(new DocenteCurso(curso, titular, true));
     }
 
-    /** Crea el programa de un curso; los objetivos que se indican son los del curso (si todavía no los tiene). */
+    /** Crea el programa de un curso. Los objetivos que se indican son los del curso (si todavía no los tiene). */
     private Programa crearPrograma(Curso curso, String nombre, String objetivos) {
         if (curso.getObjetivos() == null) {
             curso.setObjetivos(objetivos);
@@ -1083,16 +997,13 @@ public class SemillaService {
         return programaRepository.save(programa);
     }
 
-    /**
-     * Agrega un tema al curso y a su cronograma. Si se indica una participación docente, carga
-     * además un material publicado asociado al tema.
-     */
+    /** Agrega un tema al curso y a su cronograma. */
     private Tema agregar(Programa programa, Curso curso, int numeroOrden, int semanas, String titulo,
             String descripcion, DocenteCurso autorMaterial, TipoRecurso tipoMaterial) {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
         tema = temaRepository.save(tema);
-        // La semilla describe los temas en semanas; el cronograma se guarda en días
+        // La semilla describe los temas en semanas. El cronograma se guarda en días
         int dias = semanas * DuracionUtil.DIAS_POR_SEMANA;
         temaCronogramaRepository.save(new TemaCronograma(programa, tema, numeroOrden, dias));
         // La duración del curso es la del más largo de sus programas (así sus cohortes tienen el acceso necesario)
@@ -1123,25 +1034,20 @@ public class SemillaService {
         cohorte.setFechaInicioDictado(inicioDictado);
         cohorte.setFechaFinDictado(finDictado);
         cohorte.setCupoMaximo(cupoMaximo);
-        // Sin estado indicado: la cohorte sigue el calendario. Se la crea como próxima y al final de la semilla se la deja en el estado
-        // que le corresponde por sus fechas y sus inscripciones (ver actualizarEstadosDeLasCohortes)
-        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(estado != null ? estado : EstadoCohorte.PROXIMA).orElseThrow());
+        // Sin estado indicado: la cohorte sigue el calendario.
+        cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(estado != null ? estado : EstadoCohorte.PENDIENTE).orElseThrow());
         return cohorteRepository.save(cohorte);
     }
 
-    /**
-     * Inscribe a un alumno en una cohorte y, si se indica un tema, la registra como completada.
-     */
-    /**
-     * Registra el pago de una inscripción (el precio del curso, sin descuento) y, si está aprobado, su comprobante.
-     */
+    /** Inscribe a un alumno en una cohorte y, si se indica un tema, la registra como completada. */
+    /** Registra el pago de una inscripción (el precio del curso, sin descuento) y, si está aprobado. */
     private Pago registrarPago(Inscripcion inscripcion, EstadoPago estado, MetodoPago metodo, String detalle, String digitos,
             String referencia, String motivoError, LocalDateTime fecha) {
         Pago pago = new Pago(estado, metodo, inscripcion, "IDN-SEMILLA-" + inscripcion.getIdInscripcion(),
                 inscripcion.getCurso().getPrecio());
         pago.setDetalleMetodoPago(detalle);
         pago.setUltimosDigitosTarjeta(digitos);
-        // Las transferencias llevan su número de comprobante; MODO, su código de referencia
+        // Las transferencias llevan su número de comprobante. MODO, su código de referencia
         if (MetodoPago.TRANSFERENCIA.equals(metodo.getNombre())) {
             pago.setNumeroComprobante(referencia);
         } else {
@@ -1177,10 +1083,7 @@ public class SemillaService {
         return inscripcion;
     }
 
-    /**
-     * Crea un recurso del docente con los datos propios de su tipo y lo incorpora al tema. Los archivos no existen en la
-     * carpeta de cursos: la semilla solo deja una ruta de ejemplo.
-     */
+    /** Crea un recurso del docente con los datos propios de su tipo y lo incorpora al tema. */
     private TemaRecurso agregarMaterial(Tema tema, DocenteCurso autor, TipoRecurso tipo, String titulo) {
         Recurso recurso = recursoRepository.save(new Recurso(autor.getDocente(), titulo));
         String nombreAutor = autor.getDocente().getUsuario().getNombreCompleto();
@@ -1188,7 +1091,7 @@ public class SemillaService {
             case BIBLIOGRAFIA -> {
                 recurso.setPrivado(false); // las bibliografías son siempre públicas
                 recursoRepository.save(recurso);
-                Bibliografia bibliografia = new Bibliografia(recurso, "978-987-00-0000-0", nombreAutor);
+                Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()), nombreAutor);
                 Object[] pdf = subirArchivoDeEjemplo(tema, recurso, "pdf");
                 bibliografia.setRutaArchivo((String) pdf[0]);
                 bibliografia.setTamanioBytes((Long) pdf[1]);
@@ -1223,16 +1126,12 @@ public class SemillaService {
         terminoGlosarioRepository.save(new TerminoGlosario(tema, termino, definicion));
     }
 
-    /**
-     * Crea un pool vacío para un tema.
-     */
+    /** Crea un pool vacío para un tema. */
     private Pool crearPool(Tema tema, String nombre) {
         return poolRepository.save(new Pool(tema, nombre));
     }
 
-    /**
-     * Agrega una pregunta con sus opciones a un pool. Las opciones correctas se indican con un asterisco inicial.
-     */
+    /** Agrega una pregunta con sus opciones a un pool. */
     private Pregunta agregarPregunta(Pool pool, String texto, boolean opcionMultiple, String... opciones) {
         Pregunta pregunta = preguntaRepository.save(new Pregunta(pool, texto, opcionMultiple));
         pool.getPreguntas().add(pregunta);
@@ -1244,9 +1143,7 @@ public class SemillaService {
         return pregunta;
     }
 
-    /**
-     * Crea una autoevaluación de un tema asociado a un pool, con el tiempo límite en minutos.
-     */
+    /** Crea una autoevaluación de un tema asociado a un pool, con el tiempo límite en minutos. */
     private Autoevaluacion agregarAutoevaluacion(Tema tema, Pool pool, String nombre, int cantidadPreguntas,
             float notaMinima, Integer intentosPermitidos, Integer tiempoLimite, LocalDateTime apertura,
             boolean descuentoPorError, boolean navegacionLibre, boolean permiteSalir) {
@@ -1263,10 +1160,7 @@ public class SemillaService {
         return autoevaluacion;
     }
 
-    /**
-     * Crea, para un tema, un pool de cuatro preguntas (dos de opción única, una de opción múltiple y una de verdadero o
-     * falso) y una autoevaluación de tres preguntas que lo usa: cada tema de un programa con cohortes necesita una.
-     */
+    /** Crea, para un tema, un pool de cuatro preguntas. */
     private Autoevaluacion agregarEvaluacionBasica(Tema tema, int numeroOrden, LocalDateTime ahora) {
         String descripcionTema = "«" + tema.getTitulo() + "»";
         Pool pool = crearPool(tema, "Preguntas del tema");
@@ -1281,11 +1175,7 @@ public class SemillaService {
                 ahora.minusDays(30), false, true, true);
     }
 
-    /**
-     * Registra un intento entregado: sortea las primeras preguntas de los pools de la autoevaluación, responde bien las
-     * primeras {@code correctas}, responde mal las siguientes {@code incorrectas} y deja el resto sin responder; luego lo
-     * corrige.
-     */
+    /** Registra un intento entregado: sortea las primeras preguntas de los pools de la autoevaluación. */
     private IntentoAutoevaluacion registrarIntento(Inscripcion inscripcion, Autoevaluacion autoevaluacion, int correctas,
             int incorrectas, LocalDateTime fechaEntrega) {
         IntentoAutoevaluacion intento = new IntentoAutoevaluacion(inscripcion, autoevaluacion);

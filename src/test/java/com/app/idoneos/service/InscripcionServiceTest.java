@@ -19,9 +19,7 @@ import com.app.idoneos.repository.EstadoInscripcionRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.service.inscripcion.InscripcionService;
 
-/**
- * Pruebas de la validación del acceso del alumno a su curso (CU-27).
- */
+/** Pruebas de la validación del acceso del alumno a su curso. */
 @SpringBootTest
 @Transactional
 class InscripcionServiceTest {

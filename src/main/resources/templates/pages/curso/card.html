@@ -1,14 +1,4 @@
-<!-- Card de un curso. Se usa en el inicio, el catálogo y "Mis cursos" (alumno, docente y administrador).
-     Parámetros:
-       c            el curso;
-       temas     cantidad de temas (puede ser nulo);
-       estado       etiqueta sobre la imagen (nulo para no mostrarla);
-       url, texto   enlace del botón, que se estira sobre toda la card;
-       menu         menú de tres puntos junto al botón: nulo (sin menú), 'curso' (administrador: Modificar y Dar de baja)
-                    o 'inscripcion' (alumno: Darme de baja);
-       inscripcion  solo para el alumno: su inscripción al curso. Suma el progreso y el vencimiento del acceso, y cambia
-                    el botón según el estado del acceso (Vigente: enlace; Pendiente de pago: botón Pagar; otro: bloqueado).
-     La imagen lleva un degradé de uno de tres tonos (azul, ámbar o verde, según el curso); sin imagen, el degradé es el fondo. -->
+<!-- Card de un curso. -->
 <div th:fragment="card(c, temas, estado, url, texto, menu, inscripcion)" class="cc-card" data-card
      th:with="cantidad=${temas != null ? temas : 0}"
      th:data-f-busqueda="${c.nombre + ' ' + (c.descripcion != null ? c.descripcion : '')}"
@@ -23,7 +13,7 @@
     <img th:if="${c.imagen != null}" th:src="@{${c.urlImagen}}" alt="" width="640" height="300" loading="lazy" decoding="async">
     <span class="cc-velo" th:if="${c.imagen != null}"></span>
     <span class="cc-estado" th:if="${estado != null}" th:text="${estado}">Inscripción abierta</span>
-    <!-- Descuentos vigentes (solo donde la página los carga: inicio y catálogo): el que se aplica o el mayor porcentaje -->
+    <!-- Descuentos vigentes (solo donde la página los carga: inicio y catálogo). -->
     <span class="cc-descuento" th:if="${descuentosVigentes != null and !#lists.isEmpty(descuentosVigentes) and c.precio != null and c.precio > 0}"
           th:text="${descuentoAplicable != null ? descuentoAplicable.porcentajeTexto + '% de descuento' : 'Hasta ' + descuentosVigentes.get(0).porcentajeTexto + '% de descuento'}">Hasta 20% de descuento</span>
   </div>
@@ -70,7 +60,7 @@
     <div class="cc-acciones">
       <a th:if="${inscripcion == null or inscripcion.puedeAccederAhora()}" th:href="@{${url}}" class="cc-boton" th:text="${texto}">Ver ficha del curso</a>
       <!-- Alumno con el pago pendiente: el botón lleva a la caja y se estira sobre toda la card -->
-      <!-- Con un pago en curso: Continuar con el pago; vencida su solicitud, se está verificando con MODO y no se puede pagar de nuevo -->
+      <!-- Con un pago en curso: Continuar con el pago. Vencida su solicitud. -->
       <span th:if="${inscripcion != null and inscripcion.requierePago() and inscripcion.pagoEnCurso != null and @pagoServiceImpl.estaVerificando(inscripcion.pagoEnCurso)}"
             class="pn-celda-secundaria cc-verificando">Verificando tu pago…</span>
       <!-- Cerrada la inscripción y sin un pago en curso ya no se puede pagar (en un momento se cancela sola) -->

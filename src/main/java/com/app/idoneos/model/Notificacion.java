@@ -7,10 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Notificación que el sistema le envía por correo a un usuario (por ejemplo, el aviso de que una cohorte pendiente se
- * activó o se canceló). Guarda el estado del envío y sus intentos.
- */
+/** Entidad que representa una notificación que el sistema envía por correo a un usuario. */
 @Entity
 @Table(name = "Notificacion")
 @Getter
@@ -18,87 +15,57 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Notificacion {
 
-    /**
-     * Identificador único.
-     */
+    /** Identificador único. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idNotificacion")
     private int idNotificacion;
 
-    /**
-     * Relación con Usuario: quien recibe la notificación.
-     */
+    /** Relación con Usuario: quien recibe la notificación. */
     @ManyToOne
     @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
 
-    /**
-     * Relación con TipoNotificacion.
-     */
+    /** Tipo notificacion de este registro. */
     @ManyToOne
     @JoinColumn(name = "idTipoNotificacion", nullable = false)
     private TipoNotificacion tipoNotificacion;
 
-    /**
-     * Relación con Cohorte: la cohorte a la que se refiere. Es opcional.
-     */
+    /** Relación con Cohorte: la cohorte a la que se refiere. */
     @ManyToOne
     @JoinColumn(name = "idCohorte", nullable = true)
     private Cohorte cohorte;
 
-    /**
-     * Relación con EstadoEnvio.
-     */
+    /** Estado envio de este registro. */
     @ManyToOne
     @JoinColumn(name = "idEstadoEnvio", nullable = false)
     private EstadoEnvio estadoEnvio;
 
-    /**
-     * Asunto del correo.
-     */
+    /** Asunto del correo. */
     @Column(name = "asunto", nullable = false, length = 150)
     private String asunto;
 
-    /**
-     * Fecha y hora en que se envió. Es opcional (todavía no se envió).
-     */
+    /** Fecha y hora en que se envió. */
     @Column(name = "fechaEnvio", nullable = true)
     private LocalDateTime fechaEnvio;
 
-    /**
-     * Cantidad de intentos de envío.
-     */
+    /** Cantidad de intentos de envío. */
     @Column(name = "intentos", nullable = false)
     private int intentos = 0;
 
-    /**
-     * Detalle del error del último intento. Es opcional.
-     */
+    /** Detalle del error del último intento. */
     @Column(name = "detalleError", nullable = true, length = 500)
     private String detalleError;
 
-    /**
-     * Fecha y hora de creación.
-     */
+    /** Fecha y hora de creación. */
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de la última modificación. Es opcional.
-     */
+    /** Fecha y hora de la última modificación. */
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
-    /**
-     * Constructor para crear la notificación con los datos básicos.
-     *
-     * @param usuario          quien la recibe.
-     * @param tipoNotificacion el tipo.
-     * @param cohorte          la cohorte a la que se refiere (opcional).
-     * @param estadoEnvio      el estado del envío.
-     * @param asunto           el asunto.
-     */
+    /** Crea la notificación con los datos básicos. */
     public Notificacion(Usuario usuario, TipoNotificacion tipoNotificacion, Cohorte cohorte, EstadoEnvio estadoEnvio,
             String asunto) {
         this.usuario = usuario;
@@ -108,11 +75,7 @@ public class Notificacion {
         this.asunto = asunto;
     }
 
-    /**
-     * Devuelve una representación en forma de cadena.
-     *
-     * @return El asunto.
-     */
+    /** Devuelve una representación en forma de cadena. */
     @Override
     public String toString() {
         return asunto;

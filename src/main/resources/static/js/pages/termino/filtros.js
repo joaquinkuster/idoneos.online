@@ -1,7 +1,4 @@
-/**
- * Búsqueda del glosario de un tema. El texto, el índice alfabético y las páginas los resuelve el servidor: este script
- * pide por fetch la zona de resultados (términos, índice y páginas) con lo que se escribió o eligió, y la reemplaza.
- */
+/** Búsqueda del glosario de un tema. */
 (function () {
     'use strict';
 

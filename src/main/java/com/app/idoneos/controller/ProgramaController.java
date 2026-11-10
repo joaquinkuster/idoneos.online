@@ -33,14 +33,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.programa.ProgramaService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador del ABM de programas (MOD-F-02): CU-15 Buscar programa (GET /programa/buscar), CU-16 Registrar programa
- * (POST /programa/registrar), CU-17 Modificar programa (POST /programa/modificar/{id}) y CU-18 Dar de baja programa
- * (POST /programa/darDeBaja/{id}).
- *
- * El docente (titular o ayudante) gestiona los programas de los cursos en los que participa; el administrador puede
- * buscar y dar de baja los de cualquier curso.
- */
+/** Controlador del programa. */
 @Controller
 @RequestMapping("/programa")
 public class ProgramaController {
@@ -57,21 +50,11 @@ public class ProgramaController {
     @Autowired
     private TemaService temaService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-15: Busca los programas de un curso por nombre y estado (Vigente, Anterior o Dado de baja).
-     *
-     * @param cursoId            Identificador del curso.
-     * @param nombre             Parte del nombre (opcional).
-     * @param estado             Estado del programa (opcional).
-     * @param nuevo              Presente para abrir el formulario de alta (solo docente): es el destino del botón
-     *                           "Registrar programa" de un curso que todavía no tiene programas.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /programa/buscar: Busca los programas de un curso por nombre y estado (Vigente, Anterior o Dado de baja). */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -135,18 +118,11 @@ public class ProgramaController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-16: Registra un programa para un curso, opcionalmente a partir de uno anterior. Responde en JSON.
-     *
-     * @param cursoId          Identificador del curso.
-     * @param programaOrigenId Programa del que se parte (opcional).
-     * @param nombre           El nombre (opcional: si no se indica, es "Versión N").
-     * @param descripcion      Qué cambia respecto de la versión anterior (opcional).
-     * @param authentication             La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /programa/registrar: Registra un programa para un curso, opcionalmente a partir de uno anterior. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "cursoId", required = false) Integer cursoId,
@@ -168,17 +144,11 @@ public class ProgramaController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-17: Modifica un programa sin inscripciones activas. Responde en JSON.
-     *
-     * @param id           Identificador del programa.
-     * @param nombre       El nombre.
-     * @param descripcion  Qué cambia respecto de la versión anterior (opcional).
-     * @param authentication         La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /programa/modificar/{id}: Modifica un programa sin inscripciones activas. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -196,10 +166,7 @@ public class ProgramaController {
         }
     }
 
-    /**
-     * Los temas del cronograma que envió el asistente: con {@code conCronograma} y sin temas, un cronograma vacío (no
-     * se parte del programa de origen); sin {@code conCronograma}, el cronograma no se toca.
-     */
+    /** Obtiene los temas del cronograma que envió el asistente, con conCronograma y sin temas. */
     private static List<Integer> cronogramaRecibido(Boolean conCronograma, List<Integer> ids) {
         if (!Boolean.TRUE.equals(conCronograma)) {
             return ids;
@@ -207,15 +174,11 @@ public class ProgramaController {
         return ids == null ? List.of() : ids;
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-18: Da de baja un programa sin cohortes activas. Responde en JSON.
-     *
-     * @param id   Identificador del programa.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /programa/darDeBaja/{id}: Da de baja un programa sin cohortes activas. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
         try {
@@ -229,13 +192,7 @@ public class ProgramaController {
         }
     }
 
-    /**
-     * Da de baja varios programas a la vez, todos o ninguno. Responde en JSON.
-     *
-     * @param ids  Identificadores de los programas seleccionados.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /programa/darDeBajaMasiva: Da de baja varios programas a la vez, todos o ninguno. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
@@ -249,17 +206,17 @@ public class ProgramaController {
         }
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (motor común)
+        // ----------------------------------------------------------------------
+        // Listado (motor común)
+        // ----------------------------------------------------------------------
 
-
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Programa> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Programa>("nombre", FiltroUtil.Tipo.TEXTO, Programa::getNombre),
                 new FiltroUtil.Columna<Programa>("descripcion", FiltroUtil.Tipo.TEXTO, Programa::getDescripcion),

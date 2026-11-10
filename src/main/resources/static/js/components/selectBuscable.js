@@ -1,16 +1,4 @@
-/**
- * Selectores con búsqueda por texto.
- *
- * Convierte un <select> en un campo donde se escribe para filtrar las opciones (sin tildes ni mayúsculas) y se elige con
- * el mouse o con el teclado (flechas, Enter y Escape). El <select> original sigue siendo el campo del formulario: se
- * oculta, conserva su valor y recibe el evento "change", así que la validación y el envío no cambian.
- *
- * Se aplica a:
- *  - los <select data-buscable> de cualquier página;
- *  - los <select class="pn-input"> dentro de un modal de formulario que tengan MINIMO opciones o más (alumnos, cohortes,
- *    inscripciones, cursos, programas, temas...).
- * Con data-sin-busqueda un <select> queda como está.
- */
+/** Selectores con búsqueda por texto. */
 (function () {
     'use strict';
 

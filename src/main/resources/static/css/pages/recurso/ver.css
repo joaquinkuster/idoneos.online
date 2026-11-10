@@ -1,4 +1,7 @@
-/* ---------- Vista de un material: reproductor, visor de PDF y avisos ---------- */
+/* ---------------------------------------------------------------------- */
+/* Vista de un material: reproductor, visor de PDF y avisos */
+/* ---------------------------------------------------------------------- */
+
 .mv-cabecera {
     display: flex;
     align-items: center;
@@ -184,7 +187,10 @@
     margin: 0 0 18px;
 }
 
-/* ---------------------------------------------------------------- Visor de PDF: panel lateral, buscador y capa de texto */
+/* ---------------------------------------------------------------------- */
+/* Visor de PDF: panel lateral, buscador y capa de texto */
+/* ---------------------------------------------------------------------- */
+
 .mv-cuerpo {
     display: flex;
     align-items: stretch;
@@ -431,7 +437,10 @@
     }
 }
 
-/* ---------------------------------------------------------------- Visor de PDF: anotaciones del alumno */
+/* ---------------------------------------------------------------------- */
+/* Visor de PDF: anotaciones del alumno */
+/* ---------------------------------------------------------------------- */
+
 .mv-trazos {
     position: absolute;
     inset: 0;

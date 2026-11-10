@@ -12,22 +12,7 @@ import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-/**
- * Filtros y orden de los listados del panel, resueltos en el servidor. Cada listado declara sus columnas una vez; esta
- * utilidad aplica a una lista los filtros y el orden que llegan en los parámetros de la solicitud. La página se arma
- * aparte, con {@link PaginacionUtil}.
- *
- * <p>Cada columna da, para una fila, el mismo valor que la pantalla mostraba como {@code data-f-<campo>}:
- * texto para las columnas de texto y de lista, el número como texto para las numéricas, la fecha ISO
- * ({@code aaaa-mm-dd}, con hora opcional) para las de fecha, y los valores separados por {@code |} cuando una fila tiene
- * varios. Vacío significa "sin dato".</p>
- *
- * <p>Parámetros que entiende: un parámetro por filtro con el nombre de la columna ({@code campo} para texto y listas,
- * {@code campoDesde} y {@code campoHasta} para números y fechas; las listas múltiples pueden repetirlo), y
- * {@code ordenCampo} y {@code ordenDir} ({@code asc} o {@code desc}) para el orden.</p>
- *
- * @param <T> el tipo de fila.
- */
+/** Utilidad de filtros y orden de los listados del panel. */
 public final class FiltroUtil<T> {
 
     /** Cómo se filtra una columna. */
@@ -44,14 +29,7 @@ public final class FiltroUtil<T> {
         MULTILISTA
     }
 
-    /**
-     * Una columna filtrable y ordenable.
-     *
-     * @param campo nombre de la columna (el {@code data-campo} del encabezado).
-     * @param tipo  cómo se filtra.
-     * @param valor el valor de la fila para esta columna.
-     * @param <T>   el tipo de fila.
-     */
+    /** Una columna filtrable y ordenable. */
     public record Columna<T>(String campo, Tipo tipo, Function<T, String> valor) {
     }
 
@@ -60,19 +38,21 @@ public final class FiltroUtil<T> {
 
     /**
      * @param columnas las columnas del listado.
-     * @param esBaja   indica las filas dadas de baja, que siempre van al final al ordenar.
+     * @param esBaja indica las filas dadas de baja, que siempre van al final al ordenar.
      */
     public FiltroUtil(List<Columna<T>> columnas, Predicate<T> esBaja) {
         this.columnas = columnas;
         this.esBaja = esBaja;
     }
 
-    // ---------------------------------------------------------------- Filtro
+    // ----------------------------------------------------------------------
+    // Filtro
+    // ----------------------------------------------------------------------
 
     /**
      * Deja solo las filas que cumplen todos los filtros que llegan en los parámetros.
      *
-     * @param todas  la lista completa.
+     * @param todas la lista completa.
      * @param params los parámetros de la solicitud.
      * @return una lista nueva con las filas que cumplen.
      */
@@ -159,14 +139,14 @@ public final class FiltroUtil<T> {
         return (desde.isEmpty() || dia.compareTo(desde) >= 0) && (hasta.isEmpty() || dia.compareTo(hasta) <= 0);
     }
 
-    // ---------------------------------------------------------------- Orden
+    // ----------------------------------------------------------------------
+    // Orden
+    // ----------------------------------------------------------------------
 
     /**
-     * Ordena las filas por la columna indicada en los parámetros. Lo vacío y las filas dadas de baja van siempre al final.
-     * Sin {@code ordenCampo} se respeta el orden de la lista, pero las filas dadas de baja igual van al final (el orden es
-     * estable: entre sí conservan el orden que traían).
+     * Ordena las filas por la columna indicada en los parámetros.
      *
-     * @param filas  la lista a ordenar (se modifica).
+     * @param filas la lista a ordenar (se modifica).
      * @param params los parámetros de la solicitud.
      */
     public void ordenar(List<T> filas, Map<String, String[]> params) {
@@ -213,7 +193,9 @@ public final class FiltroUtil<T> {
         return normalizar(x).compareTo(normalizar(y));
     }
 
-    // ---------------------------------------------------------------- Opciones
+    // ----------------------------------------------------------------------
+    // Opciones
+    // ----------------------------------------------------------------------
 
     /**
      * Las opciones de cada columna de lista, sobre toda la lista (sin filtrar), para armar los desplegables.
@@ -240,12 +222,14 @@ public final class FiltroUtil<T> {
         return resultado;
     }
 
-    // ---------------------------------------------------------------- Listado completo
+    // ----------------------------------------------------------------------
+    // Listado completo
+    // ----------------------------------------------------------------------
 
     /**
-     * Resuelve un listado: filtra, ordena según los parámetros y pagina, con las opciones de los filtros de lista.
+     * Resuelve un listado: filtra, ordena según los parámetros y pagina.
      *
-     * @param items  Todas las filas del listado.
+     * @param items Todas las filas del listado.
      * @param params Los parámetros de la petición (filtros, orden y página).
      * @return La página pedida, con el total y las opciones de los filtros.
      */
@@ -256,11 +240,11 @@ public final class FiltroUtil<T> {
     }
 
     /**
-     * Igual que {@link #paginar(List, Map)}, para las vistas de cards: tamaño de página propio y sin opciones de filtro.
+     * Igual que paginar, para las vistas de cards: tamaño de página propio y sin opciones de filtro.
      *
-     * @param items    Todas las filas del listado.
-     * @param params   Los parámetros de la petición (filtros, orden y página).
-     * @param tamanio  Cuántas cards van en cada página.
+     * @param items Todas las filas del listado.
+     * @param params Los parámetros de la petición (filtros, orden y página).
+     * @param tamanio Cuántas cards van en cada página.
      * @return La página pedida.
      */
     public PaginacionUtil.Pagina<T> paginar(List<T> items, Map<String, String[]> params, int tamanio) {
@@ -270,11 +254,10 @@ public final class FiltroUtil<T> {
     }
 
     /**
-     * Igual que {@link #paginar(List, Map)}, pero después de ordenar agrupa las filas con el comparador dado (por ejemplo, por
-     * categoría). El orden previo se conserva dentro de cada grupo, porque la ordenación es estable.
+     * Igual que paginar, pero después de ordenar agrupa las filas con el comparador dado.
      *
-     * @param items      Todas las filas del listado.
-     * @param params     Los parámetros de la petición.
+     * @param items Todas las filas del listado.
+     * @param params Los parámetros de la petición.
      * @param agrupacion Cómo se agrupan las filas, o {@code null} para no reagrupar.
      * @return La página pedida.
      */
@@ -288,11 +271,10 @@ public final class FiltroUtil<T> {
     }
 
     /**
-     * Igual que {@link #paginar(List, Map)}, pero si se busca una fila concreta (por ejemplo, la que se va a modificar o dar de
-     * baja al llegar desde otra pantalla) devuelve la página que la contiene, para que su botón esté en pantalla.
+     * Igual que paginar, pero si se busca una fila concreta salta a la página que la contiene.
      *
-     * @param items   Todas las filas del listado.
-     * @param params  Los parámetros de la petición (filtros, orden y página).
+     * @param items Todas las filas del listado.
+     * @param params Los parámetros de la petición (filtros, orden y página).
      * @param buscada Identifica la fila buscada (nunca verdadero si no se busca ninguna).
      * @return La página pedida, o la que contiene la fila buscada si no está en ella.
      */
@@ -314,11 +296,11 @@ public final class FiltroUtil<T> {
     }
 
     /**
-     * Igual que {@link #paginar(List, Map, int)} (cards), pero agrupando como {@link #paginar(List, Map, java.util.Comparator)}.
+     * Igual que paginar para cards, pero agrupando como la variante con comparador.
      *
-     * @param items      Todas las filas del listado.
-     * @param params     Los parámetros de la petición.
-     * @param tamanio    Cuántas cards van en cada página.
+     * @param items Todas las filas del listado.
+     * @param params Los parámetros de la petición.
+     * @param tamanio Cuántas cards van en cada página.
      * @param agrupacion Cómo se agrupan las filas, o {@code null} para no reagrupar.
      * @return La página pedida.
      */
@@ -334,10 +316,9 @@ public final class FiltroUtil<T> {
     /**
      * Cuenta las filas que cumplen los filtros, por grupo (en todo el listado, no solo en la página pedida).
      *
-     * @param items  Todas las filas del listado.
+     * @param items Todas las filas del listado.
      * @param params Los parámetros de la petición.
-     * @param clave  El grupo de cada fila.
-     * @param <K>    El tipo de la clave del grupo.
+     * @param clave El grupo de cada fila.
      * @return La cantidad de filas filtradas de cada grupo.
      */
     public <K> Map<K, Long> contar(List<T> items, Map<String, String[]> params, java.util.function.Function<T, K> clave) {
@@ -346,13 +327,12 @@ public final class FiltroUtil<T> {
     }
 
     /**
-     * Arma los chips de categoría de un listado, en JSON: para cada valor del campo, cuántas filas hay con los demás filtros
-     * aplicados (sin el del propio campo, para que cada chip muestre lo que daría elegirlo) y cuál está elegido.
+     * Arma los chips de categoría de un listado, en JSON: para cada valor del campo.
      *
-     * @param items  Todas las filas del listado.
+     * @param items Todas las filas del listado.
      * @param params Los parámetros de la petición.
-     * @param campo  El parámetro de filtro que elige el chip (por ejemplo {@code categoriaId}).
-     * @param valor  El valor de la fila para ese campo (lo que se envía al elegir el chip).
+     * @param campo El parámetro de filtro que elige el chip (por ejemplo {@code categoriaId}).
+     * @param valor El valor de la fila para ese campo (lo que se envía al elegir el chip).
      * @param nombre El texto del chip para esa fila.
      * @return El JSON {@code {campo, activa, total, items:[{valor, nombre, total}]}}.
      */
@@ -384,10 +364,12 @@ public final class FiltroUtil<T> {
         }
     }
 
-    // ---------------------------------------------------------------- Fechas para las columnas
+    // ----------------------------------------------------------------------
+    // Fechas para las columnas
+    // ----------------------------------------------------------------------
 
     /**
-     * Da el día de una fecha como lo esperan las columnas de tipo fecha: {@code aaaa-mm-dd}.
+     * Da el día de una fecha como lo esperan las columnas de tipo fecha: aaaa-mm-dd.
      *
      * @param fecha la fecha, o {@code null}.
      * @return el día, o vacío si no hay fecha.
@@ -397,7 +379,7 @@ public final class FiltroUtil<T> {
     }
 
     /**
-     * Da la fecha con hora como la esperan las columnas de tipo fecha: {@code aaaa-mm-dd hh:mm}.
+     * Da la fecha con hora como la esperan las columnas de tipo fecha: aaaa-mm-dd hh:mm.
      *
      * @param fecha la fecha, o {@code null}.
      * @return la fecha con hora, o vacío si no hay fecha.
@@ -406,7 +388,9 @@ public final class FiltroUtil<T> {
         return fecha == null ? "" : fecha.toString().replace('T', ' ');
     }
 
-    // ---------------------------------------------------------------- Utilidades
+    // ----------------------------------------------------------------------
+    // Utilidades
+    // ----------------------------------------------------------------------
 
     private static String valor(Columna<?> columna, Object fila) {
         @SuppressWarnings("unchecked")

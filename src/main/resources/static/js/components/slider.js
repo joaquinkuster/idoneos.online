@@ -1,12 +1,4 @@
-/**
- * Sliders del sitio (socios fundadores de "Acerca de" y cursos destacados del inicio).
- *
- * Estructura: [data-slider] > .ac-slider-ventana > [data-pista] > [data-slide] y [data-puntos] para los puntos.
- *  - Cuántas cards se ven a la vez lo define el CSS con la variable --por-vista (responsivo); las páginas se calculan solas.
- *  - data-intervalo (milisegundos): si está, pasa solo; se detiene con el mouse encima, con el foco dentro o con la
- *    pestaña oculta, y no se mueve solo si la persona pidió menos animaciones.
- *  - Se puede arrastrar (mouse o dedo) y ir a una página con los puntos.
- */
+/** Sliders del sitio (socios fundadores de "Acerca de" y cursos destacados del inicio). */
 (function () {
     'use strict';
 

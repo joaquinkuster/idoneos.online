@@ -1,8 +1,4 @@
-/**
- * Abre sola la ventana indicada en el atributo data-abrir-modal del contenido de la página (por ejemplo cuando se llega
- * con ?nuevo desde otra pantalla) y quita ese parámetro de la dirección, para que al recargar la ventana no vuelva a
- * abrirse.
- */
+/** Abre sola la ventana indicada en el atributo data-abrir-modal del contenido de la página (por ejemplo cuando se llega con ?nuevo desde otra pantalla) y quita ese parámetro de la dirección, para que al recargar la ventana no vuelva a abrirse. */
 (function () {
     'use strict';
 

@@ -6,12 +6,12 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.TituloDocente;
 import java.util.List;
 
-/**
- * Servicio para gestionar las operaciones relacionadas con el título del docente.
- */
+/** Servicio del título del docente. */
 public interface TituloDocenteService extends CrudService<TituloDocente> {
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
     /**
      * Busca los registros vigentes de tituloDocente asociados a docente.

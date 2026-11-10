@@ -7,9 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de los parámetros sensibles: su valor no se muestra en pantalla.
- */
+/** Pruebas de los parámetros sensibles: su valor no se muestra en pantalla. */
 class ParametroTest {
 
     @Test

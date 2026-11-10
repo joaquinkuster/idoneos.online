@@ -2,15 +2,12 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Pestañas del curso, debajo del título y subtítulo (como en Moodle). Son los mismos enlaces del menú lateral;
-         los que todavía no tienen acción ('#') quedan visibles sin enlace. El docente suma un menú "Más" con el resto.
-         urlBase: ruta del curso abierto; curso: el curso; esDocente: define qué pestañas y enlaces corresponden. -->
+    <!-- Pestañas del curso, debajo del título y subtítulo (como en Moodle). -->
     <th:block th:fragment="navbar(urlBase, curso, esDocente)">
         <nav class="ac-curso-navbar" aria-label="Secciones del curso">
             <a class="ac-navbar-item" th:classappend="${seccion == 'temas'} ? 'activa'" th:href="@{${urlBase}}" th:attr="aria-current=${seccion == 'temas'} ? 'page' : null">Curso</a>
 
-            <!-- Docente y administrador: los mismos grupos, nombres y habilitación progresiva que el menú lateral. Cada pestaña se
-                 despliega con la entidad primero (en negrita) y debajo sus secciones. -->
+            <!-- Docente y administrador: los mismos grupos, nombres y habilitación progresiva que el menú lateral. -->
             <th:block th:if="${esDocente == true or esAdministrador == true}"
                       th:with="nivel=${nivelMenu != null ? nivelMenu : 5}, pendiente=${cohortePendiente != null and cohortePendiente}">
 

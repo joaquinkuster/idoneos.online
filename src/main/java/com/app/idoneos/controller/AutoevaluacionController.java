@@ -39,14 +39,7 @@ import com.app.idoneos.service.intentoautoevaluacion.IntentoAutoevaluacionServic
 import com.app.idoneos.service.pool.PoolService;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
-/**
- * Controlador del ABM de autoevaluaciones (MOD-F-04): CU-64 Buscar autoevaluación (GET /autoevaluacion/buscar), CU-65 Crear
- * autoevaluación (POST /autoevaluacion/registrar), CU-66 Modificar autoevaluación (POST /autoevaluacion/modificar/{id}) y
- * CU-67 Dar de baja autoevaluación (POST /autoevaluacion/darDeBaja/{id} y /autoevaluacion/darDeBajaMasiva).
- *
- * El docente (titular o ayudante) gestiona las autoevaluaciones de los cursos en los que participa; el administrador puede
- * buscarlas y darlas de baja en cualquier curso.
- */
+/** Controlador de la autoevaluación. */
 @Controller
 @RequestMapping("/autoevaluacion")
 public class AutoevaluacionController {
@@ -57,13 +50,7 @@ public class AutoevaluacionController {
     @Autowired
     private InscripcionService inscripcionService;
 
-    /**
-     * Los pools de un tema del programa, para ofrecerlos agrupados en el selector del formulario.
-     *
-     * @param numeroOrden número de orden del tema en el cronograma
-     * @param titulo      título del tema
-     * @param pools       los pools del tema
-     */
+    /** Obtiene los pools de un tema del programa, para ofrecerlos agrupados en el selector del formulario. */
     public record GrupoDePools(int numeroOrden, String titulo, List<Pool> pools) {
     }
 
@@ -76,20 +63,11 @@ public class AutoevaluacionController {
     @Autowired
     private IntentoAutoevaluacionService intentoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-64: Lista las autoevaluaciones de un curso con sus pools, tiempo límite e intentos permitidos. Desde el listado
-     * el docente las crea y las modifica en ventanas.
-     *
-     * @param cursoId            Identificador del curso.
-     * @param accion             "editar" o "baja": abre sola la ventana de esa autoevaluación (desde la vista del curso).
-     * @param autoevaluacionId   Identificador de la autoevaluación de la acción (opcional).
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista del listado, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /autoevaluacion/buscar: Lista las autoevaluaciones de un curso con sus pools, tiempo límite e intentos permitidos. */
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "accion", required = false) String accion,
@@ -127,7 +105,7 @@ public class AutoevaluacionController {
                 abrirModal = "modalModificarAutoevaluacion" + autoevaluacionId;
             }
 
-            // Desde «Completar contenido» se llega con ?nuevo&temaId=: se abre sola la ventana para registrar la autoevaluación de ese tema
+            // Desde "Completar contenido" se llega con ?nuevo&temaId=: se abre sola la ventana para registrar la autoevaluación de ese tema
             if (abrirModal == null && !esAdministrador && nuevo != null) {
                 abrirModal = "modalNuevaAutoevaluacion";
             }
@@ -145,9 +123,7 @@ public class AutoevaluacionController {
         }
     }
 
-    /**
-     * Carga en el modelo lo que necesita el formulario: para cada pool los temas que pueden usarlo y los pools agrupados por tema.
-     */
+    /** Carga en el modelo lo que necesita el formulario. */
     private void cargarPoolsDelFormulario(Model model, List<Pool> pools, List<TemaCronograma> temas) {
         // Para cada pool, los temas cuyos autoevaluaciones pueden usarlo (el formulario filtra con esto)
         Map<Integer, String> temasPorPool = new LinkedHashMap<>();
@@ -156,7 +132,7 @@ public class AutoevaluacionController {
                     .stream().map(u -> String.valueOf(u.getIdTema())).toList()));
         }
 
-        // Los pools del curso, ordenados por el tema al que pertenecen (en el orden de los temas); el formulario muestra primero los del tema elegido
+        // Los pools del curso, ordenados por el tema al que pertenecen (en el orden de los temas). El formulario muestra primero los del tema elegido
         Map<Integer, Integer> ordenDeLosTemas = new LinkedHashMap<>();
         for (TemaCronograma cronograma : temas) {
             ordenDeLosTemas.put(cronograma.getTema().getIdTema(), ordenDeLosTemas.size());
@@ -168,14 +144,7 @@ public class AutoevaluacionController {
         model.addAttribute("temasPorPool", temasPorPool);
     }
 
-    /**
-     * Ventana de modificación de una autoevaluación, que el listado pide al abrirla (en lugar de dibujar una por fila).
-     *
-     * @param id     La autoevaluación.
-     * @param model El modelo de la vista.
-     * @param authentication   La autenticación actual.
-     * @return El fragmento con la ventana.
-     */
+    /** GET /autoevaluacion/modificar/{id}: Ventana de modificación de una autoevaluación. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -192,17 +161,7 @@ public class AutoevaluacionController {
         return "pages/autoevaluacion/modificar :: modal(a=${a})";
     }
 
-    /**
-     * CU-27 (flujo del alumno) y CU-70: Ficha de la autoevaluación para el alumno: sus reglas, el historial de sus intentos
-     * (con la mejor nota) y el botón para realizar un intento, continuar el que tiene en curso o el motivo por el que no puede
-     * rendir ahora.
-     *
-     * @param id                 Identificador de la autoevaluación.
-     * @param model             El modelo de la vista.
-     * @param authentication               La autenticación actual.
-     * @param redirectAttributes Atributos para mensajes de redirección.
-     * @return La vista de la ficha, o una redirección a "Mis cursos" si no se puede acceder.
-     */
+    /** GET /autoevaluacion/ver/{id}: Ficha de la autoevaluación para el alumno: sus reglas. */
     @GetMapping("/ver/{id}")
     public String ver(@PathVariable("id") Integer id,
             @RequestParam(value = "cursoFinalizado", required = false) String cursoFinalizado, Model model,
@@ -237,27 +196,11 @@ public class AutoevaluacionController {
         }
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-65: Registra una autoevaluación asociada a uno o más pools. Responde en JSON.
-     *
-     * @param temaId           Identificador del tema.
-     * @param nombre             El nombre.
-     * @param tiempoLimite       El tiempo límite en minutos.
-     * @param cantidadPreguntas  La cantidad de preguntas que se sortean.
-     * @param notaMinima         La nota mínima para aprobar.
-     * @param intentosPermitidos La cantidad de intentos permitidos (vacío: sin límite).
-     * @param fechaApertura      La fecha y hora de apertura.
-     * @param fechaCierre        La fecha y hora de cierre (opcional).
-     * @param descuentoPorError  Si las opciones incorrectas restan.
-     * @param navegacionLibre    Si el alumno puede desplazarse libremente entre las preguntas.
-     * @param permiteSalir       Si el alumno puede salir del intento en curso.
-     * @param oculto             Si queda oculta para los alumnos.
-     * @param idsPools           Los pools de los que se sortea.
-     * @param authentication               La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /autoevaluacion/registrar: Registra una autoevaluación asociada a uno o más pools. */
     @PostMapping("/registrar")
     public ResponseEntity<Map<String, String>> registrar(
             @RequestParam(value = "temaId", required = false) Integer temaId,
@@ -285,28 +228,11 @@ public class AutoevaluacionController {
         }
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-66: Modifica una autoevaluación. Con intentos registrados solo cambian la fecha de cierre, la visibilidad y los
-     * intentos permitidos. Responde en JSON.
-     *
-     * @param id                 Identificador de la autoevaluación.
-     * @param nombre             El nombre.
-     * @param tiempoLimite       El tiempo límite en minutos.
-     * @param cantidadPreguntas  La cantidad de preguntas que se sortean.
-     * @param notaMinima         La nota mínima para aprobar.
-     * @param intentosPermitidos La cantidad de intentos permitidos (vacío: sin límite).
-     * @param fechaApertura      La fecha y hora de apertura.
-     * @param fechaCierre        La fecha y hora de cierre (opcional).
-     * @param descuentoPorError  Si las opciones incorrectas restan.
-     * @param navegacionLibre    Si el alumno puede desplazarse libremente entre las preguntas.
-     * @param permiteSalir       Si el alumno puede salir del intento en curso.
-     * @param oculto             Si queda oculta para los alumnos.
-     * @param idsPools           Los pools de los que se sortea.
-     * @param authentication               La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /autoevaluacion/modificar/{id}: Modifica una autoevaluación. */
     @PostMapping("/modificar/{id}")
     public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
             @RequestParam(value = "nombre", required = false) String nombre,
@@ -332,15 +258,11 @@ public class AutoevaluacionController {
         }
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * CU-67: Da de baja una autoevaluación sin intentos. Responde en JSON.
-     *
-     * @param id   Identificador de la autoevaluación.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /autoevaluacion/darDeBaja/{id}: Da de baja una autoevaluación sin intentos. */
     @PostMapping("/darDeBaja/{id}")
     public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id,
             Authentication authentication) {
@@ -355,13 +277,7 @@ public class AutoevaluacionController {
         }
     }
 
-    /**
-     * Da de baja varias autoevaluaciones a la vez, todas o ninguna. Responde en JSON.
-     *
-     * @param ids  Identificadores de las autoevaluaciones seleccionadas.
-     * @param authentication La autenticación actual.
-     * @return Una respuesta con el mensaje de éxito o el mensaje de error.
-     */
+    /** POST /autoevaluacion/darDeBajaMasiva: Da de baja varias autoevaluaciones a la vez, todas o ninguna. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarias(
             @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
@@ -375,17 +291,17 @@ public class AutoevaluacionController {
         }
     }
 
-
     /** Columnas de filtro, orden y página de los listados (las aplica el servidor). */
     public static final class Filtros {
 
         private Filtros() {
         }
 
-        // ---------------------------------------------------------------- Listado (motor común)
+        // ----------------------------------------------------------------------
+        // Listado (motor común)
+        // ----------------------------------------------------------------------
 
-
-        /** Las columnas del listado: lo que se filtra y se ordena en el servidor. */
+        /** Define las columnas del listado, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Autoevaluacion> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Autoevaluacion>("nombre", FiltroUtil.Tipo.TEXTO, Autoevaluacion::getNombre),
                 new FiltroUtil.Columna<Autoevaluacion>("tema", FiltroUtil.Tipo.LISTA, a -> a.getTema().getTitulo()),

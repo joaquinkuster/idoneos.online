@@ -35,7 +35,7 @@
                                   th:text="${tablaTotal + (tablaTotal == 1 ? ' cohorte encontrada' : ' cohortes encontradas')}">0 cohortes encontradas</span>
                         </div>
 
-                        <!-- Filtros (CU-11): programa, nombre, estado, rango de fechas de inscripción y orden -->
+                        <!-- Filtros: programa, nombre, estado, rango de fechas de inscripción y orden -->
                         <form th:action="@{/cohorte/buscar}" method="get" class="pn-filtros" data-filtro-front>
                     <a th:href="@{/cohorte/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
                 </form>
@@ -121,8 +121,7 @@
     </div>
 </div>
 
-<!-- Modales: asignar el programa a una cohorte pendiente (el administrador la registra sin programa y el docente
-                 elige el suyo). Si el programa tiene el contenido completo, la cohorte pasa a activa -->
+<!-- Modales: asignar el programa a una cohorte pendiente (el administrador la registra sin programa y el docente elige el suyo). -->
             <th:block th:each="coh : ${cohortesAsignables}">
                 <th:block th:replace="~{pages/programa/asignar :: modal(${coh}, ${programasDelCurso.get(coh.idCohorte)}, ${faltantesPorPrograma})}"></th:block>
             </th:block>

@@ -9,134 +9,91 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-/**
- * Pago realizado por una inscripción. Registra el monto, el método, el estado y los datos de la operación externa.
- */
+/** Entidad que representa un pago realizado por una inscripción. */
 @Entity
 @Table(name = "Pago")
 @Check(name = "ck_pago_monto", constraints = "monto >= 0")
+@Check(name = "ck_pago_ultimos_digitos", constraints = "ultimos_digitos_tarjeta is null or ultimos_digitos_tarjeta ~ '^[0-9]{1,4}$'")
 @Getter
 @Setter
 @NoArgsConstructor
 public class Pago {
 
-    /**
-     * Identificador único del pago.
-     */
+    /** Identificador único del pago. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idPago")
     private int idPago;
 
-    /**
-     * Relación con EstadoPago.
-     */
+    /** Estado pago de este registro. */
     @ManyToOne
     @JoinColumn(name = "idEstadoPago", nullable = false)
     private EstadoPago estadoPago;
 
-    /**
-     * Relación con MetodoPago.
-     */
+    /** Metodo pago de este registro. */
     @ManyToOne
     @JoinColumn(name = "idMetodoPago", nullable = false)
     private MetodoPago metodoPago;
 
-    /**
-     * Relación con Inscripcion.
-     */
+    /** Inscripcion de este registro. */
     @ManyToOne
     @JoinColumn(name = "idInscripcion", nullable = false)
     private Inscripcion inscripcion;
 
-    /**
-     * Relación con Descuento. Es opcional.
-     */
+    /** Descuento de este registro. */
     @ManyToOne
     @JoinColumn(name = "idDescuento", nullable = true)
     private Descuento descuento;
 
-    /**
-     * Identificador de la solicitud de pago en el proveedor externo. Es opcional.
-     */
+    /** Identificador de la solicitud de pago en el proveedor externo. */
     @Column(name = "idSolicitudPago", nullable = true, length = 50, unique = true)
     private String idSolicitudPago;
 
-    /**
-     * Identificador de la intención de pago en el proveedor externo.
-     */
+    /** Identificador de la intención de pago en el proveedor externo. */
     @Column(name = "idIntencionExterna", nullable = false, length = 50, unique = true)
     private String idIntencionExterna;
 
-    /**
-     * Código de referencia del pago. Es opcional.
-     */
+    /** Código de referencia del pago. */
     @Column(name = "codigoReferencia", nullable = true, length = 20, unique = true)
     private String codigoReferencia;
 
-    /**
-     * Número de comprobante de la operación: el de la transferencia bancaria o el que muestra MODO. Es opcional.
-     */
+    /** Número de comprobante de la operación: el de la transferencia bancaria o el que muestra MODO. */
     @Column(name = "numeroComprobante", nullable = true, length = 100)
     private String numeroComprobante;
 
-    /**
-     * Monto del pago.
-     */
+    /** Monto del pago. */
     @Column(name = "monto", nullable = false)
     private float monto;
 
-    /**
-     * Últimos 4 dígitos de la tarjeta utilizada. Es opcional.
-     */
+    /** Últimos 4 dígitos de la tarjeta utilizada. */
     @Column(name = "ultimosDigitosTarjeta", nullable = true, length = 4)
     private String ultimosDigitosTarjeta;
 
-    /**
-     * Detalle del método de pago utilizado. Es opcional.
-     */
+    /** Detalle del método de pago utilizado. */
     @Column(name = "detalleMetodoPago", nullable = true, columnDefinition = "TEXT")
     private String detalleMetodoPago;
 
-    /**
-     * Motivo del rechazo del pago, si fue rechazado (el que informa la plataforma, traducido, o el que escribe el administrador). Es opcional.
-     */
+    /** Motivo del rechazo del pago, si fue rechazado. */
     @Column(name = "motivoRechazo", nullable = true, columnDefinition = "TEXT")
     private String motivoRechazo;
 
-    /**
-     * Fecha y hora de aprobación del pago. Es opcional.
-     */
+    /** Fecha y hora de aprobación del pago. */
     @Column(name = "fechaAprobacion", nullable = true)
     private LocalDateTime fechaAprobacion;
 
-    /**
-     * Fecha y hora de creación del registro. Se establece al momento actual por defecto.
-     */
+    /** Fecha y hora de creación del registro. */
     @Column(name = "fechaCreacion", nullable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now();
 
-    /**
-     * Fecha y hora de la última modificación del registro.
-     */
+    /** Fecha y hora de la última modificación del registro. */
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
-    /**
-     * Conjunto de comprobantes asociados.
-     */
+    /** Comprobantes que referencian a este registro. */
     @OneToMany(mappedBy = "pago", cascade = CascadeType.ALL)
     private Set<Comprobante> comprobantes = new HashSet<>();
 
-    /**
-     * Constructor para crear el pago con los datos básicos.
-     *
-     * @param estadoPago relación con EstadoPago.
-     * @param metodoPago relación con MetodoPago.
-     * @param inscripcion relación con Inscripcion.
-     * @param idIntencionExterna identificador de la intención de pago en el proveedor externo.
-     * @param monto monto del pago.
-     */
+    /** Crea el pago con los datos básicos. */
     public Pago(EstadoPago estadoPago, MetodoPago metodoPago, Inscripcion inscripcion, String idIntencionExterna, float monto) {
         this.estadoPago = estadoPago;
         this.metodoPago = metodoPago;
@@ -145,67 +102,38 @@ public class Pago {
         this.monto = monto;
     }
 
-    /**
-     * Indica si el pago está aprobado.
-     *
-     * @return {@code true} si su estado es Aprobado.
-     */
+    /** Indica si el pago está aprobado. */
     public boolean estaAprobado() {
         return EstadoPago.APROBADO.equals(estadoPago.getNombre());
     }
 
-    /**
-     * Indica si el pago está pendiente de confirmación.
-     *
-     * @return {@code true} si su estado es Pendiente.
-     */
+    /** Indica si el pago está pendiente de confirmación. */
     public boolean estaPendiente() {
         return EstadoPago.PENDIENTE.equals(estadoPago.getNombre());
     }
 
-    /**
-     * Indica si el pago fue rechazado.
-     *
-     * @return {@code true} si su estado es Rechazado.
-     */
+    /** Indica si el pago fue rechazado. */
     public boolean estaRechazado() {
         return EstadoPago.RECHAZADO.equals(estadoPago.getNombre());
     }
 
-    /**
-     * Indica si se paga online con MODO.
-     *
-     * @return {@code true} si el método de pago es MODO.
-     */
+    /** Indica si se paga online con MODO. */
     public boolean esDeModo() {
         return MetodoPago.MODO.equals(metodoPago.getNombre());
     }
 
-    /**
-     * Obtiene el comprobante emitido por el pago (los pagos aprobados lo tienen).
-     *
-     * @return El último comprobante, o {@code null} si no se emitió.
-     */
+    /** Obtiene el comprobante emitido por el pago (los pagos aprobados lo tienen). */
     public Comprobante getComprobanteVigente() {
         return comprobantes.stream().max(java.util.Comparator.comparing(Comprobante::getFechaEmision)
                 .thenComparingInt(Comprobante::getIdComprobante)).orElse(null);
     }
 
-    /**
-     * Obtiene el momento que le corresponde al pago en los listados: cuándo se aprobó o, si todavía no, cuándo se creó.
-     *
-     * @return La fecha del pago.
-     */
+    /** Obtiene el momento que le corresponde al pago en los listados: cuándo se aprobó o, si todavía no, cuándo se creó. */
     public LocalDateTime getFechaDelPago() {
         return fechaAprobacion != null ? fechaAprobacion : fechaCreacion;
     }
 
-    /**
-     * Arma el detalle del medio de pago para mostrarlo: el método y, si lo hay, lo que informó MODO (por ejemplo,
-     * "MODO · Visa crédito ···· 0008").
-     *
-     * @return El texto del medio de pago.
-     */
+    /** Arma el detalle del medio de pago para mostrarlo: el método y, si lo hay, el detalle. */
     public String getMedioDePago() {
         StringBuilder texto = new StringBuilder(metodoPago.getNombre());
         if (detalleMetodoPago != null && !detalleMetodoPago.isBlank()) {
@@ -217,11 +145,7 @@ public class Pago {
         return texto.toString();
     }
 
-    /**
-     * Devuelve una representación en forma de cadena del pago.
-     *
-     * @return La representación textual.
-     */
+    /** Devuelve una representación en forma de cadena del pago. */
     @Override
     public String toString() {
         return "Pago #" + idPago;

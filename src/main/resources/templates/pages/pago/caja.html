@@ -64,8 +64,7 @@
                                     <strong th:text="${'$ ' + #numbers.formatDecimal(total, 1, 'POINT', 0, 'COMMA')}">$ 72.000</strong>
                                 </div>
 
-                                <!-- El botón cambia según el pago: sin pago (Realizar pago), en curso dentro del plazo (Continuar con el pago, el mismo QR)
-                                     o rechazado (Reintentar pago, un pago nuevo). Vencida su solicitud, se verifica con MODO y no se puede pagar de nuevo. -->
+                                <!-- El botón cambia según el pago: sin pago (Realizar pago). -->
                                 <th:block th:with="enCurso=${inscripcion.pagoEnCurso},
                                                    verificando=${inscripcion.pagoEnCurso != null and @pagoServiceImpl.estaVerificando(inscripcion.pagoEnCurso)},
                                                    rechazado=${inscripcion.pagoEnCurso == null and inscripcion.pagoSinAprobar != null and inscripcion.pagoSinAprobar.estaRechazado()}">
@@ -80,7 +79,7 @@
                                             th:data-inscripcion="${inscripcion.idInscripcion}"
                                             th:data-monto="${#numbers.formatDecimal(total, 1, 'NONE', 2, 'POINT')}"
                                             th:text="${total <= 0 ? 'Habilitar acceso' : (enCurso != null ? 'Continuar con el pago' : (rechazado ? 'Reintentar pago' : 'Realizar pago con MODO'))}">Realizar pago con MODO</button>
-                                    <!-- Vencida la solicitud, MODO todavía no confirmó: una etiqueta (no una acción), como en Mis pagos y Mis cursos -->
+                                    <!-- Vencida la solicitud, MODO todavía no confirmó: una etiqueta (no una acción). -->
                                     <p class="pn-celda-secundaria caja-verificando" th:if="${verificando}">Verificando tu pago…</p>
                                 </th:block>
 

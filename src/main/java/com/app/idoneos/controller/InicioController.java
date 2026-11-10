@@ -26,11 +26,7 @@ import com.app.idoneos.service.programa.ProgramaService;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.http.HttpServletRequest;
 
-/**
- * Controlador de las páginas institucionales: inicio, acerca de y página de error. Reemplaza al controlador
- * de errores por defecto de Spring Boot para mostrar un mensaje claro cuando una ruta no existe, no se tiene
- * acceso a ella o ocurre un fallo inesperado.
- */
+/** Controlador del inicio. */
 @Controller
 public class InicioController implements ErrorController {
 
@@ -52,15 +48,11 @@ public class InicioController implements ErrorController {
     @Autowired
     private CursoService cursoService;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Muestra la página principal con los cursos destacados del catálogo (los que tienen cohortes
-     * con inscripción abierta) y las categorías.
-     *
-     * @param model El modelo de la vista.
-     * @return La vista de inicio.
-     */
+    /** GET /: Muestra la página principal con los cursos destacados del catálogo (los que tienen cohortes con inscripción abierta) y las categorías. */
     @GetMapping({ "/", "/inicio" })
     public String ver(Model model, Authentication authentication) {
         List<Curso> catalogo = cursoService.buscarEnCatalogo(null, null, null, null, null);
@@ -83,7 +75,7 @@ public class InicioController implements ErrorController {
                     programas.isEmpty() ? 0 : programas.get(0).getCantidadTemas());
         }
 
-        // Los destacados que solo tienen cohortes próximas llevan la etiqueta «Próximamente»
+        // Los destacados que solo tienen cohortes próximas llevan la etiqueta "Próximamente"
         java.util.Set<Integer> cursosProximamente = new java.util.HashSet<>();
         cursosDestacados.stream().filter(curso -> cursoService.buscarCohortesAbiertas(curso).isEmpty())
                 .forEach(curso -> cursosProximamente.add(curso.getIdCurso()));
@@ -99,25 +91,14 @@ public class InicioController implements ErrorController {
         return "index";
     }
 
-    /**
-     * Muestra la página institucional "Acerca de", con las áreas de formación.
-     *
-     * @param model El modelo de la vista.
-     * @return La vista "Acerca de".
-     */
+    /** GET /acercaDe: Muestra la página institucional "Acerca de", con las áreas de formación. */
     @GetMapping("/acercaDe")
     public String verAcercaDe(Model model) {
         model.addAttribute("titulo", "Acerca de | Idóneos Online");
         return "pages/acercaDe";
     }
 
-    /**
-     * Muestra la página de error con un mensaje según el código de estado HTTP.
-     *
-     * @param request La petición que originó el error.
-     * @param model  El modelo de la vista.
-     * @return La vista de error.
-     */
+    /** Muestra la página de error con un mensaje según el código de estado HTTP. */
     @RequestMapping("/error")
     public String verError(HttpServletRequest request, Model model) {
         Object estado = request.getAttribute(RequestDispatcher.ERROR_STATUS_CODE);
@@ -141,7 +122,7 @@ public class InicioController implements ErrorController {
         return "pages/error";
     }
 
-    /** El alumno que está mirando, o {@code null} si es un visitante o no es alumno. */
+    /** Obtiene el alumno que está mirando, o {@code null} si es un visitante o no es alumno. */
     private Alumno alumnoDe(Authentication authentication) {
         return authentication != null && authentication.getPrincipal() instanceof Usuario usuario ? usuario.getAlumno() : null;
     }

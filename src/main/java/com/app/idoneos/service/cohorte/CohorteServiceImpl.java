@@ -34,10 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.*;
 import com.app.idoneos.repository.*;
 
-/**
- * Implementación del servicio para gestionar las operaciones sobre la entidad {@link Cohorte}.
- * Proporciona las operaciones CRUD básicas y las consultas definidas en {@link CohorteService}.
- */
+/** Implementación de CohorteService. */
 @Service
 public class CohorteServiceImpl implements CohorteService {
 
@@ -65,61 +62,36 @@ public class CohorteServiceImpl implements CohorteService {
     @Autowired
     private DocenteCursoRepository docenteCursoRepository;
 
-    // ---------------------------------------------------------------- Lecturas
+    // ----------------------------------------------------------------------
+    // Lecturas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Busca la cohorte por su identificador. Solo devuelve registros activos (no dados de baja).
-     *
-     * @param id El identificador del registro.
-     * @return Un {@link Optional} con el registro encontrado.
-     */
+    /** Busca la cohorte por su identificador. */
     @Override
     public Optional<Cohorte> buscarPorId(Integer id) {
         return cohorteRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
 
-    /**
-     * Obtiene todos los registros. Solo devuelve registros activos.
-     *
-     * @return Una lista de registros.
-     */
+    /** Obtiene todos los registros. */
     @Override
     public List<Cohorte> obtenerTodo() {
         return cohorteRepository.findByBajaFalse();
     }
 
-    /**
-     * Verifica si existe un registro con el identificador dado y está activo.
-     *
-     * @param id El identificador del registro.
-     * @return true si existe, false en caso contrario.
-     */
+    /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
     public boolean existePorId(Integer id) {
         return cohorteRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
 
-
     @Override
     public List<Cohorte> buscarPorCurso(Curso curso) {
         return cohorteRepository.findByCursoAndBajaFalse(curso);
     }
 
-    /**
-     * Busca cohortes aplicando filtros opcionales. Incluye las dadas de baja, que se ordenan al final.
-     *
-     * @param idPrograma identificador del programa (opcional)
-     * @param texto parte del nombre del curso o del programa (opcional)
-     * @param estado estado de la cohorte: Pendiente, Cancelada, Abierta, En dictado, Finalizada, Próxima o Dada de baja (opcional)
-     * @param desde fecha desde la que la inscripción debe estar abierta (opcional)
-     * @param hasta fecha hasta la que la inscripción debe estar abierta (opcional)
-     * @param orden el orden de los resultados: "recientes" (inicio de inscripción más nuevo primero, por defecto)
-     *              o "curso" (nombre del curso A–Z); las dadas de baja van siempre al final
-     * @param soloDeDocente si no es {@code null}, restringe el resultado a los cursos en los que el docente participa
-     * @return una lista de cohortes que cumplen los criterios
-     */
+    /** Busca cohortes aplicando filtros opcionales. */
     @Override
     public List<Cohorte> buscarConFiltros(Integer idPrograma, String texto, String estado, LocalDate desde,
             LocalDate hasta, String orden, Docente soloDeDocente) {
@@ -147,32 +119,17 @@ public class CohorteServiceImpl implements CohorteService {
                 .toList();
     }
 
-    // ---------------------------------------------------------------- Creaciones
+    // ----------------------------------------------------------------------
+    // Creaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Guarda la cohorte en la base de datos.
-     *
-     * @param entidad El registro a guardar.
-     * @return El registro guardado.
-     */
+    /** Guarda la cohorte en la base de datos. */
     @Override
     public Cohorte guardar(Cohorte entidad) {
         return cohorteRepository.save(entidad);
     }
 
-    /**
-     * Registra una cohorte para un programa activo. Si el contenido del programa está completo, la cohorte nace Activa;
-     * si no, nace Pendiente y la inscripción debe empezar con el plazo mínimo para que el docente lo complete.
-     *
-     * @param idPrograma el identificador del programa
-     * @param fechaInicioInscripcion la fecha de inicio de la inscripción
-     * @param fechaFinInscripcion la fecha de fin de la inscripción
-     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo; el fin se calcula)
-     * @param accesoDias los días de acceso al contenido desde la inscripción
-     * @param cupoMaximo el cupo máximo de inscriptos (opcional)
-     * @return la cohorte registrada
-     * @throws IllegalArgumentException si no se cumple alguna regla de registro
-     */
+    /** Registra una cohorte para un programa activo. */
     @Override
     @Transactional
     public Cohorte registrar(Integer idPrograma, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
@@ -183,20 +140,7 @@ public class CohorteServiceImpl implements CohorteService {
                 fechaInicioDictado, accesoDias, cupoMaximo);
     }
 
-    /**
-     * Registra una cohorte de un curso activo, con o sin programa. Sin programa (o con el contenido incompleto) la cohorte
-     * nace Pendiente, hasta que el docente complete el contenido; con el contenido completo nace Activa.
-     *
-     * @param idCurso el identificador del curso
-     * @param idPrograma el identificador del programa (opcional; debe ser del curso)
-     * @param fechaInicioInscripcion la fecha de inicio de la inscripción
-     * @param fechaFinInscripcion la fecha de fin de la inscripción
-     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo; el fin se calcula)
-     * @param accesoDias los días de acceso al contenido desde la inscripción
-     * @param cupoMaximo el cupo máximo de inscriptos (opcional)
-     * @return la cohorte registrada
-     * @throws IllegalArgumentException si no se cumple alguna regla de registro
-     */
+    /** Registra una cohorte de un curso activo, con o sin programa. */
     @Override
     @Transactional
     public Cohorte registrar(Integer idCurso, Integer idPrograma, LocalDate fechaInicioInscripcion,
@@ -226,12 +170,7 @@ public class CohorteServiceImpl implements CohorteService {
         return cohorteRepository.save(cohorte);
     }
 
-    /**
-     * Devuelve qué le falta al contenido del programa para que una cohorte pueda estar Activa. Sin programa, falta elegirlo.
-     *
-     * @param programa el programa (puede ser {@code null})
-     * @return los faltantes; vacío si el contenido está completo
-     */
+    /** Devuelve qué le falta al contenido del programa para que una cohorte pueda estar Activa. */
     @Override
     public List<String> faltantesDeContenido(Programa programa) {
         if (programa == null) {
@@ -251,11 +190,7 @@ public class CohorteServiceImpl implements CohorteService {
         return faltantes;
     }
 
-    /**
-     * Días que como mínimo debe haber entre hoy y el inicio de la inscripción de una cohorte pendiente.
-     *
-     * @return el plazo mínimo en días
-     */
+    /** Obtiene los días que como mínimo debe haber entre hoy y el inicio de la inscripción de una cohorte pendiente. */
     @Override
     public int plazoMinimoParaCompletarContenidoDias() {
         return parametroRepository.findByClave(Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS)
@@ -263,31 +198,17 @@ public class CohorteServiceImpl implements CohorteService {
                 .orElse(Parametro.COHORTE_PLAZO_MINIMO_CONTENIDO_DIAS_POR_DEFECTO);
     }
 
-    // ---------------------------------------------------------------- Modificaciones
+    // ----------------------------------------------------------------------
+    // Modificaciones
+    // ----------------------------------------------------------------------
 
-    /**
-     * Modifica un registro existente.
-     *
-     * @param entidad El registro con los datos actualizados.
-     * @return El registro modificado.
-     */
+    /** Modifica un registro existente. */
     @Override
     public Cohorte modificar(Cohorte entidad) {
         return cohorteRepository.save(entidad);
     }
 
-    /**
-     * Modifica una cohorte activa sin inscripciones activas asociadas.
-     *
-     * @param idCohorte el identificador de la cohorte
-     * @param fechaInicioInscripcion la fecha de inicio de la inscripción
-     * @param fechaFinInscripcion la fecha de fin de la inscripción
-     * @param fechaInicioDictado la fecha de inicio del dictado (obligatoria si el curso tiene modalidad En vivo; el fin se calcula)
-     * @param accesoDias los días de acceso al contenido desde la inscripción
-     * @param cupoMaximo el cupo máximo de inscriptos (opcional)
-     * @return la cohorte modificada
-     * @throws IllegalArgumentException si no se cumple alguna regla de modificación
-     */
+    /** Modifica una cohorte activa sin inscripciones activas asociadas. */
     @Override
     @Transactional
     public Cohorte modificar(Integer idCohorte, LocalDate fechaInicioInscripcion, LocalDate fechaFinInscripcion,
@@ -322,15 +243,7 @@ public class CohorteServiceImpl implements CohorteService {
         return cohorteRepository.save(cohorte);
     }
 
-    /**
-     * Asigna el programa a una cohorte pendiente. El programa se asigna aunque su contenido esté incompleto: la cohorte sigue pendiente hasta completarlo y, si ya está completo, pasa a Activa.
-     *
-     * @param idCohorte el identificador de la cohorte
-     * @param idPrograma el identificador del programa (debe ser del curso de la cohorte)
-     * @param docente el docente que asigna el programa (debe participar en el curso)
-     * @return la cohorte con el programa asignado
-     * @throws IllegalArgumentException si la cohorte no está pendiente o el programa no es válido
-     */
+    /** Asigna el programa a una cohorte pendiente. */
     @Override
     @Transactional
     public Cohorte asignarPrograma(Integer idCohorte, Integer idPrograma, Docente docente) {
@@ -359,9 +272,7 @@ public class CohorteServiceImpl implements CohorteService {
         return cohorteRepository.save(cohorte);
     }
 
-    /**
-     * Activa las cohortes pendientes cuyo programa ya tiene el contenido completo.
-     */
+    /** Activa las cohortes pendientes cuyo programa ya tiene el contenido completo. */
     @Override
     @Transactional
     public int activarPendientesConContenidoCompleto() {
@@ -390,18 +301,13 @@ public class CohorteServiceImpl implements CohorteService {
         return true;
     }
 
-    /** Saca a la cohorte de «Pendiente de contenido»: pasa al estado que le corresponde por sus fechas. */
+    /** Saca a la cohorte de "Pendiente de contenido": pasa al estado que le corresponde por sus fechas. */
     private void activar(Cohorte cohorte, LocalDateTime ahora) {
         cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PROXIMA).orElseThrow());
         moverAlEstadoDeLasFechas(cohorte, ahora);
     }
 
-    /**
-     * Deja a la cohorte (que no esté pendiente ni cancelada) en el estado que le corresponde por sus fechas y por si queda alguna inscripción
-     * en juego.
-     *
-     * @return {@code true} si cambió de estado.
-     */
+    /** Deja a la cohorte (que no esté pendiente ni cancelada) en el estado que le corresponde por sus fechas y por si queda alguna inscripción en juego. */
     private boolean moverAlEstadoDeLasFechas(Cohorte cohorte, LocalDateTime ahora) {
         if (cohorte.esPendiente() || cohorte.esCancelada()) {
             return false;
@@ -430,9 +336,7 @@ public class CohorteServiceImpl implements CohorteService {
         return cambiadas;
     }
 
-    /**
-     * Cancela las cohortes pendientes que llegaron a su inicio de inscripción sin el contenido completo.
-     */
+    /** Cancela las cohortes pendientes que llegaron a su inicio de inscripción sin el contenido completo. */
     @Override
     @Transactional
     public int cancelarPendientesVencidas() {
@@ -450,10 +354,7 @@ public class CohorteServiceImpl implements CohorteService {
         return canceladas;
     }
 
-    /**
-     * Tarea periódica del ciclo de vida de las cohortes (cada minuto): activa las pendientes que el docente ya dejó completas, cancela las que
-     * llegaron a su fecha sin estarlo y mueve de estado las que cumplieron una fecha de inscripción o de dictado.
-     */
+    /** Actualiza el ciclo de vida de las cohortes pendientes, cada minuto. */
     @org.springframework.scheduling.annotation.Scheduled(fixedDelay = 60_000, initialDelay = 30_000)
     @org.springframework.transaction.annotation.Transactional
     public void actualizarCohortesPendientes() {
@@ -471,14 +372,7 @@ public class CohorteServiceImpl implements CohorteService {
         }
     }
 
-    /**
-     * Cambia el contexto de trabajo de un docente: establece la cohorte (y su programa) como la de trabajo
-     * por defecto en el curso al que pertenece.
-     *
-     * @param cohorte la cohorte sobre la que el docente va a trabajar
-     * @param docente el docente que cambia de contexto
-     * @throws IllegalArgumentException si el docente no participa en el curso de la cohorte
-     */
+    /** Cambia el contexto de trabajo de un docente. */
     @Override
     @Transactional
     public void cambiarContextoDeTrabajo(Cohorte cohorte, Docente docente) {
@@ -494,26 +388,18 @@ public class CohorteServiceImpl implements CohorteService {
         docenteCursoRepository.save(participacion);
     }
 
-    // ---------------------------------------------------------------- Bajas
+    // ----------------------------------------------------------------------
+    // Bajas
+    // ----------------------------------------------------------------------
 
-    /**
-     * Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos.
-     *
-     * @param entidad El registro a borrar.
-     */
+    /** Da de baja el registro (baja lógica), en lugar de eliminarlo de la base de datos. */
     @Override
     public void borrar(Cohorte entidad) {
         entidad.marcarInactivo(); // Baja lógica
         cohorteRepository.save(entidad);
     }
 
-    /**
-     * Da de baja una cohorte activa que no tenga inscripciones ni clases en vivo activas, y la desvincula
-     * de los docentes que la tienen asignada por defecto.
-     *
-     * @param idCohorte el identificador de la cohorte
-     * @throws IllegalArgumentException si la cohorte no está activa o tiene inscripciones o clases en vivo activas
-     */
+    /** Da de baja una cohorte activa que no tenga inscripciones ni clases en vivo activas. */
     @Override
     @Transactional
     public void darDeBaja(Integer idCohorte) {
@@ -532,22 +418,13 @@ public class CohorteServiceImpl implements CohorteService {
                     cohorte.getCurso().getNombre() + (cohorte.tienePrograma() ? " - " + cohorte.getPrograma().getNombre() : ""),
                     "tiene " + motivo, inscriptos == 0 ? "Dé de baja primero sus clases en vivo." : ""));
         }
-        for (DocenteCurso participacion : new ArrayList<>(cohorte.getParticipacionesDocente())) {
-            participacion.setCohortePorDefecto(null);
-            docenteCursoRepository.save(participacion);
-        }
+        // Los docentes que la tenían como cohorte de trabajo se desvinculan solos: lo hace la base de datos
         cohorte.marcarInactivo();
         cohorte.setUltimaModificacion(LocalDateTime.now());
         cohorteRepository.save(cohorte);
     }
 
-    /**
-     * Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja, no se da de baja
-     * ninguno y el mensaje indica cuál lo impidió.
-     *
-     * @param ids los identificadores de los registros
-     * @throws IllegalArgumentException si no se indicó ningún registro o alguno no puede darse de baja
-     */
+    /** Da de baja varios registros a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @Override
     @Transactional
     public void darDeBajaVarios(List<Integer> ids) {
@@ -579,7 +456,7 @@ public class CohorteServiceImpl implements CohorteService {
                 .map(parametro -> Integer.parseInt(parametro.getValor().trim())).orElse(1);
     }
 
-    /** Un programa está completo si cumple el mínimo de temas con material y, además, su diseño está completo. */
+    /** Verifica si un programa está completo, es decir si cumple el mínimo de temas con material y su diseño está completo. */
     @Override
     public boolean estaCompleto(Programa programa) {
         return tieneContenidoCompleto(programa);
@@ -591,7 +468,7 @@ public class CohorteServiceImpl implements CohorteService {
                 && cursoService.estaDisenoCompleto(programa.getCurso(), programa);
     }
 
-    /** Una cohorte nunca tiene un programa incompleto: sin programa queda pendiente de contenido y con uno, ya está completa. */
+    /** Valida que el programa esté completo, porque una cohorte nunca tiene un programa incompleto. */
     private void validarProgramaCompleto(Programa programa) {
         if (!tieneContenidoCompleto(programa)) {
             List<String> faltantes = faltantesDeContenido(programa);
@@ -610,7 +487,7 @@ public class CohorteServiceImpl implements CohorteService {
         return programa;
     }
 
-    /** Una cohorte pendiente necesita tiempo para que el docente complete el contenido antes de abrir la inscripción. */
+    /** Valida que haya tiempo para completar el contenido, porque una cohorte pendiente lo necesita antes de abrir la inscripción. */
     private void validarPlazoParaCompletarContenido(Programa programa, LocalDate fechaInicioInscripcion) {
         int plazo = plazoMinimoParaCompletarContenidoDias();
         if (fechaInicioInscripcion.isBefore(LocalDate.now().plusDays(plazo))) {
@@ -628,7 +505,7 @@ public class CohorteServiceImpl implements CohorteService {
         return fecha.atTime(LocalTime.of(23, 59, 59));
     }
 
-    /** El dictado dura lo que el curso: termina al final del último día de su duración. */
+    /** Aplica los datos opcionales de la cohorte. El dictado dura lo que el curso y termina al final del último día de su duración. */
     private void aplicarDatosOpcionales(Cohorte cohorte, boolean enVivo, LocalDate fechaInicioDictado, int duracionDias,
             Integer cupoMaximo) {
         cohorte.setFechaInicioDictado(enVivo ? inicioDelDia(fechaInicioDictado) : null);

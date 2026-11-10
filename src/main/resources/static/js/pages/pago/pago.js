@@ -1,21 +1,4 @@
-/**
- * Pago online de una inscripción con MODO (CU-51) y reintento de un pago rechazado (CU-52).
- *
- * Los botones con el atributo data-pagar inician el pago:
- *  - data-url: la ruta que lo inicia ("/pago/pagar/{idInscripcion}" o "/pago/reintentar/{idPago}").
- *  - data-monto: el monto que el alumno vio en la caja. Se envía al servidor, que no cobra si el monto cambió (por ejemplo,
- *    porque el descuento aplicado dejó de estar disponible) y pide recargar la caja.
- *
- * El servidor registra el pago como pendiente, crea la solicitud en MODO y responde con la dirección del sitio de pagos de
- * MODO, que se abre en una pestaña nueva (se abre en el clic, antes de pedir el pago, para que el navegador no la bloquee).
- * El pago se hace en el sitio de MODO y MODO lo devuelve a /pago/exito/{id} o /pago/error/{id}. Mientras tanto, la pestaña
- * original consulta el estado del pago y avanza sola cuando se resuelve; si se cierra la pestaña de MODO sin pagar, el botón
- * se habilita de nuevo.
- *
- * La página de retorno con un pago que todavía figura pendiente (data-pago-pendiente) consulta su estado cada pocos
- * segundos: MODO avisa el resultado por su cuenta y el servidor también lo consulta, así que el pago se confirma aunque el
- * aviso demore.
- */
+/** Pago online de una inscripción con MODO y reintento de un pago rechazado. */
 (function () {
     'use strict';
 
@@ -34,10 +17,7 @@
             });
     }
 
-    /**
-     * Mientras se prepara el pago o se espera a que se haga, el botón se oculta y en su lugar queda una etiqueta (no una acción),
-     * como «Verificando tu pago…» en Mis pagos, con tres puntos que aparecen y desaparecen en orden.
-     */
+    /** Mientras se prepara el pago o se espera a que se haga. */
     function mostrarEtiqueta(boton, texto) {
         var etiqueta = boton.parentNode.querySelector('[data-pago-etiqueta]');
         if (!etiqueta) {
@@ -68,7 +48,7 @@
         return window.mostrarExito(mensaje).then(function () { window.location.href = URL_RETORNO; });
     }
 
-    /** Espera el pago hecho en la pestaña de MODO: cuando se resuelve (o se cierra esa pestaña) la página original reacciona. */
+    /** Espera el pago hecho en la pestaña de MODO. */
     function seguirPago(boton, pestania, idPago) {
         mostrarEtiqueta(boton, 'Esperando el pago');
         var consulta = setInterval(function () {

@@ -2,12 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 
 <body>
-    <!-- Asistente navegacional: botón flotante (una brújula) en la esquina inferior derecha con la cantidad de pendientes del usuario y, al abrirlo,
-         una carta con la «ruta» de lo que tiene pendiente según su rol (autoevaluaciones del alumno, cohortes pendientes de contenido del
-         docente, pagos pendientes del administrador): el primero marcado como «Ahora» y los demás como los pasos que siguen. Cada paso es un
-         enlace a la pantalla donde se resuelve. Las acciones rápidas quedan fijas al pie, y los pasos hacen scroll por encima. No usa
-         inteligencia artificial: lo arma el sistema (GET /asistente/pendientes). static/js/layout/asistente.js lo mueve al final del body y
-         dibuja el contenido. -->
+    <!-- Asistente navegacional: botón flotante (una brújula) en la esquina inferior derecha con la cantidad de pendientes del usuario y, al abrirlo, una carta con la "ruta" de lo que tiene pendiente según su rol (autoevaluaciones del alumno, cohortes pendientes de contenido del docente, pagos pendientes del administrador): el primero marcado como "Ahora" y los demás como los pasos que siguen. -->
     <div th:fragment="bloque" th:if="${usuario != null and (usuario.esAlumnoActivo() or usuario.esDocenteActivo() or usuario.esAdministradorActivo())}"
          class="as-asistente" id="asistente" data-asistente>
         <section class="as-panel" id="asistentePanel" role="dialog" aria-label="Asistente" hidden>

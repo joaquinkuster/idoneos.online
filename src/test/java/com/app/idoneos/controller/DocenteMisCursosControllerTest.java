@@ -14,9 +14,7 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Pruebas de la pantalla "Mis cursos" del docente (CU-01), con el mismo diseño que la del alumno.
- */
+/** Pruebas de la pantalla "Mis cursos" del docente, con el mismo diseño que la del alumno. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

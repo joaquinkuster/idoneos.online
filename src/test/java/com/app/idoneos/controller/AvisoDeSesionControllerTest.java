@@ -17,10 +17,7 @@ import com.app.idoneos.controller.advice.ContextoSesionAdvice;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-/**
- * El aviso de inicio de sesión se muestra una sola vez, también en las pantallas del panel (que arman el navbar y
- * los scripts comunes por separado).
- */
+/** El aviso de inicio de sesión se muestra una sola vez. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional

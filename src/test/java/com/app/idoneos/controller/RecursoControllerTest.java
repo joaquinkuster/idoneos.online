@@ -28,9 +28,7 @@ import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.TemaRecursoRepository;
 import com.app.idoneos.repository.TemaRepository;
 
-/**
- * Pruebas del ABM de materiales (CU-28 a CU-31): pantalla, permisos por rol y formularios.
- */
+/** Pruebas del ABM de materiales: pantalla, permisos por rol y formularios. */
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
@@ -72,7 +70,9 @@ class RecursoControllerTest {
                 .param("tipo", "GRABACION").param("terminos", "true").param("titulo", titulo);
     }
 
-    // ------------------------------------------------------------------ CU-28 Buscar material
+    // ----------------------------------------------------------------------
+    // Buscar material
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
@@ -173,7 +173,7 @@ class RecursoControllerTest {
         mockMvc.perform(subir("Clase", "clase.mp4", MP4)).andExpect(status().isForbidden());
     }
 
-    // ------------------------------------------------------------------ CU-29, CU-30 y CU-31
+    // ----------------------------------------------------------------------
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")

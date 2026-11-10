@@ -8,28 +8,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-/**
- * Repositorio para acceder y gestionar la entidad {@link ResaltadoAlumno} en la base de datos.
- */
+/** Repositorio de ResaltadoAlumno. */
 @Repository
 public interface ResaltadoAlumnoRepository extends JpaRepository<ResaltadoAlumno, Integer> {
 
-    /**
-     * Todas las páginas anotadas por un alumno en un documento.
-     *
-     * @param alumno  el alumno
-     * @param recurso el documento
-     * @return las anotaciones, una por página
-     */
+    /** Busca todas las páginas anotadas por un alumno en un documento. */
     List<ResaltadoAlumno> findByAlumnoAndRecursoOrderByPagina(Alumno alumno, Recurso recurso);
 
-    /**
-     * Las anotaciones de un alumno en una página de un documento.
-     *
-     * @param alumno  el alumno
-     * @param recurso el documento
-     * @param pagina  la página
-     * @return las anotaciones, si las hay
-     */
+    /** Busca las anotaciones de un alumno en una página de un documento. */
     Optional<ResaltadoAlumno> findByAlumnoAndRecursoAndPagina(Alumno alumno, Recurso recurso, int pagina);
 }

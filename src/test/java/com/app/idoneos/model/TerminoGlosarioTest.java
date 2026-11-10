@@ -8,9 +8,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/**
- * Pruebas de las reglas del glosario que se derivan del propio modelo: la letra del índice y la última actualización.
- */
+/** Pruebas de las reglas del glosario que se derivan del propio modelo. */
 class TerminoGlosarioTest {
 
     private TerminoGlosario termino(String texto) {
