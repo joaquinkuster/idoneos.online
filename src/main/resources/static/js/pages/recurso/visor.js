@@ -20,16 +20,20 @@
     var botonAcercar = visor.querySelector('[data-visor-acercar]');
     var botonZoom = visor.querySelector('[data-visor-zoom]');
     var botonLateral = visor.querySelector('[data-visor-lateral-boton]');
+    var botonAjuste = visor.querySelector('[data-visor-ajuste]');
     var lateral = visor.querySelector('[data-visor-lateral]');
     var listaMiniaturas = visor.querySelector('[data-visor-miniaturas]');
     var listaIndice = visor.querySelector('[data-visor-indice]');
     var entradaBuscar = visor.querySelector('[data-visor-buscar]');
+    var buscador = visor.querySelector('[data-visor-buscador]');
+    var botonBuscar = visor.querySelector('[data-visor-buscar-boton]');
     var contador = visor.querySelector('[data-visor-contador]');
     var botonResultadoAnterior = visor.querySelector('[data-visor-resultado-anterior]');
     var botonResultadoSiguiente = visor.querySelector('[data-visor-resultado-siguiente]');
     var urlResaltados = visor.dataset.urlResaltados || '';
     var capaTrazos = visor.querySelector('[data-visor-trazos]');
     var botonAnotar = visor.querySelector('[data-visor-anotar]');
+    var separadorAnotar = visor.querySelector('[data-visor-sep-anotar]');
     var panelHerramientas = visor.querySelector('[data-visor-herramientas]');
 
     var ZOOM_MINIMO = 0.5;
@@ -55,7 +59,10 @@
     var documento = null;
     var pagina = 1;
     var total = 0;
-    var zoom = 1; // 1 = la página ajustada al ancho del visor
+    var zoom = 1; // 1 = la página ajustada (entera, o al ancho del visor, según el ajuste)
+    var ajuste = 'pagina'; // 'pagina': se ve la página entera. 'ancho': se ajusta al ancho y se baja con el desplazamiento
+    var MARGEN = 16;       // aire entre la página y el borde del visor
+    var abiertos = {};     // las entradas del índice que están desplegadas
     var renderizando = false;
     var pendiente = null;
     var reajustesSeguidos = 0; // evita un bucle si el ancho disponible sigue cambiando
@@ -71,6 +78,7 @@
         botonAnterior.disabled = pagina <= 1;
         botonSiguiente.disabled = pagina >= total;
         botonZoom.textContent = Math.round(zoom * 100) + '%';
+        botonAjuste.textContent = ajuste === 'pagina' ? 'Ajustar al ancho' : 'Ajustar a la página';
         botonAlejar.disabled = zoom <= ZOOM_MINIMO;
         botonAcercar.disabled = zoom >= ZOOM_MAXIMO;
         marcarListas();
@@ -96,9 +104,9 @@
         documento.getPage(numero).then(function (p) {
             paginaPdf = p;
             var tamanioBase = p.getViewport({ scale: 1 });
-            var escala = anchoUsado / tamanioBase.width;
-            if (document.fullscreenElement === visor) {
-                escala = Math.min(escala, desplazable.clientHeight / tamanioBase.height);
+            var escala = Math.max(anchoUsado - MARGEN * 2, 100) / tamanioBase.width;
+            if (ajuste === 'pagina' || document.fullscreenElement === visor) {
+                escala = Math.min(escala, Math.max(desplazable.clientHeight - MARGEN * 2, 100) / tamanioBase.height);
             }
             escala *= zoom;
             var densidad = window.devicePixelRatio || 1;
@@ -237,18 +245,46 @@
     function aplanarIndice(items, nivel) {
         return Promise.all(items.map(function (item) {
             return paginaDeDestino(item.dest).then(function (numero) {
-                var fila = [{ titulo: item.title || '', pagina: numero, nivel: Math.min(nivel, 3) }];
+                var fila = [{ titulo: item.title || '', pagina: numero, nivel: Math.min(nivel, 4) }];
                 return aplanarIndice(item.items || [], nivel + 1).then(function (hijos) { return fila.concat(hijos); });
             });
         })).then(function (listas) { return [].concat.apply([], listas); });
     }
 
+    function tieneHijos(i) {
+        return i + 1 < entradasIndice.length && entradasIndice[i + 1].nivel > entradasIndice[i].nivel;
+    }
+
+    /** Una entrada se ve si todos sus ascendientes están desplegados. */
+    function visibleEnIndice(i) {
+        var nivel = entradasIndice[i].nivel;
+        for (var j = i - 1; j >= 0 && nivel > 0; j--) {
+            if (entradasIndice[j].nivel < nivel) {
+                if (!abiertos[j]) { return false; }
+                nivel = entradasIndice[j].nivel;
+            }
+        }
+        return true;
+    }
+
     function pintarIndice() {
         listaIndice.innerHTML = entradasIndice.map(function (e, i) {
-            return '<button type="button" class="mv-ind n' + e.nivel + '" data-indice="' + i + '"' + (e.pagina ? '' : ' disabled')
-                + ' style="padding-left:' + (8 + e.nivel * 14) + 'px"><span>' + escapar(e.titulo) + '</span>'
-                + (e.pagina ? '<small>' + e.pagina + '</small>' : '') + '</button>';
+            if (!visibleEnIndice(i)) { return ''; }
+            var hijos = tieneHijos(i);
+            return '<div class="mv-ind-fila" style="padding-left:' + (4 + e.nivel * 16) + 'px">'
+                + '<span class="mv-flecha' + (hijos ? (abiertos[i] ? ' abierta' : '') : ' vacia') + '"' + (hijos ? ' data-flecha="' + i + '" role="button" aria-label="Plegar o desplegar"' : '') + '><i></i></span>'
+                + '<button type="button" class="mv-ind n' + e.nivel + '" data-indice="' + i + '"' + (e.pagina ? '' : ' disabled') + '><span class="mv-ind-titulo">' + escapar(e.titulo) + '</span>'
+                + (e.pagina ? '<span class="mv-puntos" aria-hidden="true"></span><small>' + e.pagina + '</small>' : '') + '</button></div>';
         }).join('');
+        marcarListas();
+    }
+
+    /** Muestra una de las dos listas del panel lateral. */
+    function activarPestana(nombre) {
+        var indice = nombre === 'indice';
+        Array.prototype.forEach.call(visor.querySelectorAll('[data-visor-pestana]'), function (b) { b.classList.toggle('activa', b.dataset.visorPestana === nombre); });
+        listaMiniaturas.hidden = indice;
+        listaIndice.hidden = !indice;
         marcarListas();
     }
 
@@ -262,6 +298,7 @@
         guardado.then(function (lista) {
             if (lista && lista.length) {
                 entradasIndice = lista.map(function (e) { return { titulo: e.titulo, pagina: e.pagina, nivel: Math.max(0, (e.nivel || 1) - 1) }; });
+                entradasIndice.forEach(function (e, i) { abiertos[i] = e.nivel <= 0; });
                 pintarIndice();
                 return;
             }
@@ -273,11 +310,17 @@
         return documento.getOutline().then(function (arbol) {
             if (!arbol || !arbol.length) {
                 listaIndice.innerHTML = '<p class="mv-vacio-lista">Este documento no tiene índice.</p>';
+                activarPestana('miniaturas');
                 return;
             }
-            return aplanarIndice(arbol, 0).then(function (lista) { entradasIndice = lista; pintarIndice(); });
+            return aplanarIndice(arbol, 0).then(function (lista) {
+                entradasIndice = lista;
+                entradasIndice.forEach(function (e, i) { abiertos[i] = e.nivel <= 0; });
+                pintarIndice();
+            });
         }).catch(function () {
             listaIndice.innerHTML = '<p class="mv-vacio-lista">No se pudo leer el índice del documento.</p>';
+            activarPestana('miniaturas');
         });
     }
 
@@ -292,36 +335,39 @@
                 if (b.top < caja.top || b.bottom > caja.bottom) { listaMiniaturas.scrollTop += b.top - caja.top - 12; }
             }
         });
-        var vigente = -1;
-        entradasIndice.forEach(function (e, i) { if (e.pagina && e.pagina <= pagina && (vigente < 0 || e.pagina >= entradasIndice[vigente].pagina)) { vigente = i; } });
-        Array.prototype.forEach.call(listaIndice.querySelectorAll('.mv-ind'), function (boton) {
-            boton.classList.toggle('activa', parseInt(boton.dataset.indice, 10) === vigente);
-        });
     }
 
+    /** Muestra u oculta el panel lateral. */
+    function mostrarLateral(visible) {
+        lateral.hidden = !visible;
+        botonLateral.setAttribute('aria-expanded', String(visible));
+        if (documento) { dibujar(pagina); } // cambió el ancho disponible
+    }
+
+    // Los botones del riel eligen qué se ve en el panel: si ya es el que se está viendo, el panel se oculta
     visor.querySelector('[data-visor-pestanas]').addEventListener('click', function (e) {
         var boton = e.target.closest('[data-visor-pestana]');
         if (!boton) { return; }
-        var indice = boton.dataset.visorPestana === 'indice';
-        Array.prototype.forEach.call(visor.querySelectorAll('[data-visor-pestana]'), function (b) { b.classList.toggle('activa', b === boton); });
-        listaMiniaturas.hidden = indice;
-        listaIndice.hidden = !indice;
-        marcarListas();
+        if (!lateral.hidden && boton.classList.contains('activa')) { mostrarLateral(false); return; }
+        activarPestana(boton.dataset.visorPestana);
+        if (lateral.hidden) { mostrarLateral(true); }
     });
     listaMiniaturas.addEventListener('click', function (e) {
         var boton = e.target.closest('[data-pagina]');
         if (boton) { irA(parseInt(boton.dataset.pagina, 10)); }
     });
     listaIndice.addEventListener('click', function (e) {
+        var flecha = e.target.closest('[data-flecha]');
+        if (flecha) {
+            var i = parseInt(flecha.dataset.flecha, 10);
+            abiertos[i] = !abiertos[i];
+            pintarIndice();
+            return;
+        }
         var boton = e.target.closest('[data-indice]');
         if (boton) { irA(entradasIndice[parseInt(boton.dataset.indice, 10)].pagina); }
     });
-    botonLateral.addEventListener('click', function () {
-        lateral.hidden = !lateral.hidden;
-        botonLateral.classList.toggle('activo', !lateral.hidden);
-        botonLateral.setAttribute('aria-expanded', String(!lateral.hidden));
-        if (documento) { dibujar(pagina); } // cambió el ancho disponible
-    });
+    botonLateral.addEventListener('click', function () { mostrarLateral(lateral.hidden); });
 
     // ----------------------------------------------------------------------
     // buscador
@@ -443,6 +489,22 @@
         }
     }
 
+    /** Muestra u oculta el buscador, que va dentro del visor, arriba. Al ocultarlo se limpia la búsqueda. */
+    function mostrarBuscador(visible) {
+        buscador.hidden = !visible;
+        botonBuscar.classList.toggle('activo', visible);
+        botonBuscar.setAttribute('aria-pressed', String(visible));
+        if (visible) {
+            entradaBuscar.focus();
+            entradaBuscar.select();
+        } else if (busqueda.consulta) {
+            entradaBuscar.value = '';
+            buscar('');
+        }
+    }
+    botonBuscar.addEventListener('click', function () { mostrarBuscador(buscador.hidden); });
+    visor.querySelector('[data-visor-buscar-cerrar]').addEventListener('click', function () { mostrarBuscador(false); });
+
     var temporizadorBusqueda = null;
     entradaBuscar.addEventListener('input', function () {
         clearTimeout(temporizadorBusqueda);
@@ -454,9 +516,7 @@
             clearTimeout(temporizadorBusqueda);
             if (entradaBuscar.value !== busqueda.consulta) { buscar(entradaBuscar.value); } else { moverResultado(e.shiftKey ? -1 : 1); }
         } else if (e.key === 'Escape') {
-            entradaBuscar.value = '';
-            buscar('');
-            entradaBuscar.blur();
+            mostrarBuscador(false);
         }
     });
     botonResultadoAnterior.addEventListener('click', function () { moverResultado(-1); });
@@ -490,7 +550,7 @@
             c.lineCap = 'round';
             c.lineJoin = 'round';
             c.strokeStyle = t.c;
-            c.lineWidth = Math.max(1, t.w * ancho * (t.t === 'marcador' ? 2.2 : 1));
+            c.lineWidth = Math.max(1, t.g * ancho * (t.t === 'marcador' ? 2.2 : 1));
             c.globalAlpha = t.t === 'marcador' ? 0.45 : 1;
             c.globalCompositeOperation = t.t === 'marcador' ? 'multiply' : 'source-over';
             c.beginPath();
@@ -538,6 +598,7 @@
                     try { trazosPorPagina[p.pagina] = JSON.parse(p.trazos); } catch (e) { /* una página con datos dañados se ignora */ }
                 });
                 botonAnotar.hidden = false;
+                if (separadorAnotar) { separadorAnotar.hidden = false; }
                 dibujarTrazos();
             });
     }
@@ -564,7 +625,7 @@
         var py = p[1] * r.height;
         var radio = 6 + TAMANIOS[indiceTamanio] / 2;
         var quedan = lista.filter(function (t) {
-            var holgura = t.w * r.width * (t.t === 'marcador' ? 2.2 : 1) / 2;
+            var holgura = t.g * r.width * (t.t === 'marcador' ? 2.2 : 1) / 2;
             for (var i = 0; i < t.p.length; i++) {
                 var a = t.p[i];
                 var b = t.p[i + 1] || a;
@@ -625,7 +686,7 @@
                 return;
             }
             var ancho = capaTrazos.getBoundingClientRect().width;
-            trazoActual = { t: herramienta, c: color, w: Math.round(TAMANIOS[indiceTamanio] / ancho * 10000) / 10000, p: [p] };
+            trazoActual = { t: herramienta, c: color, g: Math.round(TAMANIOS[indiceTamanio] / ancho * 10000) / 10000, p: [p] };
             (trazosPorPagina[pagina] = trazosPorPagina[pagina] || []).push(trazoActual);
             dibujarTrazos();
         });
@@ -665,7 +726,6 @@
         // En pantallas anchas el panel lateral arranca abierto
         if (window.innerWidth >= 900 && total > 1) {
             lateral.hidden = false;
-            botonLateral.classList.add('activo');
             botonLateral.setAttribute('aria-expanded', 'true');
         }
         dibujar(1);
@@ -682,12 +742,18 @@
     botonAlejar.addEventListener('click', function () { cambiarZoom(zoom - PASO_ZOOM); });
     botonAcercar.addEventListener('click', function () { cambiarZoom(zoom + PASO_ZOOM); });
     botonZoom.addEventListener('click', function () { cambiarZoom(1); });
+    botonAjuste.addEventListener('click', function () {
+        ajuste = ajuste === 'pagina' ? 'ancho' : 'pagina';
+        zoom = 1;
+        desplazable.scrollTop = 0;
+        actualizarControles();
+        if (documento) { dibujar(pagina); }
+    });
 
     document.addEventListener('keydown', function (e) {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
             e.preventDefault();
-            entradaBuscar.focus();
-            entradaBuscar.select();
+            mostrarBuscador(true);
             return;
         }
         if (e.target === entradaPagina || e.target === entradaBuscar) { return; }

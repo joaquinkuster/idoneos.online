@@ -105,7 +105,7 @@
                                                         ? 'Tiene ' + usosPorRecurso.get(r.idRecurso) + (usosPorRecurso.get(r.idRecurso) == 1 ? ' tema asociado' : ' temas asociados') + ': no se puede dar de baja.'
                                                         : 'El recurso dejará de estar disponible en la biblioteca digital.'}">Dar de baja</button>
                                         <!-- Más: solo el docente, y solo para los recursos que se registran a mano en un tema -->
-                                        <div class="dropdown" th:if="${!esAdministrador and r.tipo != 'Resumen' and r.tipo != 'Video clon'}">
+                                        <div class="dropdown" th:if="${!esAdministrador and r.tipo != 'Video clon'}">
                                             <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
                                                     aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
                                             <ul class="dropdown-menu dropdown-menu-end">
@@ -170,31 +170,46 @@
             <p>Tipo, biblioteca, título y descripción</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo" data-campo-tipo>
                             <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
-                            <select name="tipo" class="pn-input" required>
+                            <select class="pn-input" data-tipo-grupo aria-label="Tipo de recurso">
+                                <option value="MATERIAL_LECTURA">Material de lectura</option>
+                                <option value="BIBLIOGRAFIA">Bibliografía</option>
+                                <option value="GRABACION">Grabación</option>
+                                <option value="ENLACE">Enlace</option>
+                            </select>
+                            <!-- El servidor recibe el tipo concreto: lo arman estos selectores (Material de lectura + su clase) -->
+                            <select name="tipo" class="d-none" required tabindex="-1" aria-hidden="true">
                                 <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
                                         th:attr="data-nombre=${t.nombre},
                                                  data-extensiones=${#strings.listJoin(t.extensionesPermitidas, ',')},
                                                  data-tamanio-mb=${t.tamanioMaximo / 1048576},
                                                  data-descripcion=${t.descripcionDeSubida}">Grabación</option>
                             </select>
+                            <span class="visually-hidden" data-resumen-linea="Tipo de recurso" data-tipo-linea></span>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo">
-                            <label class="pn-etiqueta" title="No: solo vos podés usarlo. Sí: otros docentes pueden usarlo desde la biblioteca.">Compartido con docentes</label>
-                            <select name="privado" class="pn-input">
-                                <option value="true">No</option>
-                                <option value="false">Sí</option>
+<div class="col-md-6 pn-campo" data-bloque="categoria-material">
+                            <label class="pn-etiqueta">Categoría de material <span class="pn-obligatorio">*</span></label>
+                            <select class="pn-input" data-categoria-material aria-label="Categoría de material">
+                                <option value="PRESENTACION">Presentación</option>
+                                <option value="RESUMEN">Resumen</option>
                             </select>
                         </div>
-<div class="col-12 pn-campo">
+<div class="col-md-8 pn-campo">
                             <div class="pn-etiqueta-fila">
                                 <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
                                 <span class="pn-contador">0 / 150</span>
                             </div>
                             <input type="text" name="titulo" class="pn-input" maxlength="150" placeholder="Título" data-contador required>
                             <div class="pn-ayuda-error"></div>
+                        </div>
+<div class="col-md-4 pn-campo">
+                            <label class="pn-etiqueta" title="No: solo vos podés usarlo. Sí: otros docentes pueden usarlo desde la biblioteca.">Compartido con docentes</label>
+                            <select name="privado" class="pn-input">
+                                <option value="true">No</option>
+                                <option value="false">Sí</option>
+                            </select>
                         </div>
 
 <div class="col-12 pn-campo">
@@ -276,17 +291,9 @@
                             <span class="visually-hidden" data-resumen-linea="Duración" data-duracion-linea></span>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-12 pn-campo" data-bloque="terminos" data-resumen-omitir>
-                            <label class="pn-casilla">
-                                <input type="checkbox" name="terminos" value="true" required
-                                       data-mensaje-obligatorio="Debe aceptar ser responsable del contenido.">
-                                <span><b>Términos y condiciones.</b> Acepto ser responsable del contenido que subo a la plataforma.</span>
-                            </label>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
         </div>
     </div>
-    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(null, null)}"></th:block>
+    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(null, null, null)}"></th:block>
 
     <div class="pn-paso">
         <div class="pn-seccion-titulo">
@@ -294,6 +301,14 @@
             <p>Revisá los datos antes de guardar</p>
         </div>
         <div class="pn-arbol" data-resumen-arbol></div>
+        <div class="pn-campo mt-3" data-bloque="terminos" data-resumen-omitir>
+                            <label class="pn-casilla">
+                                <input type="checkbox" name="terminos" value="true" required
+                                       data-mensaje-obligatorio="Debe aceptar ser responsable del contenido.">
+                                <span><b>Términos y condiciones.</b> Acepto ser responsable del contenido que subo a la plataforma.</span>
+                            </label>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
     </div>
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>

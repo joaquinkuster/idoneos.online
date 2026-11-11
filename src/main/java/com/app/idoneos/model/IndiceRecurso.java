@@ -11,7 +11,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "IndiceRecurso", uniqueConstraints = @UniqueConstraint(name = "uk_indice_recurso_orden", columnNames = {"idRecurso", "numeroOrden"}))
 @Check(name = "ck_indice_recurso_titulo", constraints = "trim(titulo) <> ''")
-@Check(name = "ck_indice_recurso_nivel", constraints = "nivel >= 1 and nivel <= 3")
+@Check(name = "ck_indice_recurso_nivel", constraints = "nivel >= 1 and nivel <= 4")
 @Check(name = "ck_indice_recurso_pagina", constraints = "pagina >= 1")
 @Getter
 @Setter
@@ -19,7 +19,7 @@ import lombok.Setter;
 public class IndiceRecurso {
 
     /** Cantidad máxima de niveles de un índice. */
-    public static final int NIVEL_MAXIMO = 3;
+    public static final int NIVEL_MAXIMO = 4;
 
     /** Largo máximo del título de una entrada. */
     public static final int LONGITUD_TITULO = 150;

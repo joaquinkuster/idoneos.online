@@ -244,6 +244,6 @@ public class Curso {
             return null;
         }
         long version = ultimaModificacion == null ? 0 : ultimaModificacion.atZone(java.time.ZoneId.systemDefault()).toEpochSecond();
-        return "/uploads/curso" + idCurso + "/" + imagen + "?v=" + version;
+        return "/uploads/portadas/" + imagen + "?v=" + version;
     }
 }

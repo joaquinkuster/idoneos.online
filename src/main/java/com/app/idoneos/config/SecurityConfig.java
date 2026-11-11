@@ -72,8 +72,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/inicio", "/acercaDe", "/error",
                                 "/login", "/catalogo/**",
                                 "/css/**", "/js/**", "/img/**", "/webjars/**",
-                                // Imagen de cada curso (un solo nivel): las carpetas de tema no son públicas
-                                "/uploads/curso*/*")
+                                // Portada de cada curso: el resto de las carpetas no es público
+                                "/uploads/portadas/*")
                         .permitAll()
                         // buscar, registrar y modificar inscripciones (Administrador). Corregir
                         // los datos del certificado (Administrador). Dar de baja (Alumno la suya, Administrador)
@@ -123,7 +123,7 @@ public class SecurityConfig {
                         // Las anotaciones del alumno sobre un documento: solo las hace y las ve el propio alumno
                         .requestMatchers(HttpMethod.POST, "/recurso/resaltados/*/*").hasRole("Alumno")
                         // ABM de materiales (el docente gestiona. El administrador busca y da de baja)
-                        .requestMatchers(HttpMethod.GET, "/recurso/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers(HttpMethod.GET, "/recurso/buscar", "/recurso/estadoOcr").hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.POST, "/recurso/darDeBaja/*", "/recurso/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/recurso/**").hasRole("Docente")

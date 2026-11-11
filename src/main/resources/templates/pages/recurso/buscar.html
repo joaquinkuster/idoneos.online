@@ -163,18 +163,33 @@
             <p>Tipo, tema, título y si es visible para alumnos</p>
         </div>
         <div class="row g-3">
-<div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo" data-campo-tipo>
                             <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
-                            <select name="tipo" class="pn-input" required>
+                            <select class="pn-input" data-tipo-grupo aria-label="Tipo de recurso">
+                                <option value="MATERIAL_LECTURA">Material de lectura</option>
+                                <option value="BIBLIOGRAFIA">Bibliografía</option>
+                                <option value="GRABACION">Grabación</option>
+                                <option value="ENLACE">Enlace</option>
+                            </select>
+                            <!-- El servidor recibe el tipo concreto: lo arman estos selectores (Material de lectura + su clase) -->
+                            <select name="tipo" class="d-none" required tabindex="-1" aria-hidden="true">
                                 <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
                                         th:attr="data-nombre=${t.nombre},
                                                  data-extensiones=${#strings.listJoin(t.extensionesPermitidas, ',')},
                                                  data-tamanio-mb=${t.tamanioMaximo / 1048576},
                                                  data-descripcion=${t.descripcionDeSubida}">Grabación</option>
                             </select>
+                            <span class="visually-hidden" data-resumen-linea="Tipo de recurso" data-tipo-linea></span>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo" data-resumen-omitir>
+<div class="col-md-6 pn-campo" data-bloque="categoria-material">
+                            <label class="pn-etiqueta">Categoría de material <span class="pn-obligatorio">*</span></label>
+                            <select class="pn-input" data-categoria-material aria-label="Categoría de material">
+                                <option value="PRESENTACION">Presentación</option>
+                                <option value="RESUMEN">Resumen</option>
+                            </select>
+                        </div>
+<div class="col-12 pn-campo" data-resumen-omitir>
                             <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
                             <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
                                 <option value="">Seleccionar tema</option>
@@ -279,17 +294,9 @@
                             <span class="visually-hidden" data-resumen-linea="Duración" data-duracion-linea></span>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-12 pn-campo" data-bloque="terminos" data-resumen-omitir>
-                            <label class="pn-casilla">
-                                <input type="checkbox" name="terminos" value="true" required
-                                       data-mensaje-obligatorio="Debe aceptar ser responsable del contenido.">
-                                <span><b>Términos y condiciones.</b> Acepto ser responsable del contenido que subo a la plataforma.</span>
-                            </label>
-                            <div class="pn-ayuda-error"></div>
-                        </div>
         </div>
     </div>
-    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(null, null)}"></th:block>
+    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(null, null, null)}"></th:block>
 
     <div class="pn-paso">
         <div class="pn-seccion-titulo">
@@ -297,6 +304,14 @@
             <p>Revisá los datos antes de guardar</p>
         </div>
         <div class="pn-arbol" data-resumen-arbol></div>
+        <div class="pn-campo mt-3" data-bloque="terminos" data-resumen-omitir>
+                            <label class="pn-casilla">
+                                <input type="checkbox" name="terminos" value="true" required
+                                       data-mensaje-obligatorio="Debe aceptar ser responsable del contenido.">
+                                <span><b>Términos y condiciones.</b> Acepto ser responsable del contenido que subo a la plataforma.</span>
+                            </label>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
     </div>
     <div class="pn-modal-pie">
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>

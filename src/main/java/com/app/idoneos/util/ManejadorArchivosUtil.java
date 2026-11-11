@@ -28,26 +28,13 @@ public class ManejadorArchivosUtil {
     private static final List<String> EXTENSIONES_IMAGEN = List.of("jpg", "png", "webp");
 
     /**
-     * Obtiene la carpeta de un curso.
+     * Obtiene la carpeta de las portadas de los cursos.
      *
-     * @param base La carpeta base de los cursos.
-     * @param idCurso El identificador del curso.
-     * @return La carpeta {@code curso{id}} dentro de la carpeta base.
+     * @param base La carpeta base de los archivos de cursos.
+     * @return La carpeta {@code portadas} dentro de la carpeta base, donde cada portada se guarda como {@code curso{id}.{ext}}.
      */
-    public static Path resolverCarpetaDeCurso(Path base, int idCurso) {
-        return base.resolve("curso" + idCurso);
-    }
-
-    /**
-     * Obtiene la carpeta de un tema.
-     *
-     * @param base La carpeta base de los cursos.
-     * @param idCurso El identificador del curso del tema.
-     * @param idTema El identificador del tema.
-     * @return La carpeta {@code curso{id}/tema{id}} dentro de la carpeta base.
-     */
-    public static Path resolverCarpetaDeTema(Path base, int idCurso, int idTema) {
-        return resolverCarpetaDeCurso(base, idCurso).resolve("tema" + idTema);
+    public static Path resolverCarpetaDePortadas(Path base) {
+        return base.resolve("portadas");
     }
 
     /**

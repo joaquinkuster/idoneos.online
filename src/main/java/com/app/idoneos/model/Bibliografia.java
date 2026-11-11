@@ -40,7 +40,7 @@ public class Bibliografia {
     private String autor;
 
     /** Ruta del archivo, relativa a la carpeta de cursos. */
-    @Column(name = "rutaArchivo", nullable = true, length = 500)
+    @Column(name = "rutaArchivo", nullable = false, length = 500)
     private String rutaArchivo;
 
     /** Editorial. */

@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Resumen' or tipo == 'Bibliografía'}">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Autor <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(m.autor != null ? m.autor : '') + ' / 100'}">0 / 100</span>
@@ -109,7 +109,7 @@
                                 <input type="date" name="fechaPublicacion" class="pn-input" th:value="${bibliografia.fechaPublicacion}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Resumen' or tipo == 'Bibliografía'}">
                                 <label class="pn-etiqueta">Páginas</label>
                                 <input type="number" name="paginas" class="pn-input pn-bloqueado" readonly placeholder="Se calcula"
                                        th:value="${tipo == 'Bibliografía' ? bibliografia.paginas : m.recurso.materialLectura.paginas}">
@@ -133,7 +133,7 @@
         </fieldset>
     </div>
     <fieldset class="pn-fieldset-plano" disabled>
-    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(@{'/recurso/indice/' + ${m.idTemaRecurso}}, ${m.recurso.estadoOcr != null ? m.recurso.estadoOcr.nombre : null})}"></th:block>
+    <th:block th:replace="~{pages/recurso/indiceDocumento :: paso(@{'/recurso/indice/' + ${m.idTemaRecurso}}, ${m.recurso.estadoOcr != null ? m.recurso.estadoOcr.nombre : null}, ${m.recurso.idRecurso})}"></th:block>
     </fieldset>
 
     <div class="pn-paso">

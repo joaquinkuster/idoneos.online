@@ -1,17 +1,184 @@
-/* Paso "Índice" de los formularios de recursos: la lista editable de títulos y páginas del documento. */
-.indice-barra {
+/* ----------------------------------------------------------------------
+   Paso "Índice" de los formularios de recursos: vista previa de las páginas y lista de entradas
+   ---------------------------------------------------------------------- */
+
+.indice-grilla {
+    display: grid;
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    gap: 20px;
+    align-items: start;
+}
+
+@media (max-width: 767.98px) {
+    .indice-grilla {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Vista previa: el mismo diseño del visor de documentos (área gris, hoja blanca y barra con las páginas) */
+.indice-visor {
+    border: 1px solid var(--pn-borde, #E2E8F0);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+.indice-visor-vacio {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    min-height: 260px;
+    padding: 20px;
+    background: #F1F5F9;
+    text-align: center;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.indice-lienzo {
+    display: flex;
+    height: 420px;
+    overflow: auto;
+    background: #FFFFFF;
+}
+
+.indice-hoja {
+    position: relative;
+    flex-shrink: 0;
+    margin: auto;
+    min-width: 160px;
+    min-height: 220px;
+    background: #FFFFFF;
+}
+
+.indice-hoja canvas {
+    display: block;
+}
+
+.indice-sin-vista {
+    display: block;
+    padding: 20px;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+/* Cada línea de texto de la página se puede tocar para agregarla al índice */
+.indice-linea {
+    position: absolute;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.indice-linea:hover {
+    background: rgba(212, 160, 61, 0.28);
+    outline: 1px solid #D4A03D;
+}
+
+.indice-linea.usada {
+    background: rgba(212, 160, 61, 0.22);
+}
+
+.indice-barra-pagina {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    padding: 8px 10px;
+    background: #F8FAFC;
+    border-top: 1px solid var(--pn-borde, #E2E8F0);
+}
+
+.indice-nav {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #334155;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.indice-nav:hover:not(:disabled) {
+    background: var(--pn-borde, #E2E8F0);
+}
+
+.indice-nav:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.indice-paginas {
+    display: inline-flex;
+    align-items: center;
     gap: 8px;
-    margin: 0 0 10px;
+    font-size: 14px;
+    color: var(--pn-texto-suave);
+}
+
+.indice-pagina-actual {
+    width: 52px;
+    height: 30px;
+    padding: 0;
+    border: 1px solid var(--pn-borde-input, #CBD5E1);
+    border-radius: 16px;
+    text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-texto, #0F172A);
+}
+
+.indice-pagina-actual::-webkit-outer-spin-button,
+.indice-pagina-actual::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
+}
+
+.indice-zoom {
+    display: inline-flex;
+    align-items: center;
+}
+
+.indice-zoom-valor {
+    display: inline-block;
+    min-width: 46px;
+    line-height: 30px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+    user-select: none;
+}
+
+.indice-consejo {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+/* Lista de entradas: las mismas filas del panel de índice del visor */
+.indice-cabecera {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 14px;
+}
+
+.indice-cabecera span {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
 }
 
 .indice-lista {
-    max-height: 260px;
+    height: 400px;
+    padding: 6px;
     overflow-y: auto;
-    border: 1px solid var(--pn-borde-input);
+    border: 1px solid var(--pn-borde-input, #CBD5E1);
     border-radius: 10px;
     scrollbar-width: thin;
+    scrollbar-color: #CBD5E1 transparent;
 }
 
 .indice-vacio {
@@ -24,46 +191,66 @@
 .indice-fila {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 10px;
-    border-bottom: 1px solid #F1F5F9;
+    gap: 8px;
+    height: 40px;
+    margin-bottom: 4px;
+    flex-shrink: 0;
+    padding: 4px 8px;
+    border-radius: 6px;
     font-size: 13px;
-}
-
-.indice-fila:last-child {
-    border-bottom: 0;
+    color: #000000;
+    cursor: pointer;
+    user-select: none;
 }
 
 .indice-fila:hover {
-    background: #F8FAFC;
+    background: #EEF2F6;
 }
 
-.indice-n1 .indice-titulo {
+.indice-fila.elegida {
+    background: #E2E8F0;
+}
+
+.indice-n1 .indice-titulo,
+.indice-n1 .indice-numero {
     font-weight: 700;
+    color: var(--pn-navy, #0F233D);
 }
 
-.indice-n2 {
-    padding-left: 30px;
-}
-
-.indice-n3 {
-    padding-left: 50px;
+.indice-n1 .indice-puntos {
+    border-bottom-width: 3px;
+    border-bottom-color: #000000;
 }
 
 .indice-titulo {
     flex: 1;
     min-width: 0;
-    padding: 3px 4px;
-    border-radius: 6px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    cursor: text;
 }
 
-.indice-titulo:hover {
-    background: #EEF4FA;
+/* Puntos que unen el título con el número de página, con la misma letra */
+.indice-puntos {
+    flex: 1 1 12px;
+    align-self: center;
+    position: relative;
+    top: 0.45em;
+    min-width: 12px;
+    height: 0;
+    border-bottom: 2px dotted #000000;
 }
+
+.indice-numero {
+    font: inherit;
+    color: #000000;
+}
+
+.indice-titulo {
+    flex: 0 1 auto;
+}
+
+
 
 .indice-editar {
     flex: 1;
@@ -73,29 +260,166 @@
     border: 1px solid var(--pn-gold, #D4A03D);
     border-radius: 6px;
     outline: none;
+    background: #FFFFFF;
 }
 
-.indice-pagina {
-    width: 62px;
-    padding: 2px 6px;
+.indice-acciones {
+    display: none;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Las acciones de la fila (editar, nivel y quitar) se ven al pasar el mouse o al elegirla, en lugar del número de página */
+.indice-fila:hover .indice-acciones,
+.indice-fila.elegida .indice-acciones {
+    display: inline-flex;
+}
+
+.indice-fila:hover .indice-numero,
+.indice-fila.elegida .indice-numero {
+    display: none;
+}
+
+.indice-fila .indice-icono-boton {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+}
+
+.indice-fila .indice-icono-boton:hover {
+    background: #CBD5E1;
+    color: #000000;
+}
+
+/* El tacho se pone rojo al pasar el mouse, como en el formulario de pools */
+.indice-fila .indice-quitar:hover {
+    color: var(--pn-peligro);
+}
+
+/* Botones de la fila elegida: con ícono y texto, sobre fondo blanco para que se vean */
+.indice-boton {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid #94A3B8;
+    border-radius: 8px;
+    background: #FFFFFF;
     font-size: 12px;
     font-weight: 700;
-    text-align: center;
-    color: #475569;
-    border: 1px solid var(--pn-borde-input);
-    border-radius: 999px;
-}
-
-.indice-icono {
-    display: flex;
-    padding: 2px;
-    border: 0;
-    background: transparent;
-    color: #94A3B8;
-    font-size: 15px;
+    color: var(--pn-navy, #0F233D);
+    white-space: nowrap;
     cursor: pointer;
 }
 
-.indice-icono:hover {
-    color: var(--pn-navy, #0F233D);
+.indice-boton i {
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.indice-boton:hover {
+    background: #F1F5F9;
+}
+
+.indice-boton-quitar {
+    border-color: #FCA5A5;
+    color: #B91C1C;
+}
+
+.indice-boton-quitar i {
+    color: inherit;
+}
+
+.indice-boton-quitar:hover {
+    background: #FEF2F2;
+}
+
+.indice-botones {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* El mismo botón de ícono del formulario de pools (pl-icon-boton pl-quitar) */
+.indice-icono-boton {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--pn-texto-suave);
+    cursor: pointer;
+}
+
+.indice-icono-boton:hover {
+    background: var(--pn-borde);
+    color: var(--pn-texto);
+}
+
+.indice-quitar:hover {
+    color: var(--pn-peligro);
+}
+
+/* Botón de nivel: solo el ícono, del color del fondo como el tacho, y negro al pasar el mouse */
+.indice-nivel:hover {
+    background: transparent;
+    color: #000000;
+}
+
+.indice-fila:hover .indice-puntos,
+.indice-fila.elegida .indice-puntos {
+    border-bottom-color: #000000;
+}
+
+/* Progreso del escaneo del PDF */
+.indice-progreso {
+    height: 8px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background: rgba(148, 163, 184, 0.25);
+    overflow: hidden;
+}
+
+.indice-progreso i {
+    display: block;
+    height: 100%;
+    background: #D4A03D;
+    transition: width 2s linear;
+}
+
+.indice-progreso-texto {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* Al pasar el mouse o elegir la fila solo cambia el fondo: el texto, los puntos y el número quedan en negro */
+.indice-fila:hover .indice-titulo,
+.indice-fila:hover .indice-numero,
+.indice-fila.elegida .indice-titulo,
+.indice-fila.elegida .indice-numero {
+    color: #000000;
+}
+
+/* Campo sin contenido que solo sirve para mostrar el error de guardar con el reconocimiento de texto en curso */
+.indice-campo-ocr {
+    margin: 0;
+}
+
+/* El error de guardar con el reconocimiento en curso lleva aire abajo: queda pegado al contenido del paso */
+.indice-campo-ocr .pn-ayuda-error:not(:empty) {
+    margin-bottom: 20px;
+}
+
+.indice-control-ocr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    pointer-events: none;
 }

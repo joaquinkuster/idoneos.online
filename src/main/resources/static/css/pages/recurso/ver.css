@@ -72,19 +72,14 @@
 }
 
 .mv-zoom-valor {
+    display: inline-block;
     min-width: 52px;
-    height: 32px;
-    border: 0;
-    border-radius: 8px;
-    background: transparent;
+    line-height: 34px;
+    text-align: center;
     font-size: 14px;
-    color: var(--pn-texto-suave);
-    cursor: pointer;
-}
-
-.mv-zoom-valor:hover {
-    background: var(--pn-borde);
-    color: var(--pn-texto);
+    color: #000000;
+    cursor: default;
+    user-select: none;
 }
 
 .mv-estado {
@@ -103,8 +98,8 @@
     align-items: center;
     gap: 10px;
     padding: 8px 16px;
-    background: #F8FAFC;
-    border-top: 1px solid var(--pn-borde);
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--pn-borde);
 }
 
 .mv-boton {
@@ -113,13 +108,12 @@
     border: 0;
     border-radius: 8px;
     background: transparent;
-    color: var(--pn-texto-suave);
+    color: #000000;
     cursor: pointer;
 }
 
 .mv-boton:hover:not(:disabled) {
-    background: var(--pn-borde);
-    color: var(--pn-texto);
+    background: #E2E8F0;
 }
 
 .mv-boton:disabled {
@@ -138,11 +132,20 @@
 .mv-paginas input {
     width: 56px;
     height: 32px;
+    padding: 0;
     border: 1px solid var(--pn-borde-input);
     border-radius: 16px;
     text-align: center;
+    -moz-appearance: textfield;
+    appearance: textfield;
     font-size: 14px;
     color: var(--pn-texto);
+}
+
+.mv-paginas input::-webkit-outer-spin-button,
+.mv-paginas input::-webkit-inner-spin-button {
+    margin: 0;
+    -webkit-appearance: none;
 }
 
 .mv-espacio {
@@ -195,11 +198,40 @@
     display: flex;
     align-items: stretch;
     min-width: 0;
+    height: clamp(420px, calc(100vh - 250px), 880px);
 }
 
 .mv-cuerpo > .mv-lienzo {
     flex: 1;
     min-width: 0;
+    min-height: 0;
+}
+
+/* La zona de la página ocupa todo el alto del visor: ahí se ajusta la página entera */
+.mv-cuerpo .mv-desplazable {
+    position: absolute;
+    inset: 0;
+    max-height: none;
+    min-height: 0;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.mv-ajuste {
+    height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 700;
+    color: #000000;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.mv-ajuste:hover {
+    background: #E2E8F0;
 }
 
 .mv-barra {
@@ -208,10 +240,9 @@
 
 .mv-lateral {
     flex: none;
-    width: 208px;
+    width: 280px;
     display: flex;
     flex-direction: column;
-    max-height: 78vh;
     background: #FFFFFF;
     border-right: 1px solid var(--pn-borde);
 }
@@ -283,13 +314,14 @@
 }
 
 .mv-mini.activa canvas {
-    border-color: #D4A03D;
-    box-shadow: 0 0 0 1px #D4A03D;
+    border-color: #64748B;
+    box-shadow: 0 0 0 1px #64748B;
 }
 
 .mv-ind {
     display: flex;
-    gap: 8px;
+    align-items: baseline;
+    gap: 6px;
     width: 100%;
     padding: 6px 8px;
     border: 0;
@@ -299,10 +331,6 @@
     font-size: 13px;
     text-align: left;
     cursor: pointer;
-}
-
-.mv-ind:hover:not(:disabled) {
-    background: #F1F5F9;
 }
 
 .mv-ind:disabled {
@@ -323,9 +351,92 @@
     color: var(--pn-navy, #0F233D);
 }
 
+.mv-ind.n0 small {
+    font-weight: 700;
+    color: var(--pn-navy, #0F233D);
+}
+
+.mv-ind.n0 .mv-puntos {
+    border-bottom-width: 3px;
+    border-bottom-color: #475569;
+}
+
 .mv-ind.activa {
-    background: #FEF3C7;
-    color: #7A4E0B;
+    color: var(--pn-navy, #0F233D);
+}
+
+/* El hover y la entrada vigente cubren toda la fila, desde la flecha hasta el número */
+.mv-ind-fila {
+    margin-bottom: 4px;
+    border-radius: 6px;
+}
+
+.mv-ind-fila:hover {
+    background: #E2E8F0;
+}
+
+.mv-ind-titulo {
+    flex: 0 1 auto !important;
+}
+
+/* Puntos que unen el título con el número de página */
+.mv-puntos {
+    flex: 1 1 12px;
+    align-self: baseline;
+    min-width: 12px;
+    height: 0;
+    border-bottom: 2px dotted #94A3B8;
+}
+
+/* El índice como árbol: cada entrada con su flecha para plegar o desplegar sus niveles */
+.mv-ind-fila {
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+}
+
+.mv-ind-fila .mv-ind {
+    flex: 1;
+    min-width: 0;
+    width: auto;
+    padding: 9px 10px;
+}
+
+.mv-flecha {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    margin: 4px 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.mv-flecha:hover {
+    background: #CBD5E1;
+}
+
+.mv-flecha i {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-right: 2px solid #94A3B8;
+    border-bottom: 2px solid #94A3B8;
+    transform: rotate(-45deg);
+    transition: transform 0.15s;
+}
+
+.mv-flecha.abierta i {
+    transform: rotate(45deg);
+}
+
+.mv-flecha.vacia {
+    cursor: default;
+}
+
+.mv-flecha.vacia i {
+    display: none;
 }
 
 .mv-vacio-lista {
@@ -335,7 +446,7 @@
 }
 
 .mv-boton.activo {
-    background: #EEF4FA;
+    background: rgba(94, 130, 188, 0.16);
     color: #244A72;
 }
 
@@ -345,16 +456,26 @@
     font-size: 12px;
 }
 
+/* Buscador: una barra rectangular integrada arriba del visor, que se muestra y se oculta con su botón */
 .mv-buscar {
-    display: inline-flex;
+    position: absolute;
+    top: 10px;
+    right: 16px;
+    z-index: 5;
+    display: flex;
     align-items: center;
     gap: 4px;
-    height: 34px;
-    padding: 0 4px 0 12px;
+    height: 42px;
+    padding: 0 6px 0 12px;
     background: #FFFFFF;
     border: 1px solid var(--pn-borde-input);
-    border-radius: 17px;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(15, 35, 61, 0.14);
     color: var(--pn-texto-suave);
+}
+
+.mv-buscar[hidden] {
+    display: none;
 }
 
 .mv-buscar:focus-within {
@@ -427,13 +548,17 @@
     max-height: none;
 }
 
+.mv-visor:fullscreen .mv-cuerpo {
+    height: auto;
+}
+
 @media (max-width: 700px) {
     .mv-lateral {
-        width: 150px;
+        width: 190px;
     }
 
     .mv-buscar input {
-        width: 90px;
+        width: 100px;
     }
 }
 
@@ -461,7 +586,7 @@
 
 .mv-herramientas {
     flex: none;
-    width: 152px;
+    width: 220px;
     display: flex;
     flex-direction: column;
     gap: 18px;
@@ -501,9 +626,6 @@
     cursor: pointer;
 }
 
-.mv-herramienta:hover {
-    border-color: #0F233D;
-}
 
 .mv-herramienta.activa {
     background: #EEF4FA;
@@ -544,7 +666,7 @@
 .mv-colores {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: 16px 8px;
 }
 
 .mv-colores button {
@@ -558,7 +680,9 @@
 }
 
 .mv-colores button.activo {
-    box-shadow: 0 0 0 2px #0F233D;
+    transform: scale(1.25);
+    border-color: #FFFFFF;
+    box-shadow: 0 0 0 1px #CBD5E1;
 }
 
 .mv-guardado {
@@ -574,10 +698,121 @@
 
 @media (max-width: 700px) {
     .mv-herramientas {
-        width: 120px;
+        width: 150px;
     }
 }
 
 .mv-boton[hidden] {
     display: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Visor de PDF: barra de herramientas, riel lateral y efecto de color */
+/* ---------------------------------------------------------------------- */
+
+.mv-barra {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+}
+
+.mv-barra-centro {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.mv-barra-derecha {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.mv-sep {
+    width: 1px;
+    height: 20px;
+    margin: 0 4px;
+    background: var(--pn-borde);
+}
+
+/* Riel lateral como el del visor de Chrome: el menú y un botón por cada lista del panel */
+.mv-riel {
+    flex: none;
+    width: 52px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 0;
+    background: #FFFFFF;
+    border-right: 1px solid var(--pn-borde);
+}
+
+.mv-riel .mv-boton {
+    position: relative;
+}
+
+.mv-riel .mv-boton.activa {
+    background: rgba(94, 130, 188, 0.16);
+    color: #244A72;
+}
+
+.mv-riel .mv-boton.activa::before {
+    content: '';
+    position: absolute;
+    left: -9px;
+    top: 6px;
+    bottom: 6px;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: #5E82BC;
+}
+
+/* El azul clarito queda solo para lo que está activo. Al pasar el mouse, un gris claro sin cambiar el color de la letra */
+.mv-sep[hidden] {
+    display: none;
+}
+
+.mv-boton:hover:not(:disabled),
+.mv-ajuste:hover {
+    background: #E2E8F0;
+}
+
+.mv-boton.activo:hover:not(:disabled),
+.mv-riel .mv-boton.activa:hover {
+    background: rgba(94, 130, 188, 0.16);
+}
+
+.mv-herramienta:hover,
+.mv-tamanios button:hover {
+    background: #E2E8F0;
+    border-color: #CBD5E1;
+}
+
+.mv-herramienta.activa:hover,
+.mv-tamanios button.activa:hover {
+    background: #EEF4FA;
+    border-color: #5E82BC;
+}
+
+.mv-flecha:hover {
+    background: #CBD5E1;
+}
+
+@media (max-width: 900px) {
+    .mv-barra {
+        grid-template-columns: 1fr;
+    }
+
+    .mv-barra > span {
+        display: none;
+    }
+
+    .mv-barra-derecha {
+        justify-content: center;
+    }
 }

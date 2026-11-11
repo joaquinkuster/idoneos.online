@@ -44,7 +44,7 @@ public class IndiceRecursoServiceImpl implements IndiceRecursoService {
         indiceRepository.saveAll(nuevas);
     }
 
-    /** Lee y valida el índice: cada entrada con título, una página de 1 en adelante y un nivel de 1 a 3. */
+    /** Lee y valida el índice: cada entrada con título, una página de 1 en adelante y un nivel de 1 a 4. */
     private List<Entrada> leer(String json) {
         List<Entrada> leidas;
         try {

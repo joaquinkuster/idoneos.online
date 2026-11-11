@@ -316,10 +316,10 @@ public interface RecursoService extends CrudService<TemaRecurso> {
         /** Diapositivas de una clase (un archivo PDF). */
         PRESENTACION(Recurso.PRESENTACION, true, List.of("pdf"), 50, "Diapositivas de una clase."),
 
-        /** Resumen de un tema (lo genera el sistema). */
-        RESUMEN(Recurso.RESUMEN, false, List.of("pdf"), 50, "Resumen de un tema."),
+        /** Resumen de un tema (un archivo PDF que sube el docente). */
+        RESUMEN(Recurso.RESUMEN, true, List.of("pdf"), 50, "Resumen de un tema."),
 
-        /** Texto o material de lectura, con su autor y su ISBN (el archivo PDF es opcional). */
+        /** Texto o material de lectura, con su autor y su ISBN (el archivo PDF es obligatorio). */
         BIBLIOGRAFIA(Recurso.BIBLIOGRAFIA, true, List.of("pdf"), 50, "Texto o material de lectura, con su autor y su ISBN."),
 
         /** Video de una clase dictada. */

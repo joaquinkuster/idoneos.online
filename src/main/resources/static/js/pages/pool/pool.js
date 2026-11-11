@@ -227,6 +227,7 @@
             if (pregunta.tipo !== 'vf' && pregunta.opciones.length < MAXIMO_OPCIONES) {
                 var agregar = elemento('button', { type: 'button', clase: 'pn-btn pn-btn-contorno pn-btn-chico' },
                     [icon('fa-solid fa-plus'), document.createTextNode(' Agregar opción')]);
+                agregar.style.marginTop = '20px';
                 agregar.addEventListener('click', function () {
                     pregunta.opciones.push(nuevaOpcion());
                     dibujar();

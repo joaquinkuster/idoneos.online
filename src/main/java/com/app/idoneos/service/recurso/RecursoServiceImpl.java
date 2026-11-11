@@ -406,7 +406,7 @@ public class RecursoServiceImpl implements RecursoService {
         recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
         recurso.setFechaAceptacionTyc(LocalDateTime.now());
         recurso = recursoRepository.saveAndFlush(recurso); // para conocer su identificador
-        String ruta = hayArchivo ? guardarArchivo(recurso, tema, tipo, archivo) : null;
+        String ruta = hayArchivo ? guardarArchivo(recurso, tipo, archivo) : null;
         crearDatosPropios(recurso, tipo, datos, ruta, hayArchivo ? archivo.getSize() : null);
 
         int orden = temaRecursoRepository.findByTemaAndBajaFalse(tema).stream()
@@ -609,7 +609,7 @@ public class RecursoServiceImpl implements RecursoService {
         largoMaximo("titulo", "El título", datos.titulo().trim(), LARGO_TITULO);
         largoMaximo("descripcion", "La descripción", convertirVacioANulo(datos.descripcion()), LARGO_DESCRIPCION);
         String autor = convertirVacioANulo(datos.autor());
-        if ((tipo == TipoRecurso.PRESENTACION || tipo == TipoRecurso.BIBLIOGRAFIA) && autor == null) {
+        if ((tipo == TipoRecurso.PRESENTACION || tipo == TipoRecurso.RESUMEN || tipo == TipoRecurso.BIBLIOGRAFIA) && autor == null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("autor", "Error! Debe completar el autor.");
         }
         largoMaximo("autor", "El autor", autor, LARGO_AUTOR);
@@ -642,9 +642,14 @@ public class RecursoServiceImpl implements RecursoService {
         if (tipo == TipoRecurso.ENLACE && hayArchivo) {
             throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de recurso no lleva archivo.");
         }
-        if (esAlta && !hayArchivo && (tipo == TipoRecurso.PRESENTACION || tipo == TipoRecurso.GRABACION)) {
-            throw RespuestaFormularioUtil.armarCampoInvalido("archivo", tipo == TipoRecurso.GRABACION
-                    ? "Error! Debe seleccionar el archivo de video." : "Error! Debe seleccionar el archivo de la presentación.");
+        if (esAlta && !hayArchivo && tipo != TipoRecurso.ENLACE) {
+            String mensaje = switch (tipo) {
+                case GRABACION -> "Error! Debe seleccionar el archivo de video.";
+                case RESUMEN -> "Error! Debe seleccionar el archivo del resumen.";
+                case BIBLIOGRAFIA -> "Error! Debe seleccionar el archivo de la bibliografía.";
+                default -> "Error! Debe seleccionar el archivo de la presentación.";
+            };
+            throw RespuestaFormularioUtil.armarCampoInvalido("archivo", mensaje);
         }
     }
 
@@ -670,9 +675,10 @@ public class RecursoServiceImpl implements RecursoService {
     private void crearDatosPropios(Recurso recurso, TipoRecurso tipo, DatosRecurso datos, String ruta, Long tamanio) {
         String extension = ruta == null ? null : ManejadorArchivosUtil.obtenerExtension(ruta);
         switch (tipo) {
-            case PRESENTACION -> {
-                CategoriaMaterialLectura categoria = categoriaMaterialLecturaRepository.findByNombre(CategoriaMaterialLectura.PRESENTACION)
-                        .orElseThrow(() -> new IllegalStateException("Falta la categoría de material de lectura 'Presentación'."));
+            case PRESENTACION, RESUMEN -> {
+                String nombreCategoria = tipo == TipoRecurso.RESUMEN ? CategoriaMaterialLectura.RESUMEN : CategoriaMaterialLectura.PRESENTACION;
+                CategoriaMaterialLectura categoria = categoriaMaterialLecturaRepository.findByNombre(nombreCategoria)
+                        .orElseThrow(() -> new IllegalStateException("Falta la categoría de material de lectura '" + nombreCategoria + "'."));
                 MaterialLectura lectura = new MaterialLectura(recurso, categoria, ruta, convertirVacioANulo(datos.autor()));
                 lectura.setPaginas(datos.paginas());
                 lectura.setTamanioBytes(tamanio);
@@ -704,7 +710,7 @@ public class RecursoServiceImpl implements RecursoService {
     private void actualizarDatosPropios(Recurso recurso, TipoRecurso tipo, DatosRecurso datos, String rutaNueva, Long tamanio) {
         String extension = rutaNueva == null ? null : ManejadorArchivosUtil.obtenerExtension(rutaNueva);
         switch (tipo) {
-            case PRESENTACION -> {
+            case PRESENTACION, RESUMEN -> {
                 MaterialLectura lectura = recurso.getMaterialLectura();
                 lectura.setAutor(convertirVacioANulo(datos.autor()));
                 lectura.setPaginas(datos.paginas());
@@ -747,8 +753,9 @@ public class RecursoServiceImpl implements RecursoService {
         }
     }
 
-    private String guardarArchivo(Recurso recurso, Tema tema, TipoRecurso tipo, MultipartFile archivo) {
-        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeTema(directorioCursos, tema.getCurso().getIdCurso(), tema.getIdTema());
+    /** Guarda el archivo de un recurso en la carpeta de la biblioteca de su docente: los temas solo lo usan, no lo guardan. */
+    private String guardarArchivo(Recurso recurso, TipoRecurso tipo, MultipartFile archivo) {
+        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(directorioCursos, recurso.getDocente().getIdDocente());
         String nombre = ManejadorArchivosUtil.guardar(archivo, carpeta, "recurso" + recurso.getIdRecurso(),
                 tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         return ManejadorArchivosUtil.construirRutaRelativa(directorioCursos, carpeta.resolve(nombre));

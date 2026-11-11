@@ -217,14 +217,10 @@ public class BibliotecaController {
         return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(recurso));
     }
 
-    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo. */
+    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo, se vacía. */
     private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
         String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
         indiceService.reemplazar(recurso, json);
-        // Un PDF escaneado se pone en la cola del OCR (en segundo plano) para que se pueda buscar su texto
-        if (archivo != null && !archivo.isEmpty()) {
-            ocrService.encolarSiHaceFalta(recurso);
-        }
     }
 
     // ----------------------------------------------------------------------
@@ -247,14 +243,18 @@ public class BibliotecaController {
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
             @RequestParam(value = "terminos", defaultValue = "false") boolean terminos,
             @RequestParam(value = "indiceJson", required = false) String indiceJson,
-            @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
+            @RequestParam(value = "ocrToken", required = false) String ocrToken,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivoSubido, Authentication authentication) {
         try {
+            // Si el PDF ya se escaneó al elegirlo, se guarda el que tiene el texto reconocido
+            MultipartFile archivo = ocrService.reemplazarPorProcesado(ocrToken, archivoSubido);
             Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
             Recurso recurso = recursoService.subirABiblioteca(docente, tipo,
                     new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo, terminos);
             guardarIndice(recurso, indiceJson, archivo);
+            ocrService.descartarPrevio(ocrToken);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso '" + recurso.getTitulo() + "' registrado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
@@ -279,14 +279,18 @@ public class BibliotecaController {
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
             @RequestParam(value = "indiceJson", required = false) String indiceJson,
-            @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
+            @RequestParam(value = "ocrToken", required = false) String ocrToken,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivoSubido, Authentication authentication) {
         try {
+            // Si el PDF ya se escaneó al elegirlo, se guarda el que tiene el texto reconocido
+            MultipartFile archivo = ocrService.reemplazarPorProcesado(ocrToken, archivoSubido);
             Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
             recursoService.modificarEnBiblioteca(id, docente,
                     new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo);
             recursoService.buscarRecursoPorId(id).ifPresent(r -> guardarIndice(r, indiceJson, archivo));
+            ocrService.descartarPrevio(ocrToken);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

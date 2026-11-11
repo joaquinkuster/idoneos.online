@@ -11,8 +11,8 @@ DECLARE
 BEGIN
         IF btrim(NEW.titulo) = '' THEN
             v_mensaje := fn_msg_vacio('El título de la entrada del índice');
-        ELSIF NEW.nivel < 1 OR NEW.nivel > 3 THEN
-            v_mensaje := fn_msg_formato('El nivel de la entrada del índice', 'número entero de 1 a 3');
+        ELSIF NEW.nivel < 1 OR NEW.nivel > 4 THEN
+            v_mensaje := fn_msg_formato('El nivel de la entrada del índice', 'número entero de 1 a 4');
         ELSIF NEW.pagina < 1 THEN
             v_mensaje := fn_msg_formato('La página de la entrada del índice', 'número entero desde 1');
         END IF;

@@ -242,19 +242,84 @@ public class RecursoController {
         }
     }
 
-    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo. */
+    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo, se vacía. */
     private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
         String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
         indiceService.reemplazar(recurso, json);
-        // Un PDF escaneado se pone en la cola del OCR (en segundo plano) para que se pueda buscar su texto
-        if (archivo != null && !archivo.isEmpty()) {
-            ocrService.encolarSiHaceFalta(recurso);
-        }
     }
 
     // ----------------------------------------------------------------------
     // Creaciones
     // ----------------------------------------------------------------------
+
+    /** GET /recurso/estadoOcr: Devuelve el estado y el progreso del reconocimiento de texto de los recursos pedidos, para refrescar sin recargar. */
+    @GetMapping("/estadoOcr")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public Map<Integer, Map<String, Object>> estadoOcr(@RequestParam(value = "ids", required = false) List<Integer> ids) {
+        Map<Integer, Map<String, Object>> estados = new java.util.LinkedHashMap<>();
+        if (ids == null) {
+            return estados;
+        }
+        ids.stream().limit(100).forEach(id -> materialService.buscarRecursoPorId(id).ifPresent(r -> {
+            if (r.getEstadoOcr() != null) {
+                Map<String, Object> datos = new java.util.LinkedHashMap<>();
+                datos.put("estado", r.getEstadoOcr().getNombre());
+                OCRService.Progreso progreso = ocrService.progreso(id);
+                if (progreso != null) {
+                    datos.put("porcentaje", progreso.porcentaje());
+                    if (progreso.segundosRestantes() >= 0) {
+                    datos.put("segundos", progreso.segundosRestantes());
+                }
+                datos.put("fase", progreso.fase());
+                }
+                estados.put(id, datos);
+            }
+        }));
+        return estados;
+    }
+
+    /** POST /recurso/ocrPrevio: Empieza el reconocimiento de texto de un PDF escaneado apenas se elige en el formulario. */
+    @PostMapping("/ocrPrevio")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public Map<String, String> ocrPrevio(@RequestParam(value = "archivo", required = false) MultipartFile archivo) {
+        try {
+            String token = ocrService.iniciarPrevio(archivo);
+            return token == null ? Map.of() : Map.of("token", token);
+        } catch (Exception e) {
+            return Map.of();
+        }
+    }
+
+    /** GET /recurso/ocrPrevio/{token}: Devuelve el estado y el progreso del reconocimiento previo. */
+    @GetMapping("/ocrPrevio/{token}")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public Map<String, Object> estadoOcrPrevio(@PathVariable("token") String token) {
+        OCRService.Previo previo = ocrService.consultarPrevio(token);
+        Map<String, Object> datos = new java.util.LinkedHashMap<>();
+        if (previo != null) {
+            datos.put("estado", previo.estado());
+            if (previo.progreso() != null) {
+                datos.put("porcentaje", previo.progreso().porcentaje());
+                if (previo.progreso().segundosRestantes() >= 0) {
+                    datos.put("segundos", previo.progreso().segundosRestantes());
+                }
+                datos.put("fase", previo.progreso().fase());
+            }
+        }
+        return datos;
+    }
+
+    /** GET /recurso/ocrPrevio/{token}/archivo: Entrega el PDF con su texto ya reconocido, para armar el índice sobre él. */
+    @GetMapping("/ocrPrevio/{token}/archivo")
+    public ResponseEntity<Resource> archivoOcrPrevio(@PathVariable("token") String token) {
+        Path archivo = ocrService.archivoPrevio(token);
+        if (archivo == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store, private")
+                .body(new FileSystemResource(archivo));
+    }
 
     /** POST /recurso/subir: Sube un material a un tema. */
     @PostMapping("/subir")
@@ -274,14 +339,18 @@ public class RecursoController {
             @RequestParam(value = "terminos", defaultValue = "false") boolean terminos,
             @RequestParam(value = "privado", defaultValue = "true") boolean privado,
             @RequestParam(value = "indiceJson", required = false) String indiceJson,
-            @RequestParam(value = "archivo", required = false) MultipartFile archivo, Authentication authentication) {
+            @RequestParam(value = "ocrToken", required = false) String ocrToken,
+            @RequestParam(value = "archivo", required = false) MultipartFile archivoSubido, Authentication authentication) {
         try {
+            // Si el PDF ya se escaneó al elegirlo, se guarda el que tiene el texto reconocido
+            MultipartFile archivo = ocrService.reemplazarPorProcesado(ocrToken, archivoSubido);
             Usuario usuario = (Usuario) authentication.getPrincipal();
             TemaRecurso material = materialService.subir(usuario.getDocente(), temaId, tipo,
                     new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo, terminos);
             guardarIndice(material.getRecurso(), indiceJson, archivo);
+            ocrService.descartarPrevio(ocrToken);
             // Se muestra cómo quedó dentro del curso: el panel del curso con el tema del material expandido
             Programa vigente = material.getTema().getCurso().getProgramaVigente();
             String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
@@ -341,7 +410,7 @@ public class RecursoController {
                 partes.add(recurso.getAutor());
                 partes.add(recurso.getBibliografia() == null ? null : recurso.getBibliografia().getIsbn());
             }
-            case PRESENTACION -> {
+            case PRESENTACION, RESUMEN -> {
                 partes.add(recurso.getAutor());
                 Integer paginas = recurso.getMaterialLectura() == null ? null : recurso.getMaterialLectura().getPaginas();
                 partes.add(paginas == null ? null : paginas + (paginas == 1 ? " página" : " páginas"));

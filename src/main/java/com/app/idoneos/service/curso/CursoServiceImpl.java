@@ -438,14 +438,14 @@ public class CursoServiceImpl implements CursoService {
         return cursoRepository.save(curso);
     }
 
-    /** Lleva las imágenes de los cursos a la estructura curso{id/imagen.{ext}}. */
+    /** Lleva las portadas de los cursos a la carpeta portadas, con el nombre curso{id}.{ext}. */
     @Override
     @Transactional
     public void migrarImagenes() {
+        Path portadas = ManejadorArchivosUtil.resolverCarpetaDePortadas(directorioCursos);
         for (Curso curso : cursoRepository.findAll()) {
             String imagen = curso.getImagen();
-            if (imagen == null || imagen.isBlank() || imagen.startsWith("imagen.") || imagen.contains("/")
-                    || imagen.contains("\\") || imagen.contains("..")) {
+            if (imagen == null || imagen.isBlank() || imagen.contains("/") || imagen.contains("\\") || imagen.contains("..")) {
                 continue;
             }
             String extension = ManejadorArchivosUtil.obtenerExtension(imagen);
@@ -453,13 +453,23 @@ public class CursoServiceImpl implements CursoService {
                 continue;
             }
             extension = extension.equals("jpeg") ? "jpg" : extension;
+            String nombre = "curso" + curso.getIdCurso() + "." + extension;
+            if (imagen.equals(nombre)) {
+                continue;
+            }
             try {
-                Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeCurso(directorioCursos, curso.getIdCurso());
-                Files.createDirectories(carpeta);
-                Path destino = carpeta.resolve("imagen." + extension);
-                Path anterior = directorioCursos.resolve("cursos").resolve(imagen);
-                if (Files.exists(anterior)) {
-                    Files.copy(anterior, destino, StandardCopyOption.REPLACE_EXISTING);
+                Files.createDirectories(portadas);
+                Path destino = portadas.resolve(nombre);
+                Path carpetaVieja = directorioCursos.resolve("curso" + curso.getIdCurso());
+                Path vieja = carpetaVieja.resolve(imagen);
+                if (imagen.startsWith("imagen.") && Files.exists(vieja)) {
+                    // La portada estaba en la carpeta del curso: se la lleva a portadas y se borra la carpeta si queda vacía
+                    Files.move(vieja, destino, StandardCopyOption.REPLACE_EXISTING);
+                    try {
+                        Files.deleteIfExists(carpetaVieja);
+                    } catch (IOException e) {
+                        REGISTRO.debug("La carpeta {} todavía tiene archivos", carpetaVieja);
+                    }
                 } else {
                     try (InputStream ejemplo = getClass().getResourceAsStream("/static/img/cursos/" + imagen)) {
                         if (ejemplo == null) {
@@ -469,7 +479,7 @@ public class CursoServiceImpl implements CursoService {
                         Files.copy(ejemplo, destino, StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
-                curso.setImagen("imagen." + extension);
+                curso.setImagen(nombre);
                 cursoRepository.save(curso);
             } catch (IOException e) {
                 REGISTRO.warn("No se pudo migrar la imagen '{}' del curso {}", imagen, curso.getIdCurso(), e);

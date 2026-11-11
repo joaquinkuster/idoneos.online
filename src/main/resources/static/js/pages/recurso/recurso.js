@@ -24,8 +24,9 @@
 
     // Qué se hace en la pestaña "Desde cero" de cada tipo de recurso
     var DESDE_CERO = {
+        RESUMEN: 'Registrás un nuevo resumen: subís el resumen de un tema en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
         PRESENTACION: 'Registrás una nueva presentación: subís las diapositivas de una clase en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
-        BIBLIOGRAFIA: 'Registrás una nueva bibliografía: cargás un texto o material de lectura con su autor y su ISBN (el archivo PDF es opcional) y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        BIBLIOGRAFIA: 'Registrás una nueva bibliografía: cargás un texto o material de lectura con su autor y su ISBN (el archivo PDF es obligatorio) y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
         GRABACION: 'Registrás una nueva grabación: subís el video de una clase dictada y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
         ENLACE: 'Registrás un nuevo enlace: cargás la dirección web de un material que está fuera de la plataforma y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.'
     };
@@ -371,7 +372,8 @@
     /** Qué pide cada tipo de material (los formatos y tamaños vienen del servidor, en la opción elegida). */
     var TIPOS = {
         PRESENTACION: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo de la presentación' },
-        BIBLIOGRAFIA: { archivo: true, archivoObligatorio: false, campos: ['autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion'], obligatorios: ['autor', 'isbn'], etiqueta: 'Archivo (opcional)' },
+        RESUMEN: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo del resumen' },
+        BIBLIOGRAFIA: { archivo: true, archivoObligatorio: true, campos: ['autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion'], obligatorios: ['autor', 'isbn'], etiqueta: 'Archivo de la bibliografía' },
         GRABACION: { archivo: true, archivoObligatorio: true, campos: ['duracionMinutos'], obligatorios: [], etiqueta: 'Archivo de video' },
         ENLACE: { archivo: false, archivoObligatorio: false, campos: ['enlace'], obligatorios: ['enlace'], etiqueta: 'Archivo' }
     };
@@ -427,13 +429,62 @@
 
     if (modalNuevo) {
         var campoTipo = modalNuevo.querySelector('select[name="tipo"]');
+        var grupoTipo = modalNuevo.querySelector('[data-tipo-grupo]');
+        var categoriaMaterial = modalNuevo.querySelector('[data-categoria-material]');
+        var bloqueCategoria = modalNuevo.querySelector('[data-bloque="categoria-material"]');
+        var lineaTipo = modalNuevo.querySelector('[data-tipo-linea]');
+        var campoDelTipo = modalNuevo.querySelector('[data-campo-tipo]');
+
+        /** El tipo ocupa todo el ancho cuando no hay categoría de material al lado. */
+        function ajustarAncho(esMaterial) {
+            campoDelTipo.classList.toggle('col-md-6', esMaterial);
+            campoDelTipo.classList.toggle('col-12', !esMaterial);
+        }
+
+        // Solo se ofrecen los tipos que el servidor permite en esta pantalla
+        [grupoTipo, categoriaMaterial].forEach(function (select) {
+            Array.prototype.slice.call(select.options).forEach(function (opcion) {
+                var existe = opcion.value === 'MATERIAL_LECTURA'
+                    ? campoTipo.querySelector('option[value="PRESENTACION"], option[value="RESUMEN"]') : campoTipo.querySelector('option[value="' + opcion.value + '"]');
+                if (!existe) { opcion.remove(); }
+            });
+        });
+
+        /** Arma el tipo que recibe el servidor: Material de lectura se concreta con su clase (Presentación o Resumen). */
+        function sincronizarTipo() {
+            var esMaterial = grupoTipo.value === 'MATERIAL_LECTURA';
+            bloqueCategoria.hidden = !esMaterial;
+            ajustarAncho(esMaterial);
+            campoTipo.value = esMaterial ? categoriaMaterial.value : grupoTipo.value;
+            if (lineaTipo) {
+                lineaTipo.textContent = esMaterial ? 'Material de lectura · ' + categoriaMaterial.selectedOptions[0].textContent : grupoTipo.selectedOptions[0].textContent;
+            }
+            campoTipo.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        /** Deja los selectores como corresponde a un tipo concreto (por ejemplo, al abrir desde ?nuevo=RESUMEN). */
+        function mostrarTipo(valor) {
+            var esMaterial = valor === 'PRESENTACION' || valor === 'RESUMEN';
+            grupoTipo.value = esMaterial ? 'MATERIAL_LECTURA' : valor;
+            if (esMaterial) { categoriaMaterial.value = valor; }
+            bloqueCategoria.hidden = !esMaterial;
+            ajustarAncho(esMaterial);
+            campoTipo.value = valor;
+            if (lineaTipo) {
+                lineaTipo.textContent = esMaterial ? 'Material de lectura · ' + categoriaMaterial.selectedOptions[0].textContent : grupoTipo.selectedOptions[0].textContent;
+            }
+        }
+
+        grupoTipo.addEventListener('change', sincronizarTipo);
+        categoriaMaterial.addEventListener('change', sincronizarTipo);
+        mostrarTipo(campoTipo.value);
         campoTipo.addEventListener('change', function () { aplicarTipo(campoTipo.selectedOptions[0]); });
         modalNuevo.addEventListener('show.bs.modal', function () { aplicarTipo(campoTipo.selectedOptions[0]); });
 
         // Apertura automática desde ?nuevo={tipo}, con el tema elegido
         var tipoInicial = modalNuevo.dataset.abrirTipo;
         if (tipoInicial && campoTipo.querySelector('option[value="' + tipoInicial + '"]')) {
-            campoTipo.value = tipoInicial;
+            mostrarTipo(tipoInicial);
             if (modalNuevo.dataset.tema) {
                 modalNuevo.querySelector('select[name="temaId"]').value = modalNuevo.dataset.tema;
             }

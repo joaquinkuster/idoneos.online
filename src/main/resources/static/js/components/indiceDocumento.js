@@ -1,11 +1,17 @@
-/** Índice del documento (paso "Índice" de los formularios de recursos): cuando el recurso es un PDF. */
+/**
+ * Índice del documento (paso "Índice" de los formularios de recursos): cuando el recurso es un PDF.
+ * Se importan sus marcadores y, si no tiene, se arma a mano tocando los títulos en una vista previa de sus páginas.
+ */
 (function () {
     'use strict';
 
     var PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
-    var MAXIMO_DE_PAGINAS = 400;      // páginas que se leen para inferir los títulos
     var MAXIMO_DE_ENTRADAS = 300;
     var MAXIMO_DEL_TITULO = 150;
+    var NIVEL_MAXIMO = 4;
+    var ZOOMS = [0.75, 1, 1.25, 1.5, 2];
+    // Los tipos de recurso que llevan índice: los que tienen un PDF obligatorio
+    var TIPOS_CON_INDICE = ['PRESENTACION', 'RESUMEN', 'BIBLIOGRAFIA'];
 
     // ----------------------------------------------------------------------
     // PDF.js
@@ -30,8 +36,16 @@
         return promesaPdfjs;
     }
 
+    function abrirDesdeBytes(bytes) {
+        return cargarPdfjs().then(function (pdfjs) { return pdfjs.getDocument({ data: bytes }).promise; });
+    }
+
+    function abrirDesdeUrl(url) {
+        return cargarPdfjs().then(function (pdfjs) { return pdfjs.getDocument({ url: url, withCredentials: true }).promise; });
+    }
+
     // ----------------------------------------------------------------------
-    // detección
+    // marcadores del PDF
     // ----------------------------------------------------------------------
 
     function paginaDeDestino(doc, destino) {
@@ -48,7 +62,7 @@
     function aplanar(doc, items, nivel) {
         return Promise.all(items.map(function (item) {
             return paginaDeDestino(doc, item.dest).then(function (pagina) {
-                var fila = pagina ? [{ titulo: limpiar(item.title), pagina: pagina, nivel: Math.min(nivel, 3) }] : [];
+                var fila = pagina ? [{ titulo: limpiar(item.title), pagina: pagina, nivel: Math.min(nivel, NIVEL_MAXIMO) }] : [];
                 return aplanar(doc, item.items || [], nivel + 1).then(function (hijos) { return fila.concat(hijos); });
             });
         })).then(function (listas) { return [].concat.apply([], listas); });
@@ -59,7 +73,39 @@
         return t.length > MAXIMO_DEL_TITULO ? t.substring(0, MAXIMO_DEL_TITULO - 1).trim() + '…' : t;
     }
 
-    /** Las líneas de texto de una página, con su tamaño de letra (agrupa los fragmentos que están a la misma altura). */
+    /** Detecta el índice de un documento: sus marcadores. Si no tiene, el índice se carga a mano. */
+    function detectar(doc) {
+        return doc.getOutline().then(function (arbol) {
+            if (arbol && arbol.length) { return aplanar(doc, arbol, 1); }
+            return null;
+        }).catch(function () { return null; }).then(function (marcadores) {
+            if (marcadores && marcadores.length) { return { entradas: marcadores.slice(0, MAXIMO_DE_ENTRADAS), origen: 'marcadores' }; }
+            return { entradas: [], origen: 'ninguno' };
+        });
+    }
+
+    /** Indica si el PDF es un escaneo: en una muestra de páginas casi no hay texto que se pueda leer. */
+    function esEscaneo(doc) {
+        var paginas = doc.numPages;
+        var muestra = Math.min(paginas, 8);
+        var numeros = [];
+        for (var i = 0; i < muestra; i++) {
+            numeros.push(muestra === paginas ? i + 1 : 1 + Math.floor(i * (paginas - 1) / (muestra - 1)));
+        }
+        return Promise.all(numeros.map(function (n) {
+            return doc.getPage(n).then(function (p) { return p.getTextContent(); })
+                .then(function (c) { return c.items.reduce(function (suma, it) { return suma + (it.str || '').trim().length; }, 0); })
+                .catch(function () { return 0; });
+        })).then(function (cantidades) {
+            return cantidades.reduce(function (a, b) { return a + b; }, 0) < 25 * muestra;
+        });
+    }
+
+    // ----------------------------------------------------------------------
+    // texto de una página: las líneas que se pueden tocar para agregarlas al índice
+    // ----------------------------------------------------------------------
+
+    /** Agrupa los fragmentos de texto de una página en líneas, con su posición y su tamaño de letra. */
     function lineasDePagina(contenido) {
         var items = contenido.items.filter(function (it) { return typeof it.str === 'string' && it.str.trim() !== '' && it.transform; })
             .map(function (it) {
@@ -75,117 +121,10 @@
                 ultima.finX = it.x + it.ancho;
                 ultima.tam = Math.max(ultima.tam, it.tam);
             } else {
-                lineas.push({ texto: it.texto, y: it.y, finX: it.x + it.ancho, tam: it.tam });
+                lineas.push({ texto: it.texto, x: it.x, y: it.y, finX: it.x + it.ancho, tam: it.tam });
             }
         });
         return lineas;
-    }
-
-    var NUMERADO = /^(\d{1,2}(?:\.\d{1,2}){0,3})[.)]?\s+\S/;
-    // Un título numerado de una línea con la letra del cuerpo: "1 Introducción", "2.1 Métodos" (no "1.1.2 Texto…" ni "60 funciones…")
-    var NUMERADO_DE_TITULO = /^\d{1,2}(?:\.\d{1,2})?[.)]?\s+\p{Lu}/u;
-    var ROMANO = /^[IVXL]{1,6}\.\s+\S/;
-    var PALABRA_DE_TITULO = /^(cap[ií]tulo|unidad|parte|secci[oó]n|anexo|ap[eé]ndice|ejercicio|introducci[oó]n|conclusi[oó]n(es)?|bibliograf[ií]a|referencias|resumen|abstract|introduction|conclusions?|references|appendix|chapter)\b/i;
-
-    /** Infiere los títulos de un PDF sin marcadores. Devuelve { entradas, sinTexto }. */
-    function inferir(doc) {
-        var paginas = Math.min(doc.numPages, MAXIMO_DE_PAGINAS);
-        var lineas = [];
-        var caracteres = 0;
-        var secuencia = Promise.resolve();
-        for (var n = 1; n <= paginas; n++) {
-            (function (numero) {
-                secuencia = secuencia.then(function () {
-                    return doc.getPage(numero).then(function (p) { return p.getTextContent(); }).then(function (contenido) {
-                        lineasDePagina(contenido).forEach(function (l) {
-                            l.pagina = numero;
-                            caracteres += l.texto.length;
-                            lineas.push(l);
-                        });
-                    }).catch(function () { /* una página que no se puede leer se salta */ });
-                });
-            })(n);
-        }
-        return secuencia.then(function () {
-            if (caracteres < 20 * paginas) { return { entradas: [], sinTexto: true }; }
-
-            // El cuerpo del texto: el tamaño de letra con más caracteres
-            var pesos = {};
-            lineas.forEach(function (l) { var k = Math.round(l.tam * 2) / 2; pesos[k] = (pesos[k] || 0) + l.texto.length; });
-            var cuerpo = Object.keys(pesos).reduce(function (m, k) { return pesos[k] > (pesos[m] || 0) ? k : m; }, '0');
-            cuerpo = parseFloat(cuerpo) || 10;
-
-            // Los textos que se repiten en muchas páginas son encabezados y pies, no títulos
-            var apariciones = {};
-            lineas.forEach(function (l) {
-                var clave = l.texto.trim().toLowerCase().replace(/\d+/g, '#');
-                apariciones[clave] = apariciones[clave] || {};
-                apariciones[clave][l.pagina] = true;
-            });
-            var umbral = Math.max(3, Math.ceil(paginas * 0.25));
-
-            var candidatas = [];
-            lineas.forEach(function (l) {
-                var t = l.texto.trim().replace(/\s+/g, ' ');
-                if (t.length < 3 || t.length > 110 || /^[\d\s.,\-–—]+$/.test(t)) { return; }
-                var clave = t.toLowerCase().replace(/\d+/g, '#');
-                if (Object.keys(apariciones[clave] || {}).length >= umbral) { return; }
-                var coincide = t.match(NUMERADO);
-                var numerado = !!coincide;
-                var romano = ROMANO.test(t);
-                if (/[.,;:]$/.test(t)) { return; }
-                if (/^(fig(ura|\.)?|tabla|table|cuadro)\s*\d/i.test(t)) { return; }
-                var mayor = l.tam >= cuerpo * 1.18;
-                var clave2 = PALABRA_DE_TITULO.test(t) && t.length <= 60;
-                var deTitulo = NUMERADO_DE_TITULO.test(t) || romano;
-                if (mayor || (deTitulo && l.tam >= cuerpo * 0.95 && t.length <= 70) || (clave2 && l.tam >= cuerpo * 0.95)) {
-                    candidatas.push({
-                        titulo: limpiar(t), pagina: l.pagina, tam: l.tam, mayor: mayor, clave: clave2 && !numerado,
-                        puntos: numerado ? (coincide[1].match(/\./g) || []).length : -1
-                    });
-                }
-            });
-
-            // Niveles: los tamaños de letra distintos, del más grande al más chico. Con numeración manda la profundidad del número
-            var tamanios = candidatas.filter(function (c) { return c.mayor; }).map(function (c) { return Math.round(c.tam * 2) / 2; })
-                .filter(function (v, i, a) { return a.indexOf(v) === i; }).sort(function (a, b) { return b - a; });
-            var maximo = tamanios.length ? tamanios[0] : 0;
-            var entradas = candidatas.map(function (c) {
-                var nivel = c.puntos >= 0 ? c.puntos + 1 : (c.mayor ? Math.min(tamanios.indexOf(Math.round(c.tam * 2) / 2) + 1, 3) : (c.clave ? 1 : 2));
-                return { titulo: c.titulo, pagina: c.pagina, nivel: Math.min(Math.max(nivel, 1), 3), titular: c.mayor && Math.round(c.tam * 2) / 2 === maximo && c.puntos < 0 };
-            });
-            // El título del propio documento (la letra más grande, en la primera página, aunque ocupe varias líneas) no es una entrada del índice
-            var delDocumento = entradas.filter(function (e) { return e.titular && e.pagina === 1; });
-            if (delDocumento.length && entradas.length - delDocumento.length > 2) {
-                entradas = entradas.filter(function (e) { return !(e.titular && e.pagina === 1); });
-            }
-            // Sin repetidos seguidos y con un tope
-            var vistas = [];
-            entradas.forEach(function (e) {
-                var ultima = vistas[vistas.length - 1];
-                if (!ultima || ultima.titulo !== e.titulo || ultima.pagina !== e.pagina) { vistas.push({ titulo: e.titulo, pagina: e.pagina, nivel: e.nivel }); }
-            });
-            return { entradas: vistas.slice(0, MAXIMO_DE_ENTRADAS), sinTexto: false };
-        });
-    }
-
-    /** Detecta el índice de un documento: sus marcadores o, si no tiene, los títulos inferidos. */
-    function detectar(doc) {
-        return doc.getOutline().then(function (arbol) {
-            if (arbol && arbol.length) { return aplanar(doc, arbol, 1); }
-            return null;
-        }).catch(function () { return null; }).then(function (marcadores) {
-            if (marcadores && marcadores.length) { return { entradas: marcadores.slice(0, MAXIMO_DE_ENTRADAS), origen: 'marcadores', sinTexto: false }; }
-            return inferir(doc).then(function (r) { return { entradas: r.entradas, origen: 'inferido', sinTexto: r.sinTexto }; });
-        });
-    }
-
-    function abrirDesdeBytes(bytes) {
-        return cargarPdfjs().then(function (pdfjs) { return pdfjs.getDocument({ data: bytes }).promise; });
-    }
-
-    function abrirDesdeUrl(url) {
-        return cargarPdfjs().then(function (pdfjs) { return pdfjs.getDocument({ url: url, withCredentials: true }).promise; });
     }
 
     // ----------------------------------------------------------------------
@@ -206,11 +145,16 @@
         var vistaPrevia = formulario.querySelector('[data-vista-previa][data-formato="pdf"]');
         var urlGuardado = paso.dataset.indiceUrl || '';
         var urlArchivoActual = vistaPrevia ? vistaPrevia.dataset.fuente : '';
-        var ocrEstado = paso.dataset.ocrEstado || '';                // el del archivo actual: Pendiente, Procesando, Listo o Error
-        var ocrDisponible = paso.dataset.ocrDisponible === 'true';   // si el servidor puede hacer OCR
         var resumen = paso.querySelector('[data-indice-resumen]');
+        var ocrId = paso.dataset.ocrId || '';
+        // Reconocimiento de texto que arranca al elegir un PDF escaneado, antes de guardar el recurso
+        var previoToken = '';
+        var campoToken = document.createElement('input');
+        campoToken.type = 'hidden';
+        campoToken.name = 'ocrToken';
+        paso.appendChild(campoToken);
 
-        var estado = { modo: 'ninguno', entradas: [], origen: '', sinTexto: false, editando: -1, turno: 0, base: '' };
+        var estado = { modo: 'ninguno', entradas: [], origen: '', editando: -1, elegida: -1, turno: 0, base: '', doc: null, pagina: 1, dibujo: 0, esqueleto: '', zoom: 1, sinTexto: false, ocr: { estado: '', porcentaje: null, segundos: null } };
 
         function mostrarPaso(visible) {
             paso.hidden = !visible;
@@ -221,14 +165,11 @@
         function sincronizar() {
             var actual = JSON.stringify(estado.entradas.map(function (e) { return { titulo: e.titulo, pagina: e.pagina, nivel: e.nivel }; }));
             campo.value = actual;
-            // La línea del resumen: cuántas entradas tiene, de dónde salieron y si se corrigieron
+            // La línea del resumen: solo la cantidad de entradas
             if (resumen) {
                 var n = estado.entradas.length;
-                var texto = n + (n === 1 ? ' entrada' : ' entradas');
-                if (estado.origen === 'marcadores') { texto += ' · marcadores del PDF'; }
-                if (estado.origen === 'inferido') { texto += ' · detectadas automáticamente'; }
-                if (estado.base && actual !== estado.base) { texto += ' · corregidas'; }
-                resumen.textContent = estado.modo === 'listo' || estado.modo === 'ocr' || estado.modo === 'error' ? (n ? texto : 'sin entradas') : '';
+                resumen.textContent = estado.modo === 'listo' || estado.modo === 'error' || estado.modo === 'sinarchivo'
+                    ? (n ? n + (n === 1 ? ' entrada' : ' entradas') : 'sin entradas') : '';
             }
         }
 
@@ -236,92 +177,396 @@
             estado.base = JSON.stringify(estado.entradas.map(function (e) { return { titulo: e.titulo, pagina: e.pagina, nivel: e.nivel }; }));
         }
 
-        function lista() {
-            if (!estado.entradas.length) {
-                return '<div class="indice-lista"><div class="indice-vacio">El índice está vacío. Agregá una entrada o volvé a detectar.</div></div>';
-            }
-            return '<div class="indice-lista">' + estado.entradas.map(function (e, i) {
-                var titulo = estado.editando === i
-                    ? '<input type="text" class="indice-editar" maxlength="' + MAXIMO_DEL_TITULO + '" value="' + esc(e.titulo) + '" data-indice-editar>'
-                    : '<span class="indice-titulo" data-indice-titulo="' + i + '" title="Clic para editar">' + esc(e.titulo) + '</span>';
-                return '<div class="indice-fila indice-n' + e.nivel + '">' + titulo
-                    + '<input type="number" class="indice-pagina" min="1" value="' + e.pagina + '" data-indice-pagina="' + i + '" aria-label="Página">'
-                    + '<button type="button" class="indice-icono" data-indice-nivel="' + i + '" title="' + (e.nivel === 1 ? 'Pasar a subnivel' : 'Pasar a nivel principal')
-                    + '"><i class="fa-solid ' + (e.nivel === 1 ? 'fa-indent' : 'fa-outdent') + '" aria-hidden="true"></i></button>'
-                    + '<button type="button" class="indice-icono" data-indice-quitar="' + i + '" title="Quitar"><i class="fa-regular fa-trash-can" aria-hidden="true"></i></button></div>';
-            }).join('') + '</div>';
+        // --------------------------------------------------------------
+        // la lista de entradas
+        // --------------------------------------------------------------
+
+        function filaHtml(e, i) {
+            var elegida = i === estado.elegida;
+            var titulo = estado.editando === i
+                ? '<input type="text" class="indice-editar" maxlength="' + MAXIMO_DEL_TITULO + '" value="' + esc(e.titulo) + '" data-indice-editar>'
+                : '<span class="indice-titulo" title="' + esc(e.titulo) + '">' + esc(e.titulo) + '</span><span class="indice-puntos" aria-hidden="true"></span>';
+            // Las acciones aparecen al pasar el mouse o al elegir la fila; el número de página se oculta mientras tanto
+            var derecha = estado.editando !== i
+                ? '<span class="indice-acciones">'
+                    + '<button type="button" class="indice-icono-boton indice-lapiz" data-indice-lapiz title="Editar el título" aria-label="Editar el título"><i class="fa-solid fa-pencil"></i></button>'
+                    + '<button type="button" class="indice-icono-boton indice-nivel" data-indice-nivel title="Nivel ' + e.nivel + ': pasar al siguiente" aria-label="Cambiar de nivel"><i class="fa-solid fa-indent"></i></button>'
+                    + '<button type="button" class="indice-icono-boton indice-quitar" data-indice-quitar title="Quitar entrada" aria-label="Quitar entrada"><i class="fa-solid fa-trash"></i></button>'
+                    + '</span><span class="indice-numero">' + e.pagina + '</span>'
+                : '<span class="indice-numero">' + e.pagina + '</span>';
+            return '<div class="indice-fila indice-n' + e.nivel + (elegida ? ' elegida' : '') + '" data-indice-fila="' + i + '" tabindex="0" role="button"'
+                + ' style="padding-left:' + (10 + (e.nivel - 1) * 18) + 'px">' + titulo + derecha + '</div>';
         }
 
-        function dibujar() {
-            var html;
-            if (estado.modo === 'analizando') {
-                html = '<div class="pn-alerta pn-alerta-azul">Estamos leyendo el documento para armar el índice…</div>';
-            } else if (estado.modo === 'ocr') {
-                html = '<div class="pn-alerta pn-alerta-dorado">Este PDF es un escaneo: se está reconociendo su texto (OCR) para poder buscar palabras. '
-                    + 'Cuando termine, volvé a abrir este recurso para generar el índice. Mientras tanto podés armarlo a mano.</div>' + herramientas() + lista();
-            } else if (estado.modo === 'error') {
-                html = '<div class="pn-alerta pn-alerta-dorado">No se pudo leer el documento para armar el índice. Podés agregar las entradas a mano.</div>' + herramientas() + lista();
-            } else {
-                var aviso;
-                if (estado.sinTexto && ocrEstado === 'Error') {
-                    aviso = '<div class="pn-alerta pn-alerta-dorado">Este PDF es un escaneo y no se pudo reconocer su texto (OCR). Podés armar el índice a mano.</div>';
-                } else if (estado.sinTexto && ocrDisponible) {
-                    aviso = '<div class="pn-alerta pn-alerta-dorado">Este PDF parece un escaneo. Al guardar, se le va a reconocer el texto (OCR) en segundo plano para poder '
-                        + 'buscar palabras. Después volvé a abrir el recurso para generar el índice; mientras tanto podés armarlo a mano.</div>';
-                } else if (estado.sinTexto) {
-                    aviso = '<div class="pn-alerta pn-alerta-dorado">Este PDF parece un escaneo: no tiene texto que se pueda leer. Podés armar el índice a mano.</div>';
-                } else if (estado.origen === 'marcadores') {
-                    aviso = '<div class="pn-alerta pn-alerta-azul">Se importaron ' + estado.entradas.length + ' entradas de los marcadores del propio PDF. Podés corregirlas si hace falta.</div>';
-                } else if (estado.origen === 'guardado') {
-                    aviso = '<div class="pn-alerta pn-alerta-azul">Este es el índice guardado del documento. Podés corregirlo si hace falta.</div>';
-                } else {
-                    aviso = '<div class="pn-alerta pn-alerta-dorado">El índice se armó automáticamente a partir de los títulos del documento. Revisalo si hace falta.</div>';
-                }
-                html = aviso + herramientas() + lista();
-            }
-            contenido.innerHTML = html;
-            var edicion = contenido.querySelector('[data-indice-editar]');
-            if (edicion) { edicion.focus(); edicion.setSelectionRange(edicion.value.length, edicion.value.length); }
+        function pintarLista() {
+            var lista = contenido.querySelector('[data-indice-lista]');
+            if (!lista) { sincronizar(); return; }
+            var desplazamiento = lista.scrollTop;
+            lista.innerHTML = estado.entradas.length
+                ? estado.entradas.map(filaHtml).join('')
+                : '<div class="indice-vacio">Todavía no hay entradas. Navegá el documento y tocá los títulos para agregarlos.</div>';
+            lista.scrollTop = desplazamiento;
+            var cuenta = contenido.querySelector('[data-indice-cuenta]');
+            if (cuenta) { var n = estado.entradas.length; cuenta.textContent = n + (n === 1 ? ' entrada' : ' entradas'); }
+            var edicion = lista.querySelector('[data-indice-editar]');
+            if (edicion) { edicion.focus(); edicion.select(); }
+            marcarLineasUsadas();
             sincronizar();
         }
 
-        function herramientas() {
-            return '<div class="indice-barra"><button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-indice-agregar>+ Agregar entrada</button>'
-                + '<button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-indice-detectar>Volver a detectar</button></div>';
+        // --------------------------------------------------------------
+        // la vista previa de la página
+        // --------------------------------------------------------------
+
+        function marcarLineasUsadas() {
+            contenido.querySelectorAll('[data-indice-linea]').forEach(function (l) {
+                var usada = estado.entradas.some(function (e) { return e.pagina === estado.pagina && e.titulo === limpiar(l.dataset.indiceLinea); });
+                l.classList.toggle('usada', usada);
+            });
         }
 
-        /** Lee el documento (sus bytes o su dirección) y arma el índice. */
-        function analizar(abrir) {
+        function pintarPagina() {
+            var hoja = contenido.querySelector('[data-indice-hoja]');
+            if (!hoja || !estado.doc) { return; }
+            var turno = ++estado.dibujo;
+            var numero = estado.pagina;
+            var entrada = contenido.querySelector('[data-indice-pagina]');
+            if (entrada) { entrada.value = numero; }
+            var anterior = contenido.querySelector('[data-indice-anterior]');
+            var siguiente = contenido.querySelector('[data-indice-siguiente]');
+            if (anterior) { anterior.disabled = numero <= 1; }
+            if (siguiente) { siguiente.disabled = numero >= estado.doc.numPages; }
+            var valorZoom = contenido.querySelector('[data-indice-zoom-valor]');
+            if (valorZoom) { valorZoom.textContent = Math.round(estado.zoom * 100) + '%'; }
+            estado.doc.getPage(numero).then(function (pagina) {
+                var base = pagina.getViewport({ scale: 1 });
+                // Al 100 % la página entera entra en el visor
+                var caja = contenido.querySelector('.indice-lienzo');
+                var libreAncho = Math.max(caja ? caja.offsetWidth : 0, 120);
+                var libreAlto = Math.max(caja ? caja.offsetHeight : 0, 160);
+                var escala = Math.min(libreAncho / base.width, libreAlto / base.height) * estado.zoom;
+                var vista = pagina.getViewport({ scale: escala });
+                var densidad = window.devicePixelRatio || 1;
+                var lienzo = document.createElement('canvas');
+                lienzo.width = Math.floor(vista.width * densidad);
+                lienzo.height = Math.floor(vista.height * densidad);
+                lienzo.style.width = vista.width + 'px';
+                lienzo.style.height = vista.height + 'px';
+                var dibujo = pagina.render({ canvasContext: lienzo.getContext('2d'), viewport: pagina.getViewport({ scale: escala * densidad }) }).promise;
+                return Promise.all([dibujo, pagina.getTextContent()]).then(function (r) {
+                    if (turno !== estado.dibujo) { return; }
+                    hoja.style.width = vista.width + 'px';
+                    hoja.style.height = vista.height + 'px';
+                    hoja.innerHTML = '';
+                    hoja.appendChild(lienzo);
+                    lineasDePagina(r[1]).forEach(function (l) {
+                        var punto = vista.convertToViewportPoint(l.x, l.y);
+                        var alto = Math.max(l.tam * escala, 6);
+                        var linea = document.createElement('span');
+                        linea.className = 'indice-linea';
+                        linea.dataset.indiceLinea = l.texto.trim();
+                        linea.title = 'Agregar al índice: ' + limpiar(l.texto);
+                        linea.style.left = (punto[0] - 2) + 'px';
+                        linea.style.top = (punto[1] - alto) + 'px';
+                        linea.style.width = Math.min(((l.finX - l.x) * escala) + 4, vista.width - punto[0] + 2) + 'px';
+                        linea.style.height = (alto * 1.25) + 'px';
+                        hoja.appendChild(linea);
+                    });
+                    marcarLineasUsadas();
+                });
+            }).catch(function () {
+                if (turno === estado.dibujo) { hoja.innerHTML = '<span class="indice-sin-vista">No se pudo mostrar la página.</span>'; }
+            });
+        }
+
+        function irAPagina(numero) {
+            if (!estado.doc) { return; }
+            estado.pagina = Math.min(Math.max(1, numero), estado.doc.numPages);
+            pintarPagina();
+        }
+
+        // --------------------------------------------------------------
+        // armado del paso
+        // --------------------------------------------------------------
+
+        function aviso() {
+            // Si el PDF se está escaneando, el progreso se muestra aparte (cuando no tiene marcadores ya va en el mensaje principal)
+            return avisoPrincipal() + (ocrEnCurso() && estado.modo === 'listo' && estado.origen !== 'ninguno' ? '<div class="pn-alerta pn-alerta-dorado" data-indice-ocr>' + textoOcr(false) + '</div>' : '');
+        }
+
+        function avisoPrincipal() {
+            if (estado.modo === 'analizando') { return '<div class="pn-alerta pn-alerta-azul">Estamos leyendo el documento para armar el índice…</div>'; }
+            if (estado.modo === 'sinarchivo') { return '<div class="pn-alerta pn-alerta-azul">Elegí el PDF en el paso anterior para importar sus marcadores o armar el índice sobre sus páginas.</div>'; }
+            if (estado.modo === 'error') { return '<div class="pn-alerta pn-alerta-dorado">No se pudo leer el documento. Podés agregar las entradas a mano si tiene páginas para mostrar.</div>'; }
+            if (estado.origen === 'marcadores') { return '<div class="pn-alerta pn-alerta-azul">Importamos ' + estado.entradas.length + ' entradas de los marcadores del PDF. Podés corregirlas si hace falta.</div>'; }
+            if (estado.origen === 'guardado') { return '<div class="pn-alerta pn-alerta-azul">Este es el índice guardado del documento. Podés corregirlo si hace falta.</div>'; }
+            if (ocrEnCurso()) { return '<div class="pn-alerta pn-alerta-dorado" data-indice-ocr>' + textoOcr(true) + '</div>'; }
+            if (estado.ocr.estado === 'Listo') { return '<div class="pn-alerta pn-alerta-azul">Terminó el escaneo del PDF. Armá el índice tocando los títulos en la página.</div>'; }
+            if (estado.ocr.estado === 'Error') { return '<div class="pn-alerta pn-alerta-dorado">No se pudo reconocer el texto del PDF. Podés agregar las entradas en la página que corresponda.</div>'; }
+            if (estado.sinTexto) {
+                return '<div class="pn-alerta pn-alerta-dorado">Este PDF es un escaneo y no tiene marcadores. Agregá las entradas en la página que corresponda.</div>';
+            }
+            return '<div class="pn-alerta pn-alerta-dorado">Este PDF no tiene marcadores. Armá el índice tocando los títulos en la página.</div>';
+        }
+
+        // --------------------------------------------------------------
+        // escaneo del PDF (OCR): si todavía se está reconociendo su texto, se muestra el progreso
+        // --------------------------------------------------------------
+
+        function ocrEnCurso() {
+            return (!!ocrId || !!previoToken) && (estado.ocr.estado === 'Pendiente' || estado.ocr.estado === 'Procesando');
+        }
+
+        function tiempoRestante(segundos) {
+            return segundos <= 90 ? segundos + ' segundos' : Math.ceil(segundos / 60) + ' min';
+        }
+
+        /** Segundos que faltan según la última estimación del servidor: baja de a uno, como un contador. */
+        function segundosQueFaltan() {
+            return estado.ocr.fin == null ? null : Math.max(0, Math.ceil((estado.ocr.fin - Date.now()) / 1000));
+        }
+
+        function detalleOcr() {
+            if (estado.ocr.estado === 'Pendiente') { return 'En cola. Esperando su turno...'; }
+            // Solo el reconocimiento del texto lleva porcentaje y tiempo: las otras etapas dicen qué se está haciendo
+            if (estado.ocr.fase === 'optimizando') { return 'Optimizando las imágenes del PDF...'; }
+            if (estado.ocr.fase === 'guardando') { return 'Guardando el PDF final...'; }
+            var s = segundosQueFaltan();
+            return 'Reconociendo el texto ' + (estado.ocr.porcentaje || 0) + '%.' + (s == null ? '' : (s === 0 ? ' Unos segundos más...' : ' Faltan unos ' + tiempoRestante(s) + '...'));
+        }
+
+        /** Actualiza el avance sin volver a armar la caja, para que la barra se mueva suave. */
+        function refrescarProgreso() {
+            var caja = contenido.querySelector('[data-indice-ocr]');
+            if (!caja) { return; }
+            var barra = caja.querySelector('.indice-progreso i');
+            var detalle = caja.querySelector('.indice-progreso-texto');
+            if (barra && detalle) {
+                barra.style.width = (estado.ocr.porcentaje || 0) + '%';
+                detalle.textContent = detalleOcr();
+            } else {
+                caja.innerHTML = textoOcr(estado.origen === 'ninguno');
+            }
+        }
+
+        function textoOcr(sinMarcadores) {
+            var p = estado.ocr.porcentaje || 0;
+            var detalle = detalleOcr();
+            var texto = sinMarcadores
+                ? 'Este PDF es un escaneo. Estamos reconociendo su texto (OCR).'
+                : 'Estamos reconociendo el texto del PDF (OCR).';
+            return texto + '<div class="indice-progreso"><i style="width:' + p + '%"></i></div><div class="indice-progreso-texto">' + detalle + '</div>';
+        }
+
+        var vigilancia = null;
+        var observadorLienzo = null;
+
+        function detenerVigilancia() {
+            if (vigilancia) { clearInterval(vigilancia); vigilancia = null; }
+        }
+
+        function consultarOcr() {
+            if (!paso.isConnected) { detenerVigilancia(); return; }
+            var token = previoToken;
+            var direccion = token ? '/recurso/ocrPrevio/' + token : '/recurso/estadoOcr?ids=' + ocrId;
+            fetch(direccion, { credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+                .then(function (r) { return r.ok ? r.json() : {}; })
+                .then(function (respuesta) {
+                    if (token !== previoToken) { return; }
+                    var datos = token ? respuesta : respuesta[ocrId];
+                    estado.ocr.estado = datos ? datos.estado : '';
+                    estado.ocr.porcentaje = datos && datos.porcentaje != null ? datos.porcentaje : null;
+                    estado.ocr.segundos = datos && datos.segundos != null ? datos.segundos : null;
+                    // El contador solo baja: se corrige con el servidor si da menos tiempo, o si ya llegó a cero y todavía falta
+                    var nuevoFin = estado.ocr.segundos != null ? Date.now() + estado.ocr.segundos * 1000 : null;
+                    if (nuevoFin == null) {
+                        estado.ocr.fin = null;
+                    } else if (estado.ocr.fin == null || segundosQueFaltan() === 0 || nuevoFin < estado.ocr.fin) {
+                        estado.ocr.fin = nuevoFin;
+                    }
+                    estado.ocr.fase = datos && datos.fase ? datos.fase : '';
+                    if (ocrEnCurso()) { refrescarProgreso(); return; }
+                    detenerVigilancia();
+                    // Terminó el reconocimiento previo: se abre el PDF con texto sin perder las entradas ya cargadas
+                    if (token) {
+                        if (estado.ocr.estado === 'Listo') {
+                            abrirDesdeUrl('/recurso/ocrPrevio/' + token + '/archivo?t=' + Date.now()).then(function (doc) {
+                                if (token !== previoToken) { return; }
+                                estado.doc = doc;
+                                estado.sinTexto = false;
+                                estado.esqueleto = '';
+                                dibujar();
+                            }).catch(function () { estado.esqueleto = ''; dibujar(); });
+                        } else {
+                            // Falló: se guarda el PDF tal cual
+                            previoToken = '';
+                            campoToken.value = '';
+                            estado.ocr.estado = 'Error';
+                            estado.esqueleto = '';
+                            dibujar();
+                        }
+                        return;
+                    }
+                    // Terminó: se vuelve a leer el PDF, que ahora tiene texto
+                    if (estado.ocr.estado === 'Listo' && urlArchivoActual && estado.origen === 'ninguno') {
+                        var url = urlArchivoActual + (urlArchivoActual.indexOf('?') >= 0 ? '&' : '?') + 'ocr=' + Date.now();
+                        analizar(function () { return abrirDesdeUrl(url); });
+                    } else {
+                        estado.esqueleto = '';
+                        dibujar();
+                    }
+                })
+                .catch(function () { /* se vuelve a intentar en el próximo ciclo */ });
+        }
+
+        function vigilarOcr() {
+            var activo = ocrEnCurso() && estado.modo === 'listo';
+            if (!activo) { detenerVigilancia(); return; }
+            if (!vigilancia) {
+                // Cada segundo baja el contador y cada dos se le pregunta al servidor
+                var ciclos = 0;
+                vigilancia = setInterval(function () {
+                    ciclos++;
+                    if (ciclos % 2 === 0) { consultarOcr(); } else { refrescarProgreso(); }
+                }, 1000);
+                consultarOcr();
+            }
+        }
+
+        function hayPdf() {
+            var f = archivo && archivo.files && archivo.files[0];
+            return !!(esPdf(f) || urlArchivoActual);
+        }
+
+        function armarEsqueleto() {
+            if (estado.modo === 'analizando') {
+                contenido.innerHTML = aviso();
+                estado.esqueleto = 'analizando';
+                return;
+            }
+            var visor = estado.doc
+                ? '<div class="indice-visor"><div class="indice-lienzo"><div class="indice-hoja" data-indice-hoja></div></div>'
+                    + '<div class="indice-barra-pagina">'
+                    + '<button type="button" class="indice-nav" data-indice-anterior aria-label="Página anterior"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>'
+                    + '<span class="indice-paginas"><input type="number" class="indice-pagina-actual" min="1" max="' + estado.doc.numPages + '" value="' + estado.pagina + '" data-indice-pagina aria-label="Página"> / ' + estado.doc.numPages + '</span>'
+                    + '<button type="button" class="indice-nav" data-indice-siguiente aria-label="Página siguiente"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>'
+                    + '<span class="indice-zoom">'
+                    + '<button type="button" class="indice-nav" data-indice-zoom="-1" aria-label="Alejar"><i class="fa-solid fa-minus" aria-hidden="true"></i></button>'
+                    + '<span class="indice-zoom-valor" data-indice-zoom-valor>' + Math.round(estado.zoom * 100) + '%</span>'
+                    + '<button type="button" class="indice-nav" data-indice-zoom="1" aria-label="Acercar"><i class="fa-solid fa-plus" aria-hidden="true"></i></button>'
+                    + '</span></div></div><p class="indice-consejo">Tocá un texto de la página para agregarlo al índice.</p>'
+                : '<div class="indice-visor indice-visor-vacio"><span>Elegí el PDF en el paso anterior para ver sus páginas.</span></div>';
+            // El campo "ocr" no se ve: es donde el formulario muestra el error de guardar con el reconocimiento en curso, debajo del aviso
+            contenido.innerHTML = aviso()
+                + '<div class="pn-campo indice-campo-ocr"><input type="text" name="ocr" class="indice-control-ocr" tabindex="-1" aria-hidden="true" autocomplete="off"></div>'
+                + '<div class="indice-grilla"><div>' + visor + '</div>'
+                + '<div class="indice-panel"><div class="indice-cabecera"><b>Índice</b><span data-indice-cuenta></span></div>'
+                + '<div class="indice-lista" data-indice-lista></div>'
+                + (estado.doc || hayPdf() ? '<div class="indice-botones">'
+                    + (estado.doc ? '<button type="button" class="pn-btn pn-btn-contorno pn-prog-boton" data-indice-agregar><i class="fa-solid fa-plus" aria-hidden="true"></i> Agregar entrada</button>' : '')
+                    + (hayPdf() ? '<button type="button" class="pn-btn pn-btn-contorno pn-prog-boton" data-indice-detectar>Volver a leer los marcadores</button>' : '')
+                    + '</div>' : '')
+                + '</div></div>';
+            estado.esqueleto = estado.modo + '|' + estado.origen + '|' + (estado.doc ? 'doc' : 'sin');
+            // Si el paso estaba oculto cuando se dibujó (por ejemplo al elegir otro archivo en el paso anterior), la página se vuelve a ajustar al mostrarse
+            if (observadorLienzo) { observadorLienzo.disconnect(); observadorLienzo = null; }
+            var cajaLienzo = contenido.querySelector('.indice-lienzo');
+            if (cajaLienzo && window.ResizeObserver) {
+                var medida = cajaLienzo.offsetWidth + 'x' + cajaLienzo.offsetHeight;
+                observadorLienzo = new ResizeObserver(function () {
+                    var actual = cajaLienzo.offsetWidth + 'x' + cajaLienzo.offsetHeight;
+                    if (actual !== medida) { medida = actual; pintarPagina(); }
+                });
+                observadorLienzo.observe(cajaLienzo);
+            }
+            pintarPagina();
+        }
+
+        function dibujar() {
+            var clave = estado.modo + '|' + estado.origen + '|' + (estado.doc ? 'doc' : 'sin');
+            if (estado.modo === 'analizando' || clave !== estado.esqueleto) { armarEsqueleto(); }
+            if (estado.modo !== 'analizando') { pintarLista(); } else { sincronizar(); }
+            vigilarOcr();
+        }
+
+        // --------------------------------------------------------------
+        // lectura del documento
+        // --------------------------------------------------------------
+
+        /** Lee el documento (sus bytes o su dirección), importa sus marcadores y deja lista la vista previa. */
+        function analizar(abrir, nuevo) {
             var turno = ++estado.turno;
             estado.modo = 'analizando';
             estado.editando = -1;
+            estado.elegida = -1;
             mostrarPaso(true);
             dibujar();
-            abrir().then(detectar).then(function (r) {
-                if (turno !== estado.turno) { return; }
+            abrir().then(function (doc) {
+                if (turno !== estado.turno) { return null; }
+                estado.doc = doc;
+                estado.pagina = 1;
+                return detectar(doc).then(function (r) {
+                    // Sin marcadores se mira si el PDF es un escaneo, para avisarlo
+                    return r.origen === 'ninguno' ? esEscaneo(doc).then(function (escaneo) { estado.sinTexto = escaneo; return r; }) : (estado.sinTexto = false, r);
+                });
+            }).then(function (r) {
+                if (!r || turno !== estado.turno) { return; }
                 estado.modo = 'listo';
                 estado.entradas = r.entradas;
                 estado.origen = r.origen;
-                estado.sinTexto = r.sinTexto;
                 fijarBase();
                 dibujar();
+                if (nuevo && estado.sinTexto && r.origen === 'ninguno') { iniciarPrevio(nuevo); }
             }).catch(function () {
                 if (turno !== estado.turno) { return; }
                 estado.modo = 'error';
                 estado.entradas = [];
-                estado.sinTexto = false;
+                estado.doc = null;
                 dibujar();
             });
+        }
+
+        /** Manda el PDF escaneado al servidor para reconocer su texto desde ya, sin esperar a que se guarde el recurso. */
+        function iniciarPrevio(f) {
+            var datos = new FormData();
+            datos.append('archivo', f);
+            fetch('/recurso/ocrPrevio', { method: 'POST', body: datos, credentials: 'same-origin', headers: { 'Accept': 'application/json' } })
+                .then(function (r) { return r.ok ? r.json() : {}; })
+                .then(function (respuesta) {
+                    var actual = archivo && archivo.files && archivo.files[0];
+                    if (!respuesta.token || actual !== f) { return; }
+                    previoToken = respuesta.token;
+                    campoToken.value = previoToken;
+                    estado.ocr = { estado: 'Pendiente', porcentaje: 0, segundos: null };
+                    estado.esqueleto = '';
+                    dibujar();
+                })
+                .catch(function () { /* sin reconocimiento, el PDF se guarda tal cual */ });
         }
 
         function esPdf(f) {
             return f && (f.type === 'application/pdf' || /\.pdf$/i.test(f.name || ''));
         }
 
+        /** Indica si el tipo de recurso elegido lleva índice. En la modificación no hay tipo para elegir: lleva el del recurso. */
+        function tipoConIndice() {
+            var tipo = formulario.elements['tipo'];
+            return !tipo || TIPOS_CON_INDICE.indexOf(tipo.value) >= 0;
+        }
+
         function analizarArchivoElegido() {
             var f = archivo && archivo.files && archivo.files[0];
-            if (esPdf(f)) {
-                analizar(function () { return f.arrayBuffer().then(abrirDesdeBytes); });
+            if (!esPdf(f)) { previoToken = ''; campoToken.value = ''; }
+            if (!tipoConIndice()) {
+                estado.turno++;
+                mostrarPaso(false);
+            } else if (esPdf(f)) {
+                // Un archivo nuevo parte de cero: se descarta el reconocimiento del anterior
+                previoToken = '';
+                campoToken.value = '';
+                ocrId = '';
+                estado.ocr = { estado: '', porcentaje: null, segundos: null };
+                analizar(function () { return f.arrayBuffer().then(abrirDesdeBytes); }, f);
             } else if (f) {
                 estado.turno++;
                 mostrarPaso(false);
@@ -329,12 +574,20 @@
                 // Se sacó el archivo nuevo: vuelve el del recurso
                 cargarGuardado();
             } else {
+                // Con el tipo elegido el paso ya se muestra, aunque todavía no haya PDF del que leer los marcadores
                 estado.turno++;
-                mostrarPaso(false);
+                estado.modo = 'sinarchivo';
+                estado.entradas = [];
+                estado.origen = '';
+                estado.base = '';
+                estado.doc = null;
+                estado.elegida = -1;
+                mostrarPaso(true);
+                dibujar();
             }
         }
 
-        /** Al modificar: el índice guardado. Si no tiene, el que se detecta en el archivo actual. */
+        /** Al modificar: el índice guardado. Si no tiene, los marcadores del archivo actual. */
         function cargarGuardado() {
             if (!urlGuardado && !urlArchivoActual) { mostrarPaso(false); return; }
             var turno = ++estado.turno;
@@ -347,19 +600,22 @@
                     estado.modo = 'listo';
                     estado.entradas = guardado;
                     estado.origen = 'guardado';
-                    estado.sinTexto = false;
+                    estado.doc = null;
+                    estado.elegida = -1;
                     fijarBase();
                     mostrarPaso(true);
                     dibujar();
                     // Lo guardado es el "antes" del resumen: solo lo que se corrija después cuenta como cambio
                     if (formulario.hojaDeRuta) { formulario.hojaDeRuta.fijarOriginal(); }
-                } else if (ocrEstado === 'Pendiente' || ocrEstado === 'Procesando') {
-                    // El archivo se está procesando: todavía no hay texto del que sacar el índice
-                    estado.modo = 'ocr';
-                    estado.entradas = [];
-                    estado.origen = '';
-                    mostrarPaso(true);
-                    dibujar();
+                    // La vista previa se abre aparte: el índice ya se puede corregir mientras tanto
+                    if (urlArchivoActual) {
+                        abrirDesdeUrl(urlArchivoActual).then(function (doc) {
+                            if (turno !== estado.turno) { return; }
+                            estado.doc = doc;
+                            estado.pagina = 1;
+                            dibujar();
+                        }).catch(function () { /* sin vista previa, el índice se corrige igual */ });
+                    }
                 } else if (urlArchivoActual) {
                     analizar(function () { return abrirDesdeUrl(urlArchivoActual); });
                 } else {
@@ -368,29 +624,128 @@
             });
         }
 
-        // Eventos del paso
-        paso.addEventListener('click', function (e) {
-            var titulo = e.target.closest('[data-indice-titulo]');
-            if (titulo) { estado.editando = parseInt(titulo.dataset.indiceTitulo, 10); dibujar(); return; }
-            var nivel = e.target.closest('[data-indice-nivel]');
-            if (nivel) { var i = parseInt(nivel.dataset.indiceNivel, 10); estado.entradas[i].nivel = estado.entradas[i].nivel === 1 ? 2 : 1; dibujar(); return; }
-            var quitar = e.target.closest('[data-indice-quitar]');
-            if (quitar) { estado.entradas.splice(parseInt(quitar.dataset.indiceQuitar, 10), 1); estado.editando = -1; dibujar(); return; }
-            if (e.target.closest('[data-indice-agregar]')) {
-                var ultima = estado.entradas[estado.entradas.length - 1];
-                estado.entradas.push({ titulo: 'Nueva entrada', pagina: ultima ? ultima.pagina : 1, nivel: 1 });
-                estado.editando = estado.entradas.length - 1;
-                dibujar();
+        function redetectar() {
+            // Con el PDF ya abierto solo se vuelven a leer sus marcadores: la vista previa no se toca
+            if (estado.doc) {
+                var turno = estado.turno;
+                detectar(estado.doc).then(function (r) {
+                    if (turno !== estado.turno) { return; }
+                    if (r.origen === 'marcadores') {
+                        estado.entradas = r.entradas;
+                        estado.origen = 'marcadores';
+                        estado.elegida = -1;
+                        estado.editando = -1;
+                        fijarBase();
+                    }
+                    estado.esqueleto = '';
+                    dibujar();
+                });
                 return;
             }
-            if (e.target.closest('[data-indice-detectar]')) { redetectar(); }
+            var f = archivo && archivo.files && archivo.files[0];
+            if (previoToken && estado.ocr.estado === 'Listo') { analizar(function () { return abrirDesdeUrl('/recurso/ocrPrevio/' + previoToken + '/archivo?t=' + Date.now()); }); }
+            else if (esPdf(f)) { analizar(function () { return f.arrayBuffer().then(abrirDesdeBytes); }, previoToken ? null : f); }
+            else if (urlArchivoActual) { analizar(function () { return abrirDesdeUrl(urlArchivoActual); }); }
+        }
+
+        // --------------------------------------------------------------
+        // eventos del paso
+        // --------------------------------------------------------------
+
+        /** Agrega una entrada con el texto tocado en la página, en el lugar que le corresponde por su página. */
+        function agregarDesdeLinea(texto) {
+            var titulo = limpiar(texto);
+            if (!titulo) { return; }
+            var existente = estado.entradas.findIndex(function (e) { return e.pagina === estado.pagina && e.titulo === titulo; });
+            if (existente >= 0) { estado.elegida = existente; pintarLista(); return; }
+            if (estado.entradas.length >= MAXIMO_DE_ENTRADAS) { return; }
+            // Con nada elegido la entrada se registra al final, y no queda elegida para que la siguiente también vaya al final
+            var lugar = estado.entradas.length;
+            estado.entradas.push({ titulo: titulo, pagina: estado.pagina, nivel: 1 });
+            estado.elegida = -1;
+            pintarLista();
+            var fila = contenido.querySelector('[data-indice-fila="' + lugar + '"]');
+            if (fila && fila.scrollIntoView) { fila.scrollIntoView({ block: 'nearest' }); }
+        }
+
+        /** Agrega una entrada vacía en la página que se está viendo (para las páginas sin texto que tocar) y la deja en edición. */
+        function agregarVacia() {
+            if (estado.entradas.length >= MAXIMO_DE_ENTRADAS) { return; }
+            var lugar = estado.entradas.length;
+            estado.entradas.push({ titulo: 'Nueva entrada', pagina: estado.pagina, nivel: 1 });
+            empezarEdicion(lugar);
+            var fila = contenido.querySelector('[data-indice-fila="' + lugar + '"]');
+            if (fila && fila.scrollIntoView) { fila.scrollIntoView({ block: 'nearest' }); }
+        }
+
+        function empezarEdicion(i) {
+            estado.editando = i;
+            estado.elegida = i;
+            pintarLista();
+        }
+
+        /** Deja la lista sin ninguna entrada elegida. */
+        function soltarSeleccion() {
+            if (estado.elegida < 0 || estado.editando >= 0) { return; }
+            estado.elegida = -1;
+            pintarLista();
+        }
+
+        // Tocar cualquier lugar fuera de las entradas suelta la que estaba elegida
+        document.addEventListener('click', function (e) {
+            if (!paso.isConnected || paso.contains(e.target) || !document.contains(e.target)) { return; }
+            soltarSeleccion();
+        });
+
+        var ultimoClic = { fila: -1, momento: 0 };
+        paso.addEventListener('click', function (e) {
+            if (!e.target.closest('[data-indice-fila]')) { soltarSeleccion(); }
+            var linea = e.target.closest('[data-indice-linea]');
+            if (linea) { agregarDesdeLinea(linea.dataset.indiceLinea); return; }
+            if (e.target.closest('[data-indice-anterior]')) { irAPagina(estado.pagina - 1); return; }
+            if (e.target.closest('[data-indice-siguiente]')) { irAPagina(estado.pagina + 1); return; }
+            if (e.target.closest('[data-indice-detectar]')) { redetectar(); return; }
+            var zoom = e.target.closest('[data-indice-zoom]');
+            if (zoom) {
+                var paso_ = parseInt(zoom.dataset.indiceZoom, 10);
+                var actual = Math.max(0, ZOOMS.indexOf(estado.zoom));
+                estado.zoom = paso_ === 0 ? 1 : ZOOMS[Math.min(Math.max(actual + paso_, 0), ZOOMS.length - 1)];
+                pintarPagina();
+                return;
+            }
+            if (e.target.closest('[data-indice-agregar]')) { agregarVacia(); return; }
+            var lapiz = e.target.closest('[data-indice-lapiz]');
+            if (lapiz) { empezarEdicion(parseInt(lapiz.closest('[data-indice-fila]').dataset.indiceFila, 10)); return; }
+            var nivel = e.target.closest('[data-indice-nivel]');
+            if (nivel) {
+                var fila = nivel.closest('[data-indice-fila]');
+                var a = parseInt(fila.dataset.indiceFila, 10);
+                estado.entradas[a].nivel = estado.entradas[a].nivel % NIVEL_MAXIMO + 1;
+                pintarLista();
+                return;
+            }
+            var quitar = e.target.closest('[data-indice-quitar]');
+            if (quitar) {
+                estado.entradas.splice(parseInt(quitar.closest('[data-indice-fila]').dataset.indiceFila, 10), 1);
+                estado.elegida = -1;
+                estado.editando = -1;
+                pintarLista();
+                return;
+            }
+            var filaElegida = e.target.closest('[data-indice-fila]');
+            if (filaElegida && !e.target.closest('input')) {
+                var i = parseInt(filaElegida.dataset.indiceFila, 10);
+                var ahora = Date.now();
+                var doble = ultimoClic.fila === i && ahora - ultimoClic.momento < 400;
+                ultimoClic = { fila: i, momento: ahora };
+                if (doble && !e.target.closest('.indice-acciones')) { ultimoClic = { fila: -1, momento: 0 }; empezarEdicion(i); return; }
+                estado.elegida = i;
+                pintarLista();
+                if (estado.doc && estado.entradas[i]) { irAPagina(estado.entradas[i].pagina); }
+            }
         });
         paso.addEventListener('change', function (e) {
-            var pagina = e.target.closest('[data-indice-pagina]');
-            if (pagina) {
-                estado.entradas[parseInt(pagina.dataset.indicePagina, 10)].pagina = Math.max(1, parseInt(pagina.value, 10) || 1);
-                sincronizar();
-            }
+            if (e.target.matches('[data-indice-pagina]')) { irAPagina(parseInt(e.target.value, 10) || 1); }
         });
         paso.addEventListener('focusout', function (e) {
             var edicion = e.target.closest('[data-indice-editar]');
@@ -398,7 +753,7 @@
                 var texto = limpiar(edicion.value);
                 if (texto) { estado.entradas[estado.editando].titulo = texto; }
                 estado.editando = -1;
-                dibujar();
+                pintarLista();
             }
         });
         paso.addEventListener('keydown', function (e) {
@@ -406,23 +761,23 @@
                 e.preventDefault();
                 e.stopPropagation();
                 e.target.blur();
+                return;
+            }
+            if (e.target.matches('[data-indice-fila]') && (e.key === 'Enter' || e.key === ' ')) {
+                e.preventDefault();
+                e.target.click();
             }
         });
-
-        function redetectar() {
-            var f = archivo && archivo.files && archivo.files[0];
-            if (esPdf(f)) { analizar(function () { return f.arrayBuffer().then(abrirDesdeBytes); }); }
-            else if (urlArchivoActual) { analizar(function () { return abrirDesdeUrl(urlArchivoActual); }); }
-        }
 
         if (archivo) { archivo.addEventListener('change', analizarArchivoElegido); }
         // En el alta, al cambiar de tipo de recurso el archivo se vacía: el paso se oculta
         var tipo = formulario.querySelector('select[name="tipo"]');
         if (tipo) { tipo.addEventListener('change', function () { setTimeout(analizarArchivoElegido, 0); }); }
 
+        estado.ocr.estado = paso.dataset.ocrEstado || '';
         campo.disabled = true;
         paso.hidden = true;
-        if (urlGuardado || urlArchivoActual) { cargarGuardado(); }
+        if (urlGuardado || urlArchivoActual) { cargarGuardado(); } else { analizarArchivoElegido(); }
     }
 
     window.PanelIndiceDocumento = { iniciar: iniciar };

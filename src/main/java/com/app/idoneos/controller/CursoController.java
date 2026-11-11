@@ -561,12 +561,12 @@ public class CursoController {
         }
     }
 
-    /** Guarda la imagen del curso en su carpeta (curso{id/imagen.{ext}}), reemplazando la anterior. */
+    /** Guarda la portada del curso en la carpeta de portadas (portadas/curso{id}.{ext}), reemplazando la anterior. */
     private void guardarImagen(Curso curso, MultipartFile imagenArchivo) {
         String nombre;
         try {
             nombre = ManejadorArchivosUtil.guardarImagen(imagenArchivo,
-                    ManejadorArchivosUtil.resolverCarpetaDeCurso(directorioCursos, curso.getIdCurso()), "imagen");
+                    ManejadorArchivosUtil.resolverCarpetaDePortadas(directorioCursos), "curso" + curso.getIdCurso());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(
                     "Error! El curso se guardó, pero no se pudo guardar la imagen. Modifique el curso para cargarla.");

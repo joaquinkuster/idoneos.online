@@ -246,7 +246,7 @@ public interface CursoService extends CrudService<Curso> {
      */
     Curso actualizarImagen(Integer idCurso, String imagen);
 
-    /** Lleva las imágenes de los cursos a la estructura curso{id/imagen.{ext}}. */
+    /** Lleva las portadas de los cursos a la carpeta portadas, con el nombre curso{id}.{ext}. */
     void migrarImagenes();
 
     // ----------------------------------------------------------------------

@@ -3,10 +3,10 @@
 
 <body>
     <!-- Paso "Índice" de los formularios de recursos (alta y modificación, en los cursos y en la biblioteca). -->
-    <div th:fragment="paso(urlIndice, estadoOcr)" class="pn-paso" data-grupo="Índice" data-paso-indice hidden th:attr="data-indice-url=${urlIndice}, data-ocr-estado=${estadoOcr}, data-ocr-disponible=${@OCRServiceImpl.estaDisponible()}">
+    <div th:fragment="paso(urlIndice, estadoOcr, idRecurso)" class="pn-paso" data-grupo="Índice" data-paso-indice hidden th:attr="data-indice-url=${urlIndice}, data-ocr-estado=${estadoOcr}, data-ocr-id=${idRecurso}, data-ocr-disponible=${@OCRServiceImpl.estaDisponible()}">
         <div class="pn-seccion-titulo">
             <h4>Índice del documento</h4>
-            <p>Se arma solo a partir del PDF. Podés corregirlo si hace falta</p>
+            <p>Se importa de los marcadores del PDF. Si no tiene, armalo a mano</p>
         </div>
         <input type="hidden" name="indiceJson" data-indice-json disabled>
         <div data-indice-contenido></div>

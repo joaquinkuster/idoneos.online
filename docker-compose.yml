@@ -36,13 +36,14 @@ services:
       IDONEOS_SEMILLA: "true"
       IDONEOS_DIRECTORIO_CURSOS: /app/uploads
     volumes:
-      - archivos:/app/uploads
+      # La carpeta uploads del proyecto: los archivos se ven y se editan desde el disco, sin entrar al contenedor
+      - ./uploads:/app/uploads
+      # PDF y videos de ejemplo que la semilla sube a la biblioteca (cambiar por la carpeta de cada equipo)
+      - "C:/Users/DELL/Downloads/Recursos de ejemplo:/app/recursos-ejemplo:ro"
 
 volumes:
   bd:
     name: idoneos-bd
-  archivos:
-    name: idoneos-archivos
 
 networks:
   default:

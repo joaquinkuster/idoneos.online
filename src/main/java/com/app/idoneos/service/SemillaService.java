@@ -276,8 +276,14 @@ public class SemillaService {
     @Value("${idoneos.recursos-ejemplo:recursos-ejemplo}")
     private String carpetaDeRecursosDeEjemplo;
 
-    private int siguientePdf = 0;
-    private int siguienteVideo = 0;
+    /** Cuántos recursos de cada clase tiene como máximo cada docente: 3 PDF (2 materiales y 1 bibliografía) y 2 videos (1 grabación y 1 con clon). */
+    private static final java.util.Map<String, Integer> CUPO_DE_RECURSOS = java.util.Map.of("material", 2, "bibliografia", 1, "grabacion", 1, "clon", 1);
+
+    /** Los recursos que ya creó cada docente, por clase: los temas los reutilizan en lugar de subir uno nuevo cada vez. */
+    private final java.util.Map<String, List<Recurso>> recursosDeLosDocentes = new java.util.HashMap<>();
+
+    /** El orden en que aparece cada docente, para darle a cada uno sus propios archivos de ejemplo. */
+    private final java.util.Map<Integer, Integer> ordenDeLosDocentes = new java.util.HashMap<>();
 
     @Autowired
     private CohorteRepository cohorteRepository;
@@ -477,7 +483,10 @@ public class SemillaService {
         agregarMaterial(tema1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
         agregarMaterial(tema1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
         agregarMaterial(tema2, titular1, bibliografia, "Guía teórica de renta fija");
-        agregarMaterial(tema2, titular1, presentacion, "Borrador: ejercicios de duration").setOculto(true);
+        TemaRecurso borrador = agregarMaterial(tema2, titular1, presentacion, "Borrador: ejercicios de duration");
+        if (borrador != null) {
+            borrador.setOculto(true);
+        }
         agregarGlosario(tema1, "BYMA", "Bolsas y Mercados Argentinos: el mercado donde se negocian los valores.");
         agregarGlosario(tema1, "CNV", "Comisión Nacional de Valores: organismo que regula y controla el mercado de capitales.");
         agregarGlosario(tema1, "ON", "Obligación negociable: título de deuda que emiten las empresas para financiarse.");
@@ -879,15 +888,60 @@ public class SemillaService {
         }
     }
 
-    /** Sube al servidor un archivo de ejemplo con la ruta que usa la subida de materiales. */
-    private Object[] subirArchivoDeEjemplo(Tema tema, Recurso recurso, String extension) {
+    /** Genera un PDF de ejemplo con tres capítulos y sus subtítulos como marcadores, para probar el visor y el índice. */
+    private void generarPdfDeEjemplo(java.nio.file.Path destino, String titulo) throws java.io.IOException {
+        String[] capitulos = { "Introducción", "Conceptos principales", "Aplicación práctica" };
+        String parrafo = "Los mercados financieros permiten asignar el capital entre quienes ahorran y quienes necesitan financiarse. "
+                + "En este material se recorren los instrumentos más utilizados, los riesgos asociados a cada uno y los criterios "
+                + "para comparar su rendimiento esperado con el plazo, la liquidez y la calidad crediticia del emisor.";
+        com.lowagie.text.Document documento = new com.lowagie.text.Document(com.lowagie.text.PageSize.A4, 56, 56, 56, 56);
+        try (java.io.OutputStream salida = java.nio.file.Files.newOutputStream(destino)) {
+            com.lowagie.text.pdf.PdfWriter.getInstance(documento, salida);
+            documento.open();
+            com.lowagie.text.Font fuenteTitulo = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 20);
+            com.lowagie.text.Font fuenteCapitulo = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 16);
+            com.lowagie.text.Font fuenteSeccion = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA_BOLD, 12);
+            com.lowagie.text.Font fuenteTexto = com.lowagie.text.FontFactory.getFont(com.lowagie.text.FontFactory.HELVETICA, 11);
+            documento.add(new com.lowagie.text.Paragraph(titulo, fuenteTitulo));
+            for (int c = 0; c < capitulos.length; c++) {
+                com.lowagie.text.Chapter capitulo = new com.lowagie.text.Chapter(
+                        new com.lowagie.text.Paragraph((c + 1) + ". " + capitulos[c], fuenteCapitulo), c + 1);
+                capitulo.setNumberDepth(0);
+                for (int s = 1; s <= 2; s++) {
+                    com.lowagie.text.Section seccion = capitulo.addSection(
+                            new com.lowagie.text.Paragraph((c + 1) + "." + s + " " + capitulos[c] + ", parte " + s, fuenteSeccion));
+                    seccion.setNumberDepth(0);
+                    for (int i = 0; i < 3; i++) {
+                        seccion.add(new com.lowagie.text.Paragraph(parrafo, fuenteTexto));
+                    }
+                }
+                documento.add(capitulo);
+            }
+            documento.close();
+        } catch (com.lowagie.text.DocumentException e) {
+            throw new java.io.IOException(e);
+        }
+    }
+
+    /** Sube al servidor un archivo de ejemplo (el que corresponde al índice) con la ruta que usa la biblioteca del docente. */
+    private Object[] subirArchivoDeEjemplo(Recurso recurso, String extension, int indice) {
         List<java.nio.file.Path> disponibles = archivosDeEjemplo(extension);
-        String relativa = "curso" + tema.getCurso().getIdCurso() + "/tema" + tema.getIdTema() + "/recurso" + recurso.getIdRecurso()
+        String relativa = "biblioteca/docente" + recurso.getDocente().getIdDocente() + "/recurso" + recurso.getIdRecurso()
                 + "." + extension;
         if (disponibles.isEmpty()) {
+            // Sin carpeta de ejemplos, los PDF se generan: así los materiales de la semilla siempre se pueden abrir
+            if ("pdf".equals(extension)) {
+                java.nio.file.Path destinoGenerado = directorioCursos.resolve(relativa);
+                try {
+                    java.nio.file.Files.createDirectories(destinoGenerado.getParent());
+                    generarPdfDeEjemplo(destinoGenerado, recurso.getTitulo());
+                    return new Object[] { relativa, java.nio.file.Files.size(destinoGenerado) };
+                } catch (java.io.IOException e) {
+                    throw new IllegalStateException("No se pudo generar el PDF de ejemplo " + relativa, e);
+                }
+            }
             return new Object[] { relativa, null };
         }
-        int indice = "pdf".equals(extension) ? siguientePdf++ : siguienteVideo++;
         java.nio.file.Path origen = disponibles.get(indice % disponibles.size());
         java.nio.file.Path destino = directorioCursos.resolve(relativa);
         try {
@@ -905,21 +959,23 @@ public class SemillaService {
         }
     }
 
-    /** Crea un video con el clon del docente, ya generado, y lo incorpora al tema. */
+    /** Incorpora al tema un video con el clon del docente, ya generado: el docente tiene uno solo y los temas lo reutilizan. */
     private TemaRecurso agregarVideoClon(Tema tema, DocenteCurso autor, String titulo) {
-        Recurso recurso = recursoRepository.save(new Recurso(autor.getDocente(), titulo));
+        Docente docente = autor.getDocente();
+        Recurso recurso = recursoParaElTema(tema, docente, "clon", () -> crearVideoClon(docente, tema, titulo));
+        return recurso == null ? null : vincular(tema, recurso, autor);
+    }
+
+    private Recurso crearVideoClon(Docente docente, Tema tema, String titulo) {
+        Recurso recurso = recursoRepository.save(new Recurso(docente, titulo));
         VideoClon video = new VideoClon(recurso,
                 estadoGeneracionRepository.findByNombre(EstadoGeneracion.GENERADO).orElseThrow(),
-                "Hola, soy " + autor.getDocente().getUsuario().getNombreCompleto() + ". En esta clase vemos " + tema.getTitulo() + ".");
-        Object[] archivo = subirArchivoDeEjemplo(tema, recurso, "mp4");
+                "Hola, soy " + docente.getUsuario().getNombreCompleto() + ". En esta clase vemos " + tema.getTitulo() + ".");
+        Object[] archivo = subirArchivoDeEjemplo(recurso, "mp4", indiceDeArchivo(docente, "mp4"));
         video.setRutaArchivo((String) archivo[0]);
         video.setTamanioBytes((Long) archivo[1]);
         recurso.setVideoClon(videoClonRepository.save(video));
-        int orden = tema.getTemasRecurso().size() + 1;
-        TemaRecurso material = temaRecursoRepository.save(new TemaRecurso(tema, recurso, autor, orden));
-        tema.getTemasRecurso().add(material);
-        recurso.getTemasRecurso().add(material);
-        return material;
+        return recurso;
     }
 
     /** Crea un curso sin imagen con un programa de dos temas con material y una cohorte con inscripción abierta. */
@@ -1088,42 +1144,106 @@ public class SemillaService {
     }
 
     /** Crea un recurso del docente con los datos propios de su tipo y lo incorpora al tema. */
+    /** Incorpora un material al tema. Cada docente tiene pocos recursos (con sus propios archivos) y los temas los reutilizan. */
     private TemaRecurso agregarMaterial(Tema tema, DocenteCurso autor, TipoRecurso tipo, String titulo) {
-        Recurso recurso = recursoRepository.save(new Recurso(autor.getDocente(), titulo));
-        String nombreAutor = autor.getDocente().getUsuario().getNombreCompleto();
-        switch (tipo) {
-            case BIBLIOGRAFIA -> {
-                recurso.setPrivado(false); // las bibliografías son siempre públicas
-                recursoRepository.save(recurso);
-                Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()), nombreAutor);
-                Object[] pdf = subirArchivoDeEjemplo(tema, recurso, "pdf");
-                bibliografia.setRutaArchivo((String) pdf[0]);
-                bibliografia.setTamanioBytes((Long) pdf[1]);
-                bibliografia.setExtension("pdf");
-                recurso.setBibliografia(bibliografiaRepository.save(bibliografia));
-            }
-            case GRABACION -> {
-                Object[] video = subirArchivoDeEjemplo(tema, recurso, "mp4");
-                Grabacion grabacion = new Grabacion(recurso, (String) video[0]);
-                grabacion.setTamanioBytes((Long) video[1]);
-                recurso.setGrabacion(grabacionRepository.save(grabacion));
-            }
-            case ENLACE -> recurso.setEnlace(enlaceRepository.save(new Enlace(recurso, "https://www.argentina.gob.ar")));
-            default -> {
-                Object[] pdf = subirArchivoDeEjemplo(tema, recurso, "pdf");
-                MaterialLectura lectura = new MaterialLectura(recurso,
-                        categoriaMaterialLecturaRepository.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
-                        (String) pdf[0], nombreAutor);
-                lectura.setTamanioBytes((Long) pdf[1]);
-                lectura.setExtension("pdf");
-                recurso.setMaterialLectura(materialLecturaRepository.save(lectura));
-            }
-        }
+        Docente docente = autor.getDocente();
+        Recurso recurso = switch (tipo) {
+            case BIBLIOGRAFIA -> recursoParaElTema(tema, docente, "bibliografia", () -> crearBibliografia(docente, titulo));
+            case GRABACION -> recursoParaElTema(tema, docente, "grabacion", () -> crearGrabacion(docente, titulo));
+            case ENLACE -> crearEnlace(docente, titulo);
+            default -> recursoParaElTema(tema, docente, "material", () -> crearMaterialDeLectura(docente, titulo));
+        };
+        return recurso == null ? null : vincular(tema, recurso, autor);
+    }
+
+    /** Une un recurso a un tema, al final de sus materiales. */
+    private TemaRecurso vincular(Tema tema, Recurso recurso, DocenteCurso autor) {
         int orden = tema.getTemasRecurso().size() + 1;
         TemaRecurso material = temaRecursoRepository.save(new TemaRecurso(tema, recurso, autor, orden));
         tema.getTemasRecurso().add(material);
         recurso.getTemasRecurso().add(material);
         return material;
+    }
+
+    private List<Recurso> recursosDe(Docente docente, String clase) {
+        return recursosDeLosDocentes.computeIfAbsent(docente.getIdDocente() + ":" + clase, k -> new java.util.ArrayList<>());
+    }
+
+    /**
+     * Elige el recurso de una clase para un tema: crea uno nuevo mientras el docente no complete su cupo y después reutiliza
+     * uno que el tema todavía no tenga. Devuelve null si el tema ya los usa todos.
+     */
+    private Recurso recursoParaElTema(Tema tema, Docente docente, String clase, java.util.function.Supplier<Recurso> crear) {
+        List<Recurso> existentes = recursosDe(docente, clase);
+        if (existentes.size() < CUPO_DE_RECURSOS.get(clase)) {
+            Recurso nuevo = crear.get();
+            existentes.add(nuevo);
+            return nuevo;
+        }
+        for (int i = 0; i < existentes.size(); i++) {
+            Recurso candidato = existentes.get((tema.getIdTema() + i) % existentes.size());
+            boolean yaEstaEnElTema = tema.getTemasRecurso().stream()
+                    .anyMatch(m -> m.getRecurso().getIdRecurso() == candidato.getIdRecurso());
+            if (!yaEstaEnElTema) {
+                return candidato;
+            }
+        }
+        return null;
+    }
+
+    /** El índice del archivo de ejemplo que le toca al próximo recurso del docente: cada docente usa archivos distintos. */
+    private int indiceDeArchivo(Docente docente, String extension) {
+        int orden = ordenDeLosDocentes.computeIfAbsent(docente.getIdDocente(), k -> ordenDeLosDocentes.size());
+        if ("pdf".equals(extension)) {
+            return orden * 3 + recursosDe(docente, "material").size() + recursosDe(docente, "bibliografia").size();
+        }
+        return orden * 2 + recursosDe(docente, "grabacion").size() + recursosDe(docente, "clon").size();
+    }
+
+    /** Una bibliografía: siempre pública. */
+    private Recurso crearBibliografia(Docente docente, String titulo) {
+        Recurso recurso = new Recurso(docente, titulo);
+        recurso.setPrivado(false);
+        recurso = recursoRepository.save(recurso);
+        Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()),
+                docente.getUsuario().getNombreCompleto());
+        Object[] pdf = subirArchivoDeEjemplo(recurso, "pdf", indiceDeArchivo(docente, "pdf"));
+        bibliografia.setRutaArchivo((String) pdf[0]);
+        bibliografia.setTamanioBytes((Long) pdf[1]);
+        bibliografia.setExtension("pdf");
+        recurso.setBibliografia(bibliografiaRepository.save(bibliografia));
+        return recurso;
+    }
+
+    /** Una grabación: privada, de uso del docente. */
+    private Recurso crearGrabacion(Docente docente, String titulo) {
+        Recurso recurso = recursoRepository.save(new Recurso(docente, titulo));
+        Object[] video = subirArchivoDeEjemplo(recurso, "mp4", indiceDeArchivo(docente, "mp4"));
+        Grabacion grabacion = new Grabacion(recurso, (String) video[0]);
+        grabacion.setTamanioBytes((Long) video[1]);
+        recurso.setGrabacion(grabacionRepository.save(grabacion));
+        return recurso;
+    }
+
+    /** Un material de lectura (presentación en PDF): público en la biblioteca. */
+    private Recurso crearMaterialDeLectura(Docente docente, String titulo) {
+        Recurso recurso = new Recurso(docente, titulo);
+        recurso.setPrivado(false);
+        recurso = recursoRepository.save(recurso);
+        Object[] pdf = subirArchivoDeEjemplo(recurso, "pdf", indiceDeArchivo(docente, "pdf"));
+        MaterialLectura lectura = new MaterialLectura(recurso,
+                categoriaMaterialLecturaRepository.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
+                (String) pdf[0], docente.getUsuario().getNombreCompleto());
+        lectura.setTamanioBytes((Long) pdf[1]);
+        lectura.setExtension("pdf");
+        recurso.setMaterialLectura(materialLecturaRepository.save(lectura));
+        return recurso;
+    }
+
+    private Recurso crearEnlace(Docente docente, String titulo) {
+        Recurso recurso = recursoRepository.save(new Recurso(docente, titulo));
+        recurso.setEnlace(enlaceRepository.save(new Enlace(recurso, "https://www.argentina.gob.ar")));
+        return recurso;
     }
 
     private void agregarGlosario(Tema tema, String termino, String definicion) {

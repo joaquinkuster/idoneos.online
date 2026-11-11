@@ -49,7 +49,7 @@ public final class PdfUtil {
      * @return la fuente embebida en el PDF
      */
     public static BaseFont cinzel() {
-        try (InputStream entrada = PdfUtil.class.getResourceAsStream("/fonts/Cinzel.ttf")) {
+        try (InputStream entrada = PdfUtil.class.getResourceAsStream("/static/fonts/Cinzel.ttf")) {
             if (entrada == null) {
                 return helvetica(true);
             }

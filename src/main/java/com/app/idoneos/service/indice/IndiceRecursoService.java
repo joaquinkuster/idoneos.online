@@ -14,7 +14,7 @@ public interface IndiceRecursoService {
      *
      * @param titulo El título.
      * @param pagina La página donde empieza (la primera es la 1).
-     * @param nivel El nivel: 1 para un título principal, 2 y 3 para los subtítulos.
+     * @param nivel El nivel: 1 para un título principal, 2 a 4 para los subtítulos.
      */
     record Entrada(String titulo, int pagina, int nivel) {
     }

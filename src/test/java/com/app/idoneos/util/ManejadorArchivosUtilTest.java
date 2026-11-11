@@ -34,16 +34,16 @@ class ManejadorArchivosUtilTest {
     }
 
     @Test
-    @DisplayName("Arma las carpetas del curso y del tema dentro de la carpeta base")
+    @DisplayName("Arma las carpetas de las portadas y de la biblioteca del docente dentro de la carpeta base")
     void carpetas() {
-        assertEquals(base.resolve("curso3"), ManejadorArchivosUtil.resolverCarpetaDeCurso(base, 3));
-        assertEquals(base.resolve("curso3").resolve("tema12"), ManejadorArchivosUtil.resolverCarpetaDeTema(base, 3, 12));
+        assertEquals(base.resolve("portadas"), ManejadorArchivosUtil.resolverCarpetaDePortadas(base));
+        assertEquals(base.resolve("biblioteca").resolve("docente12"), ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(base, 12));
     }
 
     @Test
     @DisplayName("Guarda cada formato permitido si su contenido coincide con la extensión")
     void guardaFormatosValidos() {
-        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeTema(base, 1, 2);
+        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(base, 2);
         List<String> todos = List.of("mp4", "webm", "pdf", "ppt", "pptx", "doc", "docx");
 
         assertEquals("material1.mp4", ManejadorArchivosUtil.guardar(archivo("clase.MP4", MP4), carpeta, "material1", DIEZ_MB, todos));
@@ -102,11 +102,11 @@ class ManejadorArchivosUtilTest {
     @Test
     @DisplayName("Elimina el archivo por su ruta relativa, ignora los enlaces y no sale de la carpeta base")
     void eliminaSoloDentroDeLaBase() throws IOException {
-        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeTema(base, 1, 2);
+        Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(base, 2);
         ManejadorArchivosUtil.guardar(archivo("a.pdf", PDF), carpeta, "material1", DIEZ_MB, List.of("pdf"));
         Path fuera = Files.createTempFile("fuera", ".txt");
 
-        ManejadorArchivosUtil.eliminar("curso1/tema2/material1.pdf", base);
+        ManejadorArchivosUtil.eliminar("biblioteca/docente2/material1.pdf", base);
         ManejadorArchivosUtil.eliminar("../" + fuera.getFileName(), base);
         ManejadorArchivosUtil.eliminar("https://sitio.com/archivo.pdf", base);
         ManejadorArchivosUtil.eliminar(null, base);
@@ -121,7 +121,7 @@ class ManejadorArchivosUtilTest {
     void enlaceExterno() {
         assertTrue(ManejadorArchivosUtil.esEnlaceExterno("https://sitio.com/libro.pdf"));
         assertTrue(ManejadorArchivosUtil.esEnlaceExterno("http://sitio.com"));
-        assertFalse(ManejadorArchivosUtil.esEnlaceExterno("curso1/tema2/material1.pdf"));
+        assertFalse(ManejadorArchivosUtil.esEnlaceExterno("biblioteca/docente2/material1.pdf"));
         assertFalse(ManejadorArchivosUtil.esEnlaceExterno(null));
     }
 }
