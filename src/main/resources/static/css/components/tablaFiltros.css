@@ -176,18 +176,3 @@
 .pn-th-acciones .pn-columnas-wrapper {
     margin-left: 16px;
 }
-
-/* Listado de clases en vivo: Iniciar clase e Ingresar miden lo mismo que Modificar y Cancelar, con el texto centrado */
-[data-tabla-servidor="/claseEnVivo/buscar"] .pn-acciones form {
-    display: flex;
-    align-items: center;
-    margin: 0;
-}
-
-[data-tabla-servidor="/claseEnVivo/buscar"] .pn-acciones .pn-btn-ver {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 96px;
-    line-height: 1;
-}

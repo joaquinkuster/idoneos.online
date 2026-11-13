@@ -62,17 +62,35 @@
                     </div>
                     <div class="sc-cajon-cuerpo">
                         <th:block th:if="${conexion != null}">
-                            <p class="sc-ayuda">En OBS, abrí Ajustes › Emisión, elegí el servicio Personalizado y cargá estos datos.</p>
-                            <div class="sc-dato">
-                                <span><small>Servidor</small><code th:text="${conexion.urlRtmp}">rtmp://localhost:1935</code></span>
-                                <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-copiar th:attr="data-copiar=${conexion.urlRtmp}">Copiar</button>
+                            <!-- Camino principal: el navegador carga los datos en el OBS de esta computadora (obs-websocket) -->
+                            <div class="sc-obs" data-obs th:attr="data-servidor=${conexion.urlRtmp}, data-clave=${conexion.clave}">
+                                <p class="sc-ayuda">En OBS, activá Herramientas › Ajustes del servidor WebSocket › Habilitar servidor. Si tiene contraseña, escribila acá.</p>
+                                <input type="text" class="pn-input" data-obs-direccion value="localhost:4455" aria-label="Dirección del servidor WebSocket de OBS" autocomplete="off">
+                                <input type="password" class="pn-input" data-obs-contrasena placeholder="Contraseña de OBS (si tiene)" aria-label="Contraseña del servidor WebSocket de OBS" autocomplete="off">
+                                <div class="sc-obs-botones">
+                                    <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-obs-conectar>Conectar con mi OBS</button>
+                                    <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-obs-iniciar hidden>Iniciar transmisión</button>
+                                </div>
+                                <p class="sc-ayuda" data-obs-estado></p>
                             </div>
-                            <div class="sc-dato">
-                                <span><small>Clave de transmisión, solo tuya</small><code data-clave-texto hidden th:text="${conexion.clave}">clase-1?user=docente&amp;pass=...</code><code data-clave-oculta>••••••••••••••••••••</code></span>
-                                <span class="d-flex gap-2">
-                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-mostrar-clave>Mostrar</button>
-                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-copiar th:attr="data-copiar=${conexion.clave}">Copiar</button>
-                                </span>
+
+                            <!-- Alternativa: cargar los datos a mano en OBS -->
+                            <div class="sc-manual">
+                                <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-manual-abrir>Conectar manualmente</button>
+                                <div class="sc-manual-panel" data-manual-panel hidden>
+                                    <p class="sc-ayuda">En OBS, abrí Ajustes › Emisión, elegí el servicio Personalizado y cargá estos datos.</p>
+                                    <div class="sc-dato">
+                                        <span><small>Servidor</small><code th:text="${conexion.urlRtmp}">rtmp://localhost:1935</code></span>
+                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-copiar th:attr="data-copiar=${conexion.urlRtmp}">Copiar</button>
+                                    </div>
+                                    <div class="sc-dato">
+                                        <span><small>Clave de transmisión, solo tuya</small><code data-clave-texto hidden th:text="${conexion.clave}">clase-1?user=docente&amp;pass=...</code><code data-clave-oculta>••••••••••••••••••••</code></span>
+                                        <span class="d-flex gap-2">
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-mostrar-clave>Mostrar</button>
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-copiar th:attr="data-copiar=${conexion.clave}">Copiar</button>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </th:block>
                         <p class="sc-ayuda" th:if="${conexion == null}">La clave se muestra solo al generarla. Si la perdiste, generá una nueva.</p>
@@ -141,5 +159,6 @@
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
 <script th:src="@{/js/pages/claseEnVivo/sala.js}"></script>
+<script th:src="@{/js/pages/claseEnVivo/obs.js}"></script>
 </body>
 </html>

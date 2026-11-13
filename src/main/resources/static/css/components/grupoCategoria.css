@@ -175,7 +175,7 @@
 
 .pn-grupo-nombre-fila {
     display: flex;
-    align-items: baseline; /* el conteo comparte la línea de base con el título en todas las cartas */
+    align-items: center; /* el conteo queda centrado con el título en todas las cartas */
     flex-wrap: wrap;
     gap: 4px 12px;
     margin: 6px 0 0;
@@ -192,6 +192,9 @@
 
 .pn-grupo-nombre-fila .pn-grupo-conteo {
     margin: 0;
+    /* Centrado con el título: se baja 1 px porque las letras del título serif quedan apenas más abajo que su caja */
+    position: relative;
+    top: 1px;
 }
 
 .pn-grupo-accion {

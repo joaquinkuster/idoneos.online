@@ -111,7 +111,7 @@
                                         </th:block>
                                         <!-- En vivo: volver al estudio -->
                                         <a class="pn-btn pn-btn-ver pn-btn-chico" th:if="${propia and c.esEnVivo()}"
-                                           th:href="@{'/claseEnVivo/estudio/' + ${c.idClaseEnVivo}}">Ingresar</a>
+                                           th:href="@{'/claseEnVivo/estudio/' + ${c.idClaseEnVivo}}">Ingresar a la clase</a>
                                         <!-- Finalizada: la grabación se está procesando o ya está publicada -->
                                         <span class="pn-celda-secundaria" data-procesando th:if="${c.estaProcesandoGrabacion()}">Procesando grabación…</span>
                                         <div class="dropdown" th:if="${c.tieneGrabacionDisponible() and c.publicacionDeGrabacion != null}">

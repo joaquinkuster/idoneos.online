@@ -381,11 +381,13 @@
 .sc-cajon-cabecera {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 14px 20px;
 }
 
 .sc-cajon-titulo {
+    /* La X mide 30 px y su ícono queda en el medio: el título baja lo mismo para que queden en línea */
+    padding-top: 5px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -413,4 +415,39 @@
 
 .sc-chat-error:empty {
     display: none;
+}
+
+/* Conectar con mi OBS y conexión manual: todos los elementos van separados 20 px */
+.sc-obs,
+.sc-manual,
+.sc-manual-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.sc-manual-panel[hidden] {
+    display: none;
+}
+
+.sc-obs .pn-input,
+.sc-manual-panel,
+.sc-manual-panel .sc-dato {
+    width: 100%;
+}
+
+.sc-obs .sc-ayuda,
+.sc-manual-panel .sc-ayuda {
+    margin: 0;
+}
+
+.sc-obs-botones {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.sc-obs-error {
+    color: var(--pn-peligro);
 }
