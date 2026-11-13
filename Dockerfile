@@ -13,7 +13,7 @@ RUN for c in /certs/*.crt; do [ -e "$c" ] && keytool -importcert -noprompt -trus
 RUN cp /certs/*.crt /usr/local/share/ca-certificates/ 2>/dev/null; update-ca-certificates
 RUN sed -i 's|http://|https://|g' /etc/apt/sources.list \
     && apt-get -o Acquire::Retries=5 update \
-    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends ocrmypdf tesseract-ocr-spa tesseract-ocr-eng ghostscript \
+    && apt-get -o Acquire::Retries=5 install -y --no-install-recommends ocrmypdf tesseract-ocr-spa tesseract-ocr-eng ghostscript ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=compilacion /app/target/*.jar app.jar

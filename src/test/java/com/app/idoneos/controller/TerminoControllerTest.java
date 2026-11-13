@@ -158,7 +158,7 @@ class TerminoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Glosario 1")))
                 .andExpect(content().string(Matchers.containsString("Introducción al mercado de capitales")))
-                .andExpect(content().string(Matchers.containsString("3 términos")))
+                .andExpect(content().string(Matchers.containsString("Términos: 3")))
                 .andExpect(content().string(Matchers.containsString("BYMA")))
                 .andExpect(content().string(Matchers.containsString("Comisión Nacional de Valores")))
                 // buscador con la casilla tildada, índice alfabético y las acciones del docente
@@ -355,7 +355,7 @@ class TerminoControllerTest {
                 .andExpect(jsonPath("$.mensaje").value("Término dado de baja con éxito."));
         mockMvc.perform(get("/glosario/buscarPorTema/" + primera()))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Comisión Nacional de Valores"))))
-                .andExpect(content().string(Matchers.containsString("2 términos")));
+                .andExpect(content().string(Matchers.containsString("Términos: 2")));
         mockMvc.perform(post("/termino/darDeBaja/" + id)).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("no se encuentra activo")));
     }

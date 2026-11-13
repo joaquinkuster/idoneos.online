@@ -17,6 +17,8 @@
     var MAX_TITULO = 18; // los textos largos se cortan con «…» (el completo queda en el title)
     var MAX_CURSO = 24;
     var pedido = 0;
+    var pestana = 0;
+    var ultimos = null;
 
     function elemento(etiqueta, clase, texto) {
         var e = document.createElement(etiqueta);
@@ -35,7 +37,7 @@
     }
 
     function pintarContador(datos) {
-        var total = datos.total;
+        var total = datos.total + (datos.secciones || []).reduce(function (suma, x) { return suma + x.total; }, 0);
         contador.hidden = !total;
         contador.textContent = total > 99 ? '99+' : total;
         boton.setAttribute('aria-label', total ? 'Abrir el asistente: ' + datos.resumen : 'Abrir el asistente');
@@ -57,6 +59,21 @@
             ruta.appendChild(nodo);
         }
         cuerpo.appendChild(ruta);
+    }
+
+    /** Si la acción cambia datos (iniciar una clase), se envía por POST y se va a donde indique la respuesta. */
+    function preparar(vinculo, pendiente) {
+        vinculo.href = pendiente.metodo === 'POST' ? '#' : pendiente.url;
+        if (pendiente.metodo !== 'POST') { return; }
+        vinculo.addEventListener('click', function (e) {
+            e.preventDefault();
+            fetch(pendiente.url, { method: 'POST', headers: { 'X-Requested-With': 'fetch', 'Accept': 'application/json' }, credentials: 'same-origin' })
+                .then(function (r) { return r.json().catch(function () { return {}; }); })
+                .then(function (d) {
+                    if (d.destino) { window.location.href = d.destino; return; }
+                    if (window.mostrarError) { window.mostrarError(d.error || 'Error! Ocurrió un error inesperado. Intentá nuevamente.'); }
+                });
+        });
     }
 
     function pintarPie(atajos) {
@@ -81,8 +98,7 @@
         pie.appendChild(chips);
     }
 
-    function pintar(datos) {
-        cuerpo.textContent = '';
+    function pintarVista(datos) {
         if (!datos) {
             titulo.textContent = 'Asistente';
             pie.hidden = true;
@@ -107,7 +123,7 @@
             var primero = pendientes[0];
             var nivel = primero.urgencia === 'alta' ? ' alta' : (primero.urgencia === 'media' ? ' media' : '');
             var hero = elemento('a', 'as-hero' + nivel);
-            hero.href = primero.url;
+            preparar(hero, primero);
             hero.setAttribute('aria-label', primero.accion + ': ' + primero.titulo + '. ' + primero.curso + (primero.fecha ? '. ' + primero.fecha : ''));
             if (primero.fecha) {
                 var cuando = elemento('div', 'as-hero-cuando');
@@ -139,7 +155,7 @@
                 ruta.setAttribute('aria-label', datos.titulo);
                 resto.forEach(function (p, i) {
                     var nodo = elemento('a', 'as-nodo');
-                    nodo.href = p.url;
+                    preparar(nodo, p);
                     nodo.setAttribute('role', 'listitem');
                     nodo.setAttribute('aria-label', p.accion + ': ' + p.titulo + '. ' + p.curso + (p.fecha ? '. ' + p.fecha : ''));
                     if (p.fecha) { nodo.title = p.fecha; }
@@ -171,7 +187,7 @@
             check.setAttribute('aria-hidden', 'true');
             ok.appendChild(check);
             cuerpo.appendChild(ok);
-            cuerpo.appendChild(elemento('div', 'as-vacio', 'No tenés nada pendiente. Cuando haya algo, te lo muestro acá.'));
+            cuerpo.appendChild(elemento('div', 'as-vacio', datos.vacio || 'No tenés nada pendiente. Cuando haya algo, te lo muestro acá.'));
         }
         pintarPie(datos.atajos);
 
@@ -184,6 +200,53 @@
                 setTimeout(function () { el.classList.remove('pn-entra'); el.style.removeProperty('--i'); }, 900 + Math.min(indice, 10) * 45);
             });
         }
+    }
+
+    /** Arma lo que muestra una pestaña: la principal usa la respuesta tal cual y las demás traen la suya. */
+    function vistaDe(datos, indice) {
+        if (indice === 0) { return datos; }
+        var seccion = datos.secciones[indice - 1];
+        return { nombre: datos.nombre, resumen: seccion.resumen, aviso: null, titulo: seccion.titulo, total: seccion.total,
+            pendientes: seccion.pendientes, atajos: datos.atajos, vacio: 'No tenés ' + seccion.etiqueta.toLowerCase() + ' próximas.' };
+    }
+
+    /** Pestañas del panel: la principal y las demás secciones. Una marca roja avisa si hay algo en vivo. */
+    function pintarPestanas(datos) {
+        var barra = elemento('div', 'as-pestanas');
+        barra.setAttribute('role', 'tablist');
+        var nombres = [datos.etiqueta].concat(datos.secciones.map(function (x) { return x.etiqueta; }));
+        var vistas = nombres.map(function (n, i) { return vistaDe(datos, i); });
+        nombres.forEach(function (nombre, i) {
+            var pest = elemento('button', 'as-pestana' + (i === pestana ? ' activa' : ''));
+            var rotulo = elemento('span', 'as-pestana-txt', recortar(nombre, 16));
+            rotulo.title = nombre;
+            pest.appendChild(rotulo);
+            pest.type = 'button';
+            pest.setAttribute('role', 'tab');
+            pest.setAttribute('aria-selected', i === pestana ? 'true' : 'false');
+            if (vistas[i].total) { pest.appendChild(elemento('span', 'as-pestana-n', String(vistas[i].total))); }
+            if (vistas[i].pendientes.some(function (p) { return p.urgencia === 'alta' && p.pronto === 'En vivo'; })) {
+                pest.appendChild(elemento('span', 'as-pestana-punto'));
+            }
+            pest.addEventListener('click', function (e) {
+                // El panel se vuelve a dibujar: sin esto el clic cae fuera y el asistente se cierra
+                e.stopPropagation();
+                pestana = i;
+                pintar(datos);
+            });
+            barra.appendChild(pest);
+        });
+        return barra;
+    }
+
+    function pintar(datos) {
+        ultimos = datos;
+        cuerpo.textContent = '';
+        if (!datos) { pintarVista(datos); return; }
+        var conPestanas = datos.secciones && datos.secciones.length;
+        if (!conPestanas) { pestana = 0; }
+        if (conPestanas) { cuerpo.appendChild(pintarPestanas(datos)); }
+        pintarVista(conPestanas ? vistaDe(datos, pestana) : datos);
     }
 
     function cargar(conEsqueleto) {

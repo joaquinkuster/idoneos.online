@@ -61,6 +61,11 @@
         return CAMPOS.some(function (campo) { return escrito[campo] !== (seleccionado[campo] || '').trim(); });
     }
 
+    /** Recorta el texto del panel izquierdo con «...» (el texto completo queda en el tooltip). */
+    function recortar(texto, maximo) {
+        return texto.length > maximo ? texto.substring(0, maximo - 3).trimEnd() + '...' : texto;
+    }
+
     function dibujarLista() {
         temas.forEach(function (tema) {
             tema.boton.classList.toggle('activo', tema === seleccionado);
@@ -69,8 +74,12 @@
             chip.textContent = estado;
             chip.classList.toggle('d-none', !estado);
             chip.classList.toggle('pn-chip-verde', !!estado);
-            tema.boton.querySelector('.pn-tema-item-titulo').textContent = tema.titulo || '(sin título)';
-            tema.boton.querySelector('.pn-tema-item-desc').textContent = tema.descripcion || 'Sin descripción';
+            var elTitulo = tema.boton.querySelector('.pn-tema-item-titulo');
+            var elDescripcion = tema.boton.querySelector('.pn-tema-item-desc');
+            elTitulo.textContent = recortar(tema.titulo || '(sin título)', 30);
+            elTitulo.title = tema.titulo || '';
+            elDescripcion.textContent = recortar(tema.descripcion || 'Sin descripción', 45);
+            elDescripcion.title = tema.descripcion || '';
         });
         empty.hidden = temas.length > 0;
         cantidad.textContent = temas.length;

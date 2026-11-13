@@ -296,7 +296,7 @@ public class OCRServiceImpl implements OCRService {
     private final java.util.Map<String, PrevioEnCurso> previos = new java.util.concurrent.ConcurrentHashMap<>();
 
     private Path carpetaTemporal() throws IOException {
-        Path carpeta = directorioCursos.resolve("ocr-temporal");
+        Path carpeta = directorioCursos.resolve("temp").resolve("ocr");
         Files.createDirectories(carpeta);
         return carpeta;
     }

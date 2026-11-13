@@ -18,8 +18,8 @@ DECLARE
 BEGIN
         IF btrim(NEW.titulo) = '' THEN
             v_mensaje := fn_msg_vacio('El título de la clase');
-        ELSIF NEW.duracion_minutos <= 0 THEN
-            v_mensaje := fn_msg_formato('La duración', 'número entero de minutos mayor a cero');
+        ELSIF NEW.fecha_hora_cierre <= NEW.fecha_hora_inicio THEN
+            v_mensaje := 'Error! La fecha y hora de cierre deben ser posteriores a las de inicio.';
         END IF;
     IF v_mensaje IS NOT NULL THEN
         RAISE EXCEPTION '%', v_mensaje USING ERRCODE = 'check_violation', CONSTRAINT = TG_NAME;

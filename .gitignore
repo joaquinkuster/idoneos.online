@@ -51,3 +51,4 @@ uploads/
 
 # Certificados raíz propios de cada máquina (ver README)
 certs/*.crt
+

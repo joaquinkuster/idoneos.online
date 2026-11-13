@@ -92,14 +92,14 @@
 
             <div th:replace="~{fragments/layout/sidebar :: grupo('Contenido')}"></div>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/recurso/buscar?cursoId=' + ${curso.idCurso}, 'Recursos', ${activo}, 'materiales', true, false)}"></a>
-            <!-- Las clases en vivo solo existen en los cursos con esa modalidad -->
-            <th:block th:if="${curso.incluyeModalidad('En vivo')}">
-                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia(${urlBase} + '?seccion=clases', 'Clases en vivo', ${activo}, 'clases', false, false)}"></a>
-            </th:block>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/pool/buscar?cursoId=' + ${curso.idCurso}, 'Pools', ${activo}, 'pools', false, false)}"></a>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'Autoevaluaciones', ${activo}, 'autoevaluaciones', false, false)}"></a>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, false)}"></a>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/foro/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, false)}"></a>
+            <!-- Las clases en vivo solo existen en los cursos con esa modalidad -->
+            <th:block th:if="${curso.incluyeModalidad('En vivo')}">
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/claseEnVivo/buscar?cursoId=' + ${curso.idCurso}, 'Clases en vivo', ${activo}, 'clases', false, false)}"></a>
+            </th:block>
         </th:block>
 
         <div th:replace="~{fragments/layout/sidebar :: grupo('Dictado')}"></div>

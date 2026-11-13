@@ -7,16 +7,13 @@
                 <header class="ac-cabecera-simple">
                     <h1 class="ac-titulo" th:text="${curso.nombre}">Especialización en Idoneidad Bursátil</h1>
                     <p class="ac-subtitulo-curso" th:if="${programa != null}">
-                        <span th:text="${programa.nombre}">Programa 2026</span>
+                        Programa: <span th:text="${programa.nombre}">Programa 2026</span>
                         <th:block th:if="${cohorte != null}">
-                            · <span
-                                th:text="${'Cohorte ' + #temporals.format(cohorte.fechaInicioDictado != null ? cohorte.fechaInicioDictado : cohorte.fechaInicioInscripcion, 'dd/MM/yyyy') + ' · ' + cohorte.estado}">Cohorte
-                                01/01/2026 · En dictado</span>
+                            · Cohorte: <span th:text="${cohorte.mesAnio}">Marzo 2027</span>
+                            · Estado: <span th:text="${cohorte.estado}">En dictado</span>
                         </th:block>
                         <th:block th:if="${inscripcion != null}">
-                            · <span
-                                th:text="${'Acceso hasta ' + #temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">Acceso
-                                hasta 01/01/2027</span>
+                            · Acceso hasta: <span th:text="${#temporals.format(inscripcion.fechaVencimientoAcceso, 'dd/MM/yyyy')}">01/01/2027</span>
                         </th:block>
                     </p>
                     <!-- Docente: cohorte de trabajo (se guarda en su participación en el curso). El programa es el de esa cohorte -->

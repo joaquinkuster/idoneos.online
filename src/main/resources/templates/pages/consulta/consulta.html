@@ -28,7 +28,7 @@
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo" th:text="${'Foro ' + numeroOrden}">Foro 1</h1>
-                    <p class="pn-subtitulo" th:text="${tema.titulo}">Introducción al mercado de capitales</p>
+                    <p class="pn-subtitulo" th:text="${'Tema: ' + tema.titulo}">Tema: Introducción al mercado de capitales</p>
                 </div>
                 <a class="pn-btn pn-btn-contorno" th:href="@{'/foro/buscarPorTema/' + ${tema.idTema}}">Volver al foro</a>
             </div>

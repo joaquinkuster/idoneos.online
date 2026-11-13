@@ -1,68 +1,177 @@
-/* ---------------------------------------------------------------------- */
-/* Clase en directo */
-/* ---------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------
+   Alertas de clase en vivo (estilo de los encabezados de grupo)
+   ---------------------------------------------------------------------- */
 
-.ac-en-directo {
+.ac-clase-aviso {
+    --aviso-fondo: #FEF6F6;
+    --aviso-borde: #EF4444;
+    --aviso-icono: #EF4444;
+    --aviso-texto: #991B1B;
+    --aviso-hover: rgba(239, 68, 68, 0.14);
+    --aviso-borde-hover: #DC2626;
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 14px 20px;
-    margin-bottom: 20px;
-    background: var(--pn-navy);
-    border-left: 4px solid #EF4444;
-    border-radius: 12px;
-    color: #FFFFFF;
     flex-wrap: wrap;
+    padding: 22px 28px;
+    margin-bottom: 20px;
+    background: var(--aviso-fondo);
+    border: 1px solid var(--aviso-borde);
+    border-radius: 14px;
 }
 
-.ac-en-directo-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: #EF4444;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    flex-shrink: 0;
+.ac-clase-aviso-pronto {
+    --aviso-fondo: #FFFAEB;
+    --aviso-borde: #D4A03D;
+    --aviso-icono: #B7791F;
+    --aviso-texto: #7A4E0B;
+    --aviso-hover: rgba(212, 160, 61, 0.18);
+    --aviso-borde-hover: #B7791F;
 }
 
-.ac-en-directo-texto {
+.ac-clase-aviso-icono {
+    flex: none;
+    align-self: center;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--aviso-icono);
+}
+
+.ac-clase-aviso-texto {
     display: flex;
     flex-direction: column;
     flex: 1;
-    min-width: 200px;
+    min-width: 0;
+    gap: 2px;
 }
 
-.ac-en-directo-etiqueta {
+.ac-clase-aviso-etiqueta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: #FCA5A5;
-}
-
-.ac-en-directo-etiqueta i {
-    font-size: 8px;
-    margin-right: 4px;
-}
-
-.ac-en-directo-texto small {
-    color: #94A3B8;
-}
-
-.ac-en-directo-boton {
-    padding: 10px 18px;
-    border-radius: 9999px;
-    background: #EF4444;
-    color: #FFFFFF;
-    font-size: 13px;
     font-weight: 700;
-    text-decoration: none;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--aviso-texto);
+}
+
+.ac-clase-aviso-etiqueta::after {
+    content: '';
+    width: 48px;
+    height: 1px;
+    background: var(--aviso-borde);
+}
+
+.ac-clase-aviso-titulo {
+    margin-top: 6px;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--aviso-texto);
+}
+
+.ac-clase-aviso-subtitulo {
+    font-size: 13px;
+    color: #64748B;
+}
+
+/* Fecha y hora de la clase próxima: texto a la derecha, centrado verticalmente */
+.ac-clase-aviso-fecha {
+    flex: none;
+    align-self: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--aviso-texto);
     white-space: nowrap;
 }
 
-.ac-en-directo-boton:hover {
-    background: #DC2626;
-    color: #FFFFFF;
+.ac-clase-aviso form {
+    flex: none;
+    margin: 0;
+}
+
+/* El botón es transparente, como el del asistente: en hover solo se intensifica */
+.ac-clase-aviso-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    flex: none;
+    margin: 0;
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid var(--aviso-borde);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--aviso-texto);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    text-decoration: none;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.ac-clase-aviso-btn i {
+    display: inline-flex;
+    line-height: 1;
+}
+
+.ac-clase-aviso-btn:hover,
+.ac-clase-aviso-btn:focus {
+    background: var(--aviso-hover);
+    border-color: var(--aviso-borde-hover);
+    color: var(--aviso-texto);
+}
+
+/* Móvil: el texto ocupa todo el ancho, y la fecha y el botón van debajo, con más aire vertical */
+@media (max-width: 767px) {
+    .ac-clase-aviso {
+        gap: 14px 12px;
+        padding: 22px 18px;
+    }
+
+    .ac-clase-aviso-icono {
+        font-size: 26px;
+    }
+
+    .ac-clase-aviso-texto {
+        flex: 1 1 calc(100% - 44px);
+        gap: 6px;
+    }
+
+    .ac-clase-aviso-etiqueta::after {
+        width: 24px;
+    }
+
+    .ac-clase-aviso-titulo {
+        margin-top: 6px;
+        font-size: 20px;
+    }
+
+    .ac-clase-aviso-fecha {
+        flex: 0 0 100%;
+        padding-left: 38px;
+        white-space: normal;
+    }
+
+    .ac-clase-aviso form,
+    .ac-clase-aviso > .ac-clase-aviso-btn {
+        flex: 0 0 100%;
+    }
+
+    .ac-clase-aviso-btn {
+        width: 100%;
+        height: 40px;
+        padding: 0 12px;
+        font-size: 13px;
+    }
+}
+
+/* El error de validación (por ejemplo al iniciar una clase que ya no está programada) va en una fila aparte, debajo de todo */
+.ac-clase-aviso > .alert-formulario {
+    order: 99;
+    flex: 0 0 100%;
+    margin: 0;
 }

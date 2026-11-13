@@ -128,6 +128,7 @@ public class CohorteController {
         List<Cohorte> cohortes = cohorteService.buscarConFiltros(
                 // Listado completo: los filtros (también los que llegan por la URL) se aplican en la pantalla
                 null, null, null, null, null, orden, soloDeDocente).stream()
+                .filter(cohorte -> !cohorte.getBaja())
                 .filter(cohorte -> cursoDelPanel == null
                         || cohorte.getCurso().getIdCurso() == cursoDelPanel.getIdCurso())
                 .toList();

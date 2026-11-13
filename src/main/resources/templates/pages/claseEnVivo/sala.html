@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${c.titulo}">Clase</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo" th:text="${c.titulo}">Clase magistral: Operatoria de renta fija</h1>
+                    <p class="pn-subtitulo" th:text="${'Docente: ' + c.docenteCurso.docente.usuario.nombreCompleto + ' · Tema: ' + c.tema.titulo + ' · Horario: ' + c.horario}">Docente: Fausto Spotorno · Tema: Renta fija · Horario: 19:00 - 20:30</p>
+                </div>
+            </div>
+
+            <div data-sala th:attr="data-clase=${c.idClaseEnVivo}, data-rol=${rol}, data-url=${urlReproduccion}, data-token=${tokenReproduccion}, data-urlclases=${urlClases}, data-tema=${c.tema.titulo}">
+                <!-- Barra superior: volver al curso y ocultar el chat -->
+                <div class="sc-barra">
+                    <a class="pn-btn pn-btn-contorno pn-btn-chico" th:href="@{${urlClases}}" data-volver>Volver al curso</a>
+                    <div class="sc-barra-acciones">
+                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-alternar-chat><i class="fa-regular fa-comment"></i> <span>Ocultar chat</span></button>
+                    </div>
+                </div>
+
+                <div class="sc-sala" data-grilla>
+                    <div class="sc-video">
+                        <video data-video controls autoplay muted playsinline disablepictureinpicture
+                               controlsList="nodownload noplaybackrate"></video>
+                        <div class="sc-video-aviso" data-video-aviso>Esperando la señal del docente...</div>
+                        <span class="sc-estado" data-etiqueta-vivo hidden>En vivo</span>
+                        <span class="sc-conectados" title="Conectados"><i class="fa-solid fa-eye"></i> <span data-conectados>0</span></span>
+                    </div>
+                    <div class="sc-chat-celda" data-chat-celda>
+                        <th:block th:replace="~{pages/claseEnVivo/chat :: chat(false, ${chatHabilitado})}"></th:block>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Gestión académica')}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script th:src="@{/js/pages/claseEnVivo/sala.js}"></script>
+</body>
+</html>

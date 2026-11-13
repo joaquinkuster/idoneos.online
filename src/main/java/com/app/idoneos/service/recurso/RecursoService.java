@@ -288,6 +288,14 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      */
     TemaRecurso cambiarVisibilidad(Integer id, Docente docente, boolean oculto);
 
+    /**
+     * Renombra los archivos guardados con el nombre anterior (recurso seguido del identificador) con el nombre de su tipo,
+     * por ejemplo grabacion12.mp4, y actualiza su ruta. Se puede ejecutar más de una vez.
+     *
+     * @return la cantidad de archivos renombrados
+     */
+    int migrarNombresDeArchivos();
+
     // ----------------------------------------------------------------------
     // Bajas
     // ----------------------------------------------------------------------
@@ -323,7 +331,7 @@ public interface RecursoService extends CrudService<TemaRecurso> {
         BIBLIOGRAFIA(Recurso.BIBLIOGRAFIA, true, List.of("pdf"), 50, "Texto o material de lectura, con su autor y su ISBN."),
 
         /** Video de una clase dictada. */
-        GRABACION(Recurso.GRABACION, true, List.of("mp4", "webm"), 500, "Video de una clase dictada."),
+        GRABACION(Recurso.GRABACION, true, List.of("mp4", "webm"), 2048, "Video de una clase dictada."),
 
         /** Dirección web de un material que está fuera de la plataforma. */
         ENLACE(Recurso.ENLACE, true, List.of(), 0, "Dirección web de un material externo."),
@@ -343,6 +351,11 @@ public interface RecursoService extends CrudService<TemaRecurso> {
             this.extensiones = extensiones;
             this.tamanioMaximoMb = tamanioMaximoMb;
             this.descripcion = descripcion;
+        }
+
+        /** Obtiene el nombre con el que se guardan los archivos de este tipo de recurso: en minúscula y sin tildes, por ejemplo {@code grabacion}. */
+        public String getNombreDeArchivo() {
+            return java.text.Normalizer.normalize(nombre, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase();
         }
 
         /**

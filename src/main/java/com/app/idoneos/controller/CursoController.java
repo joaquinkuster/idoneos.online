@@ -119,10 +119,8 @@ public class CursoController {
             // Se entrega siempre el listado completo: los filtros (también los que llegan por la URL, que solo
             // completan los campos) y la paginación se aplican en la pantalla.
             List<Curso> cursos = cursoService.buscarConFiltros(null, null, null, null, null, orden, soloDeDocente);
-            // El docente no ve los cursos dados de baja. El administrador sí
-            if (!esAdministrador) {
-                cursos = cursos.stream().filter(curso -> !curso.esInactivo()).toList();
-            }
+            // Los cursos dados de baja no se muestran
+            cursos = cursos.stream().filter(curso -> !curso.esInactivo()).toList();
 
             // Inscripciones y programas activos por curso, para validar la baja y la modificación
             ResumenCursos resumen = esAdministrador ? cursoService.resumir(cursos) : null;
@@ -283,7 +281,11 @@ public class CursoController {
                 // El cronograma del docente tiene su propia página, donde también se modifica
                 return "redirect:/cronograma/buscar?cursoId=" + idCurso;
             }
-            String seccionActiva = List.of("temas", "clases").contains(seccion) ? seccion : "temas";
+            if ("clases".equals(seccion)) {
+                // Las clases en vivo del docente y del administrador tienen su propio listado, donde también se gestionan
+                return "redirect:/claseEnVivo/buscar?cursoId=" + idCurso;
+            }
+            String seccionActiva = "temas";
 
             String menuActivo = "temas".equals(seccionActiva) ? "curso" : seccionActiva;
             panel.cargarContexto(model, esAdministrador ? ContextoCurso.deAdministrador(curso)

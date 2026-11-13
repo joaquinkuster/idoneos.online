@@ -28,10 +28,7 @@
                     <th:block th:replace="~{pages/recurso/icon :: icon('Glosario', '')}"></th:block>
                     <div>
                         <h1 class="pn-titulo" th:text="${'Glosario ' + numeroOrden}">Glosario 1</h1>
-                        <p class="pn-subtitulo">
-                            <span th:text="${tema.titulo}">Introducción al mercado de capitales</span>
-                            · <span th:text="${totalTerminos + (totalTerminos == 1 ? ' término' : ' términos')}">3 términos</span>
-                        </p>
+                        <p class="pn-subtitulo" th:text="${'Tema: ' + tema.titulo + ' · Términos: ' + totalTerminos}">Tema: Introducción al mercado de capitales · Términos: 3</p>
                     </div>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoTermino">

@@ -1,0 +1,37 @@
+# Servidor de medios de las clases en vivo (MediaMTX 1.11.3). Recibe la señal RTMP de OBS, la entrega a los alumnos por HLS
+# y la graba. Quién puede transmitir y mirar lo decide la aplicación (authHTTPAddress).
+logLevel: info
+
+api: yes
+apiAddress: :9997
+
+rtmp: yes
+rtmpAddress: :1935
+
+hls: yes
+hlsAddress: :8888
+hlsAllowOrigin: '*'
+hlsVariant: lowLatency
+
+rtsp: no
+webrtc: no
+srt: no
+metrics: no
+pprof: no
+playback: no
+
+authMethod: http
+authHTTPAddress: http://host.docker.internal:8080/streaming/autorizar
+# Por defecto la API queda fuera de la autenticación: se la incluye para que pida la clave de la aplicación
+authHTTPExclude: []
+
+pathDefaults:
+  record: yes
+  recordPath: /grabaciones/%path/%Y-%m-%d_%H-%M-%S-%f
+  recordFormat: fmp4
+  recordPartDuration: 1s
+  recordSegmentDuration: 24h
+  recordDeleteAfter: 0s
+
+paths:
+  all_others:

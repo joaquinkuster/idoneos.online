@@ -55,7 +55,6 @@
                                 <th data-col="Duración" data-oculta data-campo="duracion" data-filtro="numero">Duración</th>
                                 <th data-col="Modalidades" data-campo="modalidades" data-filtro="lista" data-sin-busqueda>Modalidades</th>
                                 <th data-col="Docente titular" data-campo="docenteTitular" data-filtro="lista">Docente titular</th>
-                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
                                 <th>Acciones</th>
                             </tr>
@@ -85,11 +84,6 @@
                                     <div class="pn-celda-secundaria" th:if="${!#lists.isEmpty(curso.docentesAyudantes)}"
                                          th:text="${#lists.size(curso.docentesAyudantes) + ' ayudante(s)'}">1 ayudante(s)</div>
                                 </td>
-                                <td>
-                                    <span class="pn-insignia"
-                                          th:classappend="${curso.baja} ? 'pn-insignia-gris' : (${cursosConInscripcionAbierta.contains(curso.idCurso)} ? 'pn-insignia-verde' : 'pn-insignia-azul')"
-                                          th:text="${curso.baja} ? 'Dado de baja' : (${cursosConInscripcionAbierta.contains(curso.idCurso)} ? 'Inscripción abierta' : 'Activo')">Activo</span>
-                                </td>
                                 <td th:text="${curso.fechaCreacion != null ? #temporals.format(curso.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones" th:if="${!curso.baja}">
@@ -105,7 +99,7 @@
                                 </td>
                             </tr>
                             </th:block>
-                            <tr th:replace="~{fragments/components/empty :: fila(10, 'fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los criterios ingresados.')}"></tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(9, 'fa-book-open', 'No se encontraron cursos', 'Ningún curso coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

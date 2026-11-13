@@ -140,8 +140,8 @@
                                         <div class="pn-tema-item" role="button" tabindex="0" th:each="t : ${temas}"
                                              th:attr="data-id=${t.idTema}, data-titulo=${t.titulo}, data-descripcion=${t.descripcion}, data-contenido=${t.contenido}">
                                             <div class="pn-tema-item-cuerpo">
-                                                <span class="pn-tema-item-titulo" th:text="${t.titulo}">Tema</span>
-                                                <span class="pn-tema-item-desc" th:text="${t.descripcion != null ? t.descripcion : 'Sin descripción'}">Descripción</span>
+                                                <span class="pn-tema-item-titulo" th:text="${#strings.abbreviate(t.titulo, 30)}" th:title="${t.titulo}">Tema</span>
+                                                <span class="pn-tema-item-desc" th:text="${t.descripcion != null ? #strings.abbreviate(t.descripcion, 45) : 'Sin descripción'}" th:title="${t.descripcion}">Descripción</span>
                                             </div>
                                             <span class="pn-chip pn-chip-verde d-none" data-estado></span>
                                         </div>

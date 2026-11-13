@@ -324,8 +324,20 @@ public class Cohorte {
 
     /** Obtiene las clases en vivo de la cohorte que no están dadas de baja ni ocultas. */
     public List<ClaseEnVivo> getClasesEnVivoPublicadas() {
-        return clasesEnVivo.stream().filter(clase -> !clase.getBaja() && !clase.getOculto())
-                .sorted(Comparator.comparing(ClaseEnVivo::getFechaHora)).toList();
+        return clasesEnVivo.stream().filter(clase -> !clase.getBaja())
+                .sorted(Comparator.comparing(ClaseEnVivo::getFechaHoraInicio)).toList();
+    }
+
+    /** Obtiene las clases programadas que todavía no empezaron, publicadas y por fecha. */
+    public List<ClaseEnVivo> getProximasClases() {
+        LocalDateTime ahora = LocalDateTime.now();
+        return getClasesEnVivoPublicadas().stream()
+                .filter(clase -> clase.esProgramada() && clase.getFechaHoraInicio().isAfter(ahora.minusMinutes(1))).toList();
+    }
+
+    /** Obtiene las clases programadas que todavía no empezaron y que se dictan sobre un tema. */
+    public List<ClaseEnVivo> getProximasClasesDelTema(Tema tema) {
+        return getProximasClases().stream().filter(clase -> clase.getTema().getIdTema() == tema.getIdTema()).toList();
     }
 
     /** Obtiene la clase que se está transmitiendo en este momento. */

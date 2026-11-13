@@ -207,8 +207,6 @@
     align-items: center;
     gap: 8px;
     margin: 0 6px 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--pn-borde, #E2E8F0);
     text-align: left;
 }
 
@@ -537,4 +535,58 @@ button.as-chip {
         right: 12px;
         bottom: 12px;
     }
+}
+
+/* Pestañas del panel: se reparten el ancho, sin barra de desplazamiento */
+.as-pestanas {
+    display: flex;
+    margin-bottom: 12px;
+    border-bottom: 1px solid transparent;
+}
+
+.as-pestana {
+    flex: 1 1 0;
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 6px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748B;
+    white-space: nowrap;
+}
+
+.as-pestana-txt {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.as-pestana.activa {
+    color: #0F233D;
+    border-bottom-color: #D4A03D;
+}
+
+.as-pestana-n {
+    flex: none;
+    min-width: 18px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #F1F5F9;
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+}
+
+.as-pestana-punto {
+    flex: none;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #EF4444;
 }

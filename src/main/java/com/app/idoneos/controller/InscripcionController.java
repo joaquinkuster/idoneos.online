@@ -168,7 +168,7 @@ public class InscripcionController {
                 throw new IllegalArgumentException("Error! El usuario no tiene el rol de alumno.");
             }
             Inscripcion inscripcion = inscripcionService.validarAcceso(idInscripcion, alumno);
-            String seccionActiva = List.of("temas", "cronograma", "clases").contains(seccion) ? seccion : "temas";
+            String seccionActiva = List.of("temas", "cronograma").contains(seccion) ? seccion : "temas";
 
             panel.cargarContexto(model, ContextoCurso.deAlumno(inscripcion),
                     "temas".equals(seccionActiva) ? "curso" : seccionActiva);

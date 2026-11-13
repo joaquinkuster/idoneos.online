@@ -182,3 +182,8 @@
         stroke-dashoffset: 0;
     }
 }
+
+/* La baja masiva queda a la derecha de los botones Tabla y Versiones */
+.pn-lista-cabecera .pv-conmutador ~ .pn-btn {
+    margin-left: 0;
+}

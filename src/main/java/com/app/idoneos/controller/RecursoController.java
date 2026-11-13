@@ -192,7 +192,8 @@ public class RecursoController {
         };
         return ResponseEntity.ok().contentType(tipo)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
-                .header(HttpHeaders.CACHE_CONTROL, "no-store, private")
+                // El video no admite no-store: el navegador reinicia la reproducción al volver a pedir tramos
+                .header(HttpHeaders.CACHE_CONTROL, "video".equals(material.getFormatoDeVista()) ? "private, no-cache" : "no-store, private")
                 .header("X-Content-Type-Options", "nosniff")
                 .body(new FileSystemResource(archivo));
     }
@@ -352,10 +353,8 @@ public class RecursoController {
             guardarIndice(material.getRecurso(), indiceJson, archivo);
             ocrService.descartarPrevio(ocrToken);
             // Se muestra cómo quedó dentro del curso: el panel del curso con el tema del material expandido
-            Programa vigente = material.getTema().getCurso().getProgramaVigente();
-            String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
-                    .filter(u -> u.getTema().getIdTema() == material.getTema().getIdTema())
-                    .map(u -> "?expandir=" + u.getTema().getIdTema()).findFirst().orElse("");
+            // El panel abre el tema del material; si no está en pantalla, el parámetro se ignora
+            String expandir = "?expandir=" + material.getTema().getIdTema();
             // Alerta guía: si todavía falta contenido, propone seguir completándolo
             ResponseEntity<Map<String, String>> respuesta = panel.exitoConContenidoPendiente("Recurso '" + material.getTitulo() + "' subido con éxito.",
                     "/curso/acceder/" + material.getTema().getCurso().getIdCurso() + expandir,
@@ -440,10 +439,7 @@ public class RecursoController {
             Usuario usuario = (Usuario) authentication.getPrincipal();
             List<TemaRecurso> materiales = materialService.reutilizar(usuario.getDocente(), temaId, recursoIds);
             TemaRecurso primero = materiales.get(0);
-            Programa vigente = primero.getTema().getCurso().getProgramaVigente();
-            String expandir = vigente == null ? "" : vigente.getCronogramaOrdenado().stream()
-                    .filter(u -> u.getTema().getIdTema() == primero.getTema().getIdTema())
-                    .map(u -> "?expandir=" + u.getTema().getIdTema()).findFirst().orElse("");
+            String expandir = "?expandir=" + primero.getTema().getIdTema();
             String mensaje = materiales.size() == 1 ? "Recurso '" + primero.getTitulo() + "' registrado en el tema."
                     : materiales.size() + " recursos registrados en el tema.";
             return panel.exitoConContenidoPendiente(mensaje, "/curso/acceder/" + primero.getTema().getCurso().getIdCurso() + expandir,

@@ -66,7 +66,7 @@ class CursoSinProgramasControllerTest {
         Curso curso = cursoSinProgramas();
         String id = String.valueOf(curso.getIdCurso());
 
-        mockMvc.perform(get("/curso/acceder/" + id).param("seccion", "clases")).andExpect(status().isOk());
+        mockMvc.perform(get("/claseEnVivo/buscar").param("cursoId", id)).andExpect(status().isOk());
         mockMvc.perform(get("/programa/buscar").param("cursoId", id)).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.not(Matchers.containsString("data-abrir-modal=\"modalPrograma\""))));
         mockMvc.perform(get("/recurso/buscar").param("cursoId", id)).andExpect(status().isOk());

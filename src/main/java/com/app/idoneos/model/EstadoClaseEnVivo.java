@@ -13,8 +13,17 @@ import lombok.Setter;
 @NoArgsConstructor
 public class EstadoClaseEnVivo {
 
+    /** Nombre del estado de una clase que todavía no se transmitió. */
+    public static final String PROGRAMADA = "Programada";
+
     /** Nombre del estado de una clase que se está transmitiendo en este momento. */
     public static final String EN_VIVO = "En vivo";
+
+    /** Nombre del estado de una clase que ya se transmitió. */
+    public static final String FINALIZADA = "Finalizada";
+
+    /** Nombre del estado de una clase que se canceló antes de transmitirse. */
+    public static final String CANCELADA = "Cancelada";
 
     /** Identificador único del estado de la clase en vivo. */
     @Id

@@ -150,6 +150,20 @@ public class SecurityConfig {
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers(HttpMethod.GET, "/autoevaluacion/ver/*").hasRole("Alumno")
                         .requestMatchers("/autoevaluacion/**").hasRole("Docente")
+                        // ABM de clases en vivo (el docente y el administrador las buscan, el docente además las programa,
+                        // las modifica y las cancela, y solo el administrador da de baja las finalizadas)
+                        .requestMatchers(HttpMethod.GET, "/claseEnVivo/buscar")
+                        .hasAnyRole("Docente", "Administrador")
+                        // la sala, su estado y el chat: el docente de la clase y los alumnos de su cohorte (el servicio verifica cuál)
+                        .requestMatchers(HttpMethod.GET, "/claseEnVivo/sala/*", "/claseEnVivo/estado/*", "/claseEnVivo/chat/*/eventos",
+                                "/claseEnVivo/chat/*/mensajes")
+                        .hasAnyRole("Alumno", "Docente")
+                        .requestMatchers(HttpMethod.POST, "/claseEnVivo/chat/*/mensajes").hasAnyRole("Alumno", "Docente")
+                        // el servidor de medios consulta quién puede transmitir y mirar
+                        .requestMatchers(HttpMethod.POST, "/streaming/autorizar").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/claseEnVivo/darDeBaja/*", "/claseEnVivo/darDeBajaMasiva")
+                        .hasRole("Administrador")
+                        .requestMatchers("/claseEnVivo/**").hasRole("Docente")
                         // seguimiento de los intentos (el docente y el administrador los buscan, el docente
                         // aprueba y el administrador los da de baja)
                         .requestMatchers(HttpMethod.GET, "/intento/buscar").hasAnyRole("Docente", "Administrador")

@@ -13,12 +13,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.model.Autoevaluacion;
+import com.app.idoneos.model.ClaseEnVivo;
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.repository.InscripcionRepository;
+import com.app.idoneos.service.claseenvivo.ClaseEnVivoService;
 import com.app.idoneos.service.curso.CursoService;
 import com.app.idoneos.util.MensajeErrorUtil;
 
@@ -34,6 +36,9 @@ public class AsistenteServiceImpl implements AsistenteService {
 
     @Autowired
     private CursoService cursoService;
+
+    @Autowired
+    private ClaseEnVivoService claseEnVivoService;
 
     /** Arma el texto de cuándo cierra o abre, con los días que faltan si está cerca. */
     private static String fecha(String prefijo, LocalDateTime cuando, LocalDate hoy) {
@@ -63,7 +68,7 @@ public class AsistenteServiceImpl implements AsistenteService {
             String url) {
         LocalDate hoy = LocalDate.now();
         String urgencia = urgencia(cuando, hoy);
-        return new Pendiente(titulo, curso, accion, fecha(prefijo, cuando, hoy), urgencia == null ? null : pronto, urgencia, url);
+        return new Pendiente(titulo, curso, accion, fecha(prefijo, cuando, hoy), urgencia == null ? null : pronto, urgencia, url, null);
     }
 
     @Override
@@ -78,7 +83,7 @@ public class AsistenteServiceImpl implements AsistenteService {
         if (usuario.esAlumnoActivo()) {
             return paraAlumno(usuario);
         }
-        return new Respuesta(usuario.getNombre(), "No tenés pendientes.", null, "Pendientes", 0, List.of(), List.of());
+        return new Respuesta(usuario.getNombre(), "No tenés pendientes.", null, "Pendientes", 0, List.of(), List.of(), "Pendientes", List.of());
     }
 
     // ----------------------------------------------------------------------
@@ -117,7 +122,59 @@ public class AsistenteServiceImpl implements AsistenteService {
                 "/autoevaluacion/ver/" + p.autoevaluacion().getIdAutoevaluacion())).toList();
         return new Respuesta(usuario.getNombre(), resumen, null, "Autoevaluaciones pendientes", pendientes.size(), items,
                 List.of(new Atajo("Mis cursos", "/inscripcion/buscar"), new Atajo("Mis pagos", "/pago/buscar"),
-                        new Atajo("Mis certificados", "/certificado/buscar"), new Atajo("Mis intereses", ATAJO_INTERESES)));
+                        new Atajo("Mis certificados", "/certificado/buscar"), new Atajo("Mis intereses", ATAJO_INTERESES)),
+                "Autoevaluaciones", List.of(seccionDeClases(clasesDelAlumno(usuario), false, c -> urlDeInscripcion(usuario, c))));
+    }
+
+    /** Arma la pestaña de clases en vivo: primero la que se transmite, después las próximas por fecha. */
+    private Seccion seccionDeClases(List<ClaseEnVivo> clases, boolean esDocente, java.util.function.Function<ClaseEnVivo, String> urlDelCurso) {
+        LocalDateTime ahora = LocalDateTime.now();
+        int anticipacion = claseEnVivoService.minutosDeAnticipacion();
+        List<ClaseEnVivo> ordenadas = clases.stream()
+                .sorted(Comparator.comparing((ClaseEnVivo c) -> !c.esEnVivo()).thenComparing(ClaseEnVivo::getFechaHoraInicio)).toList();
+        List<Pendiente> items = ordenadas.stream().limit(MAXIMO_PENDIENTES).map(c -> {
+            String curso = c.getCohorte().getCurso().getNombre();
+            String urlCurso = urlDelCurso.apply(c);
+            if (c.esEnVivo()) {
+                return new Pendiente(c.getTitulo(), curso, "Ingresar a la clase", "En vivo ahora", "En vivo", "alta",
+                        (esDocente ? "/claseEnVivo/estudio/" : "/claseEnVivo/sala/") + c.getIdClaseEnVivo(), null);
+            }
+            boolean inicia = c.puedeIniciarse(ahora, anticipacion);
+            if (esDocente && inicia) {
+                return new Pendiente(c.getTitulo(), curso, "Iniciar", c.getFechaConHora(), "Empieza pronto", "media",
+                        "/claseEnVivo/iniciar/" + c.getIdClaseEnVivo(), "POST");
+            }
+            return new Pendiente(c.getTitulo(), curso, "Acceder al curso", c.getFechaConHora(), inicia ? "Empieza pronto" : null,
+                    inicia ? "media" : null, urlCurso, null);
+        }).toList();
+        long enVivo = ordenadas.stream().filter(ClaseEnVivo::esEnVivo).count();
+        String resumen = ordenadas.isEmpty() ? "No tenés clases en vivo próximas"
+                : (enVivo > 0 ? "Hay una clase en vivo ahora" : MensajeErrorUtil.formatearCantidad(ordenadas.size(), "clase en vivo próxima",
+                        "clases en vivo próximas"));
+        return new Seccion("Clases en vivo", "Clases en vivo", resumen, ordenadas.size(), items);
+    }
+
+    /** Obtiene la dirección del curso para el alumno: la de su inscripción en la cohorte de la clase. */
+    private String urlDeInscripcion(Usuario usuario, ClaseEnVivo clase) {
+        return inscripcionRepository.findByAlumnoAndBajaFalse(usuario.getAlumno()).stream()
+                .filter(i -> i.getCohorte().getIdCohorte() == clase.getCohorte().getIdCohorte()).findFirst()
+                .map(i -> "/inscripcion/acceder/" + i.getIdInscripcion()).orElse("/inscripcion/buscar");
+    }
+
+    /** Obtiene las clases en vivo en curso y próximas de las cohortes en las que el alumno está inscripto. */
+    private List<ClaseEnVivo> clasesDelAlumno(Usuario usuario) {
+        List<ClaseEnVivo> clases = new ArrayList<>();
+        for (Inscripcion inscripcion : inscripcionRepository.findByAlumnoAndBajaFalse(usuario.getAlumno())) {
+            if (!inscripcion.fueHabilitada() || inscripcion.estaCancelada()) {
+                continue;
+            }
+            Cohorte cohorte = inscripcion.getCohorte();
+            if (cohorte.getClaseEnCurso() != null) {
+                clases.add(cohorte.getClaseEnCurso());
+            }
+            clases.addAll(cohorte.getProximasClases());
+        }
+        return clases;
     }
 
     // ----------------------------------------------------------------------
@@ -156,7 +213,29 @@ public class AsistenteServiceImpl implements AsistenteService {
                     p.cohorte().getFechaInicioInscripcion(), paso[2]);
         }).toList();
         return new Respuesta(usuario.getNombre(), resumen, aviso, "Cohortes pendientes de contenido", pendientes.size(), items,
-                List.of(new Atajo("Mis cursos", "/curso/buscar"), new Atajo("Biblioteca digital", "/biblioteca/buscar")));
+                List.of(new Atajo("Mis cursos", "/curso/buscar"), new Atajo("Biblioteca digital", "/biblioteca/buscar")),
+                "Cohortes", List.of(seccionDeClases(clasesDelDocente(usuario), true,
+                        c -> "/curso/acceder/" + c.getCohorte().getCurso().getIdCurso())));
+    }
+
+    /** Obtiene las clases en vivo en curso y próximas que dicta el docente. */
+    private List<ClaseEnVivo> clasesDelDocente(Usuario usuario) {
+        List<ClaseEnVivo> clases = new ArrayList<>();
+        for (Curso curso : cursoService.buscarConFiltros(null, null, null, null, null, null, usuario.getDocente())) {
+            if (curso.getBaja()) {
+                continue;
+            }
+            for (Cohorte cohorte : curso.getCohortes()) {
+                if (cohorte.getBaja()) {
+                    continue;
+                }
+                if (cohorte.getClaseEnCurso() != null && cohorte.getClaseEnCurso().esDeDocente(usuario.getDocente())) {
+                    clases.add(cohorte.getClaseEnCurso());
+                }
+                cohorte.getProximasClases().stream().filter(c -> c.esDeDocente(usuario.getDocente())).forEach(clases::add);
+            }
+        }
+        return clases;
     }
 
     /** Describe lo que le falta a la cohorte en el paso del diseño en que está. */
@@ -178,7 +257,7 @@ public class AsistenteServiceImpl implements AsistenteService {
                                 "/cohorte/buscar" + curso + "&asignar=" + p.cohorte().getIdCohorte() + "&volver=curso"}
                         : new String[] {"Falta registrar el programa", "Registrar programa", "/programa/buscar" + curso + "&nuevo="};
             }
-            default -> new String[] {"Diseño completo", "Ver curso", "/curso/acceder/" + p.curso().getIdCurso()};
+            default -> new String[] {"Diseño completo", "Acceder al curso", "/curso/acceder/" + p.curso().getIdCurso()};
         };
     }
 
@@ -201,6 +280,7 @@ public class AsistenteServiceImpl implements AsistenteService {
                 "/pago/buscar?registrarPara=" + i.getIdInscripcion())).toList();
         return new Respuesta(usuario.getNombre(), resumen, null, "Pagos pendientes", pendientes.size(), items,
                 List.of(new Atajo("Pagos", "/pago/buscar"), new Atajo("Inscripciones", "/inscripcion/buscar"),
-                        new Atajo("Cursos", "/curso/buscar")));
+                        new Atajo("Cursos", "/curso/buscar")),
+                "Pagos", List.of());
     }
 }

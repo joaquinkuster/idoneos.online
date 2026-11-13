@@ -115,7 +115,7 @@ class RecursoTest {
         assertFalse(TipoRecurso.VIDEO_CLON.permiteSubidaManual());
         assertEquals(List.of("mp4", "webm"), TipoRecurso.GRABACION.getExtensionesPermitidas());
         assertEquals(List.of("pdf"), TipoRecurso.PRESENTACION.getExtensionesPermitidas());
-        assertEquals(500L * 1024 * 1024, TipoRecurso.GRABACION.getTamanioMaximo());
+        assertEquals(2048L * 1024 * 1024, TipoRecurso.GRABACION.getTamanioMaximo());
         assertEquals(50L * 1024 * 1024, TipoRecurso.BIBLIOGRAFIA.getTamanioMaximo());
         assertEquals(TipoRecurso.GRABACION, TipoRecurso.deTexto("Grabación"));
         assertEquals(TipoRecurso.PRESENTACION, TipoRecurso.deTexto("presentacion"));

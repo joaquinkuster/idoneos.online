@@ -387,6 +387,16 @@ public class SemillaService {
                 String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.GRACIA_ENTREGA_AUTOEVALUACION,
                 String.valueOf(Parametro.GRACIA_ENTREGA_AUTOEVALUACION_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.CLASE_TOLERANCIA_MINUTOS,
+                String.valueOf(Parametro.CLASE_TOLERANCIA_MINUTOS_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.CLASE_ANTICIPACION_MINUTOS,
+                String.valueOf(Parametro.CLASE_ANTICIPACION_MINUTOS_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.CLASE_CORTE_SENAL_MINUTOS,
+                String.valueOf(Parametro.CLASE_CORTE_SENAL_MINUTOS_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.CLASE_RETENCION_GRABACION_MESES,
+                String.valueOf(Parametro.CLASE_RETENCION_GRABACION_MESES_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.CLASE_DURACION_MAXIMA_HORAS,
+                String.valueOf(Parametro.CLASE_DURACION_MAXIMA_HORAS_POR_DEFECTO)));
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
         // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
@@ -473,11 +483,11 @@ public class SemillaService {
         registrarPago(inscripcionValentina, pagoAprobado, pagoModo, "Tarjeta de crédito Visa", "0008", "QRV9A1C3", null,
                 ahora.minusDays(55));
         claseEnVivoRepository.save(new ClaseEnVivo(titular1, claseProgramada, tema1, enDictado1,
-                "Clase 1: Panorama del mercado de capitales", ahora.plusDays(3), 90));
+                "Clase 1: Panorama del mercado de capitales", ahora.plusDays(3), ahora.plusDays(3).plusMinutes(90)));
         claseEnVivoRepository.save(new ClaseEnVivo(titular1, claseFinalizada, tema1, enDictado1,
-                "Clase 0: Presentación del curso", ahora.minusDays(15), 60));
+                "Clase 0: Presentación del curso", ahora.minusDays(15), ahora.minusDays(15).plusMinutes(60)));
         claseEnVivoRepository.save(new ClaseEnVivo(titular1, claseEnVivoAhora, tema2, enDictado1,
-                "Clase magistral: Operatoria de renta fija en BYMA", ahora.minusMinutes(20), 90));
+                "Clase magistral: Operatoria de renta fija en BYMA", ahora.minusMinutes(20), ahora.plusMinutes(70)));
 
         // Contenido de los temas 1 y 2 (acceso al curso del alumno en dictado)
         agregarMaterial(tema1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
@@ -924,9 +934,9 @@ public class SemillaService {
     }
 
     /** Sube al servidor un archivo de ejemplo (el que corresponde al índice) con la ruta que usa la biblioteca del docente. */
-    private Object[] subirArchivoDeEjemplo(Recurso recurso, String extension, int indice) {
+    private Object[] subirArchivoDeEjemplo(Recurso recurso, String tipo, String extension, int indice) {
         List<java.nio.file.Path> disponibles = archivosDeEjemplo(extension);
-        String relativa = "biblioteca/docente" + recurso.getDocente().getIdDocente() + "/recurso" + recurso.getIdRecurso()
+        String relativa = "biblioteca/docente" + recurso.getDocente().getIdDocente() + "/" + tipo + recurso.getIdRecurso()
                 + "." + extension;
         if (disponibles.isEmpty()) {
             // Sin carpeta de ejemplos, los PDF se generan: así los materiales de la semilla siempre se pueden abrir
@@ -971,7 +981,7 @@ public class SemillaService {
         VideoClon video = new VideoClon(recurso,
                 estadoGeneracionRepository.findByNombre(EstadoGeneracion.GENERADO).orElseThrow(),
                 "Hola, soy " + docente.getUsuario().getNombreCompleto() + ". En esta clase vemos " + tema.getTitulo() + ".");
-        Object[] archivo = subirArchivoDeEjemplo(recurso, "mp4", indiceDeArchivo(docente, "mp4"));
+        Object[] archivo = subirArchivoDeEjemplo(recurso, "videoclon", "mp4", indiceDeArchivo(docente, "mp4"));
         video.setRutaArchivo((String) archivo[0]);
         video.setTamanioBytes((Long) archivo[1]);
         recurso.setVideoClon(videoClonRepository.save(video));
@@ -1207,7 +1217,7 @@ public class SemillaService {
         recurso = recursoRepository.save(recurso);
         Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()),
                 docente.getUsuario().getNombreCompleto());
-        Object[] pdf = subirArchivoDeEjemplo(recurso, "pdf", indiceDeArchivo(docente, "pdf"));
+        Object[] pdf = subirArchivoDeEjemplo(recurso, "bibliografia", "pdf", indiceDeArchivo(docente, "pdf"));
         bibliografia.setRutaArchivo((String) pdf[0]);
         bibliografia.setTamanioBytes((Long) pdf[1]);
         bibliografia.setExtension("pdf");
@@ -1218,7 +1228,7 @@ public class SemillaService {
     /** Una grabación: privada, de uso del docente. */
     private Recurso crearGrabacion(Docente docente, String titulo) {
         Recurso recurso = recursoRepository.save(new Recurso(docente, titulo));
-        Object[] video = subirArchivoDeEjemplo(recurso, "mp4", indiceDeArchivo(docente, "mp4"));
+        Object[] video = subirArchivoDeEjemplo(recurso, "grabacion", "mp4", indiceDeArchivo(docente, "mp4"));
         Grabacion grabacion = new Grabacion(recurso, (String) video[0]);
         grabacion.setTamanioBytes((Long) video[1]);
         recurso.setGrabacion(grabacionRepository.save(grabacion));
@@ -1230,7 +1240,7 @@ public class SemillaService {
         Recurso recurso = new Recurso(docente, titulo);
         recurso.setPrivado(false);
         recurso = recursoRepository.save(recurso);
-        Object[] pdf = subirArchivoDeEjemplo(recurso, "pdf", indiceDeArchivo(docente, "pdf"));
+        Object[] pdf = subirArchivoDeEjemplo(recurso, "presentacion", "pdf", indiceDeArchivo(docente, "pdf"));
         MaterialLectura lectura = new MaterialLectura(recurso,
                 categoriaMaterialLecturaRepository.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
                 (String) pdf[0], docente.getUsuario().getNombreCompleto());

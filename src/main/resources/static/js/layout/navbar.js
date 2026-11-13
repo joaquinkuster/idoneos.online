@@ -69,6 +69,14 @@
             navbar.classList.add('con-menu-lateral');
         }
 
+        // En las páginas internas (rendir una autoevaluación, ver un PDF o una grabación, una clase en vivo) el menú arranca colapsado
+        // para dar lugar al contenido. En los listados y en el inicio del panel del curso queda abierto
+        var interna = /\/(ver|realizar|resumen|estudio|sala)\/\d+/.test(window.location.pathname)
+            && window.location.pathname.indexOf('/participante/') !== 0;
+        if (app && interna && window.innerWidth > PUNTO_DE_QUIEBRE_MENU) {
+            app.classList.add('colapsado');
+        }
+
         // 4. Enlaces en pantallas chicas
         function cerrar() {
             if (!enlaces) { return; }

@@ -340,7 +340,7 @@ class RecursoServiceTest {
         Recurso recurso = recursoService.subirABiblioteca(fausto(), "GRABACION",
                 new DatosRecurso("Clase suelta", null, false, null, null, null, null, null, null, 30, false), archivo("clase.mp4", MP4), true);
 
-        String esperada = "biblioteca/docente" + fausto().getIdDocente() + "/recurso" + recurso.getIdRecurso() + ".mp4";
+        String esperada = "biblioteca/docente" + fausto().getIdDocente() + "/grabacion" + recurso.getIdRecurso() + ".mp4";
         assertEquals(esperada, recurso.getRutaArchivo());
         assertTrue(Files.exists(directorioCursos.resolve(esperada)));
         assertFalse(recurso.getPrivado());

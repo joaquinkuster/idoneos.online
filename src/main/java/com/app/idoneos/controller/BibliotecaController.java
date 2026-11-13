@@ -174,7 +174,7 @@ public class BibliotecaController {
         };
         return ResponseEntity.ok().contentType(tipo)
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
-                .header(HttpHeaders.CACHE_CONTROL, "no-store, private")
+                .header(HttpHeaders.CACHE_CONTROL, "video".equals(formatoDeVista(recurso)) ? "private, no-cache" : "no-store, private")
                 .header("X-Content-Type-Options", "nosniff")
                 .body(new FileSystemResource(archivo));
     }

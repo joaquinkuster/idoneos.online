@@ -3,20 +3,36 @@ name: idoneos
 services:
   base:
     image: postgres:16.4
-    container_name: idoneos-bd
+    container_name: idoneos-postgres
     environment:
       POSTGRES_DB: idoneos.online
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+      TZ: America/Argentina/Buenos_Aires
     ports:
       - "5433:5432"
     volumes:
-      - bd:/var/lib/postgresql/data
+      - postgres:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d idoneos.online"]
       interval: 5s
       timeout: 5s
       retries: 20
+
+  # Servidor de medios de las clases en vivo: OBS transmite a rtmp://localhost:1935 y los alumnos miran por HLS en el puerto 8888
+  mediamtx:
+    image: bluenviron/mediamtx:1.11.3
+    container_name: idoneos-mediamtx
+    ports:
+      - "1935:1935"
+      - "8888:8888"
+      - "127.0.0.1:9997:9997"
+    volumes:
+      - ./mediamtx.yml:/mediamtx.yml:ro
+      # Acá escribe las grabaciones, y la aplicación las toma al finalizar cada clase
+      - ./uploads/temp/streaming:/grabaciones
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   app:
     build: .
@@ -28,6 +44,8 @@ services:
     ports:
       - "8080:8080"
     environment:
+      # La hora de las clases en vivo y de los vencimientos es la de Argentina: sin esto el contenedor usa UTC
+      TZ: America/Argentina/Buenos_Aires
       SPRING_DATASOURCE_URL: jdbc:postgresql://base:5432/idoneos.online
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -35,6 +53,8 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: create
       IDONEOS_SEMILLA: "true"
       IDONEOS_DIRECTORIO_CURSOS: /app/uploads
+      IDONEOS_STREAMING_API_URL: http://mediamtx:9997
+      IDONEOS_STREAMING_GRABACIONES: /app/uploads/temp/streaming
     volumes:
       # La carpeta uploads del proyecto: los archivos se ven y se editan desde el disco, sin entrar al contenedor
       - ./uploads:/app/uploads
@@ -42,8 +62,8 @@ services:
       - "C:/Users/DELL/Downloads/Recursos de ejemplo:/app/recursos-ejemplo:ro"
 
 volumes:
-  bd:
-    name: idoneos-bd
+  postgres:
+    name: idoneos-postgres
 
 networks:
   default:

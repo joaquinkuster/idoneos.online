@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Clases en vivo</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Clases en vivo</h1>
+                    <p class="pn-subtitulo" th:text="${'Programá y gestioná las transmisiones de ' + curso.nombre}">Programá y gestioná las transmisiones del curso</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevaClase"
+                        th:disabled="${#lists.isEmpty(cohortes) or #lists.isEmpty(temas)}"
+                        th:title="${#lists.isEmpty(cohortes) ? 'No hay cohortes en inscripción próxima, abierta, pendiente de contenido o en dictado' : null}">
+                    <i class="fa-solid fa-plus"></i> Programar clase
+                </button>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/claseEnVivo/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de clases en vivo</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="clase encontrada" data-plural="clases encontradas"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' clase encontrada' : ' clases encontradas')}">0 clases encontradas</span>
+                    <!-- El docente cancela las clases programadas, el administrador da de baja cualquier clase -->
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva th:if="${puedeGestionar}"
+                            data-url="/claseEnVivo/cancelarMasiva" data-elementos="clases en vivo"
+                            data-titulo="¿Confirmas cancelar las clases en vivo seleccionadas?"
+                            data-texto="Se cancelarán todas o ninguna. Las canceladas ya no se pueden iniciar."
+                            data-confirmar="Cancelar">Cancelar seleccionada/s</button>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva th:unless="${puedeGestionar}"
+                            data-url="/claseEnVivo/darDeBajaMasiva" data-elementos="clases en vivo"
+                            data-titulo="¿Confirmas dar de baja las clases en vivo seleccionadas?"
+                            data-texto="Se darán de baja todas o ninguna, junto con sus grabaciones.">Dar de baja seleccionada/s</button>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/claseEnVivo/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <a th:href="@{/claseEnVivo/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="lista">Cohorte</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
+                                <th data-col="Docente" data-campo="docente" data-filtro="lista">Docente</th>
+                                <th data-col="Fecha y hora" data-campo="fechaHora" data-filtro="fecha">Fecha y hora</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                <th data-col="Grabación hasta" data-oculta data-campo="vencimiento" data-filtro="fecha">Grabación hasta</th>
+                                <th data-col="Fecha de creación" data-oculta data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="c : ${clases}" data-fila
+                                th:with="propia=${puedeGestionar and c.esDeDocente(docenteActual)}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${c.idClaseEnVivo}"
+                                    th:disabled="${puedeGestionar ? !(propia and c.esProgramada()) : false}"></td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${c.titulo}">Clase 1</span></td>
+                                <td th:text="${c.cohorte.mesAnio}">Abril 2026</td>
+                                <td><span class="pn-truncar" th:text="${c.tema.titulo}">Introducción al mercado</span></td>
+                                <td><span class="pn-truncar" th:text="${c.docenteCurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span></td>
+                                <td th:text="${c.rango}">14/11/2026 19:00 - 20:30</td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${c.esProgramada()} ? 'pn-insignia-azul' : (${c.esEnVivo()} ? 'pn-insignia-roja' : (${c.esFinalizada()} ? 'pn-insignia-verde' : 'pn-insignia-gris'))"
+                                          th:text="${c.estadoClaseEnVivo.nombre}">Programada</span>
+                                </td>
+                                <td th:text="${c.fechaVencimientoGrabacion != null ? #temporals.format(c.fechaVencimientoGrabacion, 'dd/MM/yyyy') : '-'}">-</td>
+                                <td th:text="${#temporals.format(c.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <!-- Programada: iniciarla cuando llega su horario, modificarla o cancelarla -->
+                                        <th:block th:if="${propia and c.esProgramada()}">
+                                            <form th:action="@{'/claseEnVivo/iniciar/' + ${c.idClaseEnVivo}}" method="post" class="form-ajax"
+                                                  th:if="${c.puedeIniciarse(#temporals.createNow(), anticipacion)}">
+                                                <button type="submit" class="pn-btn pn-btn-ver pn-btn-chico">Iniciar clase</button>
+                                            </form>
+                                            <button type="button" class="pn-btn pn-btn-editar pn-btn-chico"
+                                                    th:data-bs-target="'#modalModificarClase' + ${c.idClaseEnVivo}"
+                                                    th:data-modal-url="@{'/claseEnVivo/modificar/' + ${c.idClaseEnVivo}}">Modificar</button>
+                                            <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico"
+                                                    data-bs-toggle="modal" data-bs-target="#modalCancelarClase"
+                                                    th:data-baja-accion="@{'/claseEnVivo/cancelar/' + ${c.idClaseEnVivo}}"
+                                                    th:data-baja-pregunta="'¿Confirmas cancelar la clase «' + ${c.titulo} + '»?'"
+                                                    data-baja-nota="La clase pasa a estado Cancelada y ya no se puede iniciar.">Cancelar</button>
+                                        </th:block>
+                                        <!-- En vivo: volver al estudio -->
+                                        <a class="pn-btn pn-btn-ver pn-btn-chico" th:if="${propia and c.esEnVivo()}"
+                                           th:href="@{'/claseEnVivo/estudio/' + ${c.idClaseEnVivo}}">Ingresar</a>
+                                        <!-- Finalizada: la grabación se está procesando o ya está publicada -->
+                                        <span class="pn-celda-secundaria" data-procesando th:if="${c.estaProcesandoGrabacion()}">Procesando grabación…</span>
+                                        <div class="dropdown" th:if="${c.tieneGrabacionDisponible() and c.publicacionDeGrabacion != null}">
+                                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
+                                                    aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li><a class="dropdown-item" th:href="@{'/recurso/ver/' + ${c.publicacionDeGrabacion.idTemaRecurso}}">Ver grabación</a></li>
+                                            </ul>
+                                        </div>
+                                        <!-- El administrador da de baja cualquier clase -->
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:unless="${puedeGestionar}"
+                                                data-bs-toggle="modal" data-bs-target="#modalBajaClase"
+                                                th:data-baja-accion="@{'/claseEnVivo/darDeBaja/' + ${c.idClaseEnVivo}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja la clase «' + ${c.titulo} + '»?'"
+                                                th:data-baja-nota="${c.esEnVivo() ? 'Se está transmitiendo: se corta la señal y se baja la clase.' : (c.grabacion != null ? 'Su grabación también dejará de estar disponible para los alumnos.' : 'La clase dejará de mostrarse en el listado.')}">Dar de baja</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(10, 'fa-video', 'No se encontraron clases en vivo', 'Ninguna clase en vivo coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: programar clase -->
+<div class="modal fade pn-modal" id="modalNuevaClase" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Programar clase en vivo</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{pages/claseEnVivo/formulario :: formulario(null)}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Una sola ventana de cancelación y una de baja para todo el listado: el botón de cada fila le pasa la acción. -->
+<th:block th:if="${puedeGestionar}">
+    <th:block th:replace="~{fragments/components/modalBaja :: cancelar('modalCancelarClase', 'clase en vivo', '¿Confirmas cancelar?', '', '/claseEnVivo/cancelar/0')}"></th:block>
+</th:block>
+<th:block th:unless="${puedeGestionar}">
+    <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaClase', 'clase en vivo', '¿Confirmas dar de baja?', '', '/claseEnVivo/darDeBaja/0', null, null)}"></th:block>
+</th:block>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
+<script th:src="@{/js/core/curso.js}"></script>
+<script th:src="@{/js/pages/claseEnVivo/claseEnVivo.js}"></script>
+<script th:src="@{/js/core/abrirModal.js}"></script>
+</body>
+</html>

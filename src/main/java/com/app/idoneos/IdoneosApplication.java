@@ -20,6 +20,9 @@ public class IdoneosApplication implements CommandLineRunner {
     @Autowired
     private CursoServiceImpl cursoService;
 
+    @Autowired
+    private com.app.idoneos.service.recurso.RecursoService recursoService;
+
     /** Si se insertan los datos de semilla (usuarios, cursos y demás datos de demostración) al arrancar. */
     @Value("${idoneos.semilla:false}")
     private boolean insertarSemilla;
@@ -38,5 +41,7 @@ public class IdoneosApplication implements CommandLineRunner {
         }
         // Lleva las imágenes de los cursos a la carpeta de cada curso (datos creados con versiones anteriores)
         cursoService.migrarImagenes();
+        // Lleva los archivos de los recursos a su nombre por tipo (datos creados con versiones anteriores)
+        recursoService.migrarNombresDeArchivos();
     }
 }

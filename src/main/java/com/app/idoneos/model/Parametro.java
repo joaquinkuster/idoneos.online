@@ -56,6 +56,36 @@ public class Parametro {
     /** Tolerancia de entrega de las autoevaluaciones que se usa cuando el parámetro no está cargado. */
     public static final int GRACIA_ENTREGA_AUTOEVALUACION_POR_DEFECTO = 15;
 
+    /** Clave de los minutos que se espera el inicio de una clase en vivo programada antes de cancelarla sola. */
+    public static final String CLASE_TOLERANCIA_MINUTOS = "clase_en_vivo.tolerancia_minutos";
+
+    /** Tolerancia de espera de las clases en vivo que se usa cuando el parámetro no está cargado. */
+    public static final int CLASE_TOLERANCIA_MINUTOS_POR_DEFECTO = 15;
+
+    /** Clave de los minutos de anticipación con que el docente puede iniciar una clase en vivo antes de su horario. */
+    public static final String CLASE_ANTICIPACION_MINUTOS = "clase_en_vivo.anticipacion_minutos";
+
+    /** Anticipación para iniciar las clases en vivo que se usa cuando el parámetro no está cargado. */
+    public static final int CLASE_ANTICIPACION_MINUTOS_POR_DEFECTO = 15;
+
+    /** Clave de los minutos sin señal después de los cuales una clase en vivo se cierra sola. */
+    public static final String CLASE_CORTE_SENAL_MINUTOS = "clase_en_vivo.corte_senal_minutos";
+
+    /** Minutos sin señal que se usan cuando el parámetro no está cargado. */
+    public static final int CLASE_CORTE_SENAL_MINUTOS_POR_DEFECTO = 10;
+
+    /** Clave de los meses que una grabación queda disponible para los alumnos. */
+    public static final String CLASE_RETENCION_GRABACION_MESES = "clase_en_vivo.retencion_grabacion_meses";
+
+    /** Retención de las grabaciones que se usa cuando el parámetro no está cargado. */
+    public static final int CLASE_RETENCION_GRABACION_MESES_POR_DEFECTO = 4;
+
+    /** Clave de las horas máximas que puede durar una clase en vivo. */
+    public static final String CLASE_DURACION_MAXIMA_HORAS = "clase_en_vivo.duracion_maxima_horas";
+
+    /** Duración máxima de una clase que se usa cuando el parámetro no está cargado. */
+    public static final int CLASE_DURACION_MAXIMA_HORAS_POR_DEFECTO = 2;
+
     // ----------------------------------------------------------------------
     // Medio de pago MODO: lo que el cliente reemplaza cuando abre su cuenta de MODO. La semilla (solo desarrollo)
     // ----------------------------------------------------------------------

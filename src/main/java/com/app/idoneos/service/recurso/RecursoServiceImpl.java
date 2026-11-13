@@ -14,6 +14,7 @@ import com.app.idoneos.model.Modalidad;
 import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TemaRecurso;
+import com.app.idoneos.model.VideoClon;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.repository.BibliografiaRepository;
@@ -25,6 +26,7 @@ import com.app.idoneos.repository.MaterialLecturaRepository;
 import com.app.idoneos.repository.RecursoRepository;
 import com.app.idoneos.repository.TemaRecursoRepository;
 import com.app.idoneos.repository.TemaRepository;
+import com.app.idoneos.repository.VideoClonRepository;
 import com.app.idoneos.service.CrudService;
 import com.app.idoneos.service.inscripcion.InscripcionService;
 import com.app.idoneos.util.ManejadorArchivosUtil;
@@ -78,6 +80,9 @@ public class RecursoServiceImpl implements RecursoService {
 
     @Autowired
     private BibliografiaRepository bibliografiaRepository;
+
+    @Autowired
+    private VideoClonRepository videoClonRepository;
 
     @Autowired
     private CategoriaMaterialLecturaRepository categoriaMaterialLecturaRepository;
@@ -357,9 +362,69 @@ public class RecursoServiceImpl implements RecursoService {
         return recurso;
     }
 
+    /** Renombra los archivos guardados con el nombre anterior con el nombre de su tipo, y actualiza su ruta. */
+    @Override
+    @Transactional
+    public int migrarNombresDeArchivos() {
+        int renombrados = 0;
+        for (Grabacion grabacion : grabacionRepository.findAll()) {
+            String nueva = renombrarArchivo(grabacion.getRutaArchivo(), "grabacion");
+            if (nueva != null) {
+                grabacion.setRutaArchivo(nueva);
+                renombrados++;
+            }
+        }
+        for (MaterialLectura lectura : materialLecturaRepository.findAll()) {
+            boolean resumen = CategoriaMaterialLectura.RESUMEN.equals(lectura.getCategoriaMaterialLectura().getNombre());
+            String nueva = renombrarArchivo(lectura.getRutaArchivo(), resumen ? "resumen" : "presentacion");
+            if (nueva != null) {
+                lectura.setRutaArchivo(nueva);
+                renombrados++;
+            }
+        }
+        for (Bibliografia bibliografia : bibliografiaRepository.findAll()) {
+            String nueva = renombrarArchivo(bibliografia.getRutaArchivo(), "bibliografia");
+            if (nueva != null) {
+                bibliografia.setRutaArchivo(nueva);
+                renombrados++;
+            }
+        }
+        for (VideoClon video : videoClonRepository.findAll()) {
+            String nueva = renombrarArchivo(video.getRutaArchivo(), "videoclon");
+            if (nueva != null) {
+                video.setRutaArchivo(nueva);
+                renombrados++;
+            }
+        }
+        return renombrados;
+    }
+
+    /** Renombra un archivo guardado como recurso{id}.{extensión} y devuelve su ruta nueva, o null si no hay nada que renombrar. */
+    private String renombrarArchivo(String ruta, String prefijo) {
+        if (ruta == null || ManejadorArchivosUtil.esEnlaceExterno(ruta)) {
+            return null;
+        }
+        java.util.regex.Matcher partes = java.util.regex.Pattern.compile("^(.*/)?recurso(\\d+)(\\.[A-Za-z0-9]+)$").matcher(ruta);
+        if (!partes.matches()) {
+            return null;
+        }
+        String nueva = (partes.group(1) == null ? "" : partes.group(1)) + prefijo + partes.group(2) + partes.group(3);
+        Path origen = ManejadorArchivosUtil.resolver(directorioCursos, ruta);
+        Path destino = ManejadorArchivosUtil.resolver(directorioCursos, nueva);
+        if (origen == null || destino == null || !java.nio.file.Files.exists(origen) || java.nio.file.Files.exists(destino)) {
+            return null;
+        }
+        try {
+            java.nio.file.Files.move(origen, destino);
+            return nueva;
+        } catch (java.io.IOException e) {
+            return null;
+        }
+    }
+
     private String guardarArchivoEnBiblioteca(Recurso recurso, Docente docente, TipoRecurso tipo, MultipartFile archivo) {
         Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(directorioCursos, docente.getIdDocente());
-        String nombre = ManejadorArchivosUtil.guardar(archivo, carpeta, "recurso" + recurso.getIdRecurso(),
+        String nombre = ManejadorArchivosUtil.guardar(archivo, carpeta, tipo.getNombreDeArchivo() + recurso.getIdRecurso(),
                 tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         return ManejadorArchivosUtil.construirRutaRelativa(directorioCursos, carpeta.resolve(nombre));
     }
@@ -756,7 +821,7 @@ public class RecursoServiceImpl implements RecursoService {
     /** Guarda el archivo de un recurso en la carpeta de la biblioteca de su docente: los temas solo lo usan, no lo guardan. */
     private String guardarArchivo(Recurso recurso, TipoRecurso tipo, MultipartFile archivo) {
         Path carpeta = ManejadorArchivosUtil.resolverCarpetaDeBiblioteca(directorioCursos, recurso.getDocente().getIdDocente());
-        String nombre = ManejadorArchivosUtil.guardar(archivo, carpeta, "recurso" + recurso.getIdRecurso(),
+        String nombre = ManejadorArchivosUtil.guardar(archivo, carpeta, tipo.getNombreDeArchivo() + recurso.getIdRecurso(),
                 tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         return ManejadorArchivosUtil.construirRutaRelativa(directorioCursos, carpeta.resolve(nombre));
     }

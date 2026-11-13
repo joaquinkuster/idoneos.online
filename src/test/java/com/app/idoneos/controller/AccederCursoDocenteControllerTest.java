@@ -100,7 +100,7 @@ class AccederCursoDocenteControllerTest {
                 .andExpect(content().string(Matchers.containsString("Portada de Mercado de Capitales Argentino")))
                 // el botón "Curso" vuelve a ser un botón del menú, sin card
                 .andExpect(content().string(Matchers.not(Matchers.containsString("pn-menu-curso"))));
-        mockMvc.perform(get("/curso/acceder/" + id).param("seccion", "clases")).andExpect(status().isOk())
+        mockMvc.perform(get("/claseEnVivo/buscar").param("cursoId", String.valueOf(id))).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.not(Matchers.containsString("ac-portada"))));
     }
 
@@ -118,9 +118,12 @@ class AccederCursoDocenteControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el docente ve las clases en vivo de la cohorte")
+    @DisplayName("El docente entra a las clases en vivo del curso por su listado, y la sección vieja lo redirige ahí")
     void docenteVeLasClasesEnVivo() throws Exception {
-        mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")).param("seccion", "clases"))
+        String id = String.valueOf(idCurso("Mercado de Capitales Argentino"));
+        mockMvc.perform(get("/curso/acceder/" + id).param("seccion", "clases")).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/claseEnVivo/buscar?cursoId=" + id));
+        mockMvc.perform(get("/claseEnVivo/buscar").param("cursoId", id))
                 .andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("Clase 1: Panorama del mercado de capitales")));
     }

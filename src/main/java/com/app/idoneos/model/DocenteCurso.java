@@ -96,7 +96,8 @@ public class DocenteCurso {
 
     /** Obtiene el programa sobre el que trabaja el docente. */
     public Programa getProgramaDeTrabajo() {
-        return tieneCohorteDeTrabajoVigente() ? cohortePorDefecto.getPrograma() : curso.getProgramaVigente();
+        Cohorte cohorte = getCohorteDeTrabajo();
+        return cohorte != null && cohorte.tienePrograma() ? cohorte.getPrograma() : curso.getProgramaVigente();
     }
 
     /** Obtiene la cohorte sobre la que trabaja el docente: la de su contexto de trabajo, si sigue vigente. */

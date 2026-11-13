@@ -73,7 +73,7 @@ class MenuActivoControllerTest {
                 .mapToInt(u -> u.getIdTema()).findFirst().orElseThrow();
         // el primer botón del menú lleva el nombre del curso, abreviado a 22 caracteres
         marca("/curso/acceder/" + cursoId, abreviado(cursoRepository.findById(cursoId).orElseThrow().getNombre()));
-        marca("/curso/acceder/" + cursoId + "?seccion=clases", "Clases en vivo");
+        marca("/claseEnVivo/buscar?cursoId=" + cursoId, "Clases en vivo");
         marca("/tema/buscar?cursoId=" + cursoId, "Temas");
         marca("/programa/buscar?cursoId=" + cursoId, "Programas");
         marca("/participante/buscar?cursoId=" + cursoId, "Participantes");

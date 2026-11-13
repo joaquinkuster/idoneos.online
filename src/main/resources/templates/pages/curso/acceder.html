@@ -32,26 +32,20 @@
 
                 <!-- Contenido del curso y, a la derecha, el cajón del cronograma (solo en la página principal) -->
                 <div class="ac-con-drawer"
-                    th:with="mostrarDrawer=${seccion == 'temas' and programa != null and !#lists.isEmpty(programa.cronogramaOrdenado)}"
+                    th:with="sinCohortes=${esDocente and cohorte == null}, mostrarDrawer=${seccion == 'temas' and !(esDocente and cohorte == null) and programa != null and !#lists.isEmpty(programa.cronogramaOrdenado)}"
                     th:classappend="${mostrarDrawer} ? 'ac-tiene-drawer'">
                 <div class="ac-principal" th:classappend="${seccion == 'temas'} ? 'ac-entra'">
                 <!-- Cabecera del curso -->
                 <th:block th:replace="~{pages/curso/cabecera :: cabecera(${seccion == 'temas'}, false)}"></th:block>
 
                 <!-- Diseño del curso para la cohorte de trabajo: los 5 pasos. -->
-                <section class="ec-card" th:if="${seccion == 'temas' and esDocente}"
+                <section class="ec-card" th:if="${seccion == 'temas' and esDocente and cohorte != null}"
                     th:classappend="${cohorte != null} ? (${estadoDiseno.pasoActual == 4} ? 'ec-grupo completo' : 'ec-grupo')"
                     th:with="paso=${estadoDiseno.pasoActual}, completo=${estadoDiseno.pasoActual == 4},
                              datosOk=${estadoDiseno.datosCompletos}, temasOk=${estadoDiseno.temasCompletos}, progOk=${estadoDiseno.programaCompleto},
                              hechosTemas=${#lists.size(estadoDiseno.temasConContenido)},
                              pendiente=${cohorte != null and cohorte.esPendiente()}, hayOtros=${#lists.size(programasDelCurso) > 1},
                              botones=${puedeGestionar and cohorte != null and cohorte.esPendiente()}">
-                    <th:block th:if="${cohorte == null}">
-                        <strong class="ec-titulo">Diseño del curso</strong>
-                        <p class="ec-nota">Este curso todavía no tiene cohortes. El administrador las registra; cuando haya una, desde acá preparás su programa y su contenido.</p>
-                        <a class="pn-btn pn-btn-primario" th:if="${puedeGestionar and #lists.isEmpty(programasDelCurso)}"
-                            th:href="@{/programa/buscar(cursoId=${curso.idCurso}, nuevo='')}">Registrar programa</a>
-                    </th:block>
                     <th:block th:if="${cohorte != null}">
                         <!-- Encabezado de grupo: llama la atención mientras falta completar el diseño y pasa a verde cuando está completo -->
                         <div class="ec-grupo-cab">
@@ -60,7 +54,6 @@
                                 <span class="pn-grupo-etiqueta" th:text="${completo ? 'Todo listo' : 'Requiere tu acción'}">Requiere tu acción</span>
                                 <div class="pn-grupo-nombre-fila">
                                     <h2 class="pn-grupo-titulo">Diseño del curso</h2>
-                                    <span class="pn-grupo-conteo" th:text="${completo ? 'Completo' : 'Paso ' + paso + ' de 3'}">Paso 2 de 3</span>
                                 </div>
                             </div>
                             <button type="button" class="ec-grupo-alternar" data-ec-alternar>
@@ -150,25 +143,48 @@
                     </th:block>
                 </section>
 
-                <!--/* Pendiente (implementación futura): alerta de la clase en vivo que se está transmitiendo ahora
-                <section class="ac-en-directo" th:if="${seccion == 'temas' and cohorte != null and cohorte.claseEnCurso != null}">
-                    <span class="ac-en-directo-icon"><i class="fa-solid fa-tower-broadcast"></i></span>
-                    <div class="ac-en-directo-texto">
-                        <span class="ac-en-directo-etiqueta"><i class="fa-solid fa-circle"></i> En directo ahora</span>
-                        <strong th:text="${cohorte.claseEnCurso.titulo}">Clase magistral</strong>
-                        <small
-                            th:text="${cohorte.claseEnCurso.docenteCurso.docente.usuario.nombreCompleto}">Docente</small>
-                    </div>
-                    <a href="#" class="ac-en-directo-boton" data-sin-accion><i class="fa-solid fa-video"></i> Ingresar a
-                        la sala en vivo</a>
-                </section>
-                */-->
+                <!-- Clase en vivo: la que se transmite ahora o la próxima, con sus avisos -->
+                <th:block th:if="${seccion == 'temas' and cohorte != null and !esAdministrador}"
+                          th:with="enCurso=${cohorte.claseEnCurso}, proximas=${cohorte.proximasClases}, anticipacion=${@claseEnVivoServiceImpl.minutosDeAnticipacion()}">
+                    <!-- En directo: el alumno ingresa a la sala y el docente que transmite vuelve a su estudio -->
+                    <section class="ac-clase-aviso ac-clase-aviso-vivo" th:if="${enCurso != null and (!esDocente or enCurso.esDeDocente(usuario.docente))}">
+                        <i class="fa-solid fa-tower-broadcast ac-clase-aviso-icono" aria-hidden="true"></i>
+                        <div class="ac-clase-aviso-texto">
+                            <span class="ac-clase-aviso-etiqueta" th:text="${esDocente ? 'Estás transmitiendo' : 'En directo ahora'}">En directo ahora</span>
+                            <strong class="ac-clase-aviso-titulo" th:text="${enCurso.titulo}">Clase magistral</strong>
+                            <small class="ac-clase-aviso-subtitulo" th:text="${'Docente: ' + enCurso.docenteCurso.docente.usuario.nombreCompleto}">Tema</small>
+                        </div>
+                        <a th:href="@{${esDocente ? '/claseEnVivo/estudio/' : '/claseEnVivo/sala/'} + ${enCurso.idClaseEnVivo}}"
+                           class="pn-btn ac-clase-aviso-btn">Ingresar a la clase <i class="fa-solid fa-arrow-right"></i></a>
+                    </section>
+                    <!-- Próxima clase: sin botón, salvo el docente cuando ya puede iniciarla -->
+                    <th:block th:if="${enCurso == null and !#lists.isEmpty(proximas)}" th:with="p=${proximas[0]}">
+                        <section class="ac-clase-aviso ac-clase-aviso-pronto">
+                            <i class="fa-regular fa-calendar ac-clase-aviso-icono" aria-hidden="true"></i>
+                            <div class="ac-clase-aviso-texto">
+                                <span class="ac-clase-aviso-etiqueta" th:text="${p.puedeIniciarse(#temporals.createNow(), anticipacion) ? 'Empieza pronto' : 'Próxima clase en vivo'}">Próxima clase en vivo</span>
+                                <strong class="ac-clase-aviso-titulo" th:text="${p.titulo}">Clase 1</strong>
+                                <small class="ac-clase-aviso-subtitulo" th:text="${'Docente: ' + p.docenteCurso.docente.usuario.nombreCompleto}">Tema</small>
+                            </div>
+                            <span class="ac-clase-aviso-fecha" th:unless="${p.puedeIniciarse(#temporals.createNow(), anticipacion)}" th:text="${p.fechaConHora}">Sábado 14/11 · 19:00 h</span>
+                            <form th:action="@{'/claseEnVivo/iniciar/' + ${p.idClaseEnVivo}}" method="post" class="form-ajax"
+                                  th:if="${esDocente and p.esDeDocente(usuario.docente) and p.puedeIniciarse(#temporals.createNow(), anticipacion)}">
+                                <button type="submit" class="pn-btn ac-clase-aviso-btn">Iniciar la clase <i class="fa-solid fa-arrow-right"></i></button>
+                            </form>
+                        </section>
+                    </th:block>
+                </th:block>
 
                 <!-- ---------------------------------------------------------------------- -->
                 <!-- Sección: Temas (acordeón) -->
                 <!-- ---------------------------------------------------------------------- -->
 
-                <section id="temasDelCurso" th:if="${seccion == 'temas'}">
+                <!-- Docente en un curso sin cohortes: no hay nada que mostrar del diseño ni de los temas -->
+                <th:block th:if="${seccion == 'temas' and sinCohortes}">
+                    <th:block th:replace="~{fragments/components/empty :: bloque('fa-users-slash', 'Este curso todavía no tiene cohortes', 'El administrador las registra. Cuando haya una, desde acá vas a preparar su programa y su contenido.', null, null)}"></th:block>
+                </th:block>
+
+                <section id="temasDelCurso" th:if="${seccion == 'temas' and !sinCohortes}">
                     <!-- El docente ve todos los temas del curso (los del programa de la cohorte, con su orden, y los demás). -->
                     <th:block th:if="${programa != null or esDocente}" th:with="filas=${esDocente ? filasDeTemas : programa.cronogramaOrdenado}">
                     <div class="ac-barra-acordeon">
@@ -319,6 +335,21 @@
                                         </li>
                                     </ul>
 
+                                    <!-- Próximas clases en vivo del tema -->
+                                    <th:block th:if="${cohorte != null and !esAdministrador}" th:with="proximas=${cohorte.getProximasClasesDelTema(u)}">
+                                        <div class="ac-grupo-cabecera" th:if="${!#lists.isEmpty(proximas)}">
+                                            <h3 class="ac-grupo-titulo">Clases en vivo</h3>
+                                        </div>
+                                        <ul class="ac-actividades" th:if="${!#lists.isEmpty(proximas)}">
+                                            <li class="ac-actividad" th:each="p : ${proximas}">
+                                                <span class="ac-recurso-icon ac-recurso-icon-rosa"><i class="fa-solid fa-video"></i></span>
+                                                <div class="ac-actividad-info">
+                                                    <span class="ac-actividad-titulo ac-sin-enlace" th:text="${p.titulo + ' · ' + p.fechaConHora}">Clase 1 · Sábado 14/11 · 19:00 h</span>
+                                                </div>
+                                            </li>
+                                        </ul>
+                                    </th:block>
+
                                     <!-- Foro -->
                                     <div class="ac-grupo-cabecera">
                                         <h3 class="ac-grupo-titulo">Foro</h3>
@@ -365,33 +396,6 @@
                     </div>
                 </section>
 
-                <!-- ---------------------------------------------------------------------- -->
-                <!-- Sección: Clases en vivo -->
-                <!-- ---------------------------------------------------------------------- -->
-
-                <section th:if="${seccion == 'clases'}">
-                    <h2 class="ac-seccion-titulo">Clases en vivo de tu cohorte</h2>
-
-                    <th:block th:if="${cohorte == null or #lists.isEmpty(cohorte.clasesEnVivoPublicadas)}"><th:block th:replace="~{fragments/components/empty :: bloque('fa-video-slash', 'Todavía no hay clases en vivo', ${esDocente ? 'Cuando se programen clases en vivo para la cohorte, vas a verlas acá.' : 'Cuando se programen clases en vivo para tu cohorte, vas a verlas acá.'}, null, null)}"></th:block></th:block>
-
-                    <ul class="ac-actividades ac-clases"
-                        th:if="${cohorte != null and !#lists.isEmpty(cohorte.clasesEnVivoPublicadas)}">
-                        <li class="ac-actividad" th:each="c : ${cohorte.clasesEnVivoPublicadas}">
-                            <span class="ac-recurso-icon ac-recurso-icon-rosa"><i
-                                    class="fa-solid fa-video"></i></span>
-                            <div class="ac-actividad-info">
-                                <span class="ac-actividad-titulo ac-sin-enlace" th:text="${c.titulo}">Clase</span>
-                                <span class="ac-actividad-meta"
-                                    th:text="${#temporals.format(c.fechaHora, 'dd/MM/yyyy HH:mm') + ' · ' + c.duracion + ' min · ' + c.docenteCurso.docente.usuario.nombreCompleto}">01/01/2026
-                                    19:00 · 90 min · Docente</span>
-                            </div>
-                            <div class="ac-actividad-estado">
-                                <span class="pn-insignia" th:text="${c.estadoClaseEnVivo.nombre}"
-                                    th:classappend="${c.estadoClaseEnVivo.nombre == 'En vivo'} ? 'pn-insignia-roja' : (${c.estadoClaseEnVivo.nombre == 'Programada'} ? 'pn-insignia-azul' : 'pn-insignia-gris')">Programada</span>
-                            </div>
-                        </li>
-                    </ul>
-                </section>
                 </div>
 
                 <th:block th:if="${mostrarDrawer}">

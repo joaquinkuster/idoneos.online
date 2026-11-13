@@ -1,0 +1,416 @@
+/* ----------------------------------------------------------------------
+   Sala de la clase en vivo: estudio del docente y sala del alumno
+   ---------------------------------------------------------------------- */
+
+.sc-sala {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 20px;
+    align-items: stretch;
+}
+
+/* El marco del video tiene siempre la misma proporción y el ancho de su columna, haya o no video cargado */
+.sc-video {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.sc-video video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    background: #000000;
+}
+
+.sc-video-aviso {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    text-align: center;
+    font-size: 14px;
+    color: #CBD5E1;
+}
+
+.sc-video-aviso[hidden] {
+    display: none;
+}
+
+.sc-estado {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    padding: 3px 10px;
+    border-radius: 4px;
+    background: #DC2626;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.sc-pie-video {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--pn-texto-suave);
+}
+
+.sc-datos {
+    margin-top: 20px;
+    padding: 20px;
+}
+
+.sc-dato {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 12px;
+    margin-bottom: 8px;
+    border: 1px solid var(--pn-borde);
+    border-radius: 8px;
+    background: #F8FAFC;
+    font-size: 13px;
+}
+
+.sc-dato small {
+    display: block;
+    color: var(--pn-texto-suave);
+    font-size: 11px;
+}
+
+.sc-dato code {
+    color: var(--pn-navy);
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.sc-ayuda {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+/* Chat */
+
+.sc-chat {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* El chat ocupa exactamente la altura del marco del video */
+.sc-chat-celda {
+    position: relative;
+    min-height: 320px;
+}
+
+.sc-sala.sc-sin-chat {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.sc-sala.sc-sin-chat .sc-chat-celda {
+    display: none;
+}
+
+.sc-chat-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--pn-borde);
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--pn-navy);
+}
+
+.sc-chat-cabecera label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--pn-texto-suave);
+}
+
+.sc-chat-nota {
+    padding: 6px 14px;
+    border-bottom: 1px solid var(--pn-borde);
+    font-size: 11.5px;
+    color: var(--pn-texto-suave);
+}
+
+.sc-chat-lista {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+}
+
+.sc-avatar {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pn-avatar);
+    color: #FFFFFF;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.sc-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.sc-mensaje-docente .sc-avatar {
+    background: var(--pn-gold);
+    color: var(--pn-navy-dark);
+}
+
+.sc-mensaje {
+    display: flex;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.sc-mensaje-cuerpo {
+    flex: 1;
+}
+
+.sc-mensaje b {
+    font-weight: 700;
+    color: var(--pn-navy);
+}
+
+.sc-mensaje small {
+    margin-left: 4px;
+    color: #94A3B8;
+    font-size: 11px;
+}
+
+.sc-mensaje-docente .sc-mensaje-cuerpo {
+    padding: 5px 9px;
+    border-radius: 6px;
+    background: var(--pn-gold-soft);
+}
+
+.sc-mensaje-borrar {
+    align-self: flex-start;
+    border: 0;
+    background: transparent;
+    color: #94A3B8;
+    font-size: 12px;
+}
+
+.sc-mensaje-borrar:hover {
+    color: var(--pn-peligro);
+}
+
+.sc-chat-vacio {
+    margin: auto;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.sc-chat-pie {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 12px;
+    border-top: 1px solid var(--pn-borde);
+}
+
+.sc-chat-formulario {
+    display: flex;
+    gap: 8px;
+}
+
+.sc-chat-formulario .pn-input {
+    border-radius: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+/* El botón de enviar tiene la misma altura que el campo de escritura */
+.sc-chat-formulario .pn-input,
+.sc-chat-formulario .pn-btn {
+    height: 38px;
+}
+
+.sc-chat-error {
+    min-height: 16px;
+    margin: 4px 0 0;
+    font-size: 11.5px;
+    color: var(--pn-peligro);
+}
+
+@media (max-width: 991px) {
+    .sc-sala {
+        grid-template-columns: 1fr;
+        padding: 0 16px 24px;
+    }
+
+    .sc-chat-celda {
+        min-height: 420px;
+    }
+}
+
+/* Barra superior del estudio */
+.sc-barra {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.sc-barra-acciones {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.sc-senal {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--pn-texto-suave);
+}
+
+.sc-conectados {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.65);
+    color: #FFFFFF;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.sc-volver {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #FFFFFF;
+}
+
+/* Cajón de datos de conexión: se comporta como el del cronograma */
+.sc-cajon {
+    position: fixed;
+    top: calc(var(--nb-alto, 64px) + 16px);
+    right: 0;
+    width: 380px;
+    max-width: 92vw;
+    z-index: 1040;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-right: 0;
+    border-radius: 14px 0 0 14px;
+    box-shadow: -8px 8px 24px rgba(15, 23, 42, 0.12);
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+}
+
+.sc-cajon.abierto {
+    transform: translateX(0);
+}
+
+.sc-cajon-pestana {
+    position: fixed;
+    top: calc(var(--nb-alto, 64px) + 90px);
+    right: 0;
+    z-index: 900;
+    width: 32px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-right: 0;
+    border-radius: 18px 0 0 18px;
+    cursor: pointer;
+}
+
+.sc-cajon-pestana:hover {
+    color: var(--pn-navy);
+    background: #F1F5F9;
+}
+
+.sc-cajon.abierto ~ .sc-cajon-pestana {
+    display: none;
+}
+
+.sc-cajon-cabecera {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+}
+
+.sc-cajon-titulo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.sc-cajon-cabecera h2 {
+    margin: 0;
+    font-size: 15px;
+}
+
+/* Los elementos del cajón van separados 20 px */
+.sc-cajon-cuerpo {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px 20px;
+}
+
+.sc-cajon-cuerpo .sc-dato,
+.sc-cajon-cuerpo .sc-ayuda,
+.sc-cajon-cuerpo > div {
+    margin: 0;
+}
+
+.sc-chat-error:empty {
+    display: none;
+}

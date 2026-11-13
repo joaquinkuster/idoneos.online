@@ -163,15 +163,15 @@
             : '<span class="text-success fw-bold">Sin dependencias</span>';
         return Swal.fire({
             iconHtml: '<i class="fa-solid fa-triangle-exclamation"></i>',
-            title: '¿Confirmas dar de baja los ' + datos.elementos + ' seleccionados?',
-            html: '<p class="swal-texto-baja">Se darán de baja todos o ninguno.</p>'
+            title: datos.titulo || '¿Confirmas dar de baja los ' + datos.elementos + ' seleccionados?',
+            html: '<p class="swal-texto-baja">' + (datos.texto || 'Se darán de baja todos o ninguno.') + '</p>'
                 + '<div class="pn-baja-detalle">'
                 + '<div class="pn-baja-fila"><span class="text-muted">Elementos</span><strong>' + datos.cantidad + (datos.cantidad === 1 ? ' seleccionado' : ' seleccionados') + '</strong></div>'
                 + '<div class="pn-baja-fila"><span class="text-muted">Dependencias</span>' + filaDependencias + '</div>'
                 + '</div>',
             showCancelButton: true,
             reverseButtons: true,
-            confirmButtonText: 'Dar de baja',
+            confirmButtonText: datos.confirmar || 'Dar de baja',
             cancelButtonText: 'Cancelar',
             didOpen: function () {
                 if (hay) { Swal.getConfirmButton().disabled = true; }

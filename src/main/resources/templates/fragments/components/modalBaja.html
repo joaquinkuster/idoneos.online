@@ -22,3 +22,27 @@
         </div>
     </div>
 </div>
+
+<!-- Ventana de confirmación de cancelación, la misma en todos los listados de clases. id. -->
+<div th:fragment="cancelar(id, tipo, pregunta, nota, accion)" class="modal fade pn-modal pn-modal-alerta"
+     th:id="${id}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo" th:text="${'Cancelar ' + tipo}">Cancelar</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo text-center">
+                <div class="pn-baja-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h4 class="pn-modal-titulo mb-2" th:text="${pregunta}" data-baja-pregunta>¿Confirmas cancelar?</h4>
+                <p class="small text-muted mb-0" th:text="${nota}" data-baja-nota>Aclaración.</p>
+                <form th:action="@{${accion}}" method="post" class="form-ajax" data-baja-formulario>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Volver</button>
+                        <button type="submit" class="pn-btn pn-btn-peligro">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

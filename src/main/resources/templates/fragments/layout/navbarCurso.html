@@ -17,7 +17,7 @@
                     </button>
                     <div class="ac-navbar-menu" data-navbar-menu hidden>
                         <a th:href="${'/tema/buscar?cursoId=' + curso.idCurso}"><strong>Temas</strong></a>
-                        <a th:href="${'/programa/buscar?cursoId=' + curso.idCurso}" th:if="${nivel >= 3}"><strong>Programas</strong></a>
+                        <a th:href="${'/programa/buscar?cursoId=' + curso.idCurso}" th:if="${nivel >= 3}">Programas</a>
                         <a th:href="${'/cronograma/buscar?cursoId=' + curso.idCurso}" th:if="${nivel >= 4}">Cronogramas</a>
                     </div>
                 </div>
@@ -28,11 +28,11 @@
                     </button>
                     <div class="ac-navbar-menu" data-navbar-menu hidden>
                         <a th:href="${'/recurso/buscar?cursoId=' + curso.idCurso}"><strong>Recursos</strong></a>
-                        <a th:href="${urlBase + '?seccion=clases'}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
                         <a th:href="${'/pool/buscar?cursoId=' + curso.idCurso}">Pools</a>
                         <a th:href="${'/autoevaluacion/buscar?cursoId=' + curso.idCurso}">Autoevaluaciones</a>
                         <a th:href="${'/glosario/buscar?cursoId=' + curso.idCurso}">Glosario</a>
                         <a th:href="${'/foro/buscar?cursoId=' + curso.idCurso}">Foros</a>
+                        <a th:href="${'/claseEnVivo/buscar?cursoId=' + curso.idCurso}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
                     </div>
                 </div>
 

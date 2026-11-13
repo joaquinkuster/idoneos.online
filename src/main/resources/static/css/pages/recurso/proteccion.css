@@ -11,19 +11,25 @@
     pointer-events: none; /* sin "guardar imagen como" sobre la página dibujada */
 }
 
+/* El marco del reproductor tiene siempre la misma proporción y el ancho del contenedor, haya o no video cargado */
 .mv-reproductor {
     position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
     background: #000000;
 }
 
 .mv-reproductor .mv-video {
-    max-height: 72vh;
-}
-
-.mv-reproductor:fullscreen .mv-video {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     max-height: none;
+    object-fit: contain;
+}
+
+.mv-reproductor:fullscreen {
+    aspect-ratio: auto;
 }
 
 .mv-pantalla-video {

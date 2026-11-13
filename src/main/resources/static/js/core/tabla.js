@@ -370,7 +370,10 @@
                     elementos: botonBaja.dataset.elementos,
                     dependencias: dependencias,
                     terminoUno: botonBaja.dataset.terminoUno,
-                    terminoVarios: botonBaja.dataset.terminoVarios
+                    terminoVarios: botonBaja.dataset.terminoVarios,
+                    titulo: botonBaja.dataset.titulo,
+                    texto: botonBaja.dataset.texto,
+                    confirmar: botonBaja.dataset.confirmar
                 }))) { return; }
                 var datos = new FormData();
                 ids.forEach(function (id) { datos.append('ids', id); });

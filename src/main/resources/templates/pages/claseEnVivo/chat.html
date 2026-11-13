@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Chat de la clase. Lo arma static/js/pages/claseEnVivo/sala.js. El docente puede eliminar mensajes y deshabilitarlo. -->
+<aside th:fragment="chat(esDocente, habilitado)" class="pn-card sc-chat" data-chat>
+    <div class="sc-chat-cabecera">
+        <span>Chat de la clase</span>
+        <label th:if="${esDocente}"><input type="checkbox" data-chat-habilitado th:checked="${habilitado}"> Habilitado</label>
+    </div>
+    <div class="sc-chat-nota">Los mensajes se borran cuando termina la clase.</div>
+    <div class="sc-chat-lista" data-chat-lista aria-live="polite">
+        <p class="sc-chat-vacio" data-chat-vacio>Todavía no hay mensajes.</p>
+    </div>
+    <div class="sc-chat-pie">
+        <form class="sc-chat-formulario" data-chat-formulario autocomplete="off">
+            <input type="text" class="pn-input" name="texto" maxlength="300" placeholder="Escribí un mensaje" aria-label="Mensaje">
+            <button type="submit" class="pn-btn pn-btn-primario" aria-label="Enviar mensaje"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
+        <p class="sc-chat-error" data-chat-error></p>
+    </div>
+</aside>
+</body>
+</html>

@@ -28,10 +28,7 @@
                     <th:block th:replace="~{pages/recurso/icon :: icon('Foro', '')}"></th:block>
                     <div>
                         <h1 class="pn-titulo" th:text="${'Foro ' + numeroOrden}">Foro 1</h1>
-                        <p class="pn-subtitulo">
-                            <span th:text="${tema.titulo}">Introducción al mercado de capitales</span>
-                            · <span th:text="${totalConsultas + (totalConsultas == 1 ? ' consulta' : ' consultas')}">3 consultas</span>
-                        </p>
+                        <p class="pn-subtitulo" th:text="${'Tema: ' + tema.titulo + ' · Consultas: ' + totalConsultas}">Tema: Introducción al mercado de capitales · Consultas: 3</p>
                     </div>
                 </div>
                 <button type="button" class="pn-btn pn-btn-primario" th:if="${esAlumno}" data-bs-toggle="modal" data-bs-target="#modalNuevaConsulta">

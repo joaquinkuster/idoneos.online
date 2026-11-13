@@ -233,12 +233,12 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
             temaService.quitarVariasDelCronograma(quitadas, programa.getIdPrograma(), docente);
         }
 
-        // Números provisionales para poder reubicar sin repetir un número de orden del programa
+        // Números provisionales (altos, porque el orden tiene que ser mayor a cero) para poder reubicar sin repetir un número de orden del programa
         Map<Integer, TemaCronograma> existentes = programa.getTemasCronograma().stream()
                 .collect(Collectors.toMap(c -> c.getTema().getIdTema(), c -> c));
-        int provisorio = -1;
+        int provisorio = 1_000_000;
         for (TemaCronograma cronograma : existentes.values()) {
-            cronograma.setNumeroOrden(provisorio--);
+            cronograma.setNumeroOrden(provisorio++);
             temaCronogramaRepository.saveAndFlush(cronograma);
         }
         LocalDateTime ahora = LocalDateTime.now();

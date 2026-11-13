@@ -24,12 +24,12 @@
                     <div>
                         <h1 class="ac-titulo mv-titulo" th:text="${recurso.titulo}">Clase 3: Valuación de bonos</h1>
                         <p class="ac-subtitulo-curso">
-                            <span th:text="${recurso.tipo}">Grabación</span>
+                            Tipo: <span th:text="${recurso.tipo}">Grabación</span>
                             <th:block th:if="${recurso.autor != null and !#strings.isEmpty(recurso.autor)}">
-                                · <span th:text="${recurso.autor}">Autor</span>
+                                · Autor: <span th:text="${recurso.autor}">Autor</span>
                             </th:block>
-                            · Subido por: <span th:text="${esPropio ? 'Vos' : recurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span>
-                            · <span th:text="${recurso.privado} ? 'No compartido con docentes' : 'Compartido con docentes'">No compartido con docentes</span>
+                            · Subido por: <span th:text="${recurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span>
+                            · Compartido con docentes: <span th:text="${recurso.privado} ? 'No' : 'Sí'">No</span>
                         </p>
                     </div>
                 </div>

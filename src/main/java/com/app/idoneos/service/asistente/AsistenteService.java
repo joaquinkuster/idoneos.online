@@ -26,8 +26,22 @@ public interface AsistenteService {
      * @param pronto La marca de la primera carta cuando falta poco, por ejemplo "Cierra pronto", o {@code null}.
      * @param urgencia {@code "alta"} (faltan {@link #DIAS_URGENTE} días o menos, en rojo), {@code "media"} (hasta {@link #DIAS_PRONTO}, en dorado) o {@code null}.
      * @param url A dónde lleva la acción.
+     * @param metodo {@code "POST"} si la acción cambia datos (por ejemplo iniciar una clase) y hay que enviarla en vez de navegar, o {@code null}.
      */
-    record Pendiente(String titulo, String curso, String accion, String fecha, String pronto, String urgencia, String url) {
+    record Pendiente(String titulo, String curso, String accion, String fecha, String pronto, String urgencia, String url,
+            String metodo) {
+    }
+
+    /**
+     * Una sección más del panel, que se muestra en su propia pestaña (por ejemplo las clases en vivo).
+     *
+     * @param etiqueta El nombre de la pestaña.
+     * @param titulo El nombre de la lista de la sección.
+     * @param resumen Lo que tiene en una línea.
+     * @param total La cantidad total de elementos.
+     * @param pendientes Los primeros elementos, ya ordenados.
+     */
+    record Seccion(String etiqueta, String titulo, String resumen, int total, List<Pendiente> pendientes) {
     }
 
     /**
@@ -49,8 +63,11 @@ public interface AsistenteService {
      * @param total La cantidad total de pendientes (la lista trae como mucho {@link #MAXIMO_PENDIENTES}).
      * @param pendientes Los primeros pendientes, ya ordenados.
      * @param atajos Las acciones rápidas del rol.
+     * @param etiqueta El nombre de la pestaña principal (por ejemplo, "Autoevaluaciones").
+     * @param secciones Las demás pestañas del panel, en orden.
      */
-    record Respuesta(String nombre, String resumen, String aviso, String titulo, int total, List<Pendiente> pendientes, List<Atajo> atajos) {
+    record Respuesta(String nombre, String resumen, String aviso, String titulo, int total, List<Pendiente> pendientes, List<Atajo> atajos,
+            String etiqueta, List<Seccion> secciones) {
     }
 
     /**

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong th:text="${c.titulo}">Clase</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo" th:text="${c.titulo}">Clase magistral: Operatoria de renta fija</h1>
+                    <p class="pn-subtitulo" th:text="${'Tema: ' + c.tema.titulo + ' · Cohorte: ' + c.cohorte.mesAnio}">Tema: Renta fija · Cohorte: Marzo 2027</p>
+                </div>
+            </div>
+
+            <div data-sala th:attr="data-clase=${c.idClaseEnVivo}, data-rol=${rol}, data-url=${urlReproduccion}, data-token=${tokenReproduccion}, data-urlclases=${urlClases}">
+                <!-- Barra superior: la señal a la izquierda y las acciones del docente a la derecha -->
+                <div class="sc-barra">
+                    <span></span>
+                    <div class="sc-barra-acciones">
+                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-alternar-chat><i class="fa-regular fa-comment"></i> <span>Ocultar chat</span></button>
+                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalFinalizarClase">Finalizar clase</button>
+                    </div>
+                </div>
+
+                <div class="sc-sala" data-grilla>
+                    <div class="sc-video">
+                        <video data-video controls autoplay muted playsinline disablepictureinpicture
+                               controlsList="nodownload noplaybackrate"></video>
+                        <div class="sc-video-aviso" data-video-aviso>Esperando la señal de OBS...</div>
+                        <span class="sc-estado" data-etiqueta-vivo hidden>En vivo</span>
+                        <span class="sc-conectados" title="Conectados"><i class="fa-solid fa-eye"></i> <span data-conectados>0</span></span>
+                    </div>
+                    <div class="sc-chat-celda" data-chat-celda>
+                        <th:block th:replace="~{pages/claseEnVivo/chat :: chat(true, ${chatHabilitado})}"></th:block>
+                    </div>
+                </div>
+
+                <!-- Cajón con los datos de conexión de OBS -->
+                <aside class="sc-cajon" th:classappend="${conexion != null} ? 'abierto'" data-cajon aria-label="Datos de conexión para OBS">
+                    <div class="sc-cajon-cabecera">
+                        <div class="sc-cajon-titulo">
+                            <h2 class="pn-lista-titulo">Datos de conexión para OBS</h2>
+                            <span class="pn-insignia pn-insignia-gris" data-senal>Sin señal</span>
+                        </div>
+                        <button type="button" class="pn-modal-cerrar" data-cerrar-cajon aria-label="Ocultar"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="sc-cajon-cuerpo">
+                        <th:block th:if="${conexion != null}">
+                            <p class="sc-ayuda">En OBS, abrí Ajustes › Emisión, elegí el servicio Personalizado y cargá estos datos.</p>
+                            <div class="sc-dato">
+                                <span><small>Servidor</small><code th:text="${conexion.urlRtmp}">rtmp://localhost:1935</code></span>
+                                <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-copiar th:attr="data-copiar=${conexion.urlRtmp}">Copiar</button>
+                            </div>
+                            <div class="sc-dato">
+                                <span><small>Clave de transmisión, solo tuya</small><code data-clave-texto hidden th:text="${conexion.clave}">clase-1?user=docente&amp;pass=...</code><code data-clave-oculta>••••••••••••••••••••</code></span>
+                                <span class="d-flex gap-2">
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-mostrar-clave>Mostrar</button>
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-copiar th:attr="data-copiar=${conexion.clave}">Copiar</button>
+                                </span>
+                            </div>
+                        </th:block>
+                        <p class="sc-ayuda" th:if="${conexion == null}">La clave se muestra solo al generarla. Si la perdiste, generá una nueva.</p>
+                        <div class="mt-2">
+                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalRegenerarClave">Generar clave nueva</button>
+                        </div>
+                        <p class="sc-ayuda" th:text="${'Si se corta la señal, tenés ' + minutosSinSenal + (minutosSinSenal == 1 ? ' minuto' : ' minutos') + ' para volver a conectar antes de que la clase se cierre sola.'}">Si se corta la señal, tenés 10 minutos para volver a conectar antes de que la clase se cierre sola.</p>
+                    </div>
+                </aside>
+                <!-- Pestaña del borde derecho para volver a mostrar el cajón, como la del cronograma -->
+                <button type="button" class="sc-cajon-pestana" data-abrir-cajon aria-label="Mostrar los datos de conexión"
+                        title="Mostrar los datos de conexión"><i class="fa-solid fa-plug"></i></button>
+            </div>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Gestión académica')}"></th:block>
+    </div>
+</div>
+
+<!-- Finalizar la clase: corta la señal y publica la grabación en el tema -->
+<div class="modal fade pn-modal pn-modal-alerta" id="modalFinalizarClase" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Finalizar clase en vivo</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo text-center">
+                <div class="pn-baja-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h4 class="pn-modal-titulo mb-2">¿Confirmas finalizar la transmisión?</h4>
+                <p class="small text-muted mb-0" th:text="${'Se corta la señal, se borra el chat y la grabación se publica en el tema «' + c.tema.titulo + '».'}">Se corta la señal.</p>
+                <form th:action="@{'/claseEnVivo/finalizar/' + ${c.idClaseEnVivo}}" method="post" class="form-ajax">
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Seguir transmitiendo</button>
+                        <button type="submit" class="pn-btn pn-btn-peligro">Finalizar clase</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Clave nueva: la anterior deja de servir y, si se está transmitiendo, se corta la señal -->
+<div class="modal fade pn-modal pn-modal-alerta" id="modalRegenerarClave" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Generar una clave nueva</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo text-center">
+                <div class="pn-baja-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <h4 class="pn-modal-titulo mb-2">¿Confirmas generar una clave nueva?</h4>
+                <p class="small text-muted mb-0">La clave actual deja de funcionar y se corta la señal que esté usándola. Vas a tener que cargar la nueva en OBS.</p>
+                <form th:action="@{'/claseEnVivo/regenerarClave/' + ${c.idClaseEnVivo}}" method="post" class="form-ajax">
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-peligro">Generar clave</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+<script th:src="@{/js/pages/claseEnVivo/sala.js}"></script>
+</body>
+</html>
