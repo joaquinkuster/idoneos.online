@@ -35,9 +35,11 @@
 }
 
 .av-menu {
-    width: 34px;
-    height: 34px;
-    font-size: 13px;
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    /* La foto del menú de usuario es cuadrada, con esquinas redondeadas */
+    border-radius: 7px;
 }
 
 /* Cards filtradas o fuera de la página actual (las maneja panel.js) */

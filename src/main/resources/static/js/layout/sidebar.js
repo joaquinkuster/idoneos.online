@@ -18,6 +18,14 @@
             }
             titulo.parentNode.insertBefore(cuerpo, titulo.nextSibling);
 
+            // Cada grupo va dentro de su contenedor con borde. Si tiene la página actual, el contenedor lo marca
+            var caja = document.createElement('div');
+            caja.className = 'pn-menu-caja';
+            titulo.parentNode.insertBefore(caja, titulo);
+            caja.appendChild(titulo);
+            caja.appendChild(cuerpo);
+            caja.classList.toggle('con-activo', !!cuerpo.querySelector('.pn-menu-enlace.activo') || titulo.classList.contains('activo'));
+
             var clave = 'idoneos.menu.grupo.' + (titulo.getAttribute('title') || titulo.textContent.trim());
             // Solo queda desplegado el grupo donde está la persona. Los demás arrancan colapsados (se pueden abrir a mano)
             var cerrado = !cuerpo.querySelector('.pn-menu-enlace.activo') && !titulo.classList.contains('activo');

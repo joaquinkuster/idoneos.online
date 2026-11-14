@@ -10,11 +10,6 @@
     </button>
 
     <div class="um-dropdown" role="menu">
-        <div class="um-encabezado">
-            <div class="um-encabezado-nombre" th:text="${usuario.nombreCompleto}">Admin General</div>
-            <div class="um-encabezado-correo" th:text="${usuario.correo}">admin@idoneos.online</div>
-        </div>
-
         <div class="um-seccion">
             <!-- "Mi portal": un acordeón igual para los tres roles. -->
             <div th:if="${usuario.esAdministradorActivo() or usuario.esDocenteActivo() or usuario.esAlumnoActivo()}" class="um-grupo">

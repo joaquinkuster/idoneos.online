@@ -52,8 +52,8 @@
     top: calc(100% + 10px);
     width: 264px;
     background: #FFFFFF;
-    border: 1px solid var(--pn-borde);
-    border-radius: 12px;
+    border: 0;
+    border-radius: 14px;
     box-shadow: 0 16px 40px rgba(8, 20, 38, 0.18);
     z-index: 3000;
     overflow: hidden;
@@ -62,24 +62,6 @@
 
 .um-wrapper.abierto .um-dropdown {
     display: block;
-}
-
-.um-encabezado {
-    padding: 14px 16px;
-    background: var(--pn-fondo);
-    border-bottom: 1px solid var(--pn-borde);
-}
-
-.um-encabezado-nombre {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--pn-texto);
-}
-
-.um-encabezado-correo {
-    font-size: 12px;
-    color: var(--pn-texto-suave);
-    word-break: break-all;
 }
 
 .um-seccion {

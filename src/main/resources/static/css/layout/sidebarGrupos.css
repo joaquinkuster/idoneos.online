@@ -1,0 +1,245 @@
+/* ----------------------------------------------------------------------
+   MENÚ LATERAL: fondo azul del panel y cada grupo en su carta
+   - El menú es una grilla de cartas separadas por 12 px: el botón del curso (solo en el menú del curso) y un grupo por carta.
+   - Cada carta lleva un número en la serif de los títulos (01, 02, 03...) que se cuenta solo con un contador de CSS.
+   - Carta inactiva: blanca con borde fino. Con el mouse: borde dorado y fondo crema.
+   - Carta activa (el botón del curso o el grupo que contiene la página actual): azul marino con borde dorado.
+   - Los elementos del grupo cuelgan de un riel vertical con un círculo por elemento. El seleccionado va en negrita con fondo suave.
+   - Se carga después de panel.css, sidebar.css y sidebarCurso.css, y cambia su aspecto.
+   ---------------------------------------------------------------------- */
+
+/* Grilla de cartas. El contador numera el botón del curso y los grupos, en el orden en que aparecen */
+.pn-menu-nav {
+    display: grid;
+    /* Una sola columna que no crece con su contenido: así el margen derecho es igual al izquierdo */
+    grid-template-columns: minmax(0, 1fr);
+    align-content: start;
+    gap: 12px;
+    counter-reset: pn-n;
+}
+
+.pn-menu-nav > .pn-menu-enlace,
+.pn-menu-nav > .pn-menu-caja {
+    counter-increment: pn-n;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Colores de cada estado, compartidos por el botón del curso y los grupos */
+/* ---------------------------------------------------------------------- */
+
+.pn-menu-nav > .pn-menu-enlace,
+.pn-menu-caja {
+    --pn-carta: #FFFFFF;
+    --pn-aro: inset 0 0 0 1px #CBD5E1;
+    --pn-titulo: #0F233D;
+    --pn-numero: #8A6B1F;
+    --pn-flecha: #64748B;
+    --pn-texto-item: #475569;
+    --pn-riel: rgba(15, 35, 61, 0.2);
+    --pn-circulo: #94A3B8;
+    background: var(--pn-carta);
+    border: 0;
+    border-radius: 10px;
+    box-shadow: var(--pn-aro);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Con el mouse (solo en las inactivas): borde dorado y fondo crema */
+.pn-menu-nav > .pn-menu-enlace:not(.activo):hover,
+.pn-menu-caja:not(.con-activo):hover {
+    --pn-carta: #FFFBEB;
+    --pn-aro: inset 0 0 0 1.5px #D4A03D;
+}
+
+/* Activa: azul marino con borde dorado */
+.pn-menu-nav > .pn-menu-enlace.activo,
+.pn-menu-caja.con-activo {
+    --pn-carta: #0F233D;
+    --pn-aro: inset 0 0 0 2px #D4A03D;
+    --pn-titulo: #FFFFFF;
+    --pn-numero: #D4A03D;
+    --pn-flecha: #A9BBD3;
+    --pn-texto-item: #D6E0EE;
+    --pn-riel: rgba(255, 255, 255, 0.22);
+    --pn-circulo: rgba(255, 255, 255, 0.4);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Botón del curso (solo en el menú del curso) */
+/* ---------------------------------------------------------------------- */
+
+.pn-menu-nav > .pn-menu-enlace,
+.pn-menu-nav > .pn-menu-enlace:hover,
+.pn-menu-nav > .pn-menu-enlace.activo {
+    gap: 10px;
+    height: auto;
+    min-height: 50px;
+    margin: 0;
+    padding: 14px 16px;
+    background-image: none;
+    background-color: var(--pn-carta);
+    box-shadow: var(--pn-aro);
+    color: var(--pn-titulo);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+/* sidebarCurso.css le daba 4 px de margen abajo: ahora la separación es solo la de la grilla */
+.pn-menu-nav > .pn-menu-enlace:first-child {
+    margin-bottom: 0;
+}
+
+.pn-menu-nav > .pn-menu-enlace > span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Número de la carta, en el botón del curso y en el título de cada grupo */
+.pn-menu-nav > .pn-menu-enlace::before,
+.pn-menu-caja > .pn-menu-grupo::before {
+    content: counter(pn-n, decimal-leading-zero);
+    min-width: 30px;
+    flex-shrink: 0;
+    color: var(--pn-numero);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 24px;
+    font-style: italic;
+    font-weight: 700;
+    line-height: 1;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Título de cada grupo */
+/* ---------------------------------------------------------------------- */
+
+.pn-menu-caja {
+    overflow: hidden;
+}
+
+.pn-menu-caja .pn-menu-grupo,
+.pn-menu-caja .pn-menu-grupo:hover,
+.pn-menu-caja .pn-menu-grupo.activo {
+    gap: 10px;
+    height: auto;
+    min-height: 50px;
+    margin: 0;
+    padding: 14px 16px;
+    border: 0;
+    background: transparent;
+    color: var(--pn-titulo);
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.2;
+    white-space: normal;
+    overflow: visible;
+}
+
+.pn-menu-caja .pn-menu-grupo > span,
+.pn-menu-caja .pn-menu-grupo > .pn-menu-grupo-enlace {
+    flex: 0 1 auto;
+}
+
+/* La flecha apunta hacia abajo con el grupo cerrado y hacia arriba con el grupo abierto */
+.pn-menu-caja .pn-menu-grupo .pn-menu-grupo-flecha {
+    margin-left: auto;
+    color: var(--pn-flecha);
+    font-size: 13px;
+    transform: rotate(180deg);
+    transition: transform 0.2s ease;
+}
+
+.pn-menu-caja .pn-menu-grupo.cerrado .pn-menu-grupo-flecha {
+    transform: rotate(0);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Elementos del grupo: cuelgan de un riel vertical, con un círculo cada uno */
+/* ---------------------------------------------------------------------- */
+
+.pn-menu-caja .pn-menu-grupo-cuerpo {
+    gap: 6px;
+    margin: 0 14px 14px 30px;
+    padding: 0;
+    border-left: 1px solid var(--pn-riel);
+    border-radius: 0;
+    background: transparent;
+}
+
+.pn-menu-caja .pn-menu-enlace {
+    position: relative;
+    height: auto;
+    gap: 0;
+    /* El elemento arranca en el riel, así la pastilla de selección incluye el círculo */
+    margin: 0 0 0 -14px;
+    padding: 10px 12px 10px 32px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    box-shadow: none;
+    color: var(--pn-texto-item);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.3;
+    /* La negrita se simula con un trazo: las letras se engrosan pero no se ensanchan, así el texto no se corre */
+    -webkit-text-stroke: 0 currentColor;
+    transition: color 0.12s ease, -webkit-text-stroke-width 0.12s ease;
+}
+
+.pn-menu-caja .pn-menu-enlace > span,
+.pn-menu-caja .pn-menu-enlace[data-entidad] > span {
+    font-weight: inherit;
+}
+
+/* Círculo del riel */
+.pn-menu-caja .pn-menu-enlace::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    right: auto;
+    width: 9px;
+    height: 9px;
+    margin-top: -4px;
+    border: 1px solid var(--pn-circulo);
+    border-radius: 50%;
+    background: var(--pn-carta);
+}
+
+.pn-menu-caja .pn-menu-enlace:hover {
+    height: auto;
+    margin: 0 0 0 -14px;
+    padding: 10px 12px 10px 32px;
+    border-radius: 8px;
+    background: transparent;
+    color: #0F233D;
+    -webkit-text-stroke-width: 0.5px;
+}
+
+/* Dentro de la carta azul, el elemento con el mouse lleva el fondo suave y la letra blanca */
+.pn-menu-caja.con-activo .pn-menu-enlace:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #FFFFFF;
+}
+
+/* Elemento seleccionado: letra blanca en negrita, fondo suave y círculo dorado */
+.pn-menu-caja .pn-menu-enlace.activo,
+.pn-menu-caja .pn-menu-enlace.activo:hover {
+    height: auto;
+    margin: 0 0 0 -14px;
+    padding: 10px 12px 10px 32px;
+    border: 0;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: none;
+    color: #FFFFFF;
+    font-weight: 400;
+    -webkit-text-stroke-width: 0.5px;
+}
+
+.pn-menu-caja .pn-menu-enlace.activo::before {
+    border-color: #D4A03D;
+    background: #D4A03D;
+}

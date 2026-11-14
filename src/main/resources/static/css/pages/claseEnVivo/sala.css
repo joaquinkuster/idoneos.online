@@ -419,7 +419,6 @@
 
 /* Conectar con mi OBS y conexión manual: todos los elementos van separados 20 px */
 .sc-obs,
-.sc-manual,
 .sc-manual-panel {
     display: flex;
     flex-direction: column;
@@ -450,4 +449,13 @@
 
 .sc-obs-error {
     color: var(--pn-peligro);
+}
+
+.sc-obs [hidden] {
+    display: none !important;
+}
+
+/* El texto de estado vacío no ocupa una fila de la grilla: sin esto, suma otro gap de 20 px debajo de los botones */
+.sc-obs [data-obs-estado]:empty {
+    display: none;
 }

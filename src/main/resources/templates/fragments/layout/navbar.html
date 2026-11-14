@@ -1,10 +1,6 @@
 <!-- Navbar único de Idóneos Online: lo usan el sitio público y los paneles (administración y gestión académica). - Sitio público con banner oscuro: transparente arriba y blanco al hacer scroll. -->
 <header th:fragment="navbar" class="nb" data-navbar>
     <div class="nb-izq">
-        <!-- Solo con menú lateral (navbar.js lo muestra) -->
-        <button type="button" class="nb-menu" data-menu-lateral aria-label="Menú lateral">
-            <i class="fa-solid fa-bars"></i>
-        </button>
         <a th:href="@{/inicio}" class="nb-marca" title="Idóneos Online">
             <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
             <span><span class="nb-marca-serif">Idóneos</span> <b>Online</b></span>
@@ -12,8 +8,13 @@
     </div>
 
     <!-- Pantallas chicas: abre y cierra los enlaces y el menú del usuario -->
-    <button type="button" class="nb-toggle" data-nb-toggle aria-label="Abrir menú" aria-expanded="false" aria-controls="nbEnlaces">
-        <i class="fa-solid fa-bars"></i>
+    <button type="button" class="nb-toggle" th:classappend="${usuario != null} ? 'nb-toggle-usuario'" data-nb-toggle aria-label="Abrir menú" aria-expanded="false" aria-controls="nbEnlaces">
+        <!-- Visitante: las 3 barras. Usuario: su foto y una flecha, y el cajón trae los enlaces y sus opciones en una sola lista -->
+        <i class="fa-solid fa-bars" th:if="${usuario == null}"></i>
+        <th:block th:if="${usuario != null}">
+            <th:block th:replace="~{fragments/components/avatar :: avatar(${usuario}, 'av-menu')}"></th:block>
+            <i class="fa-solid fa-chevron-down nb-toggle-flecha"></i>
+        </th:block>
     </button>
 
     <nav class="nb-enlaces" id="nbEnlaces" aria-label="Navegación principal">

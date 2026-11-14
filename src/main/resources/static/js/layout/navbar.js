@@ -78,13 +78,23 @@
         }
 
         // 4. Enlaces en pantallas chicas
+        // El botón es las 3 barras (visitante) o la foto con una flecha (usuario): la flecha gira y las 3 barras pasan a una cruz
+        function marcarToggle(abierto) {
+            if (!toggle) { return; }
+            if (toggle.classList.contains('nb-toggle-usuario')) {
+                toggle.classList.toggle('abierto', abierto);
+                return;
+            }
+            toggle.querySelector('i').className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+        }
+
         function cerrar() {
             if (!enlaces) { return; }
             enlaces.classList.remove('abierto');
             navbar.classList.remove('menu-abierto');
             if (toggle) {
                 toggle.setAttribute('aria-expanded', 'false');
-                toggle.querySelector('i').className = 'fa-solid fa-bars';
+                marcarToggle(false);
             }
         }
 
@@ -93,7 +103,7 @@
                 var abierto = enlaces.classList.toggle('abierto');
                 navbar.classList.toggle('menu-abierto', abierto);
                 toggle.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-                toggle.querySelector('i').className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+                marcarToggle(abierto);
             });
         }
         document.addEventListener('click', function (evento) {

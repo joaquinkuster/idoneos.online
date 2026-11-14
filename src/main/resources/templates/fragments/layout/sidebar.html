@@ -6,6 +6,10 @@
         <nav class="pn-menu-nav" th:insert="${navegacion}"></nav>
         <div class="pn-menu-pie">© 2026 Idóneos Online</div>
     </aside>
+    <!-- Pestaña pegada al borde del menú: lo oculta y lo vuelve a mostrar (la atiende navbar.js con data-menu-lateral) -->
+    <button type="button" class="pn-menu-pestana" data-menu-lateral aria-label="Mostrar u ocultar el menú lateral" title="Menú lateral">
+        <i class="fa-solid fa-bars"></i>
+    </button>
     <div class="pn-fondo-menu" data-cerrar-menu></div>
     <!-- Arma los grupos del menú ahora, antes del primer dibujo (si esperara al final de la página se vería sin agrupar) -->
     <script th:src="@{/js/layout/sidebar.js}"></script>

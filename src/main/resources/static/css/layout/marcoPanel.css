@@ -1,0 +1,160 @@
+/* ----------------------------------------------------------------------
+   MARCO DEL PANEL: el navbar y el menú lateral forman una sola superficie azul en forma de L
+   - Los dos usan el mismo fondo, dibujado con el tamaño de la pantalla y alineado a ella: así no se nota dónde termina uno y empieza el otro.
+   - El contenido crema queda dentro del marco y su esquina superior izquierda es redondeada.
+   - Con el menú oculto (o sin menú) la esquina se endereza.
+   - Solo afecta a las páginas del panel (body.pn-body). Se carga al final, después de panel.css, navbar.css y sidebarGrupos.css.
+   ---------------------------------------------------------------------- */
+
+:root {
+    --pn-marco-fondo:
+        radial-gradient(480px 340px at 0 0, #1E4278 0%, transparent 62%),
+        radial-gradient(380px circle at 160px 72%, rgba(14, 165, 233, 0.14), transparent 70%),
+        linear-gradient(180deg, #16335C 0%, #0F2644 50%, #0A1B33 100%);
+    --pn-marco-curva: 16px;
+}
+
+/* Navbar del panel: azul, con el fondo del marco alineado a la pantalla */
+.pn-body .nb,
+.pn-body .nb.con-color,
+.pn-body .nb.menu-abierto {
+    color: #FFFFFF;
+    background: var(--pn-marco-fondo);
+    background-size: 100vw 100vh;
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    border-bottom-color: transparent;
+    box-shadow: none;
+}
+
+/* Menú lateral: el mismo fondo, desplazado el alto del navbar para que la unión no tenga costura */
+.pn-menu {
+    background: var(--pn-marco-fondo);
+    background-size: 100vw 100vh;
+    background-position: 0 calc(-1 * var(--nb-alto));
+    background-repeat: no-repeat;
+    box-shadow: none;
+}
+
+.pn-menu::after {
+    display: none;
+}
+
+/* Contenido: crema, dentro del marco. La curva no es del contenido (se iría con el scroll): la dibuja una pieza fija en la esquina */
+.pn-app::before {
+    content: '';
+    position: fixed;
+    top: var(--nb-alto);
+    left: var(--pn-ancho-menu);
+    z-index: 1100;
+    width: var(--pn-marco-curva);
+    height: var(--pn-marco-curva);
+    background: var(--pn-marco-fondo);
+    background-size: 100vw 100vh;
+    background-position: calc(-1 * var(--pn-ancho-menu)) calc(-1 * var(--nb-alto));
+    background-repeat: no-repeat;
+    /* Se queda con la parte de afuera del cuarto de círculo: el azul que rodea la esquina del contenido */
+    -webkit-mask: radial-gradient(circle at 100% 100%, transparent calc(var(--pn-marco-curva) - 0.5px), #000 var(--pn-marco-curva));
+    mask: radial-gradient(circle at 100% 100%, transparent calc(var(--pn-marco-curva) - 0.5px), #000 var(--pn-marco-curva));
+    pointer-events: none;
+}
+
+/* Sin la columna del menú no hay marco a la izquierda: la esquina queda recta */
+.pn-app.colapsado::before,
+.pn-app.sin-menu::before {
+    display: none;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Colores del navbar sobre el azul */
+/* ---------------------------------------------------------------------- */
+
+/* La marca y los enlaces ya toman la letra blanca del navbar (como sobre el banner oscuro del inicio). El logo trae sus colores propios.
+   El botón del usuario vuelve a ser transparente, con contorno blanco suave, y el botón de las pantallas chicas igual */
+.pn-body .nb .um-trigger,
+.pn-body .nb .nb-toggle-usuario,
+.pn-body .nb .nb-toggle,
+.pn-body .nb.menu-abierto .nb-toggle,
+.pn-body .nb.menu-abierto .nb-toggle-usuario {
+    color: #FFFFFF;
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.45);
+}
+
+.pn-body .nb .um-trigger:hover,
+.pn-body .nb .um-wrapper.abierto .um-trigger {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* Velo del hover de los botones de 3 barras y de la foto, blanco suave sobre el azul */
+.pn-body .nb .nb-toggle:hover::before,
+.pn-body .nb .nb-toggle-usuario:hover::before {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Pestaña para ocultar y mostrar el menú */
+/* ---------------------------------------------------------------------- */
+
+/* Mismo estilo que la pestaña del cajón del cronograma, pegada al borde del menú y espejada: blanca, sin borde del lado del menú
+   y redondeada del lado del contenido. Queda debajo de la curva del marco, en el margen izquierdo del contenido */
+.pn-menu-pestana {
+    position: fixed;
+    top: calc(var(--nb-alto) + 48px);
+    left: var(--pn-ancho-menu);
+    z-index: 1250;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 36px;
+    padding: 0;
+    color: #475569;
+    background: #FFFFFF;
+    border: 1px solid #CBD5E1;
+    border-left: 0;
+    border-radius: 0 18px 18px 0;
+    font-size: 16px;
+    cursor: pointer;
+    transition: left 0.2s ease, color 0.15s ease, background-color 0.15s ease;
+}
+
+.pn-menu-pestana:hover {
+    color: var(--pn-navy);
+    background: #F1F5F9;
+}
+
+.pn-menu-pestana:focus-visible {
+    outline: 2px solid #D4A03D;
+    outline-offset: 2px;
+}
+
+/* Con el menú oculto, la pestaña queda pegada al borde de la pantalla */
+.pn-app.colapsado .pn-menu-pestana {
+    left: 0;
+}
+
+@media (max-width: 900px) {
+    .pn-app::before {
+        display: none;
+    }
+
+    /* Pantallas chicas: el menú se abre encima del contenido y la pestaña lo acompaña */
+    .pn-menu-pestana,
+    .pn-app.colapsado .pn-menu-pestana {
+        left: 0;
+    }
+
+    .pn-app.menu-abierto .pn-menu-pestana {
+        left: var(--pn-ancho-menu);
+    }
+
+    /* Con el margen lateral reducido a 16 px, la pestaña taparía el contenido: se achica y el contenido deja lugar a su izquierda */
+    .pn-menu-pestana {
+        width: 24px;
+    }
+
+    .pn-app:not(.sin-menu) .pn-contenido {
+        padding-left: 32px;
+    }
+}

@@ -14,9 +14,10 @@
     var direccion = caja.querySelector('[data-obs-direccion]');
     var contrasena = caja.querySelector('[data-obs-contrasena]');
     var conectar = caja.querySelector('[data-obs-conectar]');
-    var iniciar = caja.querySelector('[data-obs-iniciar]');
     var estado = caja.querySelector('[data-obs-estado]');
 
+    // El mismo botón recorre tres pasos: conectar, iniciar la transmisión y, una vez transmitiendo, deja de mostrarse
+    var paso = 'conectar';
     var socket = null;
     var pendientes = {};
     var numero = 0;
@@ -49,8 +50,14 @@
             try { socket.close(); } catch (e) { /* ya estaba cerrado */ }
         }
         socket = null;
-        iniciar.hidden = true;
-        conectar.disabled = false;
+        irAlPaso('conectar');
+    }
+
+    function irAlPaso(nuevo) {
+        paso = nuevo;
+        conectar.textContent = nuevo === 'conectar' ? 'Conectar con mi OBS' : 'Iniciar transmisión';
+        // Una vez transmitiendo, el botón sigue a la vista pero deshabilitado
+        conectar.disabled = nuevo === 'transmitiendo';
     }
 
     function identificar(hello) {
@@ -74,7 +81,7 @@
             streamServiceSettings: { server: servidor, key: clave, use_auth: false }
         }).then(function () {
             decir('Listo: OBS ya tiene los datos de la clase. Podés iniciar la transmisión desde acá o desde OBS.');
-            iniciar.hidden = false;
+            irAlPaso('iniciar');
         }).catch(function (e) {
             decir('OBS no aceptó los datos: ' + e.message, true);
             cerrar();
@@ -110,14 +117,13 @@
             socket = new WebSocket('ws://' + direccion.value.trim(), 'obswebsocket.json');
         } catch (e) {
             decir('La dirección de OBS no es válida.', true);
-            conectar.disabled = false;
+            irAlPaso('conectar');
             return;
         }
         socket.onopen = function () { abierto = true; };
         socket.onmessage = alMensaje;
         socket.onclose = function (evento) {
-            conectar.disabled = false;
-            iniciar.hidden = true;
+            irAlPaso('conectar');
             if (evento.code === 4009) {
                 decir('La contraseña de OBS no es correcta.', true);
             } else if (!abierto) {
@@ -137,19 +143,24 @@
     var formularioFinalizar = document.querySelector('#modalFinalizarClase form');
     if (formularioFinalizar) {
         formularioFinalizar.addEventListener('submit', function () {
-            if (socket && socket.readyState === WebSocket.OPEN && !iniciar.hidden) {
+            if (socket && socket.readyState === WebSocket.OPEN && paso !== 'conectar') {
                 pedir('StopStream').catch(function () { /* OBS no estaba transmitiendo */ });
             }
         }, true);
     }
 
-    conectar.addEventListener('click', conectarConObs);
-    iniciar.addEventListener('click', function () {
-        iniciar.disabled = true;
+    conectar.addEventListener('click', function () {
+        if (paso !== 'iniciar') {
+            conectarConObs();
+            return;
+        }
+        conectar.disabled = true;
         pedir('StartStream').then(function () {
-            decir('Transmisión iniciada en OBS. En unos segundos el estudio muestra la señal.');
+            decir('Transmitiendo desde OBS. En unos segundos el estudio muestra la señal.');
+            irAlPaso('transmitiendo');
         }).catch(function (e) {
             decir('OBS no pudo iniciar la transmisión: ' + e.message, true);
-        }).then(function () { iniciar.disabled = false; });
+            irAlPaso('iniciar');
+        });
     });
 })();
