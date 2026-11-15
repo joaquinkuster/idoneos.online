@@ -1,6 +1,6 @@
 package com.app.idoneos.service.curso;
 
-import com.app.idoneos.model.EstadoGeneracion;
+import com.app.idoneos.model.EstadoGeneracionIA;
 import com.app.idoneos.model.Parametro;
 
 import com.app.idoneos.model.Categoria;
@@ -786,7 +786,7 @@ public class CursoServiceImpl implements CursoService {
 
     /** Verifica si hay algún pool vigente del tema o de un tema anterior del programa. */
     private boolean hayPoolsParaElTema(Programa programa, Tema tema) {
-        if (tema.getPooles().stream().anyMatch(pool -> !pool.getBaja())) {
+        if (tema.getPooles().stream().anyMatch(pool -> !pool.getBaja() && pool.estaListoParaUsar())) {
             return true;
         }
         if (programa == null) {
@@ -796,7 +796,7 @@ public class CursoServiceImpl implements CursoService {
             if (cronograma.getTema().getIdTema() == tema.getIdTema()) {
                 return false;
             }
-            if (cronograma.getTema().getPooles().stream().anyMatch(pool -> !pool.getBaja())) {
+            if (cronograma.getTema().getPooles().stream().anyMatch(pool -> !pool.getBaja() && pool.estaListoParaUsar())) {
                 return true;
             }
         }
@@ -880,7 +880,7 @@ public class CursoServiceImpl implements CursoService {
         List<TemaRecurso> publicados = tema.getMaterialesPublicados();
         if (curso.incluyeModalidad(Modalidad.CLON_IA)) {
             celdas.put("Video clon", publicados.stream().anyMatch(m -> m.getRecurso().getVideoClon() != null
-                    && EstadoGeneracion.GENERADO.equals(m.getRecurso().getVideoClon().getEstadoGeneracion().getNombre())));
+                    && EstadoGeneracionIA.LISTO.equals(m.getRecurso().getVideoClon().getEstadoGeneracionIa().getNombre())));
         }
         if (curso.incluyeModalidad(Modalidad.GRABADA)) {
             celdas.put("Clase grabada", publicados.stream().anyMatch(m -> Modalidad.GRABADA.equals(m.getModalidadAsociada())));

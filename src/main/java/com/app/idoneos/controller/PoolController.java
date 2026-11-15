@@ -32,6 +32,7 @@ import com.app.idoneos.model.Pregunta;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.curso.CursoService.ContextoCurso;
+import com.app.idoneos.service.modeloia.GeneracionIAService;
 import com.app.idoneos.service.pool.PoolService;
 import com.app.idoneos.service.pool.PoolService.SolicitudPregunta;
 import com.app.idoneos.util.RespuestaFormularioUtil;
@@ -46,6 +47,9 @@ public class PoolController {
 
     @Autowired
     private PoolService poolService;
+
+    @Autowired
+    private GeneracionIAService generacionIAService;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -114,6 +118,34 @@ public class PoolController {
     // ----------------------------------------------------------------------
     // Modificaciones
     // ----------------------------------------------------------------------
+
+    /** POST /pool/aprobar/{id}: Marca como revisado un pool generado con inteligencia artificial, para poder usarlo en autoevaluaciones. */
+    @PostMapping("/aprobar/{id}")
+    public ResponseEntity<Map<String, String>> aprobar(@PathVariable("id") Integer id, Authentication authentication) {
+        try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Pool pool = poolService.marcarRevisado(id, usuario.getDocente());
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Pool '" + pool.getNombre() + "' aprobado: ya se puede usar en autoevaluaciones.",
+                    "/pool/buscar?cursoId=" + pool.getTema().getCurso().getIdCurso());
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /** POST /pool/generarIa: Pide a la inteligencia artificial un banco de preguntas de un tema, que queda como pool para que el docente lo revise. */
+    @PostMapping("/generarIa")
+    public ResponseEntity<Map<String, String>> generarConIa(@RequestParam(value = "temaId", required = false) Integer temaId,
+            @RequestParam(value = "guion", required = false) String guion, Authentication authentication) {
+        try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            Pool pool = generacionIAService.solicitarBanco(usuario.getDocente(), temaId, guion);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Se está generando el banco de preguntas del tema '" + pool.getTema().getTitulo()
+                    + "'. Va a aparecer en el listado cuando termine, para que lo revises antes de usarlo en una autoevaluación.",
+                    "/pool/buscar?cursoId=" + pool.getTema().getCurso().getIdCurso());
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
 
     /** POST /pool/modificar/{id}: Modifica un pool sin intentos asociados. */
     @PostMapping("/modificar/{id}")
@@ -218,7 +250,7 @@ public class PoolController {
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
-        Pool p = poolService.buscarPorId(id)
+        Pool p = poolService.buscarPorId(id).filter(Pool::estaDisponible)
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra disponible."));
         ContextoCurso contexto = panel.contextoDelPanel(p.getTema().getCurso().getIdCurso(), usuario); // verifica el acceso al curso
         model.addAttribute("curso", contexto.curso());

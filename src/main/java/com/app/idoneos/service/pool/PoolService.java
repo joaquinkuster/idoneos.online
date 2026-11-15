@@ -118,4 +118,14 @@ public interface PoolService extends CrudService<Pool> {
      * @throws IllegalArgumentException si no se seleccionó ninguno o alguno no se puede dar de baja
      */
     void darDeBajaVarios(List<Integer> ids, Docente docente);
+
+    /**
+     * Marca como revisado un pool generado con inteligencia artificial, para que pueda usarse en autoevaluaciones.
+     *
+     * @param idPool identificador del pool
+     * @param docente el docente que lo revisó, que debe participar en el curso del pool
+     * @return el pool revisado
+     * @throws IllegalArgumentException si el pool no está activo, todavía no terminó de generarse o el docente no participa en el curso
+     */
+    Pool marcarRevisado(Integer idPool, Docente docente);
 }

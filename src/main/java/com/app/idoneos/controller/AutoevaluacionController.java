@@ -93,7 +93,7 @@ public class AutoevaluacionController {
                 model.addAttribute("puedeGestionar", !esAdministrador);
                 return "pages/autoevaluacion/buscar :: filas"; // solo las filas de la página pedida
             }
-            List<Pool> pools = poolService.buscarConFiltros(cursoId, null, null, false, docente);
+            List<Pool> pools = poolService.buscarConFiltros(cursoId, null, null, false, docente).stream().filter(Pool::estaListoParaUsar).toList();
             cargarPoolsDelFormulario(model, pools, temas);
 
             String abrirModal = null;
@@ -154,7 +154,7 @@ public class AutoevaluacionController {
         ContextoCurso contexto = panel.contextoDelPanel(cursoId, usuario);
         Docente docente = contexto.esAdministrador() ? null : usuario.getDocente();
         List<TemaCronograma> temas = panel.temasDelCursoEnOrden(contexto);
-        cargarPoolsDelFormulario(model, poolService.buscarConFiltros(cursoId, null, null, false, docente), temas);
+        cargarPoolsDelFormulario(model, poolService.buscarConFiltros(cursoId, null, null, false, docente).stream().filter(Pool::estaListoParaUsar).toList(), temas);
         model.addAttribute("curso", contexto.curso());
         model.addAttribute("temas", temas);
         model.addAttribute("a", a);

@@ -29,7 +29,20 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
+		<spring-ai.version>1.0.3</spring-ai.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<!-- MOD-F-06: Spring AI (versiones de sus módulos) -->
+			<dependency>
+				<groupId>org.springframework.ai</groupId>
+				<artifactId>spring-ai-bom</artifactId>
+				<version>${spring-ai.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -95,6 +108,19 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- CU-81 / CU-82 / CU-83: Generación de contenido con el modelo local (Spring AI sobre Ollama) -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-starter-model-ollama</artifactId>
+		</dependency>
+
+		<!-- CU-81 / CU-82 / CU-83: Lectura del texto de las bibliografías en PDF (PDFBox) -->
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>3.0.3</version>
 		</dependency>
 
 		<!-- CU-87 / CU-88: Generación de informes PDF (OpenPDF, fork libre de iText 4) -->

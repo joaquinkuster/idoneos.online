@@ -3,7 +3,7 @@
     'use strict';
 
     var MAXIMO_OPCIONES = 8;
-    var LARGO_TEXTO = 150;
+    var LARGO_TEXTO = 255;
     var TIPOS = { unica: 'Opción única', multiple: 'Opción múltiple', vf: 'Verdadero o falso' };
 
     function iniciar(raiz) {

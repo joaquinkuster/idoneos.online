@@ -28,9 +28,14 @@
                     <h1 class="pn-titulo">Recursos</h1>
                     <p class="pn-subtitulo" th:text="${'Gestiona los recursos de ' + curso.nombre + ': grabaciones, bibliografía, presentaciones y enlaces'}">Gestiona los recursos del curso</p>
                 </div>
-                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
-                    <i class="fa-solid fa-plus"></i> Registrar recurso
-                </button>
+                <div class="d-flex gap-2 flex-wrap" th:if="${puedeGestionar}">
+                    <button type="button" class="pn-btn pn-btn-contorno" data-bs-toggle="modal" data-bs-target="#modalGenerarIa">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar con IA
+                    </button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
+                        <i class="fa-solid fa-plus"></i> Registrar recurso
+                    </button>
+                </div>
             </div>
 
             <section class="pn-card" data-tabla data-tabla-servidor="/recurso/buscar" th:attr="data-opciones=${tablaOpciones}">
@@ -69,14 +74,17 @@
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
                             <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'"
-                                th:attr="data-ver-url=${!m.baja} ? @{'/recurso/ver/' + ${m.idTemaRecurso}}">
+                                th:attr="data-ver-url=${!m.baja and m.disponible} ? @{'/recurso/ver/' + ${m.idTemaRecurso}}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>
                                 <td>
-                                    <a class="pn-celda-principal pn-truncar pn-enlace-ver" th:if="${!m.baja}" title="Ver el recurso"
+                                    <a class="pn-celda-principal pn-truncar pn-enlace-ver" th:if="${!m.baja and m.disponible}" title="Ver el recurso"
                                        th:href="@{'/recurso/ver/' + ${m.idTemaRecurso}}" th:text="${m.titulo}">Clase 3</a>
-                                    <span class="pn-celda-principal pn-truncar" th:if="${m.baja}" th:text="${m.titulo}">Clase 3</span>
+                                    <span class="pn-celda-principal pn-truncar" th:if="${m.baja or !m.disponible}" th:text="${m.titulo}">Clase 3</span>
                                     <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
+                                    <span class="pn-insignia ms-1" th:if="${!m.disponible}" th:title="${m.detalleErrorGeneracion}"
+                                          th:classappend="${m.estadoGeneracion == 'Fallido'} ? 'pn-insignia-roja' : 'pn-insignia-dorada'"
+                                          th:text="${m.estadoGeneracion == 'Fallido'} ? 'Fallido' : 'Pendiente'">Pendiente</span>
                                 </td>
                                 <td><span class="pn-truncar" th:text="${m.tema.titulo}">Renta fija y bonos</span></td>
                                 <td>
@@ -99,7 +107,7 @@
                                 <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja}"
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja and m.disponible}"
                                                 th:data-bs-target="'#modalModificarMaterial' + ${m.idTemaRecurso}"
                                                 th:data-modal-url="@{'/recurso/modificar/' + ${m.idTemaRecurso}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
@@ -134,6 +142,43 @@
         </main>
 
         <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: generar el resumen o la presentación de un tema con IA. Queda oculto hasta que el docente lo revisa -->
+<div class="modal fade pn-modal" id="modalGenerarIa" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Generar con IA</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/recurso/generarIa}" method="post" class="form-ajax" novalidate>
+                    <p class="pn-ayuda">Se arma solo con la bibliografía del tema y puede tardar unos minutos. Queda oculto para los alumnos hasta que lo revises y lo publiques.</p>
+                    <div class="pn-campo">
+                        <label class="pn-etiqueta">Qué generar <span class="pn-obligatorio">*</span></label>
+                        <select name="tipo" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar qué generar.">
+                            <option value="resumen">Resumen</option>
+                            <option value="presentacion">Presentación</option>
+                        </select>
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                    <div class="pn-campo">
+                        <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
+                        <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
+                            <option value="">Seleccionar tema</option>
+                            <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:text="${uc.tema.titulo}">Tema</option>
+                        </select>
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Generar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

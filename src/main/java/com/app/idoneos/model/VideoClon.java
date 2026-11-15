@@ -30,8 +30,8 @@ public class VideoClon {
 
     /** Estado generacion de este registro. */
     @ManyToOne
-    @JoinColumn(name = "idEstadoGeneracion", nullable = false)
-    private EstadoGeneracion estadoGeneracion;
+    @JoinColumn(name = "idEstadoGeneracionIA", nullable = false)
+    private EstadoGeneracionIA estadoGeneracionIa;
 
     /** Identificador del video en el servicio de generación. */
     @Column(name = "idVideoExterno", nullable = true, length = 255)
@@ -58,9 +58,9 @@ public class VideoClon {
     private String detalleError;
 
     /** Crea el video con clon con los datos básicos. */
-    public VideoClon(Recurso recurso, EstadoGeneracion estadoGeneracion, String guion) {
+    public VideoClon(Recurso recurso, EstadoGeneracionIA estadoGeneracionIa, String guion) {
         this.recurso = recurso;
-        this.estadoGeneracion = estadoGeneracion;
+        this.estadoGeneracionIa = estadoGeneracionIa;
         this.guion = guion;
     }
 }

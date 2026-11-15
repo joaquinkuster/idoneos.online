@@ -324,6 +324,10 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
             Pool pool = poolRepository.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                     .orElseThrow(() -> RespuestaFormularioUtil.armarCampoInvalido("idsPools",
                             "Error! Alguno de los pools seleccionados no se encuentra activo."));
+            if (!pool.estaListoParaUsar()) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("idsPools", "Error! El pool «" + pool.getNombre()
+                        + "» todavía no se puede usar: " + (pool.estaDisponible() ? "falta que lo revises y lo apruebes." : "no terminó de generarse."));
+            }
             if (!puedeUsarPoolDe(tema, pool.getTema())) {
                 throw RespuestaFormularioUtil.armarCampoInvalido("idsPools", "Error! El pool «" + pool.getNombre()
                         + "» (tema «" + pool.getTema().getTitulo() + "») no puede usarse en esta autoevaluación: solo "

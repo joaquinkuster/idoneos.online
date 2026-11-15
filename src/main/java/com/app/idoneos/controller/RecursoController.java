@@ -28,6 +28,7 @@ import com.app.idoneos.model.Modalidad;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.model.Usuario;
+import com.app.idoneos.service.modeloia.GeneracionIAService;
 import com.app.idoneos.service.recurso.RecursoService;
 import com.app.idoneos.service.indice.IndiceRecursoService;
 import com.app.idoneos.service.resaltado.ResaltadoAlumnoService;
@@ -67,6 +68,9 @@ public class RecursoController {
 
     @Autowired
     private RecursoService materialService;
+
+    @Autowired
+    private GeneracionIAService generacionIAService;
 
     /** Carpeta base donde se guardan los archivos de los cursos. */
     @Autowired
@@ -366,6 +370,27 @@ public class RecursoController {
             Map<String, String> cuerpo = new java.util.LinkedHashMap<>(respuesta.getBody());
             cuerpo.put("publicarId", String.valueOf(material.getRecurso().getIdRecurso()));
             return ResponseEntity.ok(cuerpo);
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /** POST /recurso/generarIa: Pide a la inteligencia artificial un resumen o una presentación de un tema, que queda oculto hasta que el docente lo revise. */
+    @PostMapping("/generarIa")
+    public ResponseEntity<Map<String, String>> generarConIa(@RequestParam(value = "tipo", required = false) String tipo,
+            @RequestParam(value = "temaId", required = false) Integer temaId, Authentication authentication) {
+        try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            boolean presentacion = "presentacion".equals(tipo);
+            if (!presentacion && !"resumen".equals(tipo)) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar qué querés generar.");
+            }
+            TemaRecurso material = presentacion ? generacionIAService.solicitarPresentacion(usuario.getDocente(), temaId)
+                    : generacionIAService.solicitarResumen(usuario.getDocente(), temaId);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Se está generando " + (presentacion ? "la presentación" : "el resumen")
+                    + " del tema '" + material.getTema().getTitulo()
+                    + "'. Va a aparecer oculto en el listado cuando termine, para que lo revises antes de publicarlo.",
+                    "/recurso/buscar?cursoId=" + material.getTema().getCurso().getIdCurso());
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }

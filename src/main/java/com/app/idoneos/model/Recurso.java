@@ -195,6 +195,27 @@ public class Recurso {
         return videoClon != null || (materialLectura != null && materialLectura.getGeneradoPorIa());
     }
 
+    /** Obtiene el estado de la generación con inteligencia artificial, o nulo si lo cargó el docente a mano. */
+    public String getEstadoGeneracion() {
+        if (materialLectura != null && materialLectura.getEstadoGeneracionIa() != null) {
+            return materialLectura.getEstadoGeneracionIa().getNombre();
+        }
+        return videoClon != null ? videoClon.getEstadoGeneracionIa().getNombre() : null;
+    }
+
+    /** Obtiene el motivo por el que falló la generación con inteligencia artificial, si falló. */
+    public String getDetalleErrorGeneracion() {
+        if (materialLectura != null) {
+            return materialLectura.getDetalleError();
+        }
+        return videoClon == null ? null : videoClon.getDetalleError();
+    }
+
+    /** Indica si ya se puede usar: lo cargó el docente a mano o la inteligencia artificial terminó de generarlo. */
+    public boolean getDisponible() {
+        return materialLectura == null || materialLectura.estaDisponible();
+    }
+
     /** Indica si el recurso es un enlace externo. */
     public boolean esEnlaceExterno() {
         return enlace != null;

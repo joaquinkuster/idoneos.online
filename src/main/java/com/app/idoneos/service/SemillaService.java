@@ -30,7 +30,7 @@ import com.app.idoneos.model.Enlace;
 import com.app.idoneos.model.EstadoClaseEnVivo;
 import com.app.idoneos.model.EstadoCohorte;
 import com.app.idoneos.model.EstadoEnvio;
-import com.app.idoneos.model.EstadoGeneracion;
+import com.app.idoneos.model.EstadoGeneracionIA;
 import com.app.idoneos.model.EstadoPago;
 import com.app.idoneos.model.Grabacion;
 import com.app.idoneos.model.Inscripcion;
@@ -81,7 +81,7 @@ import com.app.idoneos.repository.EnlaceRepository;
 import com.app.idoneos.repository.EstadoClaseEnVivoRepository;
 import com.app.idoneos.repository.EstadoCohorteRepository;
 import com.app.idoneos.repository.EstadoEnvioRepository;
-import com.app.idoneos.repository.EstadoGeneracionRepository;
+import com.app.idoneos.repository.EstadoGeneracionIARepository;
 import com.app.idoneos.repository.EstadoPagoRepository;
 import com.app.idoneos.repository.GrabacionRepository;
 import com.app.idoneos.repository.InscripcionRepository;
@@ -144,6 +144,12 @@ public class SemillaService {
 
     @jakarta.persistence.PersistenceContext
     private jakarta.persistence.EntityManager entityManager;
+
+    @Autowired
+    private com.app.idoneos.service.indice.IndiceRecursoService indiceRecursoService;
+
+    /** Indica si ya se cargó la bibliografía de requisitos, que se carga una sola vez. */
+    private boolean requisitosAgregados = false;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -211,7 +217,7 @@ public class SemillaService {
     private CategoriaMaterialLecturaRepository categoriaMaterialLecturaRepository;
 
     @Autowired
-    private EstadoGeneracionRepository estadoGeneracionRepository;
+    private EstadoGeneracionIARepository estadoGeneracionIaRepository;
 
     @Autowired
     private com.app.idoneos.repository.EstadoOCRRepository estadoOcrRepository;
@@ -271,6 +277,12 @@ public class SemillaService {
     @Autowired
     @Qualifier("directorioCursos")
     private java.nio.file.Path directorioCursos;
+
+    /** Nombre del PDF de requisitos del proyecto, en la carpeta de ejemplos, que la semilla carga como bibliografía con índice. */
+    private static final String ARCHIVO_DE_REQUISITOS = "Requisitos.pdf";
+
+    /** Nombre del PDF teórico de ingeniería de software, en la carpeta de ejemplos, que la semilla también carga como bibliografía. */
+    private static final String ARCHIVO_TEORICO = "LEC ING SIST 0099 2020.pdf";
 
     /** Carpeta con los PDF y los videos de ejemplo que la semilla sube al servidor. */
     @Value("${idoneos.recursos-ejemplo:recursos-ejemplo}")
@@ -397,6 +409,12 @@ public class SemillaService {
                 String.valueOf(Parametro.CLASE_RETENCION_GRABACION_MESES_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.CLASE_DURACION_MAXIMA_HORAS,
                 String.valueOf(Parametro.CLASE_DURACION_MAXIMA_HORAS_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.IA_PROPORCION_OPCION_MULTIPLE,
+                String.valueOf(Parametro.IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.IA_CANTIDAD_PREGUNTAS_BANCO,
+                String.valueOf(Parametro.IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.IA_PROPORCION_MODELO,
+                String.valueOf(Parametro.IA_PROPORCION_MODELO_POR_DEFECTO)));
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
         // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
@@ -880,9 +898,50 @@ public class SemillaService {
                     if (autoevaluacionRepository.findByTemaAndBajaFalse(tema).stream().noneMatch(a -> !a.getOculto())) {
                         agregarEvaluacionBasica(tema, cronograma.getNumeroOrden(), ahora);
                     }
+                    // Una bibliografía real, con marcadores, para probar la generación de contenido con IA
+                    if (!requisitosAgregados && "Retorno y riesgo".equals(tema.getTitulo())) {
+                        agregarBibliografiaDeRequisitos(tema, titular, ARCHIVO_DE_REQUISITOS, "Requisitos del Sistema - Idóneos Online");
+                        agregarBibliografiaDeRequisitos(tema, titular, ARCHIVO_TEORICO, "Ingeniería de Software y SWEBOK");
+                        requisitosAgregados = true;
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * Incorpora al tema el PDF de requisitos del proyecto como bibliografía, con su índice sacado de los marcadores del archivo.
+     * El PDF se toma de la carpeta de recursos de ejemplo (Requisitos.pdf y el texto teórico). Si no está, la semilla sigue sin esta bibliografía.
+     */
+    private void agregarBibliografiaDeRequisitos(Tema tema, DocenteCurso autor, String archivo, String titulo) {
+        java.nio.file.Path origen = java.nio.file.Path.of(carpetaDeRecursosDeEjemplo).resolve(archivo);
+        if (!java.nio.file.Files.isRegularFile(origen)) {
+            return;
+        }
+        Docente docente = autor.getDocente();
+        Recurso recurso = new Recurso(docente, titulo);
+        recurso.setPrivado(false);
+        recurso = recursoRepository.save(recurso);
+        String relativa = "biblioteca/docente" + docente.getIdDocente() + "/bibliografia" + recurso.getIdRecurso() + ".pdf";
+        java.nio.file.Path destino = directorioCursos.resolve(relativa);
+        try {
+            java.nio.file.Files.createDirectories(destino.getParent());
+            java.nio.file.Files.copy(origen, destino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()),
+                    docente.getUsuario().getNombreCompleto());
+            bibliografia.setRutaArchivo(relativa);
+            bibliografia.setTamanioBytes(java.nio.file.Files.size(destino));
+            bibliografia.setExtension("pdf");
+            recurso.setBibliografia(bibliografiaRepository.save(bibliografia));
+            List<java.util.Map<String, Object>> indice = new java.util.ArrayList<>();
+            for (com.app.idoneos.util.MarcadoresPdfUtil.Marcador marcador : com.app.idoneos.util.MarcadoresPdfUtil.leer(destino)) {
+                indice.add(java.util.Map.of("titulo", marcador.titulo(), "pagina", marcador.pagina(), "nivel", marcador.nivel()));
+            }
+            indiceRecursoService.reemplazar(recurso, new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(indice));
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("No se pudo cargar la bibliografía de requisitos de la semilla.", e);
+        }
+        vincular(tema, recurso, autor);
     }
 
     /** Busca los archivos de ejemplo de una clase ("pdf" o "mp4"), ordenados por nombre. Devuelve vacío si la carpeta no existe. */
@@ -892,7 +951,10 @@ public class SemillaService {
             return List.of();
         }
         try (java.util.stream.Stream<java.nio.file.Path> archivos = java.nio.file.Files.list(carpeta)) {
-            return archivos.filter(a -> a.getFileName().toString().toLowerCase().endsWith("." + extension)).sorted().toList();
+            // Requisitos.pdf se carga aparte, como bibliografía con índice: no se reparte como un PDF de ejemplo más
+            return archivos.filter(a -> a.getFileName().toString().toLowerCase().endsWith("." + extension))
+                    .filter(a -> !a.getFileName().toString().equalsIgnoreCase(ARCHIVO_DE_REQUISITOS)
+                            && !a.getFileName().toString().equalsIgnoreCase(ARCHIVO_TEORICO)).sorted().toList();
         } catch (java.io.IOException e) {
             return List.of();
         }
@@ -979,7 +1041,7 @@ public class SemillaService {
     private Recurso crearVideoClon(Docente docente, Tema tema, String titulo) {
         Recurso recurso = recursoRepository.save(new Recurso(docente, titulo));
         VideoClon video = new VideoClon(recurso,
-                estadoGeneracionRepository.findByNombre(EstadoGeneracion.GENERADO).orElseThrow(),
+                estadoGeneracionIaRepository.findByNombre(EstadoGeneracionIA.LISTO).orElseThrow(),
                 "Hola, soy " + docente.getUsuario().getNombreCompleto() + ". En esta clase vemos " + tema.getTitulo() + ".");
         Object[] archivo = subirArchivoDeEjemplo(recurso, "videoclon", "mp4", indiceDeArchivo(docente, "mp4"));
         video.setRutaArchivo((String) archivo[0]);

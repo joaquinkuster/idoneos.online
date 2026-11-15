@@ -87,6 +87,28 @@ public class Parametro {
     public static final int CLASE_DURACION_MAXIMA_HORAS_POR_DEFECTO = 2;
 
     // ----------------------------------------------------------------------
+    // Generación de contenido con inteligencia artificial
+    // ----------------------------------------------------------------------
+
+    /** Clave del porcentaje de preguntas de opción múltiple en los bancos generados con IA. El resto son de verdadero o falso. */
+    public static final String IA_PROPORCION_OPCION_MULTIPLE = "ia.proporcion_opcion_multiple";
+
+    /** Porcentaje de preguntas de opción múltiple que se usa cuando el parámetro no está cargado. */
+    public static final int IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO = 50;
+
+    /** Clave de la cantidad de preguntas de un banco generado con IA. */
+    public static final String IA_CANTIDAD_PREGUNTAS_BANCO = "ia.cantidad_preguntas_banco";
+
+    /** Cantidad de preguntas de un banco que se usa cuando el parámetro no está cargado. */
+    public static final int IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO = 10;
+
+    /** Clave del porcentaje de preguntas de un banco generado con IA que arma el modelo. El resto las arman las reglas del código. */
+    public static final String IA_PROPORCION_MODELO = "ia.proporcion_modelo";
+
+    /** Porcentaje de preguntas que arma el modelo cuando el parámetro no está cargado. */
+    public static final int IA_PROPORCION_MODELO_POR_DEFECTO = 50;
+
+    // ----------------------------------------------------------------------
     // Medio de pago MODO: lo que el cliente reemplaza cuando abre su cuenta de MODO. La semilla (solo desarrollo)
     // ----------------------------------------------------------------------
 

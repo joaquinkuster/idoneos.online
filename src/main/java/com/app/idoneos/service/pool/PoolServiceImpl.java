@@ -35,7 +35,7 @@ public class PoolServiceImpl implements PoolService {
     private static final int LONGITUD_NOMBRE = 50;
 
     /** Largo máximo del enunciado de una pregunta y del texto de una opción. */
-    private static final int LONGITUD_TEXTO = 150;
+    private static final int LONGITUD_TEXTO = 255;
 
     @Autowired
     private PoolRepository poolRepository;
@@ -140,6 +140,9 @@ public class PoolServiceImpl implements PoolService {
         Pool pool = poolRepository.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
         obtenerParticipacion(pool.getTema().getCurso(), docente);
+        if (!pool.estaDisponible()) {
+            throw new IllegalArgumentException("Error! El pool «" + pool.getNombre() + "» todavía no terminó de generarse.");
+        }
         if (pool.tieneIntentosActivos()) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el contenido del pool", pool.getNombre(),
                     "tiene intentos de autoevaluación asociados", ""));
@@ -171,6 +174,21 @@ public class PoolServiceImpl implements PoolService {
     @Transactional
     public void darDeBaja(Integer idPool, Docente docente) {
         darDeBaja(validarBaja(idPool, docente));
+    }
+
+    /** Marca como revisado un pool generado con inteligencia artificial. */
+    @Override
+    @Transactional
+    public Pool marcarRevisado(Integer idPool, Docente docente) {
+        Pool pool = poolRepository.findById(idPool == null ? -1 : idPool).filter(p -> !p.esInactivo())
+                .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra activo."));
+        obtenerParticipacion(pool.getTema().getCurso(), docente);
+        if (!pool.estaDisponible()) {
+            throw new IllegalArgumentException("Error! El pool «" + pool.getNombre() + "» todavía no terminó de generarse.");
+        }
+        pool.setRevisado(true);
+        pool.setUltimaModificacion(LocalDateTime.now());
+        return poolRepository.save(pool);
     }
 
     /** Da de baja varios pools. */

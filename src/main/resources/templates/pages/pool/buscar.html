@@ -27,10 +27,16 @@
                     <h1 class="pn-titulo">Pools de preguntas</h1>
                     <p class="pn-subtitulo" th:text="${'Preguntas de las que se sortean las autoevaluaciones de ' + curso.nombre}">Preguntas de las autoevaluaciones</p>
                 </div>
-                <button type="button" class="pn-btn pn-btn-primario" th:if="${puedeGestionar}" data-bs-toggle="modal" data-bs-target="#modalNuevoPool"
-                        th:disabled="${#lists.isEmpty(temas)}" th:title="${#lists.isEmpty(temas) ? 'El programa todavía no tiene temas' : null}">
-                    <i class="fa-solid fa-plus"></i> Crear pool
-                </button>
+                <div class="d-flex gap-2 flex-wrap" th:if="${puedeGestionar}">
+                    <button type="button" class="pn-btn pn-btn-contorno" data-bs-toggle="modal" data-bs-target="#modalGenerarBancoIa"
+                            th:disabled="${#lists.isEmpty(temas)}" th:title="${#lists.isEmpty(temas) ? 'El programa todavía no tiene temas' : null}">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar con IA
+                    </button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoPool"
+                            th:disabled="${#lists.isEmpty(temas)}" th:title="${#lists.isEmpty(temas) ? 'El programa todavía no tiene temas' : null}">
+                        <i class="fa-solid fa-plus"></i> Crear pool
+                    </button>
+                </div>
             </div>
 
             <section class="pn-card" data-tabla data-tabla-servidor="/pool/buscar" th:attr="data-opciones=${tablaOpciones}">
@@ -67,14 +73,26 @@
                             <tr th:each="p : ${pools}" data-fila th:attr="data-dependencias=${#lists.size(p.autoevaluacionesActivas)}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${p.idPool}"></td>
-                                <td><span class="pn-celda-principal pn-truncar" th:text="${p.nombre}">Marco regulatorio</span></td>
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${p.nombre}">Marco regulatorio</span>
+                                    <span class="pn-insignia pn-insignia-azul ms-1" th:if="${p.generadoPorIa}">IA</span>
+                                    <span class="pn-insignia ms-1" th:if="${!p.estaDisponible()}" th:title="${p.detalleError}"
+                                          th:classappend="${p.estadoGeneracionIa.nombre == 'Fallido'} ? 'pn-insignia-roja' : 'pn-insignia-dorada'"
+                                          th:text="${p.estadoGeneracionIa.nombre == 'Fallido'} ? 'Fallido' : 'Pendiente'">Pendiente</span>
+                                    <span class="pn-insignia pn-insignia-dorada ms-1" th:if="${p.estaDisponible() and !p.revisado}"
+                                          title="Todavía no se puede usar en autoevaluaciones: revisalo y aprobalo">Sin revisar</span>
+                                </td>
                                 <td><span class="pn-truncar" th:text="${p.tema.titulo}">Introducción al mercado</span></td>
                                 <td th:text="${p.cantidadPreguntas}">6</td>
                                 <td th:text="${#lists.size(p.autoevaluacionesActivas)}">1</td>
                                 <td th:text="${#temporals.format(p.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !p.tieneIntentosActivos()}"
+                                        <form th:if="${puedeGestionar and p.estaDisponible() and !p.revisado}" th:action="@{'/pool/aprobar/' + ${p.idPool}}"
+                                              method="post" class="form-ajax d-inline">
+                                            <button type="submit" class="pn-btn pn-btn-primario pn-btn-chico" title="Confirmar que revisaste las preguntas y las respuestas correctas">Aprobar</button>
+                                        </form>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and p.estaDisponible() and !p.tieneIntentosActivos()}"
                                                 th:data-bs-target="'#modalModificarPool' + ${p.idPool}"
                                                 th:data-modal-url="@{'/pool/modificar/' + ${p.idPool}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and p.tieneIntentosActivos()}"
@@ -111,6 +129,42 @@
         </main>
 
         <th:block th:replace="~{fragments/layout/panel :: pie(${esDocente ? 'Gestión académica' : 'Panel del administrador'})}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: generar un banco de preguntas con IA. Queda como pool para que el docente lo revise -->
+<div class="modal fade pn-modal" id="modalGenerarBancoIa" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Generar banco de preguntas con IA</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/pool/generarIa}" method="post" class="form-ajax" novalidate>
+                    <p class="pn-ayuda">Las preguntas se arman solo con la bibliografía y el glosario del tema, y pueden tardar unos minutos. Revisalas antes de usarlas en una autoevaluación.</p>
+                    <div class="pn-campo">
+                        <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
+                        <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
+                            <option value="">Seleccionar tema</option>
+                            <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:text="${uc.tema.titulo}"
+                                    th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}">Tema</option>
+                        </select>
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                    <div class="pn-campo">
+                        <label class="pn-etiqueta">Guión adicional (opcional)</label>
+                        <textarea name="guion" class="pn-input" rows="3" maxlength="300"
+                                  placeholder="Por ejemplo, enfocarse en las definiciones"></textarea>
+                        <div class="pn-ayuda">Sirve para orientar las preguntas. Siguen saliendo solo del material del tema.</div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario">Generar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

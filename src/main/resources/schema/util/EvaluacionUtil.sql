@@ -52,11 +52,12 @@ END
 $$ LANGUAGE plpgsql ^^^
 
 -- fn_pool_con_preguntas(): se ejecuta al terminar la operacion (disparador diferido) cuando cambia un pool o una de sus
--- preguntas. Verifica que el pool activo conserve al menos una pregunta activa.
+-- preguntas. Verifica que el pool activo conserve al menos una pregunta activa, salvo el que todavía genera la inteligencia artificial.
 CREATE OR REPLACE FUNCTION fn_pool_con_preguntas() RETURNS trigger AS $$
 DECLARE
     v_pool int;
     v_baja boolean;
+    v_estado text;
 BEGIN
     IF TG_TABLE_NAME = 'pool' THEN
         v_pool := NEW.id_pool;
@@ -65,8 +66,13 @@ BEGIN
     ELSE
         v_pool := NEW.id_pool;
     END IF;
-    SELECT baja INTO v_baja FROM pool WHERE id_pool = v_pool;
+    SELECT p.baja, eg.nombre INTO v_baja, v_estado FROM pool p
+        LEFT JOIN estado_generacionia eg ON eg.id_estado_generacionia = p.id_estado_generacionia WHERE p.id_pool = v_pool;
     IF NOT FOUND OR v_baja THEN
+        RETURN NULL;
+    END IF;
+    -- Un pool que arma la inteligencia artificial todavía no tiene preguntas mientras espera o se genera, ni si falló
+    IF v_estado IS NOT NULL AND v_estado <> 'Listo' THEN
         RETURN NULL;
     END IF;
     IF NOT EXISTS (SELECT 1 FROM pregunta WHERE id_pool = v_pool AND baja = false) THEN

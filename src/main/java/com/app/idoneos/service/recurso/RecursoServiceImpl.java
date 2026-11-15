@@ -180,6 +180,7 @@ public class RecursoServiceImpl implements RecursoService {
     @Override
     public List<Recurso> buscarRecursosVisibles(Docente docente) {
         return recursoRepository.findByBajaFalse().stream()
+                .filter(Recurso::getDisponible)
                 .filter(recurso -> !recurso.getPrivado() || (docente != null && recurso.getDocente().getIdDocente() == docente.getIdDocente()))
                 .sorted(Comparator.comparing(Recurso::getFechaCreacion).reversed()).toList();
     }
@@ -187,6 +188,7 @@ public class RecursoServiceImpl implements RecursoService {
     @Override
     public List<Recurso> buscarRecursosPublicos(Docente excluido) {
         return recursoRepository.findByPrivadoFalseAndBajaFalse().stream()
+                .filter(Recurso::getDisponible)
                 .filter(recurso -> excluido == null || recurso.getDocente().getIdDocente() != excluido.getIdDocente())
                 .sorted(Comparator.comparing(Recurso::getFechaCreacion).reversed()).toList();
     }
@@ -318,6 +320,10 @@ public class RecursoServiceImpl implements RecursoService {
     @Transactional
     public void publicar(Integer idRecurso, Docente docente) {
         Recurso recurso = obtenerRecursoDelDocente(idRecurso, docente, "publicar");
+        if (!recurso.getDisponible()) {
+            throw new IllegalArgumentException("Error! No se puede compartir el recurso «" + recurso.getTitulo()
+                    + "»: todavía no terminó de generarse.");
+        }
         recurso.setPrivado(false);
         recurso.setUltimaModificacion(LocalDateTime.now());
         recursoRepository.save(recurso);
@@ -507,6 +513,7 @@ public class RecursoServiceImpl implements RecursoService {
         for (Integer idRecurso : ids) {
             Recurso recurso = recursoRepository.findById(idRecurso).filter(r -> !r.esInactivo())
                     .filter(r -> !r.getPrivado() || r.getDocente().getIdDocente() == docente.getIdDocente())
+                    .filter(Recurso::getDisponible)
                     .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra disponible en la biblioteca."));
             TipoRecurso tipo = TipoRecurso.deTexto(recurso.getTipo());
             if (tipo == null || !tipo.permiteSubidaManual()) {
@@ -552,6 +559,10 @@ public class RecursoServiceImpl implements RecursoService {
         obtenerParticipacion(material.getCurso(), docente);
 
         if (!oculto && material.getOculto()) {
+            if (!material.getDisponible()) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("oculto", "Error! No se puede publicar el recurso «"
+                        + material.getTitulo() + "»: todavía no terminó de generarse.");
+            }
             // Volver a publicar un material cuya modalidad el curso ya no tiene
             String modalidad = material.getModalidadAsociada();
             if (modalidad != null && !material.getCurso().incluyeModalidad(modalidad)) {

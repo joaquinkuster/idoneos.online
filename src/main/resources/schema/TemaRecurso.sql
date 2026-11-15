@@ -73,16 +73,16 @@ BEGIN
             v_aplica := CASE v_celda WHEN 'clon' THEN fn_curso_incluye_modalidad(v_curso, 'Con clon de IA')
                                      WHEN 'grabada' THEN fn_curso_incluye_modalidad(v_curso, 'Grabada') ELSE true END;
             SELECT coalesce(bool_or(CASE v_celda
-                        WHEN 'clon' THEN EXISTS (SELECT 1 FROM video_clon vc JOIN estado_generacion eg ON eg.id_estado_generacion = vc.id_estado_generacion
-                                                 WHERE vc.id_recurso = tr.id_recurso AND eg.nombre = 'Generado')
+                        WHEN 'clon' THEN EXISTS (SELECT 1 FROM video_clon vc JOIN estado_generacionia eg ON eg.id_estado_generacionia = vc.id_estado_generacionia
+                                                 WHERE vc.id_recurso = tr.id_recurso AND eg.nombre = 'Listo')
                         WHEN 'grabada' THEN fn_recurso_modalidad(tr.id_recurso) = 'Grabada'
                         ELSE fn_recurso_modalidad(tr.id_recurso) IS NULL END), false)
                 INTO v_tiene_antes
                 FROM tema_recurso tr JOIN recurso r ON r.id_recurso = tr.id_recurso
                 WHERE tr.id_tema = OLD.id_tema AND tr.baja = false AND tr.oculto = false AND r.baja = false;
             SELECT coalesce(bool_or(CASE v_celda
-                        WHEN 'clon' THEN EXISTS (SELECT 1 FROM video_clon vc JOIN estado_generacion eg ON eg.id_estado_generacion = vc.id_estado_generacion
-                                                 WHERE vc.id_recurso = tr.id_recurso AND eg.nombre = 'Generado')
+                        WHEN 'clon' THEN EXISTS (SELECT 1 FROM video_clon vc JOIN estado_generacionia eg ON eg.id_estado_generacionia = vc.id_estado_generacionia
+                                                 WHERE vc.id_recurso = tr.id_recurso AND eg.nombre = 'Listo')
                         WHEN 'grabada' THEN fn_recurso_modalidad(tr.id_recurso) = 'Grabada'
                         ELSE fn_recurso_modalidad(tr.id_recurso) IS NULL END), false)
                 INTO v_tiene_despues

@@ -97,7 +97,7 @@ class RecursoTest {
         assertEquals(Modalidad.EN_VIVO, recurso.getModalidadAsociada());
 
         Recurso clon = new Recurso(null, "Video");
-        clon.setVideoClon(new VideoClon(clon, new EstadoGeneracion(EstadoGeneracion.GENERADO), "Guion"));
+        clon.setVideoClon(new VideoClon(clon, new EstadoGeneracionIA(EstadoGeneracionIA.LISTO), "Guion"));
         assertEquals(Modalidad.CLON_IA, clon.getModalidadAsociada());
         assertTrue(clon.getGeneradoPorIa());
 

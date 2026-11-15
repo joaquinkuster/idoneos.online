@@ -30,14 +30,16 @@ CREATE TRIGGER trg_material_lectura_validar BEFORE INSERT OR UPDATE ON material_
 -- ----------------------------------------------------------------------
 
 -- El tamaño del archivo y el estado del OCR los actualiza el sistema solo (el OCR reemplaza el archivo por el mismo con texto):
--- no cuentan como modificaciones del recurso.
+-- no cuentan como modificaciones del recurso. Tampoco cuenta cargar el archivo de un material que genera la inteligencia artificial,
+-- que nace sin archivo y se lo recibe al terminar.
 DROP TRIGGER IF EXISTS trg_material_lectura_en_uso ON material_lectura ^^^
 CREATE TRIGGER trg_material_lectura_en_uso BEFORE UPDATE ON material_lectura
-    FOR EACH ROW WHEN (OLD.autor IS DISTINCT FROM NEW.autor
+    FOR EACH ROW WHEN (OLD.ruta_archivo IS NOT NULL
+                   AND (OLD.autor IS DISTINCT FROM NEW.autor
                     OR OLD.extension IS DISTINCT FROM NEW.extension
                     OR OLD.ruta_archivo IS DISTINCT FROM NEW.ruta_archivo
                     OR OLD.paginas IS DISTINCT FROM NEW.paginas
-                    OR OLD.id_categoria_material_lectura IS DISTINCT FROM NEW.id_categoria_material_lectura)
+                    OR OLD.id_categoria_material_lectura IS DISTINCT FROM NEW.id_categoria_material_lectura))
     EXECUTE FUNCTION fn_recurso_en_uso() ^^^
 
 -- ----------------------------------------------------------------------

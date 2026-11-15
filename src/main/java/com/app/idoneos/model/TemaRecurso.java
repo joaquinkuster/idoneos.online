@@ -124,6 +124,21 @@ public class TemaRecurso {
         return recurso.getGeneradoPorIa();
     }
 
+    /** Obtiene el estado de la generación con inteligencia artificial, o nulo si lo cargó el docente a mano. */
+    public String getEstadoGeneracion() {
+        return recurso.getEstadoGeneracion();
+    }
+
+    /** Obtiene el motivo por el que falló la generación con inteligencia artificial, si falló. */
+    public String getDetalleErrorGeneracion() {
+        return recurso.getDetalleErrorGeneracion();
+    }
+
+    /** Indica si ya se puede usar: lo cargó el docente a mano o la inteligencia artificial terminó de generarlo. */
+    public boolean getDisponible() {
+        return recurso.getDisponible();
+    }
+
     /** Obtiene la ruta del archivo del recurso, o su dirección si es un enlace. */
     public String getRutaArchivo() {
         return recurso.getRutaArchivo();

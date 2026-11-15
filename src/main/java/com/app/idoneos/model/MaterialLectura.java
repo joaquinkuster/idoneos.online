@@ -37,7 +37,7 @@ public class MaterialLectura {
     private CategoriaMaterialLectura categoriaMaterialLectura;
 
     /** Ruta del archivo, relativa a la carpeta de cursos. */
-    @Column(name = "rutaArchivo", nullable = false, length = 500)
+    @Column(name = "rutaArchivo", nullable = true, length = 500)
     private String rutaArchivo;
 
     /** Autor. */
@@ -61,9 +61,14 @@ public class MaterialLectura {
     @Column(name = "extension", nullable = true, length = 10)
     private String extension;
 
-    /** Indica si lo generó una inteligencia artificial. */
-    @Column(name = "generadoPorIa", nullable = false)
-    private Boolean generadoPorIa = false;
+    /** Estado de la generación con inteligencia artificial. Es nulo si el docente lo cargó a mano. */
+    @ManyToOne
+    @JoinColumn(name = "idEstadoGeneracionIA")
+    private EstadoGeneracionIA estadoGeneracionIa;
+
+    /** Detalle del error si la generación falló. */
+    @Column(name = "detalleError", nullable = true, length = 500)
+    private String detalleError;
 
     /** Crea el material de lectura con los datos básicos. */
     public MaterialLectura(Recurso recurso, CategoriaMaterialLectura categoriaMaterialLectura, String rutaArchivo,
@@ -72,5 +77,15 @@ public class MaterialLectura {
         this.categoriaMaterialLectura = categoriaMaterialLectura;
         this.rutaArchivo = rutaArchivo;
         this.autor = autor;
+    }
+
+    /** Indica si lo generó una inteligencia artificial, que se deduce de tener un estado de generación. */
+    public boolean getGeneradoPorIa() {
+        return estadoGeneracionIa != null;
+    }
+
+    /** Indica si ya se puede usar: lo cargó el docente a mano o la inteligencia artificial terminó de generarlo. */
+    public boolean estaDisponible() {
+        return estadoGeneracionIa == null || EstadoGeneracionIA.LISTO.equals(estadoGeneracionIa.getNombre());
     }
 }

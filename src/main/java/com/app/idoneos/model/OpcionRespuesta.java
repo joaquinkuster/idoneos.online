@@ -30,7 +30,7 @@ public class OpcionRespuesta {
     private Pregunta pregunta;
 
     /** Texto de la opción de respuesta. */
-    @Column(name = "texto", nullable = false, length = 150)
+    @Column(name = "texto", nullable = false, length = 255)
     private String texto;
 
     /** Indica si la opción es la respuesta correcta. */

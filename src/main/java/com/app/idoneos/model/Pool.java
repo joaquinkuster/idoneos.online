@@ -43,9 +43,22 @@ public class Pool {
     @Column(name = "ultimaModificacion", nullable = true)
     private LocalDateTime ultimaModificacion;
 
+    /** Indica si el docente revisó el contenido. Los pools que genera la inteligencia artificial nacen sin revisar. */
+    @Column(name = "revisado", nullable = false)
+    private Boolean revisado = true;
+
     /** Indica si el registro fue dado de baja (baja lógica). */
     @Column(name = "baja", nullable = false)
     private Boolean baja = false;
+
+    /** Estado de la generación con inteligencia artificial. Es nulo si el docente lo cargó a mano. */
+    @ManyToOne
+    @JoinColumn(name = "idEstadoGeneracionIA")
+    private EstadoGeneracionIA estadoGeneracionIa;
+
+    /** Detalle del error si la generación falló. */
+    @Column(name = "detalleError", nullable = true, length = 500)
+    private String detalleError;
 
     /** Preguntas que referencian a este registro. */
     @OneToMany(mappedBy = "pool", cascade = CascadeType.ALL)
@@ -69,6 +82,21 @@ public class Pool {
     /** Verifica si el registro está dado de baja. */
     public boolean esInactivo() {
         return baja;
+    }
+
+    /** Indica si lo generó una inteligencia artificial, que se deduce de tener un estado de generación. */
+    public boolean getGeneradoPorIa() {
+        return estadoGeneracionIa != null;
+    }
+
+    /** Indica si ya se puede usar: lo cargó el docente a mano o la inteligencia artificial terminó de generarlo. */
+    public boolean estaDisponible() {
+        return estadoGeneracionIa == null || EstadoGeneracionIA.LISTO.equals(estadoGeneracionIa.getNombre());
+    }
+
+    /** Indica si se puede usar en una autoevaluación: ya está generado y el docente lo revisó. */
+    public boolean estaListoParaUsar() {
+        return estaDisponible() && revisado;
     }
 
     /** Obtiene las preguntas vigentes del pool. */

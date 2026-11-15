@@ -356,8 +356,8 @@ public class ProgramaServiceImpl implements ProgramaService {
         var antes = tema.getMaterialesPublicados();
         var despues = antes.stream().filter(m -> !materialesQuitados.contains(m.getIdTemaRecurso())).toList();
         java.util.function.BiPredicate<java.util.List<com.app.idoneos.model.TemaRecurso>, String> tiene = (lista, celda) -> lista.stream().anyMatch(m -> switch (celda) {
-            case "clon" -> m.getRecurso().getVideoClon() != null && com.app.idoneos.model.EstadoGeneracion.GENERADO
-                    .equals(m.getRecurso().getVideoClon().getEstadoGeneracion().getNombre());
+            case "clon" -> m.getRecurso().getVideoClon() != null && com.app.idoneos.model.EstadoGeneracionIA.LISTO
+                    .equals(m.getRecurso().getVideoClon().getEstadoGeneracionIa().getNombre());
             case "grabada" -> com.app.idoneos.model.Modalidad.GRABADA.equals(m.getModalidadAsociada());
             default -> m.getModalidadAsociada() == null;
         });

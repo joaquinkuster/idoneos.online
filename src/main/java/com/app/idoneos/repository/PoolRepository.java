@@ -32,4 +32,7 @@ public interface PoolRepository extends JpaRepository<Pool, Integer> {
 
     /** Busca todos los pools de un tema, incluidos los dados de baja. */
     List<Pool> findByTema(Tema tema);
+
+    /** Busca los pools generados con inteligencia artificial que están en alguno de los estados indicados. */
+    List<Pool> findByEstadoGeneracionIaNombreIn(java.util.Collection<String> estados);
 }
