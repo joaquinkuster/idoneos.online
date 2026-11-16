@@ -145,6 +145,68 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.findByCorreo(correo);
     }
 
+    /** Resuelve el ingreso con Google. Solo ingresa quien ya creó su cuenta con Google: un correo con cuenta propia no se mezcla. */
+    @Override
+    public Optional<Usuario> ingresarConGoogle(String googleId, String correo, boolean correoVerificado) {
+        if (googleId == null || googleId.isBlank() || !correoVerificado) {
+            throw new IllegalArgumentException("Error! Google no verificó ese correo electrónico.");
+        }
+        Optional<Usuario> deGoogle = usuarioRepository.findByGoogleId(googleId);
+        if (deGoogle.isPresent()) {
+            if (deGoogle.get().esInactivo()) {
+                throw new IllegalArgumentException("Error! La cuenta no se encuentra activa.");
+            }
+            return deGoogle;
+        }
+        // Un correo que ya tiene una cuenta propia ingresa con su correo y su contraseña, no con Google
+        if (usuarioRepository.findByCorreo(limpiar(correo).toLowerCase()).isPresent()) {
+            throw new CorreoYaRegistradoException("Error! Ese correo ya tiene una cuenta. Iniciá sesión con tu correo y tu contraseña.");
+        }
+        return Optional.empty();
+    }
+
+    /** Registra la cuenta de un alumno que ingresó con Google. El correo queda validado y la contraseña es una que nadie conoce. */
+    @Override
+    @Transactional
+    public Usuario registrarConGoogle(String googleId, String correo, String nombre, String apellido, String dni) {
+        String nombreLimpio = limpiar(nombre);
+        String apellidoLimpio = limpiar(apellido);
+        String correoLimpio = limpiar(correo).toLowerCase();
+        String dniLimpio = limpiar(dni);
+        if (googleId == null || googleId.isBlank() || correoLimpio.isEmpty()) {
+            throw new IllegalArgumentException("Error! Faltan los datos de la cuenta de Google. Volvé a ingresar con Google.");
+        }
+        if (nombreLimpio.isEmpty()) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("nombre", "Error! Completá el nombre.");
+        }
+        if (apellidoLimpio.isEmpty()) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("apellido", "Error! Completá el apellido.");
+        }
+        if (nombreLimpio.length() > 50 || apellidoLimpio.length() > 50) {
+            throw new IllegalArgumentException("Error! El nombre y el apellido no pueden superar los 50 caracteres.");
+        }
+        if (!dniLimpio.matches("^[0-9]{7,8}$")) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("dni", "Error! El DNI debe tener 7 u 8 dígitos.");
+        }
+        if (usuarioRepository.findByCorreo(correoLimpio).isPresent()) {
+            throw new IllegalArgumentException("Error! Ya existe una cuenta con ese correo electrónico. Ingresá con Google nuevamente.");
+        }
+        if (usuarioRepository.existsByDni(dniLimpio)) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("dni", "Error! El DNI ya está registrado por otra cuenta.");
+        }
+
+        Rol rolAlumno = buscarRol("Alumno");
+        // La contraseña es una que nadie conoce: la cuenta ingresa solo con Google
+        Usuario usuario = new Usuario(nombreLimpio, apellidoLimpio, dniLimpio, correoLimpio, passwordEncoder.encode(UUID.randomUUID().toString()));
+        usuario.setGoogleId(googleId);
+        usuario.setEmailValidado(true);
+        usuario.setRolPorDefecto(rolAlumno);
+        usuario = usuarioRepository.save(usuario);
+        rolUsuarioService.guardar(new RolUsuario(rolAlumno, usuario));
+        alumnoService.guardar(new Alumno(usuario));
+        return usuario;
+    }
+
     /** Obtiene todos los usuarios, incluidos los dados de baja. */
     @Override
     public List<Usuario> buscarTodos() {
@@ -383,6 +445,10 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Error! No existe una cuenta registrada con ese correo electrónico."));
         if (usuario.esInactivo()) {
             throw new IllegalArgumentException("Error! La cuenta no se encuentra activa.");
+        }
+        if (usuario.getGoogleId() != null) {
+            throw new IllegalArgumentException(
+                    "Error! Esa cuenta ingresa con Google y no tiene una contraseña propia. Usá «Continuar con Google».");
         }
         String token = generarToken(usuario.getIdUsuario(), VIGENCIA_RECUPERACION);
         correoService.enviarRecuperacionContrasena(usuario, token);

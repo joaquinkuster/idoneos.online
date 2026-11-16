@@ -23,6 +23,9 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     /** Verifica si existe otro usuario, distinto del indicado, con el DNI dado. */
     boolean existsByDniAndIdUsuarioNot(String dni, int idUsuario);
 
+    /** Busca el usuario por su atributo único 'googleId'. */
+    Optional<Usuario> findByGoogleId(String googleId);
+
     /** Busca el usuario por su atributo único 'tokenVerificacion'. */
     Optional<Usuario> findByTokenVerificacion(String tokenVerificacion);
 

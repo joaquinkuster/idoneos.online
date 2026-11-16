@@ -13,13 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
-import com.app.idoneos.controller.advice.ContextoSesionAdvice;
-import com.app.idoneos.model.Sesion;
-import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.sesion.SesionService;
-import com.app.idoneos.util.DispositivoUtil;
 import com.app.idoneos.service.usuario.UsuarioDetallesService;
 
 /** Configuración de seguridad de Spring Security. */
@@ -35,6 +30,9 @@ public class SecurityConfig {
 
     @Autowired
     private SesionService sesionService;
+
+    @Autowired
+    private AccesoComponent accesoComponent;
 
     /** Cambia el nombre de la cookie de sesión del contenedor. */
     @Bean
@@ -69,7 +67,8 @@ public class SecurityConfig {
                         .requestMatchers("/", "/inicio", "/acercaDe", "/error",
                                 "/login", "/catalogo/**",
                                 // Registro, validación del correo y recuperación de la contraseña
-                                "/registro", "/recuperar/*", "/usuario/autoregistrar", "/usuario/validarCorreo/*",
+                                "/registro", "/registro/google", "/usuario/completarGoogle", "/oauth2/**", "/login/oauth2/**",
+                                "/recuperar/*", "/usuario/autoregistrar", "/usuario/validarCorreo/*",
                                 "/usuario/solicitarRecuperacion", "/usuario/restablecerContrasena",
                                 "/css/**", "/js/**", "/img/**", "/webjars/**",
                                 // Portada de cada curso: el resto de las carpetas no es público
@@ -206,30 +205,19 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
                         // El administrador y el docente entran a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
-                        .successHandler((request, response, authentication) -> {
-                            Usuario usuario = (Usuario) authentication.getPrincipal();
-                            // Registra la sesión en la base y guarda su token en la cookie. "Recordarme" la hace durar 30 días, y si
-                            // no, vence a las 2 horas sin actividad. Si la cuenta ya tiene el máximo de sesiones, no se la deja ingresar
-                            boolean recordar = "true".equals(request.getParameter("recordarme"));
-                            try {
-                                Sesion sesion = sesionService.iniciar(usuario, recordar, DispositivoUtil.obtenerIp(request),
-                                        DispositivoUtil.describir(request.getHeader("User-Agent")));
-                                SesionTokenFilter.guardarCookie(request, response, sesion.getToken(), recordar);
-                            } catch (IllegalStateException e) {
-                                new SecurityContextLogoutHandler().logout(request, response, authentication);
-                                response.sendRedirect(request.getContextPath() + "/login?error=limiteSesiones");
-                                return;
-                            }
-                            request.getSession().setAttribute(ContextoSesionAdvice.MENSAJE_DE_SESION,
-                                    "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
-                            String destino = usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
-                                    : usuario.esAlumnoActivo() ? "/inscripcion/buscar" : "/inicio";
-                            response.sendRedirect(request.getContextPath() + destino);
-                        })
+                        // Registra la sesión en la base y guarda su token en la cookie. "Recordarme" la hace durar 30 días. Si la
+                        // cuenta ya tiene el máximo de sesiones, no se la deja ingresar
+                        .successHandler(accesoComponent::alIngresar)
                         // Una cuenta con el correo sin validar se distingue de las credenciales incorrectas
                         .failureHandler((request, response, excepcion) -> response.sendRedirect(request.getContextPath()
                                 + (excepcion instanceof DisabledException ? "/login?error=noValidado" : "/login?error=true")))
                         .permitAll())
+                // Ingreso con Google: si el correo ya tiene cuenta se la vincula, y si no, se le pide el DNI para crearla
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .successHandler(accesoComponent::alIngresarConGoogle)
+                        .failureHandler((request, response, excepcion) -> response.sendRedirect(request.getContextPath()
+                                + "/login?error=google")))
                 .userDetailsService(usuarioDetallesService)
                 .logout(logout -> logout
                         .logoutUrl("/logout")

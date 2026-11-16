@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="auth-body">
+
+    <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+    <div class="auth-pagina">
+        <div th:replace="~{fragments/layout/auth :: fondo}"></div>
+
+        <div class="auth-contenedor">
+            <div class="auth-card">
+
+                <!-- Izquierda: formulario -->
+                <div class="auth-izquierda">
+                    <div th:replace="~{fragments/layout/auth :: cabecera('Un último paso para crear tu cuenta con Google')}"></div>
+
+                    <form th:action="@{/usuario/completarGoogle}" method="post" class="auth-form form-ajax" data-validar data-validador="auth" novalidate>
+                        <div class="auth-grupo">
+                            <label for="correoGoogle">Correo de Google</label>
+                            <input id="correoGoogle" type="email" th:value="${correoGoogle}" disabled>
+                        </div>
+
+                        <div class="auth-fila">
+                            <div class="auth-grupo pn-campo">
+                                <label for="nombre">Nombre <span class="pn-obligatorio">*</span></label>
+                                <input id="nombre" name="nombre" type="text" maxlength="50" th:value="${nombreGoogle}" autocomplete="given-name" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="auth-grupo pn-campo">
+                                <label for="apellido">Apellido <span class="pn-obligatorio">*</span></label>
+                                <input id="apellido" name="apellido" type="text" maxlength="50" th:value="${apellidoGoogle}" autocomplete="family-name" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+
+                        <div class="auth-grupo pn-campo">
+                            <label for="dni">DNI <span class="pn-obligatorio">*</span></label>
+                            <input id="dni" name="dni" type="text" inputmode="numeric" maxlength="8" placeholder="12345678" autocomplete="off" required autofocus>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+
+                        <button type="submit" class="auth-boton">Crear cuenta</button>
+                    </form>
+                </div>
+
+                <!-- Derecha: por qué se pide el DNI -->
+                <div class="auth-derecha">
+                    <div class="auth-promo">
+                        <h2>¿Para qué pedimos tu DNI?</h2>
+                        <p>Aparece en tus certificados y en los comprobantes de tus pagos, así que tiene que ser el correcto</p>
+                        <button type="button" class="auth-promo-boton" data-login>Cancelar</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/layout/auth :: scripts}"></th:block>
+</body>
+</html>

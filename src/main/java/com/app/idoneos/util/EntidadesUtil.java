@@ -71,6 +71,7 @@ public final class EntidadesUtil {
 
     private static final Pattern NUMERO = Pattern.compile("^\\d+(?:[.,]\\d+)*$");
     private static final Pattern PALABRA = Pattern.compile("^\\p{L}[\\p{L}'-]*$");
+    private static final Pattern INFINITIVO = Pattern.compile("[aei]r(?:se)?$");
 
     /**
      * Los datos de una oración, en el orden en que están.
@@ -160,6 +161,10 @@ public final class EntidadesUtil {
             boolean verbo = a.categorias()[i].equals("VERB");
             if ((!verbo && !a.categorias()[i].equals("ADJ")) || palabra.length() < LETRAS_MINIMAS_DE_UNA_PALABRA || !PALABRA.matcher(palabra).matches()
                     || !Character.isLowerCase(palabra.charAt(0)) || frecuentes.contains(LogicaPreguntasAurea.normalizar(a.lemas()[i]))) {
+                continue;
+            }
+            // Un verdadero verbo tiene el infinitivo como lema: si no lo tiene («contenido»), el etiquetador tomó por verbo a un sustantivo o a un adjetivo
+            if (verbo && !INFINITIVO.matcher(LogicaPreguntasAurea.normalizar(a.lemas()[i])).find()) {
                 continue;
             }
             String normal = LogicaPreguntasAurea.normalizar(palabra);
@@ -297,10 +302,23 @@ public final class EntidadesUtil {
      * @return Las oraciones cambiadas; menos de las pedidas, o ninguna, si la oración no tiene nada que se pueda cambiar.
      */
     public static List<String> incorrectasPorCambio(String oracion, Indice indice, List<String> oraciones, int cantidad) {
+        return incorrectasPorCambio(oracion, indice, oraciones, cantidad, Set.of());
+    }
+
+    /**
+     * Igual que {@link #incorrectasPorCambio(String, Indice, List, int)}, pero sin cambiar las palabras de la pregunta: si la pregunta dice «permite» y
+     * una opción dice «impide», esa opción se descarta sola.
+     *
+     * @param enLaPregunta Las palabras y los lemas de la pregunta, sin tildes y en minúscula.
+     */
+    public static List<String> incorrectasPorCambio(String oracion, Indice indice, List<String> oraciones, int cantidad, Set<String> enLaPregunta) {
         List<String> resultado = new ArrayList<>();
         for (Entidad entidad : candidatas(oracion, indice)) {
             if (resultado.size() >= cantidad) {
                 break;
+            }
+            if (estaEnLaPregunta(entidad, enLaPregunta)) {
+                continue;
             }
             for (String cambiada : incorrectas(oracion, entidad, indice, oraciones, Math.min(2, cantidad - resultado.size()))) {
                 if (!resultado.contains(cambiada)) {
@@ -309,6 +327,20 @@ public final class EntidadesUtil {
             }
         }
         return resultado.size() > cantidad ? resultado.subList(0, cantidad) : resultado;
+    }
+
+    /** Indica si alguna palabra del dato, o su lema, está entre las de la pregunta. */
+    private static boolean estaEnLaPregunta(Entidad entidad, Set<String> enLaPregunta) {
+        if (enLaPregunta.isEmpty()) {
+            return false;
+        }
+        GramaticaUtil.Analisis a = GramaticaUtil.analizar(entidad.texto());
+        for (int i = 0; i < a.palabras().length; i++) {
+            if (enLaPregunta.contains(LogicaPreguntasAurea.normalizar(a.palabras()[i])) || enLaPregunta.contains(LogicaPreguntasAurea.normalizar(a.lemas()[i]))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Para describir un dato en un mensaje. */

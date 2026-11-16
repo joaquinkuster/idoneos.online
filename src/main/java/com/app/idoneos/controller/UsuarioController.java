@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.app.idoneos.config.AccesoComponent;
 import com.app.idoneos.model.Rol;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.titulodocente.TituloDocenteService;
@@ -33,6 +34,9 @@ public class UsuarioController {
 
     @Autowired
     private TituloDocenteService tituloDocenteService;
+
+    @Autowired
+    private AccesoComponent accesoComponent;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -178,6 +182,34 @@ public class UsuarioController {
             actual.setTelefono(modificado.getTelefono());
             actual.setImagen(modificado.getImagen());
             return RespuestaFormularioUtil.armarRespuestaExitosa("Perfil actualizado con éxito.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /** POST /usuario/completarGoogle: Crea la cuenta de quien ingresó con Google, con el DNI que informa, e inicia su sesión. */
+    @PostMapping("/completarGoogle")
+    public ResponseEntity<Map<String, String>> completarGoogle(
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "apellido", required = false) String apellido,
+            @RequestParam(value = "dni", required = false) String dni,
+            jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response) {
+        try {
+            jakarta.servlet.http.HttpSession sesion = request.getSession(false);
+            AccesoComponent.DatosGoogle datos = sesion != null && sesion.getAttribute(AccesoComponent.GOOGLE_PENDIENTE)
+                    instanceof AccesoComponent.DatosGoogle pendiente ? pendiente : null;
+            if (datos == null || datos.vencido()) {
+                throw new IllegalArgumentException("Error! La autorización de Google venció. Volvé a ingresar con Google.");
+            }
+            Usuario usuario = usuarioService.registrarConGoogle(datos.googleId(), datos.correo(), nombre, apellido, dni);
+            sesion.removeAttribute(AccesoComponent.GOOGLE_PENDIENTE);
+            accesoComponent.autenticar(request, response, usuario);
+            try {
+                return RespuestaFormularioUtil.armarRespuestaDeRedireccion(accesoComponent.iniciarSesion(request, response, usuario, false));
+            } catch (IllegalStateException e) {
+                accesoComponent.descartarAutenticacion(request);
+                throw new IllegalArgumentException(e.getMessage());
+            }
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }

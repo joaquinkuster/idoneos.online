@@ -33,7 +33,7 @@ final class BancoPorRondasIA {
     private static final Logger REGISTRO = LoggerFactory.getLogger(BancoPorRondasIA.class);
 
     /** Cuántas rondas como máximo, mientras haya tiempo y falten preguntas. */
-    private static final int RONDAS_MAXIMAS = 20;
+    private static final int RONDAS_MAXIMAS = 40;
 
     /**
      * Cuántas oraciones objetivo tiene cada ronda. Es una: con cinco, el modelo chico escribía una sola pregunta y a veces la asignaba a otra oración;
@@ -45,6 +45,9 @@ final class BancoPorRondasIA {
     private static final int TOKENS_POR_RONDA = 300;
 
     private static final int INCORRECTAS = 3;
+
+    /** Cuántos caracteres como mínimo tiene que tener una pregunta, sin los signos: menos es un «¿?» vacío. */
+    private static final int LARGO_MINIMO_DE_UNA_PREGUNTA = 10;
 
     /** Cuántos caracteres entran en el enunciado de una pregunta y en el texto de una opción en la base. */
     private static final int LARGO_MAXIMO = 255;
@@ -131,7 +134,13 @@ final class BancoPorRondasIA {
                 // Las cuatro opciones van sin el sujeto, o ninguna: si solo las incorrectas lo perdieran, la que lo conserva sería la correcta
                 String sinSujeto = GramaticaUtil.sinSujeto(objetivo);
                 String correcta = sinSujeto != null ? sinSujeto : objetivo;
-                List<String> incorrectas = incorrectasDe(objetivo, correcta, sinSujeto != null, todas, lemasDeTodas, indice);
+                List<String> porCambio = EntidadesUtil.incorrectasPorCambio(correcta, indice, todas, INCORRECTAS, palabrasDe(enunciado));
+                // Sin tres cambios que no repitan la pregunta, mejor otra oración, mientras queden; si no, completan otras oraciones del documento
+                if (porCambio.size() < INCORRECTAS && siguiente < objetivos.size()) {
+                    descartar("menos de tres cambios sin repetir palabras de la pregunta");
+                    continue;
+                }
+                List<String> incorrectas = incorrectasDe(objetivo, correcta, sinSujeto != null, porCambio, todas, lemasDeTodas);
                 if (incorrectas.size() < INCORRECTAS) {
                     descartar("no se pudieron armar tres opciones incorrectas");
                     continue;
@@ -141,6 +150,8 @@ final class BancoPorRondasIA {
                 incorrectas.forEach(texto -> opciones.add(new Opcion(texto, false)));
                 Collections.shuffle(opciones);
                 usados.add(LogicaPreguntasAurea.normalizar(enunciado));
+                // También queda marcada la oración, para que las reglas no armen otra pregunta con ella
+                usados.add(LogicaPreguntasAurea.normalizar(objetivo));
                 aceptadas.add(new Pregunta(enunciado, opciones, Tipo.UNICA_RESPUESTA));
             }
             REGISTRO.info("Ronda {}: {} oraciones objetivo, {} preguntas escritas; {} de {} aceptadas hasta ahora. Descartadas por motivo: {}", ronda, cuantas,
@@ -164,6 +175,17 @@ final class BancoPorRondasIA {
         REGISTRO.info("De {} oraciones objetivo, {} permiten tres incorrectas por cambio de palabra.", objetivos.size(), conCambios.size());
         conCambios.addAll(sinCambios);
         return conCambios;
+    }
+
+    /** Las palabras y los lemas de un texto, sin tildes y en minúscula. */
+    private static Set<String> palabrasDe(String texto) {
+        GramaticaUtil.Analisis a = GramaticaUtil.analizar(texto);
+        Set<String> palabras = new HashSet<>();
+        for (int i = 0; i < a.palabras().length; i++) {
+            palabras.add(LogicaPreguntasAurea.normalizar(a.palabras()[i]));
+            palabras.add(LogicaPreguntasAurea.normalizar(a.lemas()[i]));
+        }
+        return palabras;
     }
 
     private static String pedido(List<String> objetivos, String contexto) {
@@ -193,15 +215,25 @@ final class BancoPorRondasIA {
             descartar("pregunta vacía");
             return null;
         }
-        String texto = pregunta.trim();
-        int fin = texto.indexOf('?');
-        if (fin < 0 || texto.contains("\n")) {
+        String bruta = pregunta.trim();
+        if (bruta.indexOf('?') < 0 || bruta.contains("\n")) {
             descartar("sin signo de pregunta o con varias líneas");
             return null;
         }
-        texto = texto.substring(0, fin + 1);
-        if (!texto.startsWith("¿")) {
-            texto = "¿" + texto;
+        // La primera pregunta con contenido: el modelo a veces escribe un «¿?» vacío antes de la pregunta o en lugar de ella
+        String texto = null;
+        int desde = 0;
+        for (int fin = bruta.indexOf('?', desde); fin >= 0 && texto == null; fin = bruta.indexOf('?', desde)) {
+            String contenido = bruta.substring(desde, fin).replaceAll("^[¿\\s]+", "").trim();
+            if (contenido.length() >= LARGO_MINIMO_DE_UNA_PREGUNTA) {
+                texto = "¿" + contenido + "?";
+            }
+            desde = fin + 1;
+        }
+        if (texto == null) {
+            descartar("pregunta vacía («¿?»)");
+            REGISTRO.info("Pregunta sin contenido, tal como la escribió el modelo: «{}» (para la oración: «{}»)", pregunta, objetivo);
+            return null;
         }
         if (texto.length() > LARGO_MAXIMO) {
             descartar("enunciado de más de 255 caracteres");
@@ -220,6 +252,15 @@ final class BancoPorRondasIA {
         long compartidos = lemas.stream().filter(lemasDelContexto::contains).count();
         if (lemas.isEmpty() || compartidos < (lemas.size() <= LEMAS_DE_UN_TEXTO_CORTO ? 1 : 2)) {
             descartar("sin palabras de contenido del contexto");
+            REGISTRO.info("Pregunta rechazada por no compartir palabras con el contexto: «{}» (lemas de la pregunta: {}; para la oración: «{}»)", texto, lemas,
+                    objetivo);
+            return null;
+        }
+        // Además de apoyarse en el contexto, tiene que hablar de la oración objetivo: si no, el modelo escribió la pregunta de otra oración del contexto
+        Set<String> lemasDelObjetivo = GramaticaUtil.conjuntoDeLemas(objetivo);
+        if (lemas.stream().noneMatch(lemasDelObjetivo::contains)) {
+            descartar("sin palabras de la oración objetivo");
+            REGISTRO.info("Pregunta que no habla de su oración: «{}» (para la oración: «{}»)", texto, objetivo);
             return null;
         }
         return texto;
@@ -229,12 +270,12 @@ final class BancoPorRondasIA {
      * Las tres oraciones incorrectas de una oración. Primero las que cambian una palabra de la oración; después otras oraciones que comparten palabras de
      * contenido con ella (las más parecidas primero), y al final oraciones al azar.
      */
-    private static List<String> incorrectasDe(String objetivo, String correcta, boolean sinSujeto, List<String> todas, List<List<String>> lemasDeTodas,
-            EntidadesUtil.Indice indice) {
+    private static List<String> incorrectasDe(String objetivo, String correcta, boolean sinSujeto, List<String> porCambio, List<String> todas,
+            List<List<String>> lemasDeTodas) {
         List<String> incorrectas = new ArrayList<>();
         Set<String> vistas = new HashSet<>();
         vistas.add(LogicaPreguntasAurea.normalizar(correcta));
-        for (String cambiada : EntidadesUtil.incorrectasPorCambio(correcta, indice, todas, INCORRECTAS)) {
+        for (String cambiada : porCambio) {
             if (cambiada.length() <= LARGO_MAXIMO && vistas.add(LogicaPreguntasAurea.normalizar(cambiada))) {
                 incorrectas.add(cambiada);
             }

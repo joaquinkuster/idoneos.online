@@ -23,6 +23,19 @@ public interface UsuarioService extends CrudService<Usuario> {
     Optional<Usuario> buscarPorCorreo(String correo);
 
     /**
+     * Resuelve el ingreso con Google. Solo ingresa quien ya creó su cuenta con Google: un correo que tiene una cuenta propia no
+     * se vincula, y debe iniciar sesión con su correo y su contraseña.
+     *
+     * @param googleId Identificador de la cuenta de Google.
+     * @param correo Correo electrónico que informa Google.
+     * @param correoVerificado Indica si Google verificó ese correo.
+     * @return La cuenta creada con Google, o vacío si el correo todavía no tiene cuenta.
+     * @throws CorreoYaRegistradoException Si el correo ya tiene una cuenta propia.
+     * @throws IllegalArgumentException Si Google no verificó el correo o la cuenta está dada de baja.
+     */
+    Optional<Usuario> ingresarConGoogle(String googleId, String correo, boolean correoVerificado);
+
+    /**
      * Obtiene todos los usuarios, incluidos los dados de baja.
      *
      * @return La lista completa de usuarios.
@@ -55,6 +68,19 @@ public interface UsuarioService extends CrudService<Usuario> {
     record DatosDocente(String biografia, Integer aniosExperiencia, String matriculaCnv, boolean habilitado,
             java.util.List<String> titulos, java.util.List<String> matriculas) {
     }
+
+    /**
+     * Registra la cuenta de un alumno que ingresó con Google. El correo queda validado y la contraseña es una que nadie conoce.
+     *
+     * @param googleId Identificador de la cuenta de Google.
+     * @param correo Correo electrónico que informa Google.
+     * @param nombre Nombre del usuario.
+     * @param apellido Apellido del usuario.
+     * @param dni Documento Nacional de Identidad, de 7 u 8 dígitos.
+     * @return El usuario registrado.
+     * @throws IllegalArgumentException Si falta algún dato, alguno no es válido o el correo o el DNI ya están registrados.
+     */
+    Usuario registrarConGoogle(String googleId, String correo, String nombre, String apellido, String dni);
 
     /**
      * Registra una cuenta por un administrador. El usuario recibe un enlace para definir su contraseña.

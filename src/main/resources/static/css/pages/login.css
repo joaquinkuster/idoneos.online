@@ -104,3 +104,42 @@
     background: #FEF2F2;
     color: var(--pn-peligro);
 }
+
+/* Ingreso con Google */
+.auth-separador {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 1.25rem 0 1rem;
+    color: var(--pn-texto-suave);
+    font-size: 0.8125rem;
+}
+
+.auth-separador::before,
+.auth-separador::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--pn-borde);
+}
+
+.auth-boton-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 42px;
+    border: 1px solid var(--pn-borde-input);
+    border-radius: 0.5rem;
+    background: #FFFFFF;
+    color: var(--pn-texto);
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.auth-boton-google:hover {
+    background: var(--pn-fondo);
+    color: var(--pn-texto);
+}

@@ -854,7 +854,8 @@ public final class LogicaPreguntasAurea {
             String clave = contexto.palabraClave(indice + i);
             String original = contexto.formaOriginal.getOrDefault(clave, clave);
             for (String oracion : contexto.sentencias) {
-                if (oracion.length() > 125 || !Pattern.compile("(?iu)\\b" + Pattern.quote(original) + "\\b").matcher(oracion).find()) {
+                // Una oración de la que ya salió otra pregunta (el modelo la deja en «usados», normalizada) no se usa de nuevo
+                if (oracion.length() > 125 || usados.contains(normalizar(oracion)) || !Pattern.compile("(?iu)\\b" + Pattern.quote(original) + "\\b").matcher(oracion).find()) {
                     continue;
                 }
                 String enunciado = "Completá la oración: " + oracion.replaceFirst("(?iu)\\b" + Pattern.quote(original) + "\\b", "_____");
@@ -886,6 +887,8 @@ public final class LogicaPreguntasAurea {
                     }
                 }
                 if (opciones.size() >= 3) {
+                    // La oración queda usada: no se arma otra pregunta tapando una palabra distinta de la misma
+                    usados.add(normalizar(oracion));
                     Collections.shuffle(opciones, azar);
                     return new Pregunta(enunciado, opciones, Tipo.UNICA_RESPUESTA);
                 }
