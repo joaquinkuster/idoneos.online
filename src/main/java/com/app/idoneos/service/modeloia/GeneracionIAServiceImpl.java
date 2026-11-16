@@ -52,9 +52,13 @@ import com.app.idoneos.service.indice.IndiceRecursoService;
 import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.util.MarcadoresPdfUtil.Marcador;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
+import com.app.idoneos.util.EntidadesUtil;
+import com.app.idoneos.util.EstructuraPdfUtil;
+import com.app.idoneos.util.GramaticaUtil;
 import com.app.idoneos.util.FidelidadTextoUtil;
 import com.app.idoneos.util.LogicaPreguntasAurea;
 import com.app.idoneos.util.ManejadorArchivosUtil;
+import com.app.idoneos.util.OracionesUtil;
 import com.app.idoneos.util.PalabrasClaveUtil;
 import com.app.idoneos.util.PresentacionPdfUtil;
 import com.app.idoneos.util.PresentacionPdfUtil.Presentacion;
@@ -842,6 +846,12 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         private String contextoDelMaterial = "";
         /** Todas las oraciones del material que sirven para armar preguntas: de ahí salen las respuestas incorrectas. */
         private List<String> distractores = List.of();
+        /** El peso (IDF) de cada lema en el documento, para medir la similitud entre oraciones y entre una pregunta y su oración. */
+        private java.util.Map<String, Double> idf = java.util.Map.of();
+        /** Los números y los nombres del documento, de donde salen los datos que se cambian en las respuestas incorrectas. */
+        private EntidadesUtil.Indice entidades = new EntidadesUtil.Indice(java.util.Map.of(), java.util.Set.of(), java.util.Set.of());
+        /** La sección del documento (el último título) en la que está cada oración. */
+        private final java.util.Map<String, String> secciones = new java.util.HashMap<>();
 
         private int deSeleccion() {
             return (int) generadas.stream().filter(p -> p.tipo() != LogicaPreguntasAurea.Tipo.VERDADERO_FALSO).count();
@@ -910,11 +920,6 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return poolRepository.save(pool);
     }
 
-    /** Palabras de las instrucciones del docente que no dicen de qué tema son las preguntas, sin tildes y en minúscula. */
-    private static final Set<String> PALABRAS_DE_INSTRUCCION = Set.of("enfocarse", "enfocar", "enfoque", "enfocadas", "preguntas", "pregunta", "sobre",
-            "tema", "temas", "tratar", "trate", "traten", "relacionadas", "relacionado", "relacionados", "quiero", "incluir", "incluya", "generar",
-            "genera", "armar", "arma", "principalmente", "especialmente", "solo", "solamente", "mayormente", "acerca", "respecto");
-
     /** Hasta cuántos caracteres de cada documento se leen para buscar lo que pide el guion. */
     private static final int LECTURA_COMPLETA = 400_000;
 
@@ -936,13 +941,35 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             Recibís una oración de un texto de estudio. Escribí una pregunta de examen, con signos ¿?, cuya respuesta sea exactamente lo que dice esa oración.
             La pregunta no repite la oración ni dice la respuesta, y no agrega datos ni siglas que no estén en la oración.
             Es una sola pregunta, no dos.
-            Puede venir una línea «Documento: …» que dice de qué trata el material: es solo contexto y no es parte de la oración.
+            Puede venir una línea «Documento: …» que dice de qué trata el material y una línea «Sección: …» que dice a qué parte pertenece la oración.
+            Son solo contexto y no son parte de la oración: sirven para saber de qué habla cuando dice «su», «él» o «esto».
 
             Ejemplo.
             Oración: "Las acciones representan una parte del capital de una empresa y dan derecho a dividendos."
             Salida: {"pregunta": "¿Qué representan las acciones y qué derecho dan?"}""";
 
     /** Lo que se le pide al modelo para decir lo mismo que una oración con otras palabras. */
+    private static final String INSTRUCCIONES_PREGUNTA_DEL_DATO = """
+            Recibís una oración de un texto de estudio y un dato de esa oración. Escribí una pregunta de examen, con signos ¿?, cuya respuesta sea exactamente
+            ese dato. La pregunta no dice el dato ni lo repite, y no agrega datos que no estén en la oración. Es una sola pregunta, no dos.
+            Puede venir una línea «Documento: …» que dice de qué trata el material y una línea «Sección: …» que dice a qué parte pertenece la oración.
+            Son solo contexto y no son parte de la oración.
+
+            Ejemplo.
+            Oración: "El Banco Central fue creado en 1935 para regular la moneda."
+            Dato: "1935"
+            Salida: {"pregunta": "¿En qué año fue creado el Banco Central?"}""";
+
+    /** Lo que se le pide al modelo para comprobar una pregunta: que la responda con la parte de la oración que la contesta. */
+    private static final String INSTRUCCIONES_RESPUESTA = """
+            Recibís una oración de un texto de estudio y una pregunta sobre ella. Respondé la pregunta con la parte de la oración que la contesta, copiada tal
+            cual y en pocas palabras. No expliques nada más.
+
+            Ejemplo.
+            Oración: "Los bonos son emitidos por los estados y las obligaciones negociables, por las empresas."
+            Pregunta: "¿Quién emite los bonos?"
+            Salida: {"respuesta": "los estados"}""";
+
     private static final String INSTRUCCIONES_PARAFRASIS = """
             Recibís una oración de un texto de estudio. Escribila de nuevo con otras palabras, en una sola oración, sin agregar ni quitar ninguna idea.
 
@@ -985,15 +1012,44 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     }
 
     /**
+     * Saca las oraciones de los documentos respetando su estructura: los títulos, las celdas de las tablas y los ítems de las listas quedan separados, y
+     * cada oración conserva la sección en la que está. Si un PDF no se puede leer así, se usa el texto plano de ese documento, sin sección.
+     */
+    private List<OracionesUtil.OracionDeSeccion> leerOraciones(List<Documento> documentos, String textoPlano) {
+        List<OracionesUtil.OracionDeSeccion> oraciones = new ArrayList<>();
+        for (Documento documento : documentos) {
+            Path pdf = ManejadorArchivosUtil.resolver(directorioCursos, documento.ruta());
+            if (pdf == null || !Files.isRegularFile(pdf)) {
+                continue;
+            }
+            try {
+                List<EstructuraPdfUtil.Bloque> bloques = EstructuraPdfUtil.leer(pdf, LECTURA_COMPLETA);
+                // Se le agrega el título del documento como sección de lo que viene antes del primer título
+                List<EstructuraPdfUtil.Bloque> conSeccion = bloques.stream().map(b -> b.seccion().isEmpty()
+                        ? new EstructuraPdfUtil.Bloque(b.tipo(), b.texto(), documento.titulo(), b.campo()) : b).toList();
+                oraciones.addAll(OracionesUtil.candidatasPorBloques(conSeccion, Integer.MAX_VALUE));
+            } catch (IOException | RuntimeException e) {
+                REGISTRO.warn("No se pudo leer la estructura de «{}»: se usa el texto plano. {}", documento.titulo(), e.getMessage());
+            }
+        }
+        if (oraciones.isEmpty()) {
+            LogicaPreguntasAurea.candidatas(textoPlano, Integer.MAX_VALUE).forEach(o -> oraciones.add(new OracionesUtil.OracionDeSeccion(o, "", "")));
+        }
+        return oraciones;
+    }
+
+    /**
      * Busca, en el texto, las oraciones que mencionan lo que pide el guion del docente y que sirven para armar preguntas, en el orden en que aparecen
      * y hasta el largo del material. Una palabra del guion coincide con las que empiezan igual, para que «funcionales» encuentre también «funcional».
      *
      * @return Las oraciones, o una lista vacía si el guion no tiene palabras útiles o no encontró nada: ahí se sigue con el proceso normal.
      */
-    private List<String> buscarOracionesDelGuion(String texto, String guion) {
+    private List<String> buscarOracionesDelGuion(List<String> delTexto, String guion) {
+        // Las palabras del guion que están en muchas oraciones del documento (artículos, conectores, palabras genéricas) no dicen qué pide el docente
+        Set<String> frecuentes = PalabrasClaveUtil.frecuentes(delTexto);
         List<String> raices = new ArrayList<>();
         for (String palabra : LogicaPreguntasAurea.normalizar(guion).split("\\s+")) {
-            if (palabra.length() >= 4 && !PalabrasClaveUtil.esComun(palabra) && !PALABRAS_DE_INSTRUCCION.contains(palabra)) {
+            if (palabra.length() >= 4 && !frecuentes.contains(palabra)) {
                 raices.add(palabra.length() > 6 ? palabra.substring(0, 6) : palabra);
             }
         }
@@ -1002,7 +1058,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         }
         List<Hallada> halladas = new ArrayList<>();
         int orden = 0;
-        for (String oracion : LogicaPreguntasAurea.candidatas(texto, Integer.MAX_VALUE)) {
+        for (String oracion : delTexto) {
             orden++;
             List<String> palabras = java.util.Arrays.asList(LogicaPreguntasAurea.normalizar(oracion).split("\\s+"));
             int puntaje = (int) raices.stream().distinct().filter(raiz -> palabras.stream().anyMatch(p -> p.startsWith(raiz))).count();
@@ -1040,13 +1096,17 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return respuesta == null ? null : respuesta.pregunta();
     }
 
-    /** El pedido de una oración, con la línea de contexto del material delante. */
-    private static String conContexto(String contexto, String oracion) {
-        return (contexto.isEmpty() ? "" : contexto + "\n") + "Oración: \"" + oracion + "\"";
+    /**
+     * El pedido de una oración, con la línea de contexto del material delante y la sección del documento en la que está. La sección es el último título
+     * que apareció antes de la oración: le dice al modelo de qué habla cuando la oración dice «su», «él» o «esto».
+     */
+    private static String conContexto(String contexto, String oracion, String seccion) {
+        return (contexto.isEmpty() ? "" : contexto + "\n") + (seccion == null || seccion.isBlank() ? "" : LogicaPreguntasAurea.ETIQUETA_DE_SECCION + ": " + seccion + "\n")
+                + LogicaPreguntasAurea.ETIQUETA_DE_ORACION + ": \"" + oracion + "\"";
     }
 
-    private String pedirAfirmacion(String oracion, String contexto) {
-        AfirmacionIA respuesta = llamarAlModelo(INSTRUCCIONES_PARAFRASIS, conContexto(contexto, oracion), AfirmacionIA.class, EsquemasIA.afirmacion());
+    private String pedirAfirmacion(String oracion, String contexto, String seccion) {
+        AfirmacionIA respuesta = llamarAlModelo(INSTRUCCIONES_PARAFRASIS, conContexto(contexto, oracion, seccion), AfirmacionIA.class, EsquemasIA.afirmacion());
         return respuesta == null ? null : respuesta.afirmacion();
     }
 
@@ -1089,8 +1149,10 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             LogicaPreguntasAurea.Contexto contexto = LogicaPreguntasAurea.Contexto.desde(texto, pedido.glosario());
             AvanceBanco avance = prepararAvance(pedido, texto);
 
-            // 2. ELEGIR LAS ORACIONES: primero las que pidió el docente y después las más importantes de todo el texto
-            List<String> oraciones = elegirOraciones(idPool, texto, guion, total, contexto, avance);
+            // 2. ELEGIR LAS ORACIONES: primero las que pidió el docente y después las más importantes de todo el texto. Salen de la estructura del PDF
+            // (títulos, párrafos, celdas, ítems), y cada una conserva la sección donde está
+            List<OracionesUtil.OracionDeSeccion> delDocumento = leerOraciones(pedido.documentos(), texto);
+            List<String> oraciones = elegirOraciones(idPool, delDocumento, guion, total, contexto, avance);
 
             // 3. ARMAR LAS PREGUNTAS DEL MODELO: oración -> el modelo redacta la pregunta -> el código busca los distractores
             int deModelo = Math.min(total, Math.round(total * pedido.porcentajeModelo() / 100f));
@@ -1148,19 +1210,27 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
      * filtradas (con verbo, sin referencias a otra oración, sin restos de tabla). También deja en el avance todas las oraciones válidas del texto, de
      * donde salen los distractores.
      */
-    private List<String> elegirOraciones(int idPool, String texto, String guion, int total, LogicaPreguntasAurea.Contexto contexto, AvanceBanco avance) {
-        List<String> oraciones = new ArrayList<>(guion.isEmpty() ? List.<String>of() : buscarOracionesDelGuion(texto, guion));
+    private List<String> elegirOraciones(int idPool, List<OracionesUtil.OracionDeSeccion> delDocumento, String guion, int total,
+            LogicaPreguntasAurea.Contexto contexto, AvanceBanco avance) {
+        List<String> candidatas = delDocumento.stream().map(OracionesUtil.OracionDeSeccion::texto).toList();
+        delDocumento.forEach(o -> avance.secciones.putIfAbsent(o.texto(), o.seccion()));
+        List<String> oraciones = new ArrayList<>(guion.isEmpty() ? List.<String>of() : buscarOracionesDelGuion(candidatas, guion));
         if (!guion.isEmpty()) {
             REGISTRO.info("Banco {}: {} oraciones del documento mencionan lo que pide el guion.", idPool, oraciones.size());
         }
-        for (String oracion : LogicaPreguntasAurea.masImportantes(texto, Math.max(30, total * 6))) {
+        for (String oracion : LogicaPreguntasAurea.masImportantes(candidatas, Math.max(30, total * 6))) {
             if (!oraciones.contains(oracion)) {
                 oraciones.add(oracion);
             }
         }
+        // Los ítems en infinitivo («Gestionar la inscripción de los alumnos…») son objetivos, no afirmaciones: el modelo redacta peor su pregunta y no
+        // sirven para verdadero o falso. Se dejan para el final; el orden dentro de cada grupo sigue siendo el de importancia (la ordenación es estable)
+        oraciones.sort(java.util.Comparator.comparing(LogicaPreguntasAurea::esItemDeLista));
         contexto.preferir(oraciones);
-        avance.distractores = LogicaPreguntasAurea.candidatas(texto, Integer.MAX_VALUE);
-        REGISTRO.info("Banco {}: el código priorizó {} oraciones de todo el texto ({} caracteres).", idPool, oraciones.size(), texto.length());
+        avance.distractores = candidatas;
+        avance.idf = GramaticaUtil.idfDeLemas(candidatas);
+        avance.entidades = EntidadesUtil.indexar(candidatas);
+        REGISTRO.info("Banco {}: el código priorizó {} oraciones de las {} que tiene el documento.", idPool, oraciones.size(), candidatas.size());
         return oraciones;
     }
 
@@ -1220,6 +1290,19 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
      * oraciones distractoras del mismo texto. La respuesta correcta es la oración tal cual.
      */
     private LogicaPreguntasAurea.Pregunta armarOpcionUnica(String oracion, AvanceBanco avance) {
+        // Primero con un dato de la oración (un número o un nombre): la pregunta pide ese dato y las incorrectas son la misma oración con el dato cambiado
+        EntidadesUtil.Entidad dato = EntidadesUtil.elegir(oracion, avance.entidades, avance.idf);
+        if (dato != null) {
+            String pregunta = redactarPreguntaDelDato(oracion, dato, avance);
+            if (pregunta != null) {
+                List<String> cambiadas = EntidadesUtil.incorrectas(oracion, dato, avance.entidades, avance.distractores, 3);
+                LogicaPreguntasAurea.Pregunta armada = LogicaPreguntasAurea.unicaConCambios(oracion, pregunta, cambiadas, avance.distractores, avance.usados);
+                if (armada != null) {
+                    return armada;
+                }
+            }
+        }
+        // Sin un dato que sirva: el modelo redacta la pregunta de la oración y las incorrectas son las oraciones más parecidas del documento
         String enunciado = redactarPregunta(oracion, avance);
         if (enunciado == null) {
             REGISTRO.info("Opción única descartada: la pregunta del modelo no sirve para «{}»", oracion);
@@ -1232,10 +1315,70 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return armada;
     }
 
+    /**
+     * Le pide al modelo una pregunta cuya respuesta sea el dato de la oración y la comprueba con la vuelta: le da la pregunta y la oración y le pide que
+     * la responda; si no responde con el dato, la pregunta no apunta a él y se descarta. También se descarta si nombra el dato (lo regalaría) o si tiene
+     * poca similitud con la oración. Prueba hasta tres versiones: la primera, la más precisa, y dos con más variedad.
+     */
+    private String redactarPreguntaDelDato(String oracion, EntidadesUtil.Entidad dato, AvanceBanco avance) {
+        String seccion = avance.secciones.getOrDefault(oracion, "");
+        String contextoValido = avance.contextoDelMaterial + " " + LogicaPreguntasAurea.ETIQUETA_DE_SECCION + ": " + seccion;
+        String contenido = conContexto(avance.contextoDelMaterial, oracion, seccion) + "\nDato: \"" + dato.texto() + "\"";
+        for (int version = 0; version < VERSIONES_DE_LA_PREGUNTA; version++) {
+            String texto = version == 0 ? pedirPregunta(INSTRUCCIONES_PREGUNTA_DEL_DATO, contenido) : pedirPreguntaVariada(INSTRUCCIONES_PREGUNTA_DEL_DATO, contenido);
+            String pregunta = LogicaPreguntasAurea.mejorEnunciado(oracion, contextoValido, List.of(texto == null ? "" : texto), avance.idf);
+            if (pregunta == null || (" " + LogicaPreguntasAurea.normalizar(pregunta) + " ").contains(" " + LogicaPreguntasAurea.normalizar(dato.texto()) + " ")) {
+                continue;
+            }
+            String respuesta = pedirRespuesta(oracion, pregunta);
+            String normalRespuesta = LogicaPreguntasAurea.normalizar(respuesta == null ? "" : respuesta);
+            String normalDato = LogicaPreguntasAurea.normalizar(dato.texto());
+            if (!normalRespuesta.isEmpty() && (normalRespuesta.contains(normalDato) || normalDato.contains(normalRespuesta))) {
+                return pregunta;
+            }
+        }
+        return null;
+    }
+
+    /** La vuelta: el modelo responde la pregunta usando solo la oración. Devuelve nulo si no responde. */
+    private String pedirRespuesta(String oracion, String pregunta) {
+        RespuestaIA respuesta = llamarAlModelo(INSTRUCCIONES_RESPUESTA, LogicaPreguntasAurea.ETIQUETA_DE_ORACION + ": \"" + oracion + "\"\nPregunta: \"" + pregunta
+                + "\"", RespuestaIA.class, EsquemasIA.respuesta());
+        return respuesta == null ? null : respuesta.respuesta();
+    }
+
     /** 3.2 y 3.3. Le pide al modelo la pregunta de una oración y la comprueba. Devuelve nulo si el modelo falla o la pregunta no sirve. */
     private String redactarPregunta(String oracion, AvanceBanco avance) {
-        return LogicaPreguntasAurea.enunciadoValido(oracion, avance.contextoDelMaterial,
-                pedirPregunta(INSTRUCCIONES_PREGUNTA, conContexto(avance.contextoDelMaterial, oracion)));
+        String seccion = avance.secciones.getOrDefault(oracion, "");
+        // Las palabras de la sección también valen en la pregunta: el modelo las usa para nombrar de qué habla una oración que dice «su» o «esto»
+        String contextoValido = avance.contextoDelMaterial + " " + LogicaPreguntasAurea.ETIQUETA_DE_SECCION + ": " + seccion;
+        String contenido = conContexto(avance.contextoDelMaterial, oracion, seccion);
+        // La primera versión es la más precisa. Si ya sirve y no agrega palabras de su cuenta, no hace falta pedir más
+        List<String> versiones = new ArrayList<>();
+        versiones.add(pedirPregunta(INSTRUCCIONES_PREGUNTA, contenido));
+        String mejor = LogicaPreguntasAurea.mejorEnunciado(oracion, contextoValido, versiones, avance.idf);
+        if (mejor != null && LogicaPreguntasAurea.palabrasAjenas(oracion, contextoValido, mejor) == 0) {
+            return mejor;
+        }
+        // Las otras versiones se piden con más variedad, para que no sean la misma pregunta. Se elige la que se apoya más en la oración
+        for (int version = 1; version < VERSIONES_DE_LA_PREGUNTA; version++) {
+            versiones.add(pedirPreguntaVariada(INSTRUCCIONES_PREGUNTA, contenido));
+        }
+        return LogicaPreguntasAurea.mejorEnunciado(oracion, contextoValido, versiones, avance.idf);
+    }
+
+    /** Cuántas versiones de la pregunta se piden como máximo para cada oración: el código elige la que mejor se apoya en ella. */
+    private static final int VERSIONES_DE_LA_PREGUNTA = 3;
+
+    /** Pide una pregunta con más variedad (más temperatura y más palabras candidatas), para obtener versiones distintas de la misma oración. */
+    private String pedirPreguntaVariada(String instrucciones, String contenido) {
+        try {
+            PreguntaIA respuesta = modelo.generarObjeto(instrucciones, contenido, PreguntaIA.class, EsquemasIA.pregunta(), TOKENS_POR_LLAMADA, 0.7, 0.95, 40, 1.15);
+            return respuesta == null ? null : respuesta.pregunta();
+        } catch (ModeloIAException e) {
+            REGISTRO.warn("El modelo no respondió: {}", e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -1263,7 +1406,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         }
         String falsa = avance.deVerdaderoFalso() % 2 == 1 ? LogicaPreguntasAurea.falsaDeDefinicion(oracion, avance.distractores) : null;
         LogicaPreguntasAurea.Pregunta armada = falsa != null ? LogicaPreguntasAurea.verdaderoFalsoFalso(falsa, avance.usados)
-                : LogicaPreguntasAurea.verdaderoFalso(oracion, pedirAfirmacion(oracion, avance.contextoDelMaterial), avance.usados);
+                : LogicaPreguntasAurea.verdaderoFalso(oracion, pedirAfirmacion(oracion, avance.contextoDelMaterial, avance.secciones.getOrDefault(oracion, "")), avance.usados);
         if (armada == null) {
             REGISTRO.info("Verdadero o falso descartado: {}", oracion);
         }

@@ -21,6 +21,11 @@ public final class EsquemasIA {
         return objeto(List.of("pregunta"), Map.of("pregunta", texto(10, 250)));
     }
 
+    /** Esquema de la respuesta a una pregunta: solo la respuesta, corta. */
+    public static Map<String, Object> respuesta() {
+        return objeto(List.of("respuesta"), Map.of("respuesta", texto(1, 120)));
+    }
+
     /** Esquema de una paráfrasis de una oración: solo la afirmación. */
     public static Map<String, Object> afirmacion() {
         return objeto(List.of("afirmacion"), Map.of("afirmacion", texto(10, 250)));
