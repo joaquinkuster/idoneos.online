@@ -53,8 +53,11 @@ public final class EntidadesUtil {
     /** Las palabras con menos letras que estas no se cambian: son casi todas de función. */
     private static final int LETRAS_MINIMAS_DE_UNA_PALABRA = 5;
 
-    /** Cuántas letras del final tiene que compartir una palabra para reemplazar a otra: la persona y el número del verbo, el género y el número del adjetivo. */
-    private static final int LETRAS_DEL_FINAL = 2;
+    /**
+     * Cuántas letras del final tiene que compartir una palabra para reemplazar a otra: la persona, el número y el tiempo del verbo («-ado», «-ían»), el
+     * género y el número del adjetivo («-nal», «-ica»).
+     */
+    private static final int LETRAS_DEL_FINAL = 3;
 
     /** Cuántas letras del principio no pueden coincidir: dos formas de la misma palabra («identifica», «identificada») no son un cambio. */
     private static final int LETRAS_DE_LA_RAIZ = 5;
@@ -283,6 +286,29 @@ public final class EntidadesUtil {
             }
         }
         return incorrectas;
+    }
+
+    /**
+     * Arma las oraciones incorrectas cambiando, de a una por vez, lo que se pueda de la oración: un opuesto, un número, un nombre, un verbo o un adjetivo,
+     * en ese orden. De cada cosa que se cambia salen como mucho dos oraciones, para que las incorrectas no cambien todas lo mismo.
+     *
+     * @param oraciones Todas las oraciones del documento, para comprobar que lo que se arma no existe.
+     * @param cantidad Cuántas como máximo.
+     * @return Las oraciones cambiadas; menos de las pedidas, o ninguna, si la oración no tiene nada que se pueda cambiar.
+     */
+    public static List<String> incorrectasPorCambio(String oracion, Indice indice, List<String> oraciones, int cantidad) {
+        List<String> resultado = new ArrayList<>();
+        for (Entidad entidad : candidatas(oracion, indice)) {
+            if (resultado.size() >= cantidad) {
+                break;
+            }
+            for (String cambiada : incorrectas(oracion, entidad, indice, oraciones, Math.min(2, cantidad - resultado.size()))) {
+                if (!resultado.contains(cambiada)) {
+                    resultado.add(cambiada);
+                }
+            }
+        }
+        return resultado.size() > cantidad ? resultado.subList(0, cantidad) : resultado;
     }
 
     /** Para describir un dato en un mensaje. */

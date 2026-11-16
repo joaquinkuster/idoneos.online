@@ -13,4 +13,7 @@ public interface RespuestaForoRepository extends JpaRepository<RespuestaForo, In
     /** Encuentra todos los registros activos (no dados de baja). */
     List<RespuestaForo> findByBajaFalse();
 
+    /** Cuenta las respuestas vigentes escritas por un docente. */
+    long countByDocenteCurso_DocenteAndBajaFalse(com.app.idoneos.model.Docente docente);
+
 }

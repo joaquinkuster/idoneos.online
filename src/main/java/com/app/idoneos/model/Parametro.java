@@ -35,6 +35,12 @@ public class Parametro {
     /** Días que ocupa un tema nuevo cuando el parámetro no está cargado (una semana). */
     public static final int CRONOGRAMA_DIAS_POR_TEMA_NUEVO_POR_DEFECTO = 7;
 
+    /** Clave de la cantidad de sesiones simultáneas que puede tener una cuenta. */
+    public static final String LIMITE_SESIONES_CONCURRENTES = "sesion.limite_concurrentes";
+
+    /** Límite de sesiones simultáneas que se usa cuando el parámetro no está cargado. */
+    public static final int LIMITE_SESIONES_CONCURRENTES_POR_DEFECTO = 3;
+
     /** Clave del plazo, en minutos, para modificar una consulta o una respuesta del foro desde su registro. */
     public static final String PLAZO_EDICION_FORO = "foro.plazo_edicion_minutos";
 
@@ -107,6 +113,21 @@ public class Parametro {
 
     /** Porcentaje de preguntas que arma el modelo cuando el parámetro no está cargado. */
     public static final int IA_PROPORCION_MODELO_POR_DEFECTO = 50;
+
+    /**
+     * Clave de cómo arma las preguntas el modelo: 0, a partir de una oración del material, redactando solo la pregunta (camino principal); 1, escribiendo
+     * preguntas, opciones y cita en una sola llamada (camino alternativo).
+     */
+    public static final String IA_ESTRATEGIA_BANCO = "ia.estrategia_banco";
+
+    /** El modelo escribe las preguntas, las opciones y la cita en una sola llamada. */
+    public static final int IA_ESTRATEGIA_BANCO_EN_UNA_LLAMADA = 1;
+
+    /** El modelo solo escribe una pregunta por oración objetivo, por rondas; el código arma las opciones. */
+    public static final int IA_ESTRATEGIA_BANCO_POR_RONDAS = 2;
+
+    /** Estrategia que se usa cuando el parámetro no está cargado: por rondas (2) mientras se prueba; el principal es 0 y el de Aurea es 1. */
+    public static final int IA_ESTRATEGIA_BANCO_POR_DEFECTO = IA_ESTRATEGIA_BANCO_POR_RONDAS;
 
     // ----------------------------------------------------------------------
     // Medio de pago MODO: lo que el cliente reemplaza cuando abre su cuenta de MODO. La semilla (solo desarrollo)

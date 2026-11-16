@@ -1,0 +1,215 @@
+<!-- Formulario por pasos para registrar (u == null) o modificar un usuario. titulosDocente: los títulos que ya tiene el docente. -->
+<form th:fragment="formulario(u, titulosDocente)"
+      th:action="@{${u == null ? '/usuario/registrar' : '/usuario/modificar/' + u.idUsuario}}"
+      method="post" enctype="multipart/form-data" class="form-ajax" data-validar data-pasos data-validador="usuario" data-resumen="Usuario"
+      th:attr="data-modo=${u == null ? 'alta' : 'modificacion'}, data-resumen-nombre=${u != null ? u.nombreCompleto : null}"
+      th:with="docente=${u != null ? u.docente : null}, esDocente=${u != null and u.esDocente()}" novalidate>
+
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Roles</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Datos profesionales</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Títulos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">5</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+
+    <!-- Paso 1: datos de la cuenta. -->
+    <div class="pn-paso" data-grupo="Datos">
+        <div class="pn-seccion-titulo">
+            <h4>Datos de la cuenta</h4>
+            <p>Nombre, correo electrónico, DNI y teléfono</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador">0 / 50</span>
+                </div>
+                <input type="text" name="nombre" class="pn-input" maxlength="50" placeholder="Nombre" data-contador required th:value="${u != null ? u.nombre : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Apellido <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador">0 / 50</span>
+                </div>
+                <input type="text" name="apellido" class="pn-input" maxlength="50" placeholder="Apellido" data-contador required th:value="${u != null ? u.apellido : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Correo electrónico <span class="pn-obligatorio">*</span></label>
+                <input type="email" name="correo" class="pn-input" maxlength="150" placeholder="correo@ejemplo.com" required th:value="${u != null ? u.correo : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">DNI <span class="pn-obligatorio">*</span></label>
+                <input type="text" name="dni" class="pn-input" inputmode="numeric" maxlength="8" placeholder="DNI (7 u 8 dígitos)" required th:value="${u != null ? u.dni : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <label class="pn-etiqueta">Teléfono (opcional)</label>
+                <input type="text" name="telefono" class="pn-input" maxlength="20" placeholder="+54 376 4000000" th:value="${u != null ? u.telefono : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <!-- Foto de perfil: solo al modificar. Sin foto nueva, se conserva la actual -->
+            <div class="col-12 pn-campo" th:if="${u != null}">
+                <label class="pn-etiqueta">Foto de perfil (opcional)</label>
+                <input type="file" name="imagen" class="pn-input pn-input-archivo imagen-curso" accept="image/jpeg,image/png,image/webp">
+                <img class="pn-vista-previa mt-2 us-foto" alt="Foto de perfil" th:classappend="${u.urlImagen == null} ? 'd-none'"
+                     th:src="${u.urlImagen != null} ? @{${u.urlImagen}}" th:attr="data-original=${u.urlImagen}">
+                <div class="form-check us-quitar-foto" th:if="${u.urlImagen != null}">
+                    <input class="form-check-input" type="checkbox" name="quitarImagen" value="true" th:id="${'quitarImagen' + u.idUsuario}">
+                    <label class="form-check-label" th:for="${'quitarImagen' + u.idUsuario}">Quitar la foto actual</label>
+                </div>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12" th:if="${u == null}">
+                <p class="us-nota">El usuario recibirá un correo con un enlace para definir su contraseña.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 2: roles de la cuenta. -->
+    <div class="pn-paso" data-grupo="Roles">
+        <div class="pn-seccion-titulo">
+            <h4>Roles</h4>
+            <p>Una cuenta puede tener uno o más roles</p>
+        </div>
+        <div class="pn-campo">
+            <label class="pn-etiqueta">Roles <span class="pn-obligatorio">*</span></label>
+            <div class="us-roles">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="roles" value="Alumno" th:id="${'rolAlumno' + (u != null ? u.idUsuario : 0)}"
+                           th:checked="${u != null and u.tieneRol('Alumno')}">
+                    <label class="form-check-label" th:for="${'rolAlumno' + (u != null ? u.idUsuario : 0)}">Alumno</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="roles" value="Docente" th:id="${'rolDocente' + (u != null ? u.idUsuario : 0)}"
+                           th:checked="${esDocente}">
+                    <label class="form-check-label" th:for="${'rolDocente' + (u != null ? u.idUsuario : 0)}">Docente</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="roles" value="Administrador" th:id="${'rolAdministrador' + (u != null ? u.idUsuario : 0)}">
+                    <label class="form-check-label" th:for="${'rolAdministrador' + (u != null ? u.idUsuario : 0)}">Administrador</label>
+                </div>
+            </div>
+            <div class="pn-ayuda-error"></div>
+            <span class="us-resumen" data-resumen-linea="Roles" data-resumen-roles></span>
+        </div>
+        <p class="us-nota us-nota-alerta d-none" data-nota-admin>Las cuentas de administrador no se pueden modificar después de registradas.</p>
+    </div>
+
+    <!-- Paso 3: datos profesionales. Solo aparece si se marcó el rol Docente. -->
+    <div class="pn-paso" data-grupo="Datos profesionales" data-paso-docente th:hidden="${!esDocente}">
+        <div class="pn-seccion-titulo">
+            <h4>Datos profesionales</h4>
+            <p>Biografía, experiencia y habilitación del docente</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Biografía <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador">0 / 2000</span>
+                </div>
+                <textarea name="biografia" class="pn-input us-biografia" rows="4" maxlength="2000" placeholder="Trayectoria profesional del docente" data-contador required
+                          th:text="${docente != null ? docente.biografia : null}"></textarea>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Años de experiencia <span class="pn-obligatorio">*</span></label>
+                <input type="number" name="aniosExperiencia" class="pn-input" min="0" step="1" placeholder="Años de experiencia" required
+                       th:value="${docente != null ? docente.aniosExperiencia : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Matrícula de idóneo (opcional)</label>
+                <input type="text" name="matriculaCnv" class="pn-input" inputmode="numeric" maxlength="8" placeholder="Ej: 984"
+                       th:value="${docente != null ? docente.matriculaCnv : null}">
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
+                <div class="form-check form-switch us-habilitado">
+                    <input class="form-check-input" type="checkbox" role="switch" name="habilitado" value="true"
+                           th:id="${'habilitado' + (u != null ? u.idUsuario : 0)}" th:checked="${docente == null or docente.habilitado}">
+                    <label class="form-check-label" th:for="${'habilitado' + (u != null ? u.idUsuario : 0)}">Habilitado para dictar clases</label>
+                </div>
+                <span class="us-resumen" data-resumen-linea="Habilitado para dictar clases" data-resumen-habilitado></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 4: títulos y matrículas del docente, con el diseño de la ventana de temas. -->
+    <div class="pn-paso" data-grupo="Títulos" data-paso-docente th:hidden="${!esDocente}">
+        <div class="pn-temas-encabezado">
+            <h4>Títulos y matrículas</h4>
+            <p>Declará al menos un título o una matrícula de idóneo. Elegí un título para modificarlo o agregá uno nuevo</p>
+        </div>
+        <div class="pn-temas-doble">
+            <div>
+                <h5 class="pn-temas-subtitulo">Títulos agregados (<span data-titulos-cantidad>0</span>)</h5>
+                <div class="pn-temas-caja">
+                    <div class="pn-temas-items" data-titulos-items>
+                        <div class="pn-tema-item" role="button" tabindex="0" th:each="t : ${titulosDocente}"
+                             th:attr="data-titulo=${t.titulo}, data-matricula=${t.matricula}">
+                            <div class="pn-tema-item-cuerpo">
+                                <span class="pn-tema-item-titulo" th:text="${t.titulo}">Título</span>
+                                <span class="pn-tema-item-desc" th:text="${t.matricula != null ? 'Matrícula ' + t.matricula : 'Sin matrícula'}">Matrícula</span>
+                            </div>
+                            <span class="pn-chip pn-chip-verde d-none" data-estado></span>
+                        </div>
+                    </div>
+                    <div class="pn-temas-empty" data-titulos-empty>
+                        <p>No hay títulos agregados aún</p>
+                        <small>Agregá el primero →</small>
+                    </div>
+                </div>
+                <div data-titulos-ocultos></div>
+            </div>
+            <div>
+                <div class="pn-temas-formulario-cabecera">
+                    <h5 class="pn-temas-subtitulo" data-titulo-formulario>Agregar nuevo título</h5>
+                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-titulo-nuevo hidden><i class="fa-solid fa-plus"></i> Nuevo título</button>
+                </div>
+                <div class="row g-3">
+                    <div class="col-12 pn-campo">
+                        <div class="pn-etiqueta-fila">
+                            <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                            <span class="pn-contador">0 / 100</span>
+                        </div>
+                        <input type="text" class="pn-input" maxlength="100" placeholder="Ej: Licenciado en Economía" data-contador data-titulo-campo="titulo">
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                    <div class="col-12 pn-campo">
+                        <label class="pn-etiqueta">Matrícula (opcional)</label>
+                        <input type="text" class="pn-input" maxlength="20" placeholder="Ej: LE26, LA200 o 3591" data-titulo-campo="matricula">
+                        <div class="pn-ayuda-error"></div>
+                    </div>
+                </div>
+                <div class="pn-temas-formulario-pie">
+                    <button type="button" class="pn-btn pn-btn-primario pn-btn-ancho" data-titulo-aplicar>Agregar</button>
+                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-ancho" data-titulo-descartar hidden>Descartar cambios</button>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-ancho" data-titulo-quitar hidden>Quitar de la lista</button>
+                </div>
+                <div class="pn-campo">
+                    <span class="us-resumen" data-resumen-linea="Títulos y matrículas" data-resumen-titulos></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Paso 5: resumen. -->
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p th:text="${u == null ? 'Revisá los datos antes de guardar' : 'Estos son los cambios que se van a guardar'}">Revisá los datos antes de guardar</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar th:text="${u == null ? 'Confirmar y guardar' : 'Confirmar cambios'}">Confirmar y guardar</button>
+    </div>
+</form>

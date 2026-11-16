@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="auth-body">
+
+    <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+    <div class="auth-pagina">
+        <div th:replace="~{fragments/layout/auth :: fondo}"></div>
+
+        <div class="auth-contenedor">
+            <div class="auth-card">
+
+                <!-- Izquierda: formulario -->
+                <div class="auth-izquierda">
+                    <div th:replace="~{fragments/layout/auth :: cabecera('Creá una contraseña nueva para tu cuenta')}"></div>
+
+                    <form th:action="@{/usuario/restablecerContrasena}" method="post" class="auth-form form-ajax" data-validar data-validador="auth" novalidate>
+                        <input type="hidden" name="token" th:value="${token}">
+
+                        <div class="auth-grupo pn-campo">
+                            <label for="contrasena">Contraseña nueva <span class="pn-obligatorio">*</span></label>
+                            <div class="auth-clave">
+                                <input id="contrasena" name="contrasena" type="password" maxlength="72" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+                                <button type="button" class="auth-clave-ver" data-ver-clave aria-label="Mostrar contraseña"><i class="fa-regular fa-eye"></i></button>
+                            </div>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+
+                        <div class="auth-grupo pn-campo">
+                            <label for="confirmarContrasena">Confirmar contraseña <span class="pn-obligatorio">*</span></label>
+                            <div class="auth-clave">
+                                <input id="confirmarContrasena" name="confirmarContrasena" type="password" maxlength="72" placeholder="Repetir contraseña" autocomplete="new-password" required>
+                                <button type="button" class="auth-clave-ver" data-ver-clave aria-label="Mostrar contraseña"><i class="fa-regular fa-eye"></i></button>
+                            </div>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+
+                        <button type="submit" class="auth-boton">Guardar contraseña</button>
+                    </form>
+                </div>
+
+                <!-- Derecha: volver al inicio de sesión -->
+                <div class="auth-derecha">
+                    <div class="auth-promo">
+                        <h2>¿Ya recordaste tu contraseña?</h2>
+                        <p>Volvé al inicio de sesión para ingresar a tu cuenta</p>
+                        <button type="button" class="auth-promo-boton" data-login>Iniciar sesión</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/layout/auth :: scripts}"></th:block>
+</body>
+</html>

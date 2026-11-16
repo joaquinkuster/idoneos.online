@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Sesiones</h1>
+                    <p class="pn-subtitulo" th:text="${'Controla los dispositivos con la sesión iniciada. Cada cuenta puede tener hasta ' + limite + (limite == 1 ? ' sesión' : ' sesiones') + ' a la vez'}">Controla los dispositivos con la sesión iniciada</p>
+                </div>
+            </div>
+
+            <th:block th:replace="~{pages/sesion/tabla :: tabla}"></th:block>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Una sola ventana para cerrar sesiones: el botón de cada fila le pasa la acción. -->
+<th:block th:replace="~{fragments/components/modalBaja :: cerrar('modalCerrarSesion', '¿Confirmas cerrar la sesión?', '', '/sesion/cerrar/0')}"></th:block>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+</body>
+</html>

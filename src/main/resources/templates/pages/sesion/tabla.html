@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Listado de sesiones activas, el mismo para el administrador (con la columna de usuario) y para el resto de los roles. -->
+<section th:fragment="tabla" class="pn-card" data-tabla data-tabla-servidor="/sesion/buscar" th:attr="data-opciones=${tablaOpciones}">
+    <div class="pn-lista-cabecera">
+        <h2 class="pn-lista-titulo" th:text="${esAdministrador ? 'Listado de sesiones' : 'Tus sesiones activas'}">Listado de sesiones</h2>
+        <span class="pn-seleccionados" data-total-filtradas data-singular="sesión encontrada" data-plural="sesiones encontradas"
+              th:text="${tablaTotal + (tablaTotal == 1 ? ' sesión encontrada' : ' sesiones encontradas')}">0 sesiones encontradas</span>
+    </div>
+
+    <!-- Filtros por columna -->
+    <form th:action="@{/sesion/buscar}" method="get" class="pn-filtros" data-filtro-front>
+        <a th:href="@{/sesion/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+    </form>
+
+    <!-- Tabla -->
+    <div class="pn-tabla-contenedor">
+        <table class="pn-tabla">
+            <thead>
+                <tr>
+                    <th th:if="${esAdministrador}" data-col="Usuario" data-campo="usuario" data-filtro="texto">Usuario</th>
+                    <th data-col="Inicio" data-campo="inicio" data-filtro="fecha" data-orden-inicial="desc">Inicio</th>
+                    <th data-col="Vence" data-campo="vence" data-filtro="fecha">Vence</th>
+                    <th data-col="IP" data-campo="ip" data-filtro="texto">IP</th>
+                    <th data-col="Dispositivo" data-campo="dispositivo" data-filtro="texto">Dispositivo</th>
+                    <th data-col="Tipo" data-campo="tipo" data-filtro="lista" data-sin-busqueda>Tipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                <tr th:each="s : ${sesiones}" data-fila
+                    th:data-o-inicio="${#temporals.format(s.fechaInicio, 'yyyyMMddHHmmss')}"
+                    th:data-o-vence="${#temporals.format(s.fechaFin, 'yyyyMMddHHmmss')}">
+                    <td th:if="${esAdministrador}">
+                        <span class="pn-celda-principal pn-truncar" th:text="${s.usuario.apellido + ', ' + s.usuario.nombre}">Gómez, Laura</span>
+                        <span class="pn-marca-estado" th:if="${s.usuario.idUsuario == idActual}">(Vos)</span>
+                        <span class="pn-celda-detalle d-block" th:text="${s.usuario.correo}">laura@correo.com</span>
+                    </td>
+                    <td th:text="${#temporals.format(s.fechaInicio, 'dd/MM/yyyy HH:mm')}">16/11/2026 09:12</td>
+                    <td th:text="${#temporals.format(s.fechaFin, 'dd/MM/yyyy HH:mm')}">16/11/2026 11:12</td>
+                    <td th:text="${s.ip}">190.12.3.4</td>
+                    <td class="pn-truncar" th:text="${s.dispositivo}">Chrome en Windows</td>
+                    <td>
+                        <span class="pn-insignia" th:with="recordada=${#strings.startsWith(s.token, 'r.')}"
+                              th:classappend="${recordada} ? 'pn-insignia-dorada' : 'pn-insignia-gris'"
+                              th:text="${recordada ? 'Recordada' : 'Común'}">Común</span>
+                    </td>
+                    <td>
+                        <span class="pn-insignia pn-insignia-verde" th:if="${s.token == tokenActual}">Sesión actual</span>
+                        <div class="pn-acciones" th:unless="${s.token == tokenActual}">
+                            <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                    data-bs-target="#modalCerrarSesion"
+                                    th:data-baja-accion="@{'/sesion/cerrar/' + ${s.idSesion}}"
+                                    th:data-baja-pregunta="'¿Confirmas cerrar la sesión de ' + ${s.dispositivo} + '?'"
+                                    th:data-baja-nota="${esAdministrador ? 'La sesión de ' + s.usuario.nombreCompleto + ' se cerrará de inmediato.' : 'Ese dispositivo tendrá que volver a iniciar sesión.'}">Cerrar sesión</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:replace="~{fragments/components/empty :: fila(${esAdministrador ? 7 : 6}, 'fa-laptop', 'No se encontraron sesiones', 'Ninguna sesión coincide con los criterios ingresados.')}"></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pie: filas por página y paginador -->
+    <div class="pn-tabla-pie">
+        <div class="pn-por-pagina">
+            <span>Filas por página:</span>
+            <select data-por-pagina>
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="0">Todo</option>
+            </select>
+            <span data-rango>0-0 de 0</span>
+            <span data-seleccionados hidden></span>
+        </div>
+        <div class="pn-paginador" data-paginador></div>
+    </div>
+</section>
+</body>
+</html>

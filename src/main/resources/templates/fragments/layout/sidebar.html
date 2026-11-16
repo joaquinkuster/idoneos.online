@@ -69,6 +69,10 @@
     <a th:replace="~{fragments/layout/sidebar :: enlace('/descuento/buscar', 'fa-percent', 'Descuentos', ${activo}, 'descuentos')}"></a>
     <a th:replace="~{fragments/layout/sidebar :: enlace('/inscripcion/buscar', 'fa-user-graduate', 'Inscripciones', ${activo}, 'inscripciones')}"></a>
     <a th:replace="~{fragments/layout/sidebar :: enlace('/pago/buscar', 'fa-credit-card', 'Pagos', ${activo}, 'pagos')}"></a>
+
+    <div th:replace="~{fragments/layout/sidebar :: grupo('Usuarios')}"></div>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/usuario/buscar', 'fa-users', 'Usuarios', ${activo}, 'usuarios')}"></a>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/sesion/buscar', 'fa-laptop', 'Sesiones', ${activo}, 'sesiones')}"></a>
 </th:block>
 
 <!-- ========== Gestión académica, para el alumno y el docente ==========

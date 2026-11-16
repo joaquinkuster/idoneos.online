@@ -26,6 +26,21 @@ public interface ModeloIAService {
     String generarTexto(String pedido, int maximoTokens);
 
     /**
+     * Pide al modelo un texto libre con los parámetros de muestreo indicados.
+     *
+     * @param instrucciones Lo que el modelo debe hacer.
+     * @param contenido El material sobre el que trabaja.
+     * @param maximoTokens El largo máximo de la respuesta.
+     * @param temperatura La creatividad: más baja es más precisa.
+     * @param topP El corte de probabilidad acumulada.
+     * @param topK Cuántas palabras candidatas se consideran en cada paso.
+     * @param penalizacionRepeticion La penalización de repetir palabras.
+     * @return El texto que respondió el modelo.
+     * @throws ModeloIAException Si el modelo no está disponible, no respondió a tiempo o devolvió una respuesta vacía.
+     */
+    String generarTexto(String instrucciones, String contenido, int maximoTokens, double temperatura, double topP, int topK, double penalizacionRepeticion);
+
+    /**
      * Pide al modelo una respuesta estructurada y la convierte al tipo indicado.
      *
      * @param instrucciones Lo que el modelo debe hacer.

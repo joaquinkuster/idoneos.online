@@ -148,7 +148,17 @@ public class Usuario implements UserDetails {
 
     /** Obtiene la dirección de la foto de perfil. */
     public String getUrlImagen() {
-        return imagen == null || imagen.isBlank() ? null : "/img/usuarios/" + imagen;
+        return imagen == null || imagen.isBlank() ? null : "/uploads/perfiles/usuario" + idUsuario + "/" + imagen;
+    }
+
+    /** Obtiene el estado de la cuenta: dada de baja, con el correo sin validar o activa. */
+    public String getEstado() {
+        return baja ? "Dado de baja" : !emailValidado ? "Sin validar" : "Activo";
+    }
+
+    /** Obtiene los nombres de los roles vigentes separados por barras verticales, para filtrar listados. */
+    public String getNombresDeRoles() {
+        return String.join("|", getRolesVigentes().stream().map(Rol::getNombre).toList());
     }
 
     /** Obtiene el nombre completo del usuario. */

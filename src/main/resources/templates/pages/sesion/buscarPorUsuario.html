@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+            <th:block th:replace="~{fragments/layout/breadcrumb :: migas(null, null, 'Mis sesiones')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+                    <p class="text-muted small mb-3" th:text="${'Estos son los dispositivos con la sesión iniciada en tu cuenta. Podés tener hasta ' + limite + (limite == 1 ? ' sesión' : ' sesiones') + ' a la vez'}">Dispositivos con la sesión iniciada</p>
+                    <th:block th:replace="~{pages/sesion/tabla :: tabla}"></th:block>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Una sola ventana para cerrar sesiones: el botón de cada fila le pasa la acción. -->
+    <th:block th:replace="~{fragments/components/modalBaja :: cerrar('modalCerrarSesion', '¿Confirmas cerrar la sesión?', '', '/sesion/cerrar/0')}"></th:block>
+
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
+    <script th:src="@{/js/core/formulario.js}"></script>
+    <script th:src="@{/js/core/validacion.js}"></script>
+    <script th:src="@{/js/core/tabla.js}"></script>
+    <script th:src="@{/js/core/textoLargo.js}"></script>
+    <script th:src="@{/js/core/panel.js}"></script>
+    <script th:src="@{/js/core/modalBaja.js}"></script>
+</body>
+</html>

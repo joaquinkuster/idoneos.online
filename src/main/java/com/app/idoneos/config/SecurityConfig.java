@@ -1,23 +1,25 @@
 package com.app.idoneos.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpSession;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 
 import com.app.idoneos.controller.advice.ContextoSesionAdvice;
+import com.app.idoneos.model.Sesion;
 import com.app.idoneos.model.Usuario;
+import com.app.idoneos.service.sesion.SesionService;
+import com.app.idoneos.util.DispositivoUtil;
 import com.app.idoneos.service.usuario.UsuarioDetallesService;
 
 /** Configuración de seguridad de Spring Security. */
@@ -25,21 +27,14 @@ import com.app.idoneos.service.usuario.UsuarioDetallesService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /** Duración de la sesión recordada: 30 días. */
-    private static final int DIAS_DE_RECORDATORIO = 30;
-
-    /** Nombre de la cookie de sesión. */
+    /** Nombre de la cookie de sesión del contenedor. */
     public static final String COOKIE_SESION = "SESION_IDONEOS";
-
-    /** Nombre de la cookie de "Recordarme" (en lugar de remember-me). */
-    public static final String COOKIE_RECORDARME = "RECORDARME_IDONEOS";
 
     @Autowired
     private UsuarioDetallesService usuarioDetallesService;
 
-    /** Clave con la que se firma la cookie de "Recordarme". En producción debe definirse con una clave propia. */
-    @Value("${idoneos.seguridad.clave-recordarme:idoneos-online-clave-de-desarrollo}")
-    private String claveRecordarme;
+    @Autowired
+    private SesionService sesionService;
 
     /** Cambia el nombre de la cookie de sesión del contenedor. */
     @Bean
@@ -67,13 +62,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(csrf -> csrf.disable())
+                // En cada pedido comprueba que la sesión del usuario siga registrada y vigente (cookie y base de datos)
+                .addFilterAfter(new SesionTokenFilter(sesionService), SecurityContextHolderFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         // Rutas públicas
                         .requestMatchers("/", "/inicio", "/acercaDe", "/error",
                                 "/login", "/catalogo/**",
+                                // Registro, validación del correo y recuperación de la contraseña
+                                "/registro", "/recuperar/*", "/usuario/autoregistrar", "/usuario/validarCorreo/*",
+                                "/usuario/solicitarRecuperacion", "/usuario/restablecerContrasena",
                                 "/css/**", "/js/**", "/img/**", "/webjars/**",
                                 // Portada de cada curso: el resto de las carpetas no es público
-                                "/uploads/portadas/*")
+                                "/uploads/portadas/*",
+                                // Fotos de perfil, que se ven en el menú y en las listas de participantes
+                                "/uploads/perfiles/**")
                         .permitAll()
                         // buscar, registrar y modificar inscripciones (Administrador). Corregir
                         // los datos del certificado (Administrador). Dar de baja (Alumno la suya, Administrador)
@@ -194,6 +196,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasAnyRole("Docente", "Administrador")
                         // gestión de cursos, categorías, cohortes y descuentos (Administrador)
                         .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**", "/descuento/**").hasRole("Administrador")
+                        // ABM de usuarios (Administrador). El perfil propio y el cambio de rol los puede usar cualquier usuario con sesión
+                        .requestMatchers(HttpMethod.GET, "/usuario/buscar", "/usuario/modificar/*").hasRole("Administrador")
+                        .requestMatchers(HttpMethod.POST, "/usuario/registrar", "/usuario/modificar/*", "/usuario/darDeBaja/*",
+                                "/usuario/darDeBajaMasiva")
+                        .hasRole("Administrador")
                         .anyRequest().authenticated())
                 .formLogin(login -> login
                         .loginPage("/login")
@@ -201,17 +208,17 @@ public class SecurityConfig {
                         // El administrador y el docente entran a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
                         .successHandler((request, response, authentication) -> {
                             Usuario usuario = (Usuario) authentication.getPrincipal();
-                            // "Recordarme": la sesión (y su cookie) dura 30 días en lugar de cerrarse con el navegador o por
-                            // inactividad. Además queda la cookie de "Recordarme" como respaldo si la sesión se pierde
-                            if ("true".equals(request.getParameter("recordarme"))) {
-                                HttpSession sesion = request.getSession();
-                                int segundos = DIAS_DE_RECORDATORIO * 24 * 60 * 60;
-                                sesion.setMaxInactiveInterval(segundos);
-                                Cookie cookie = new Cookie(COOKIE_SESION, sesion.getId());
-                                cookie.setPath(request.getContextPath().isEmpty() ? "/" : request.getContextPath());
-                                cookie.setHttpOnly(true);
-                                cookie.setMaxAge(segundos);
-                                response.addCookie(cookie);
+                            // Registra la sesión en la base y guarda su token en la cookie. "Recordarme" la hace durar 30 días, y si
+                            // no, vence a las 2 horas sin actividad. Si la cuenta ya tiene el máximo de sesiones, no se la deja ingresar
+                            boolean recordar = "true".equals(request.getParameter("recordarme"));
+                            try {
+                                Sesion sesion = sesionService.iniciar(usuario, recordar, DispositivoUtil.obtenerIp(request),
+                                        DispositivoUtil.describir(request.getHeader("User-Agent")));
+                                SesionTokenFilter.guardarCookie(request, response, sesion.getToken(), recordar);
+                            } catch (IllegalStateException e) {
+                                new SecurityContextLogoutHandler().logout(request, response, authentication);
+                                response.sendRedirect(request.getContextPath() + "/login?error=limiteSesiones");
+                                return;
                             }
                             request.getSession().setAttribute(ContextoSesionAdvice.MENSAJE_DE_SESION,
                                     "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
@@ -219,20 +226,21 @@ public class SecurityConfig {
                                     : usuario.esAlumnoActivo() ? "/inscripcion/buscar" : "/inicio";
                             response.sendRedirect(request.getContextPath() + destino);
                         })
-                        .failureUrl("/login?error=true")
+                        // Una cuenta con el correo sin validar se distingue de las credenciales incorrectas
+                        .failureHandler((request, response, excepcion) -> response.sendRedirect(request.getContextPath()
+                                + (excepcion instanceof DisabledException ? "/login?error=noValidado" : "/login?error=true")))
                         .permitAll())
-                // "Recordarme": mantiene la sesión iniciada mediante una cookie
-                .rememberMe(recordarme -> recordarme
-                        .key(claveRecordarme)
-                        .rememberMeParameter("recordarme")
-                        .rememberMeCookieName(COOKIE_RECORDARME)
-                        .tokenValiditySeconds(DIAS_DE_RECORDATORIO * 24 * 60 * 60))
                 .userDetailsService(usuarioDetallesService)
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout=true")
                         .invalidateHttpSession(true)
-                        .deleteCookies(COOKIE_SESION, COOKIE_RECORDARME)
+                        // Al cerrar sesión se borra su registro de la base y la cookie del token
+                        .addLogoutHandler((request, response, authentication) -> {
+                            sesionService.cerrarPorToken(SesionTokenFilter.leerToken(request));
+                            SesionTokenFilter.borrarCookie(response);
+                        })
+                        .deleteCookies(COOKIE_SESION)
                         .permitAll())
                 .build();
     }

@@ -187,6 +187,108 @@ public final class GramaticaUtil {
         return normas == 0 ? 0 : producto / normas;
     }
 
+    /** El vector de pesos (frecuencia por IDF) de los lemas de un texto, para compararlo muchas veces sin volver a analizarlo. */
+    public static Map<String, Double> vectorDe(String texto, Map<String, Double> idf) {
+        return vector(texto, idf);
+    }
+
+    /** La similitud coseno entre dos vectores ya armados con {@link #vectorDe}. */
+    public static double coseno(Map<String, Double> va, Map<String, Double> vb) {
+        Map<String, Double> corto = va.size() <= vb.size() ? va : vb;
+        Map<String, Double> largo = corto == va ? vb : va;
+        double producto = 0;
+        for (Map.Entry<String, Double> e : corto.entrySet()) {
+            producto += e.getValue() * largo.getOrDefault(e.getKey(), 0.0);
+        }
+        double normas = norma(va) * norma(vb);
+        return normas == 0 ? 0 : producto / normas;
+    }
+
+    /** Las terminaciones de un verbo que no está conjugado: infinitivo, gerundio y participio. */
+    private static final java.util.regex.Pattern VERBO_SIN_CONJUGAR = java.util.regex.Pattern.compile("(?:[aei]r|[aei]rse|ando|iendo|yendo|[ai]d[oa]s?)$");
+
+    /**
+     * Indica si el texto tiene un verbo conjugado («identifica», «se encuentra», «ha iniciado»): una oración con solo infinitivos o participios
+     * («Gestionar los usuarios del sistema», «De la disciplina y brindar un acceso…») es un objetivo o un fragmento, no una afirmación.
+     */
+    public static boolean tieneVerboConjugado(String texto) {
+        Analisis a = analizar(texto);
+        for (int i = 0; i < a.palabras().length; i++) {
+            boolean verbo = a.categorias()[i].equals("VERB") || a.categorias()[i].equals("AUX");
+            if (verbo && !VERBO_SIN_CONJUGAR.matcher(a.palabras()[i].toLowerCase(java.util.Locale.ROOT)).find()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Las categorías que puede tener lo que va antes del verbo para que sea el sujeto: artículos, sustantivos, adjetivos, preposiciones y listas. */
+    private static final Set<String> CATEGORIAS_DE_UN_SUJETO = Set.of("DET", "NOUN", "PROPN", "ADJ", "ADP", "NUM", "CCONJ", "PUNCT", "X", "SYM");
+
+    /** Cuántas palabras como máximo puede tener un sujeto. */
+    private static final int PALABRAS_MAXIMAS_DE_UN_SUJETO = 25;
+
+    /** Cuántos caracteres como mínimo tiene que quedar de la oración sin el sujeto. */
+    private static final int LARGO_MINIMO_SIN_SUJETO = 25;
+
+    /** Indica si la palabra es un verbo conjugado («es», «usan», «proporciona») y no un infinitivo, un gerundio ni un participio. */
+    private static boolean esVerboConjugado(Analisis a, int i) {
+        return (a.categorias()[i].equals("VERB") || a.categorias()[i].equals("AUX"))
+                && !VERBO_SIN_CONJUGAR.matcher(a.palabras()[i].toLowerCase(java.util.Locale.ROOT)).find();
+    }
+
+    /** Indica si desde la palabra empieza un predicado: un verbo conjugado, o «se» y un verbo conjugado («se ocupa de»). */
+    private static boolean empiezaUnPredicado(Analisis a, int i) {
+        if (i >= a.palabras().length) {
+            return false;
+        }
+        if (a.palabras()[i].equalsIgnoreCase("se") && i + 1 < a.palabras().length) {
+            return esVerboConjugado(a, i + 1);
+        }
+        return esVerboConjugado(a, i);
+    }
+
+    /**
+     * La oración sin su sujeto, con la primera letra en mayúscula: «El sistema de usuarios controla el acceso.» queda «Controla el acceso.», y «Diseño de
+     * software: es el proceso de definir…» queda «Es el proceso de definir…». Sirve para que las opciones no repitan de qué habla la pregunta ni lo
+     * regalen. Solo se hace cuando la oración empieza con el sujeto y después sigue un verbo conjugado; el sujeto es lo que va antes, si son solo
+     * artículos, sustantivos, adjetivos, preposiciones y listas. No hay un analizador de sintagmas: es una aproximación con las categorías de las palabras.
+     *
+     * @return La oración sin el sujeto, o nulo si no se puede quitar con seguridad.
+     */
+    public static String sinSujeto(String oracion) {
+        Analisis a = analizar(oracion);
+        int n = a.palabras().length;
+        if (n < 3 || !(a.categorias()[0].equals("DET") || a.categorias()[0].equals("NOUN") || a.categorias()[0].equals("PROPN"))) {
+            return null;
+        }
+        int inicio = -1;
+        for (int i = 1; i < n && i <= PALABRAS_MAXIMAS_DE_UN_SUJETO; i++) {
+            // Un título seguido de dos puntos («Diseño de software: es el proceso…»): lo que sigue es el predicado
+            if (a.palabras()[i].equals(":")) {
+                if (empiezaUnPredicado(a, i + 1)) {
+                    inicio = a.inicios()[i + 1];
+                }
+                break;
+            }
+            if (empiezaUnPredicado(a, i)) {
+                inicio = a.inicios()[i];
+                break;
+            }
+            if (!CATEGORIAS_DE_UN_SUJETO.contains(a.categorias()[i])) {
+                break;
+            }
+        }
+        if (inicio < 0) {
+            return null;
+        }
+        String resto = oracion.substring(inicio).trim();
+        if (resto.length() < LARGO_MINIMO_SIN_SUJETO) {
+            return null;
+        }
+        return Character.toUpperCase(resto.charAt(0)) + resto.substring(1);
+    }
+
     private static Map<String, Double> vector(String texto, Map<String, Double> idf) {
         double masRaro = idf.values().stream().mapToDouble(Double::doubleValue).max().orElse(1.0);
         Map<String, Double> vector = new HashMap<>();

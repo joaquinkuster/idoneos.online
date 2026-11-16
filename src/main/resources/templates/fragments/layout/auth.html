@@ -1,0 +1,27 @@
+<!-- Piezas comunes de las pantallas de acceso: inicio de sesión, registro, nueva contraseña y resultado de un enlace. -->
+
+<!-- Fondo: las mismas imágenes del slider del inicio, con transición suave. -->
+<div th:fragment="fondo" class="auth-fondo" aria-hidden="true">
+    <div class="auth-fondo-slide activo" th:style="'background-image: url(' + @{/img/cursos/introduccion-finanzas.jpg} + ')'"></div>
+    <div class="auth-fondo-slide" th:style="'background-image: url(' + @{/img/cursos/macroeconomia-coyuntura.jpg} + ')'"></div>
+    <div class="auth-fondo-slide" th:style="'background-image: url(' + @{/img/cursos/economia-argentina-2024.jpg} + ')'"></div>
+    <div class="auth-fondo-capa"></div>
+</div>
+
+<!-- Cabecera de la tarjeta: logo, nombre de la plataforma y una línea de descripción. -->
+<div th:fragment="cabecera(subtitulo)" class="auth-cabecera">
+    <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online" class="auth-logo">
+    <h1 class="auth-titulo">Idóneos <span>Online</span></h1>
+    <p class="auth-subtitulo" th:text="${subtitulo}">Plataforma de formación en Finanzas, Economía y Mercado de Capitales</p>
+</div>
+
+<!-- Scripts de las pantallas de acceso: validación de los formularios, envío por fetch y comportamiento propio. -->
+<th:block th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/core/formulario.js}"></script>
+    <script th:src="@{/js/core/validacion.js}"></script>
+    <script th:src="@{/js/pages/login.js}"></script>
+    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
+        mostrarExito(/*[[${mensaje}]]*/ '');
+    </script>
+</th:block>

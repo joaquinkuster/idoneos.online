@@ -72,3 +72,11 @@
     padding: 0;
     border: 0;
 }
+
+/* La foto del perfil en el menú de usuario también es cuadrada, con esquinas redondeadas */
+.av-perfil {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+    border-radius: 10px;
+}

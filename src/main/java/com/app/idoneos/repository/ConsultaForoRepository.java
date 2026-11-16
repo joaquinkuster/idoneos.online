@@ -14,6 +14,9 @@ public interface ConsultaForoRepository extends JpaRepository<ConsultaForo, Inte
     /** Encuentra todos los registros activos (no dados de baja). */
     List<ConsultaForo> findByBajaFalse();
 
+    /** Cuenta las consultas vigentes hechas por un alumno. */
+    long countByInscripcion_AlumnoAndBajaFalse(com.app.idoneos.model.Alumno alumno);
+
     /** Busca los registros vigentes de consultaForo asociados a tema. */
     List<ConsultaForo> findByTemaAndBajaFalse(Tema tema);
 

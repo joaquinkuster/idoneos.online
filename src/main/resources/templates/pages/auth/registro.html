@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="auth-body">
+
+    <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+    <div class="auth-pagina">
+        <div th:replace="~{fragments/layout/auth :: fondo}"></div>
+
+        <div class="auth-contenedor">
+            <div class="auth-card auth-card-invertida">
+
+                <!-- Izquierda: invitación a iniciar sesión -->
+                <div class="auth-derecha">
+                    <div class="auth-promo">
+                        <h2>¿Ya tenés una cuenta?</h2>
+                        <p>Iniciá sesión para seguir con tus cursos</p>
+                        <button type="button" class="auth-promo-boton" data-login>Iniciar sesión</button>
+                    </div>
+                </div>
+
+                <!-- Derecha: formulario -->
+                <div class="auth-izquierda">
+                    <div class="auth-cabecera">
+                        <h1 class="auth-titulo">Crear cuenta</h1>
+                        <p class="auth-subtitulo">Completá tus datos para registrarte como alumno</p>
+                    </div>
+
+                    <form th:action="@{/usuario/autoregistrar}" method="post" class="auth-form form-ajax" data-validar data-validador="auth" novalidate>
+                        <div class="auth-fila">
+                            <div class="auth-grupo pn-campo">
+                                <label for="nombre">Nombre <span class="pn-obligatorio">*</span></label>
+                                <input id="nombre" name="nombre" type="text" maxlength="50" placeholder="Juan" autocomplete="given-name" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="auth-grupo pn-campo">
+                                <label for="apellido">Apellido <span class="pn-obligatorio">*</span></label>
+                                <input id="apellido" name="apellido" type="text" maxlength="50" placeholder="Pérez" autocomplete="family-name" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+
+                        <div class="auth-fila">
+                            <div class="auth-grupo pn-campo">
+                                <label for="correo">Correo electrónico <span class="pn-obligatorio">*</span></label>
+                                <input id="correo" name="correo" type="email" maxlength="150" placeholder="tu.correo@ejemplo.com" autocomplete="email" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="auth-grupo pn-campo">
+                                <label for="dni">DNI <span class="pn-obligatorio">*</span></label>
+                                <input id="dni" name="dni" type="text" inputmode="numeric" maxlength="8" placeholder="12345678" autocomplete="off" required>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+
+                        <div class="auth-fila">
+                            <div class="auth-grupo pn-campo">
+                                <label for="contrasena">Contraseña <span class="pn-obligatorio">*</span></label>
+                                <div class="auth-clave">
+                                    <input id="contrasena" name="contrasena" type="password" maxlength="72" placeholder="Mínimo 8 caracteres" autocomplete="new-password" required>
+                                    <button type="button" class="auth-clave-ver" data-ver-clave aria-label="Mostrar contraseña"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                            <div class="auth-grupo pn-campo">
+                                <label for="confirmarContrasena">Confirmar contraseña <span class="pn-obligatorio">*</span></label>
+                                <div class="auth-clave">
+                                    <input id="confirmarContrasena" name="confirmarContrasena" type="password" maxlength="72" placeholder="Repetir contraseña" autocomplete="new-password" required>
+                                    <button type="button" class="auth-clave-ver" data-ver-clave aria-label="Mostrar contraseña"><i class="fa-regular fa-eye"></i></button>
+                                </div>
+                                <div class="pn-ayuda-error"></div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="auth-boton">Crear cuenta</button>
+                    </form>
+
+                    <!-- Solo en pantallas chicas, donde se oculta el panel de la izquierda -->
+                    <div class="auth-registro-movil">
+                        <p>¿Ya tenés una cuenta?</p>
+                        <button type="button" class="auth-boton-secundario" data-login>Iniciar sesión</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/layout/auth :: scripts}"></th:block>
+</body>
+</html>

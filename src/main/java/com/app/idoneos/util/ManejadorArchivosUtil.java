@@ -38,6 +38,17 @@ public class ManejadorArchivosUtil {
     }
 
     /**
+     * Resuelve la carpeta de la foto de perfil de un usuario.
+     *
+     * @param base La carpeta base de los archivos de cursos.
+     * @param idUsuario El identificador del usuario.
+     * @return La carpeta {@code perfiles/usuario{id}} dentro de la carpeta base.
+     */
+    public static Path resolverCarpetaDePerfil(Path base, int idUsuario) {
+        return base.resolve("perfiles").resolve("usuario" + idUsuario);
+    }
+
+    /**
      * Resuelve la carpeta de la biblioteca de un docente.
      *
      * @param base La carpeta base de los archivos de cursos.

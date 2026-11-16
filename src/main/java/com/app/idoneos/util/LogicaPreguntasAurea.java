@@ -146,12 +146,9 @@ public final class LogicaPreguntasAurea {
     }
 
     /**
-     * Las oraciones más importantes de un texto, según el código, con TF-IDF. Entran todas las palabras, agrupadas por raíz, sin listas de palabras
-     * comunes. El peso de una palabra es su frecuencia en el texto (TF) por su rareza entre las oraciones (IDF = ln(N / df), con N oraciones y df las
-     * que la contienen): una palabra que está en todas las oraciones pesa cero, y una que es del tema pero está concentrada en algunas pesa mucho. La
-     * importancia de una oración es el peso promedio de sus palabras distintas. Se mira todo el texto, no solo el principio,
-     * y para no concentrarse en un solo capítulo el texto se divide en tramos y de cada tramo se toman, como mucho, unas pocas oraciones. Si así no
-     * alcanzan, se completa sin ese límite.
+     * Las oraciones más importantes de un texto, según el código. La importancia de cada oración es su relevancia (BM25) respecto de las palabras clave del
+     * documento, y se eligen de a una con MMR: cada elegida le resta puntaje a las que se le parecen, así que no entran diez versiones de la misma ficha
+     * ni de la misma idea. Las oraciones sin un verbo conjugado (objetivos en infinitivo, fragmentos) van después de las que sí lo tienen.
      *
      * @param texto El texto completo.
      * @param cantidad Cuántas oraciones devolver como máximo.
@@ -160,6 +157,12 @@ public final class LogicaPreguntasAurea {
     public static List<String> masImportantes(String texto, int cantidad) {
         return masImportantes(oracionesCandidatas(limpiar(texto), Integer.MAX_VALUE), cantidad);
     }
+
+    /** Cuántas palabras clave del documento forman la consulta con la que se mide la relevancia de cada oración. */
+    private static final int PALABRAS_CLAVE_DE_LA_CONSULTA = 8;
+
+    /** MMR: 1 elige solo por relevancia y 0 solo por diversidad. */
+    private static final double LAMBDA_DE_MMR = 0.5;
 
     /**
      * Igual que {@link #masImportantes(String, int)}, pero con las oraciones ya sacadas del documento (por ejemplo, con la estructura del PDF).
@@ -172,52 +175,55 @@ public final class LogicaPreguntasAurea {
         if (n == 0 || cantidad <= 0) {
             return List.of();
         }
-        // Entran los lemas de las palabras de contenido (sustantivos, nombres propios, verbos y adjetivos, según el etiquetador de OpenNLP): «curso» y
-        // «cursos» son uno, y los artículos y las preposiciones no entran. Cada oración es un documento: TF, cuántas veces aparece el lema en esa
-        // oración; DF, en cuántas oraciones del texto aparece
-        List<Map<String, Integer>> tfPorOracion = new ArrayList<>();
-        Map<String, Integer> df = new HashMap<>();
+        // La consulta: los lemas de las palabras clave del documento
+        Set<String> consulta = new HashSet<>();
+        PalabrasClaveUtil.extraer(String.join(" ", candidatas), PALABRAS_CLAVE_DE_LA_CONSULTA).forEach(clave -> consulta.addAll(GramaticaUtil.conjuntoDeLemas(clave)));
+        // Los lemas de cada oración y su relevancia (BM25) respecto de la consulta
+        List<List<String>> lemasPorOracion = new ArrayList<>();
         for (String candidata : candidatas) {
-            Map<String, Integer> tf = new HashMap<>();
-            GramaticaUtil.lemasDeContenido(candidata).forEach(lema -> tf.merge(lema, 1, Integer::sum));
-            tfPorOracion.add(tf);
-            tf.keySet().forEach(lema -> df.merge(lema, 1, Integer::sum));
+            lemasPorOracion.add(GramaticaUtil.lemasDeContenido(candidata));
         }
-        double[] puntaje = new double[n];
-        Integer[] orden = new Integer[n];
+        double[] relevancia = Bm25Util.puntajes(lemasPorOracion, consulta);
+        double maxima = Arrays.stream(relevancia).max().orElse(0);
+        // Sin ninguna coincidencia con la consulta, todas valen lo mismo y decide la diversidad
         for (int i = 0; i < n; i++) {
-            Map<String, Integer> tf = tfPorOracion.get(i);
-            Set<String> lemas = tf.keySet();
-            double suma = 0;
-            for (String lema : lemas) {
-                // TF-IDF del lema: tf(lema en la oración) * ln(oraciones / oraciones que lo contienen)
-                suma += tf.get(lema) * Math.log((double) n / df.get(lema));
-            }
-            // El peso promedio de los lemas distintos de la oración: no favorece a las largas ni a las cortas
-            puntaje[i] = suma / Math.max(1, lemas.size());
-            orden[i] = i;
+            relevancia[i] = maxima == 0 ? 1 : relevancia[i] / maxima;
         }
-        // De mayor a menor importancia; si empatan, la que viene primero en el texto
-        Arrays.sort(orden, (x, y) -> {
-            int comparacion = Double.compare(puntaje[y], puntaje[x]);
-            return comparacion != 0 ? comparacion : Integer.compare(x, y);
-        });
-        int tramos = Math.min(10, Math.max(1, n / 3));
-        int maximoPorTramo = Math.max(1, (int) Math.ceil(cantidad * 1.5 / tramos));
-        int[] porTramo = new int[tramos];
+        // Los vectores de lemas, armados una vez, para medir qué tanto se parecen dos oraciones
+        Map<String, Double> idfDelDocumento = GramaticaUtil.idfDeLemas(candidatas);
+        List<Map<String, Double>> vectores = new ArrayList<>();
+        for (String candidata : candidatas) {
+            vectores.add(GramaticaUtil.vectorDe(candidata, idfDelDocumento));
+        }
+        // Las que tienen un verbo conjugado se eligen primero; las demás, solo si hacen falta
+        List<Integer> conVerbo = new ArrayList<>();
+        List<Integer> sinVerbo = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            (GramaticaUtil.tieneVerboConjugado(candidatas.get(i)) ? conVerbo : sinVerbo).add(i);
+        }
+        double[] parecidaALaElegida = new double[n];
         List<String> elegidas = new ArrayList<>();
-        Set<Integer> tomadas = new HashSet<>();
-        for (int i : orden) {
-            int tramo = Math.min(tramos - 1, (int) ((long) i * tramos / n));
-            if (elegidas.size() < cantidad && porTramo[tramo] < maximoPorTramo) {
-                porTramo[tramo]++;
-                elegidas.add(candidatas.get(i));
-                tomadas.add(i);
-            }
-        }
-        for (int i : orden) {
-            if (elegidas.size() < cantidad && !tomadas.contains(i)) {
-                elegidas.add(candidatas.get(i));
+        for (List<Integer> grupo : List.of(conVerbo, sinVerbo)) {
+            Set<Integer> pendientes = new HashSet<>(grupo);
+            while (elegidas.size() < cantidad && !pendientes.isEmpty()) {
+                int mejor = -1;
+                double mejorPuntaje = Double.NEGATIVE_INFINITY;
+                for (int i : grupo) {
+                    if (!pendientes.contains(i)) {
+                        continue;
+                    }
+                    // MMR: la relevancia menos lo que se parece a lo ya elegido. Si empatan, la que viene primero en el texto
+                    double puntaje = LAMBDA_DE_MMR * relevancia[i] - (1 - LAMBDA_DE_MMR) * parecidaALaElegida[i];
+                    if (puntaje > mejorPuntaje) {
+                        mejorPuntaje = puntaje;
+                        mejor = i;
+                    }
+                }
+                pendientes.remove(mejor);
+                elegidas.add(candidatas.get(mejor));
+                for (int i = 0; i < n; i++) {
+                    parecidaALaElegida[i] = Math.max(parecidaALaElegida[i], GramaticaUtil.coseno(vectores.get(i), vectores.get(mejor)));
+                }
             }
         }
         return elegidas;

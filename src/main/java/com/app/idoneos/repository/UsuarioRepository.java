@@ -17,4 +17,13 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     /** Busca el usuario por su atributo único 'correo'. */
     Optional<Usuario> findByCorreo(String correo);
 
+    /** Verifica si existe un usuario con el DNI dado. */
+    boolean existsByDni(String dni);
+
+    /** Verifica si existe otro usuario, distinto del indicado, con el DNI dado. */
+    boolean existsByDniAndIdUsuarioNot(String dni, int idUsuario);
+
+    /** Busca el usuario por su atributo único 'tokenVerificacion'. */
+    Optional<Usuario> findByTokenVerificacion(String tokenVerificacion);
+
 }

@@ -395,6 +395,8 @@ public class SemillaService {
         parametroRepository.save(new Parametro(admin, Parametro.CBU_INSTITUCION, "0000003100012345678901"));
         parametroRepository.save(new Parametro(admin, Parametro.COHORTE_RECORDATORIO_DIAS_ANTICIPACION,
                 String.valueOf(Parametro.COHORTE_RECORDATORIO_DIAS_ANTICIPACION_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.LIMITE_SESIONES_CONCURRENTES,
+                String.valueOf(Parametro.LIMITE_SESIONES_CONCURRENTES_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.PLAZO_EDICION_FORO,
                 String.valueOf(Parametro.PLAZO_EDICION_FORO_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.GRACIA_ENTREGA_AUTOEVALUACION,
@@ -415,6 +417,8 @@ public class SemillaService {
                 String.valueOf(Parametro.IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.IA_PROPORCION_MODELO,
                 String.valueOf(Parametro.IA_PROPORCION_MODELO_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.IA_ESTRATEGIA_BANCO,
+                String.valueOf(Parametro.IA_ESTRATEGIA_BANCO_POR_DEFECTO)));
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
         // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");

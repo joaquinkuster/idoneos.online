@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/usuario/usuario.css}">
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Usuarios</h1>
+                    <p class="pn-subtitulo">Gestiona las cuentas de alumnos, docentes y administradores</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+                    <i class="fa-solid fa-plus"></i> Registrar usuario
+                </button>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/usuario/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de usuarios</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="usuario encontrado" data-plural="usuarios encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' usuario encontrado' : ' usuarios encontrados')}">0 usuarios encontrados</span>
+                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico d-none" data-baja-masiva
+                            data-url="/usuario/darDeBajaMasiva" data-elementos="usuarios"
+                            data-termino-uno="dependencia" data-termino-varios="dependencias">Dar de baja seleccionado/s</button>
+                </div>
+
+                <!-- Filtros por columna -->
+                <form th:action="@{/usuario/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <a th:href="@{/usuario/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todos"></th>
+                                <th data-col="Nombre" data-orden-inicial="asc" data-campo="nombre" data-filtro="texto">Nombre</th>
+                                <th data-col="Correo" data-campo="correo" data-filtro="texto">Correo</th>
+                                <th data-col="DNI" data-campo="dni" data-filtro="texto">DNI</th>
+                                <th data-col="Roles" data-campo="roles" data-filtro="lista" data-sin-busqueda>Roles</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="u : ${usuarios}" data-fila th:classappend="${u.baja} ? 'pn-fila-baja'"
+                                th:data-o-nombre="${u.apellido + ' ' + u.nombre}"
+                                th:data-o-recientes="${#temporals.format(u.fechaCreacion, 'yyyyMMdd') + #numbers.formatInteger(u.idUsuario, 8, 'NONE')}">
+                                <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
+                                    th:value="${u.idUsuario}" th:disabled="${u.baja or u.idUsuario == idActual}"></td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${u.apellido + ', ' + u.nombre}">Gómez, Laura</span>
+                                    <span class="pn-marca-estado" th:if="${u.idUsuario == idActual}">(Vos)</span></td>
+                                <td class="pn-truncar" th:text="${u.correo}">laura@correo.com</td>
+                                <td th:text="${u.dni}">30123456</td>
+                                <td>
+                                    <span class="us-roles-celda">
+                                        <span class="pn-insignia" th:each="rol : ${u.rolesVigentes}" th:text="${rol.nombre}"
+                                              th:classappend="${rol.nombre == 'Administrador'} ? 'pn-insignia-azul' : (${rol.nombre == 'Docente'} ? 'pn-insignia-dorada' : 'pn-insignia-verde')">Alumno</span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${u.estado == 'Activo'} ? 'pn-insignia-verde' : (${u.estado == 'Sin validar'} ? 'pn-insignia-dorada' : 'pn-insignia-gris')"
+                                          th:text="${u.estado}">Activo</span>
+                                </td>
+                                <td th:text="${#temporals.format(u.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td>
+                                    <div class="pn-acciones" th:if="${!u.baja and u.idUsuario != idActual}">
+                                        <!-- Las cuentas de administrador no se modifican -->
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:unless="${u.esAdmin()}"
+                                                th:data-bs-target="'#modalModificarUsuario' + ${u.idUsuario}"
+                                                th:data-modal-url="@{'/usuario/modificar/' + ${u.idUsuario}}">Modificar</button>
+                                        <!-- Si la cuenta tiene dependencias, el servidor lo informa al confirmar la baja -->
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal"
+                                                data-bs-target="#modalBajaUsuario"
+                                                th:data-baja-accion="@{'/usuario/darDeBaja/' + ${u.idUsuario}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja la cuenta de «' + ${u.nombreCompleto} + '»?'"
+                                                th:data-baja-nota="'El usuario perderá el acceso al sistema. Su historial se conserva.'">Dar de baja</button>
+                                    </div>
+                                    <span th:if="${u.baja or u.idUsuario == idActual}" class="pn-celda-secundaria">—</span>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(8, 'fa-users', 'No se encontraron usuarios', 'Ningún usuario coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: registrar usuario -->
+<div class="modal fade pn-modal" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Registrar usuario</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <th:block th:replace="~{pages/usuario/formulario :: formulario(null, null)}"></th:block>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- La ventana de modificar se pide al abrirla (core/modalModificar.js) y la de baja es una sola, más abajo -->
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaUsuario', 'usuario', '¿Confirmas dar de baja?', '', '/usuario/darDeBaja/0', null, null)}"></th:block>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
+<script th:src="@{/js/pages/usuario/usuario.js}"></script>
+</body>
+</html>

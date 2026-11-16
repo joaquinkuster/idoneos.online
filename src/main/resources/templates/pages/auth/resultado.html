@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="auth-body">
+
+    <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+    <div class="auth-pagina">
+        <div th:replace="~{fragments/layout/auth :: fondo}"></div>
+
+        <div class="auth-contenedor">
+            <div class="auth-card">
+
+                <!-- Izquierda: resultado de la operación -->
+                <div class="auth-izquierda auth-resultado">
+                    <div class="auth-resultado-icono" th:classappend="${exito} ? 'auth-resultado-exito' : 'auth-resultado-error'">
+                        <i class="fa-solid" th:classappend="${exito} ? 'fa-check' : 'fa-xmark'"></i>
+                    </div>
+                    <h1 class="auth-titulo" th:text="${tituloResultado}">Correo validado</h1>
+                    <p class="auth-subtitulo" th:text="${mensajeResultado}">Tu correo electrónico fue validado.</p>
+                    <a th:href="@{/login}" class="auth-boton">Iniciar sesión</a>
+                </div>
+
+                <!-- Derecha: marca -->
+                <div class="auth-derecha">
+                    <div class="auth-promo">
+                        <h2>Idóneos Online</h2>
+                        <p>Plataforma de formación en Finanzas, Economía y Mercado de Capitales</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/layout/auth :: scripts}"></th:block>
+</body>
+</html>

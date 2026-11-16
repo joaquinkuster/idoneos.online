@@ -10,24 +10,14 @@
 
     <div class="auth-pagina">
 
-        <!-- Fondo: las mismas imágenes del slider del inicio, con transición suave -->
-        <div class="auth-fondo" aria-hidden="true">
-            <div class="auth-fondo-slide activo" th:style="'background-image: url(' + @{/img/cursos/introduccion-finanzas.jpg} + ')'"></div>
-            <div class="auth-fondo-slide" th:style="'background-image: url(' + @{/img/cursos/macroeconomia-coyuntura.jpg} + ')'"></div>
-            <div class="auth-fondo-slide" th:style="'background-image: url(' + @{/img/cursos/economia-argentina-2024.jpg} + ')'"></div>
-            <div class="auth-fondo-capa"></div>
-        </div>
+        <div th:replace="~{fragments/layout/auth :: fondo}"></div>
 
         <div class="auth-contenedor">
             <div class="auth-card">
 
                 <!-- Izquierda: formulario -->
                 <div class="auth-izquierda">
-                    <div class="auth-cabecera">
-                        <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online" class="auth-logo">
-                        <h1 class="auth-titulo">Idóneos <span>Online</span></h1>
-                        <p class="auth-subtitulo">Plataforma de formación en Finanzas, Economía y Mercado de Capitales</p>
-                    </div>
+                    <div th:replace="~{fragments/layout/auth :: cabecera('Plataforma de formación en Finanzas, Economía y Mercado de Capitales')}"></div>
 
                     <form th:action="@{/login}" method="post" class="auth-form">
                         <div th:if="${errorLogin}" class="auth-error" role="alert" th:text="${errorLogin}">Error</div>
@@ -41,7 +31,7 @@
                             <label for="contrasena">Contraseña</label>
                             <div class="auth-clave">
                                 <input id="contrasena" name="password" type="password" placeholder="••••••••" required autocomplete="current-password">
-                                <button type="button" class="auth-clave-ver" id="verClave" aria-label="Mostrar contraseña">
+                                <button type="button" class="auth-clave-ver" data-ver-clave aria-label="Mostrar contraseña">
                                     <i class="fa-regular fa-eye"></i>
                                 </button>
                             </div>
@@ -52,7 +42,7 @@
                                 <input type="checkbox" name="recordarme" value="true">
                                 <span>Recordarme</span>
                             </label>
-                            <button type="button" class="auth-enlace" id="olvideClave">¿Olvidaste tu contraseña?</button>
+                            <button type="button" class="auth-enlace" data-bs-toggle="modal" data-bs-target="#modalRecuperar">¿Olvidaste tu contraseña?</button>
                         </div>
 
                         <button type="submit" class="auth-boton">Iniciar sesión</button>
@@ -65,7 +55,7 @@
                     </div>
                 </div>
 
-                <!-- Derecha: invitación a registrarse (sin acción por el momento) -->
+                <!-- Derecha: invitación a registrarse -->
                 <div class="auth-derecha">
                     <div class="auth-promo">
                         <h2>¿Primera vez aquí?</h2>
@@ -78,9 +68,32 @@
         </div>
     </div>
 
-    <script th:src="@{/js/pages/login.js}"></script>
-    <script th:if="${mensaje != null and !#strings.isEmpty(mensaje)}" th:inline="javascript">
-        mostrarExito(/*[[${mensaje}]]*/ '');
-    </script>
+    <!-- Ventana: recuperar la contraseña. Pide el correo y envía el enlace para crear una contraseña nueva. -->
+    <div class="modal fade pn-modal" id="modalRecuperar" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Recuperar contraseña</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo">
+                    <form th:action="@{/usuario/solicitarRecuperacion}" method="post" class="form-ajax" data-validar data-validador="auth" novalidate>
+                        <div class="pn-campo">
+                            <label class="pn-etiqueta">Correo de tu cuenta <span class="pn-obligatorio">*</span></label>
+                            <input type="email" name="correo" class="pn-input" maxlength="150" placeholder="tu.correo@ejemplo.com" autocomplete="email" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <p class="auth-nota">Te enviaremos un enlace para crear una contraseña nueva. Vence en 1 hora.</p>
+                        <div class="pn-modal-pie">
+                            <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="pn-btn pn-btn-primario">Enviar enlace</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{fragments/layout/auth :: scripts}"></th:block>
 </body>
 </html>

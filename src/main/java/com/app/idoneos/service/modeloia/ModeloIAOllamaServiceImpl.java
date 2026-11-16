@@ -66,6 +66,29 @@ public class ModeloIAOllamaServiceImpl implements ModeloIAService {
         }
     }
 
+    /** Pide al modelo un texto libre con los parámetros de muestreo indicados. */
+    @Override
+    public String generarTexto(String instrucciones, String contenido, int maximoTokens, double temperatura, double topP, int topK,
+            double penalizacionRepeticion) {
+        try {
+            String respuesta = cliente.prompt()
+                    .system(s -> s.text("{instrucciones}").param("instrucciones", instrucciones))
+                    .user(u -> u.text("{contenido}").param("contenido", contenido))
+                    .options(OllamaOptions.builder().numPredict(maximoTokens).temperature(temperatura).topP(topP).topK(topK)
+                            .repeatPenalty(penalizacionRepeticion).build())
+                    .call()
+                    .content();
+            if (respuesta == null || respuesta.isBlank()) {
+                throw new ModeloIAException("El modelo devolvió una respuesta vacía.");
+            }
+            return respuesta.trim();
+        } catch (ModeloIAException e) {
+            throw e;
+        } catch (RuntimeException e) {
+            throw fallo(e);
+        }
+    }
+
     /** Pide al modelo un texto libre, sin instrucciones de sistema. */
     @Override
     public String generarTexto(String pedido, int maximoTokens) {

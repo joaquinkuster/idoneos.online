@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/usuario/perfil.css}">
+</head>
+<body class="wf-canvas-bg fondo-crema">
+
+    <div class="cu-page-container">
+        <div class="screen-frame">
+
+            <div th:replace="~{fragments/layout/navbar :: navbar}"></div>
+
+            <th:block th:replace="~{fragments/layout/breadcrumb :: migas(null, null, 'Mi perfil')}"></th:block>
+
+            <div class="wf-body py-4">
+                <div class="container-fluid px-4 px-lg-5">
+
+                    <section class="pn-card pf-tarjeta">
+                        <form th:action="@{/usuario/modificarPerfil}" method="post" enctype="multipart/form-data" class="form-ajax"
+                              data-validar data-validador="perfil" novalidate>
+
+                            <!-- Foto, nombre y roles -->
+                            <div class="pf-cabecera">
+                                <div class="pf-avatar">
+                                    <span class="pf-iniciales" th:text="${perfil.iniciales}">AI</span>
+                                    <img class="pn-vista-previa" th:classappend="${perfil.urlImagen == null} ? 'd-none'"
+                                         th:src="${perfil.urlImagen != null} ? @{${perfil.urlImagen}}" th:attr="data-original=${perfil.urlImagen}" alt="Foto de perfil">
+                                </div>
+                                <div class="pf-cabecera-datos">
+                                    <h1 class="pf-nombre" th:text="${perfil.nombreCompleto}">Admin Idóneos</h1>
+                                    <div class="pf-roles">
+                                        <span class="pn-insignia pn-insignia-dorada" th:each="rol : ${perfil.rolesVigentes}" th:text="${rol.nombre}">Administrador</span>
+                                    </div>
+                                    <div class="pn-campo pf-foto-acciones">
+                                        <input type="file" id="imagenPerfil" name="imagen" class="imagen-curso pf-archivo" accept="image/jpeg,image/png,image/webp">
+                                        <input type="hidden" name="quitarImagen" value="false" data-quitar-imagen>
+                                        <label for="imagenPerfil" class="pn-btn pn-btn-contorno pn-btn-chico">Cambiar foto</label>
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-quitar-foto>Quitar foto</button>
+                                        <div class="pn-ayuda-error"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Datos personales -->
+                            <div class="pn-seccion-titulo">
+                                <h4>Datos personales</h4>
+                                <p>Podés editar tu nombre, tu apellido, tu teléfono y tu foto</p>
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
+                                    <input type="text" name="nombre" class="pn-input" maxlength="50" th:value="${perfil.nombre}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Apellido <span class="pn-obligatorio">*</span></label>
+                                    <input type="text" name="apellido" class="pn-input" maxlength="50" th:value="${perfil.apellido}" required>
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">Correo electrónico</label>
+                                    <input type="email" class="pn-input" th:value="${perfil.correo}" disabled>
+                                </div>
+                                <div class="col-md-6 pn-campo">
+                                    <label class="pn-etiqueta">DNI</label>
+                                    <input type="text" class="pn-input" th:value="${perfil.dni}" disabled>
+                                </div>
+                                <div class="col-12 pn-campo">
+                                    <label class="pn-etiqueta">Teléfono</label>
+                                    <input type="text" name="telefono" class="pn-input" maxlength="20" th:value="${perfil.telefono}" placeholder="+54 376 4000000">
+                                    <div class="pn-ayuda-error"></div>
+                                </div>
+                                <div class="col-12">
+                                    <p class="pf-nota">Para cambiar tu correo o tu DNI, comunicate con la administración.</p>
+                                </div>
+                            </div>
+
+                            <!-- Datos profesionales: los carga el administrador, acá solo se ven -->
+                            <th:block th:if="${titulos != null}">
+                                <div class="pn-seccion-titulo pf-seccion">
+                                    <h4>Datos profesionales</h4>
+                                    <p>Los modifica el administrador</p>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-md-6 pn-campo">
+                                        <label class="pn-etiqueta">Años de experiencia</label>
+                                        <input type="text" class="pn-input" th:value="${perfil.docente.aniosExperiencia}" disabled>
+                                    </div>
+                                    <div class="col-md-6 pn-campo">
+                                        <label class="pn-etiqueta">Matrícula CNV</label>
+                                        <input type="text" class="pn-input" th:value="${perfil.docente.matriculaCnv}" disabled>
+                                    </div>
+                                    <div class="col-12 pn-campo">
+                                        <label class="pn-etiqueta">Biografía</label>
+                                        <textarea class="pn-input pf-biografia" rows="4" th:text="${perfil.docente.biografia}" disabled></textarea>
+                                    </div>
+                                    <div class="col-12 pn-campo">
+                                        <label class="pn-etiqueta">Títulos y matrículas</label>
+                                        <ul class="pf-titulos">
+                                            <li th:each="titulo : ${titulos}">
+                                                <span th:text="${titulo.titulo}">Licenciado en Economía</span>
+                                                <span class="pf-titulo-matricula" th:if="${titulo.matricula != null}" th:text="${'Matrícula ' + titulo.matricula}">Matrícula 4521</span>
+                                            </li>
+                                            <li th:if="${#lists.isEmpty(titulos)}" class="pf-titulo-matricula">Sin títulos cargados.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </th:block>
+
+                            <div class="pf-pie">
+                                <a th:href="@{/inicio}" class="pn-btn pn-btn-secundario">Cancelar</a>
+                                <button type="submit" class="pn-btn pn-btn-primario">Guardar cambios</button>
+                            </div>
+                        </form>
+                    </section>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
+    <script th:src="@{/js/core/formulario.js}"></script>
+    <script th:src="@{/js/core/validacion.js}"></script>
+    <script th:src="@{/js/pages/usuario/perfil.js}"></script>
+</body>
+</html>

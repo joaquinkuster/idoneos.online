@@ -20,3 +20,87 @@
         border-radius: 1.5rem;
     }
 }
+
+/* ---------------------------------------------------------------------- */
+/* PANTALLAS DE ACCESO: registro, nueva contraseña y resultado de un enlace */
+/* ---------------------------------------------------------------------- */
+
+/* Registro: el panel de invitación va a la izquierda y el formulario a la derecha */
+.auth-card-invertida .auth-derecha {
+    border-radius: 1.5rem 0 0 1.5rem;
+}
+
+.auth-card-invertida .auth-izquierda {
+    border-radius: 0 1.5rem 1.5rem 0;
+}
+
+@media (max-width: 800px) {
+    .auth-card-invertida .auth-izquierda {
+        border-radius: 1.5rem;
+    }
+}
+
+/* Dos campos por fila */
+.auth-fila {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+@media (max-width: 520px) {
+    .auth-fila {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Los errores de los campos y su asterisco de obligatorio */
+.auth-grupo input.es-invalido {
+    border-color: var(--pn-peligro);
+}
+
+.auth-grupo .pn-ayuda-error {
+    margin-top: 0;
+}
+
+.auth-grupo .pn-obligatorio {
+    color: var(--pn-peligro);
+}
+
+/* Nota debajo de un campo, en las ventanas de acceso */
+.auth-nota {
+    margin: 0.75rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--pn-texto-suave);
+}
+
+/* Resultado de un enlace del correo */
+.auth-resultado {
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+}
+
+.auth-resultado .auth-subtitulo {
+    margin-bottom: 1.25rem;
+}
+
+.auth-resultado-icono {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.auth-resultado-exito {
+    background: #DCFCE7;
+    color: var(--pn-exito);
+}
+
+.auth-resultado-error {
+    background: #FEF2F2;
+    color: var(--pn-peligro);
+}

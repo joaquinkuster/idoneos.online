@@ -1,0 +1,92 @@
+/* ---------------------------------------------------------------------- */
+/* USUARIOS: listado y formulario por pasos */
+/* ---------------------------------------------------------------------- */
+
+.us-roles-celda {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+/* Roles de la cuenta */
+.us-roles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 28px;
+    padding: 4px 0;
+}
+
+.us-roles .form-check-input:checked,
+.us-habilitado .form-check-input:checked {
+    background-color: var(--pn-gold);
+    border-color: var(--pn-gold);
+}
+
+.us-roles .form-check-input:focus,
+.us-habilitado .form-check-input:focus {
+    border-color: var(--pn-gold);
+    box-shadow: 0 0 0 3px rgba(212, 160, 61, 0.2);
+}
+
+.us-roles .form-check-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pn-texto);
+}
+
+/* Notas debajo de los campos */
+.us-nota {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--pn-texto-suave);
+}
+
+.us-nota-alerta {
+    padding: 8px 12px;
+    background: var(--pn-gold-soft);
+    border-radius: 8px;
+    color: #92400E;
+}
+
+/* Perfil docente */
+.us-biografia {
+    height: auto;
+    resize: vertical;
+}
+
+.us-titulos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.us-titulo-fila {
+    display: grid;
+    grid-template-columns: 1fr 200px auto;
+    gap: 8px;
+    align-items: center;
+}
+
+.us-agregar {
+    margin-top: 8px;
+}
+
+@media (max-width: 576px) {
+    .us-titulo-fila {
+        grid-template-columns: 1fr auto;
+    }
+
+    .us-titulo-fila input:nth-child(2) {
+        grid-column: 1;
+    }
+}
+
+/* Texto que alimenta el resumen del formulario y no se ve en el paso */
+.us-resumen {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}

@@ -135,6 +135,9 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     /** Cantidad máxima de preguntas de un banco. */
     private static final int PREGUNTAS_MAXIMAS = 30;
 
+    /** Las preguntas que admite un pool en Aurea: con su flujo, el banco no pasa de ahí. */
+    private static final int PREGUNTAS_MAXIMAS_DE_AUREA = 8;
+
     /** Tipos de contenido que se pueden generar. */
     private enum Tipo {
         RESUMEN(CategoriaMaterialLectura.RESUMEN, TipoRecurso.RESUMEN, "Resumen IA de ", "el resumen", "un resumen",
@@ -864,7 +867,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
 
     /** Lo que necesita la generación del banco, leído de la base antes de empezar. */
     private record PedidoBanco(String tituloTema, List<Documento> documentos, List<String> glosario, int preguntas, int porcentajeOpcionMultiple,
-            int porcentajeModelo, List<String> existentes) {
+            int porcentajeModelo, int estrategia, List<String> existentes) {
     }
 
     /** Pide el banco de preguntas de un tema. Registra el pool en espera y lo genera en segundo plano. */
@@ -1139,7 +1142,10 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 throw new ModeloIAException("El servidor del modelo de IA no está disponible.");
             }
             long inicio = System.currentTimeMillis();
-            int total = pedido.preguntas();
+            // Con el flujo de Aurea, un pool tiene como mucho las preguntas que admite Aurea, y todas se le piden al modelo
+            boolean flujoDeAurea = pedido.estrategia() == Parametro.IA_ESTRATEGIA_BANCO_EN_UNA_LLAMADA;
+            boolean porRondas = pedido.estrategia() == Parametro.IA_ESTRATEGIA_BANCO_POR_RONDAS;
+            int total = flujoDeAurea ? Math.min(pedido.preguntas(), PREGUNTAS_MAXIMAS_DE_AUREA) : pedido.preguntas();
 
             // 1. LEER EL TEXTO COMPLETO. El modelo recibe una oración por vez, así que no hay un límite de lectura que cuidar
             String texto = leerTextoCompleto(pedido.documentos());
@@ -1154,11 +1160,25 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             List<OracionesUtil.OracionDeSeccion> delDocumento = leerOraciones(pedido.documentos(), texto);
             List<String> oraciones = elegirOraciones(idPool, delDocumento, guion, total, contexto, avance);
 
-            // 3. ARMAR LAS PREGUNTAS DEL MODELO: oración -> el modelo redacta la pregunta -> el código busca los distractores
-            int deModelo = Math.min(total, Math.round(total * pedido.porcentajeModelo() / 100f));
-            int delModelo = armarPreguntasConModelo(idPool, planDelModelo(deModelo, pedido.porcentajeOpcionMultiple()), oraciones, contexto, avance, inicio);
-            if (delModelo < 0) {
-                return;
+            // 3. ARMAR LAS PREGUNTAS DEL MODELO
+            int deModelo = flujoDeAurea || porRondas ? total : Math.min(total, Math.round(total * pedido.porcentajeModelo() / 100f));
+            int delModelo;
+            if (porRondas) {
+                // Camino por rondas: el modelo solo escribe las preguntas, de a pocas oraciones objetivo; el código arma las opciones
+                avance.generadas.addAll(new BancoPorRondasIA(modelo).armar(deModelo, oraciones, avance.distractores, avance.usados, avance.entidades,
+                        () -> hayTiempo(inicio)));
+                delModelo = avance.generadas.size();
+            } else if (flujoDeAurea) {
+                // Camino alternativo (flujo de Aurea): el modelo escribe preguntas y opciones en una sola llamada por lote, de a pocas oraciones objetivo
+                avance.generadas.addAll(new BancoEnUnaLlamadaIA(modelo).armar(deModelo, oraciones, avance.distractores, avance.usados, pedido.existentes(),
+                        oraciones.subList(0, Math.min(60, oraciones.size()))));
+                delModelo = avance.generadas.size();
+            } else {
+                // Camino principal: oración -> el modelo redacta la pregunta -> el código arma las opciones
+                delModelo = armarPreguntasConModelo(idPool, planDelModelo(deModelo, pedido.porcentajeOpcionMultiple()), oraciones, contexto, avance, inicio);
+                if (delModelo < 0) {
+                    return;
+                }
             }
             REGISTRO.info("Banco {}: el modelo armó {} de {} preguntas.", idPool, delModelo, deModelo);
 
@@ -1438,7 +1458,8 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 Parametro.IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO)));
         int porcentajeModelo = Math.max(0, Math.min(100, parametroService.obtenerEntero(Parametro.IA_PROPORCION_MODELO,
                 Parametro.IA_PROPORCION_MODELO_POR_DEFECTO)));
-        return new PedidoBanco(tema.getTitulo(), documentos, glosario, preguntas, porcentaje, porcentajeModelo,
+        int estrategia = parametroService.obtenerEntero(Parametro.IA_ESTRATEGIA_BANCO, Parametro.IA_ESTRATEGIA_BANCO_POR_DEFECTO);
+        return new PedidoBanco(tema.getTitulo(), documentos, glosario, preguntas, porcentaje, porcentajeModelo, estrategia,
                 preguntaRepository.findTextosDeOtrosPoolsDelTema(tema, idPool));
     }
 
