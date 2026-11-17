@@ -12,6 +12,8 @@
         <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido" th:attr="data-abrir-modal=${abrirAlta ? 'modalNuevaCohorte' : null}">
+            <th:block th:replace="~{fragments/layout/breadcrumb :: panel('Cursos', 'Cohortes')}"></th:block>
+
             <nav class="ac-migas" aria-label="Ruta de navegación" th:if="${curso != null}">
                 <a th:href="@{/inicio}">Página principal</a>
                 <i class="fa-solid fa-chevron-right"></i>

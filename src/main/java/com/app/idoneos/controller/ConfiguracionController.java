@@ -1,6 +1,7 @@
 package com.app.idoneos.controller;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -23,6 +24,7 @@ import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.util.ConfiguracionUtil;
 import com.app.idoneos.util.ConfiguracionUtil.Definicion;
 import com.app.idoneos.util.ConfiguracionUtil.Seccion;
+import com.app.idoneos.util.ManejadorArchivosUtil;
 import com.app.idoneos.util.RespuestaFormularioUtil;
 
 /** Controlador de la configuración: el administrador consulta y modifica el valor de los parámetros del sistema. */
@@ -30,8 +32,21 @@ import com.app.idoneos.util.RespuestaFormularioUtil;
 @RequestMapping("/configuracion")
 public class ConfiguracionController {
 
+    /** Tamaño máximo del logo, en bytes. */
+    private static final long LOGO_TAMANIO_MAXIMO = 2L * 1024 * 1024;
+
+    /** Prefijo de la dirección del logo subido desde esta pantalla. */
+    private static final String RUTA_LOGO = "/uploads/institucion/";
+
     @Autowired
     private ParametroService parametroService;
+
+    @Autowired
+    private com.app.idoneos.service.institucion.InstitucionService institucionService;
+
+    @Autowired
+    @org.springframework.beans.factory.annotation.Qualifier("directorioCursos")
+    private java.nio.file.Path directorioCursos;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -72,7 +87,8 @@ public class ConfiguracionController {
 
     /** POST /configuracion/modificar: Valida y registra los parámetros que cambiaron. Todos o ninguno. */
     @PostMapping("/modificar")
-    public ResponseEntity<Map<String, String>> modificar(@RequestParam Map<String, String> campos, Authentication authentication) {
+    public ResponseEntity<Map<String, String>> modificar(@RequestParam Map<String, String> campos,
+            @RequestParam(value = "logoArchivo", required = false) org.springframework.web.multipart.MultipartFile logo, Authentication authentication) {
         try {
             Administrador administrador = ((Usuario) authentication.getPrincipal()).getAdministrador();
             if (administrador == null) {
@@ -87,10 +103,24 @@ public class ConfiguracionController {
                     }
                 }
             }
-            if (cambios.isEmpty()) {
+            boolean hayLogo = logo != null && !logo.isEmpty();
+            if (hayLogo) {
+                // Se valida antes de guardar nada: si el logo no sirve, no se cambia ningún parámetro
+                ManejadorArchivosUtil.validar(logo, LOGO_TAMANIO_MAXIMO, List.of("jpg", "png", "webp"));
+            }
+            if (cambios.isEmpty() && !hayLogo) {
                 return RespuestaFormularioUtil.armarRespuestaExitosa("No hay cambios para guardar.");
             }
+            if (hayLogo) {
+                String anterior = parametroService.buscarPorClave(Parametro.INSTITUCION_LOGO).map(Parametro::getValor).orElse("");
+                String nombre = ManejadorArchivosUtil.guardarImagen(logo, directorioCursos.resolve("institucion"), "logo-" + System.currentTimeMillis());
+                cambios.put(Parametro.INSTITUCION_LOGO, RUTA_LOGO + nombre);
+                if (anterior.startsWith(RUTA_LOGO)) {
+                    ManejadorArchivosUtil.eliminar(anterior.substring(RUTA_LOGO.length()), directorioCursos.resolve("institucion"));
+                }
+            }
             cambios.forEach((clave, valor) -> parametroService.registrarTexto(administrador, clave, valor));
+            institucionService.invalidar();
             return RespuestaFormularioUtil.armarRespuestaExitosa("Configuración actualizada con éxito.");
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
@@ -102,6 +132,9 @@ public class ConfiguracionController {
         String valor = recibido == null ? "" : recibido.trim();
         if (definicion.tipo() == ConfiguracionUtil.Tipo.SECRETO) {
             return valor.isEmpty() ? null : valor;
+        }
+        if (definicion.tipo() == ConfiguracionUtil.Tipo.IMAGEN) {
+            return null; // la imagen llega como archivo y se guarda aparte
         }
         if (valor.isEmpty()) {
             if (definicion.obligatorio()) {

@@ -12,6 +12,8 @@
         <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <th:block th:replace="~{fragments/layout/breadcrumb :: panel(null, 'Cursos')}"></th:block>
+
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Cursos</h1>

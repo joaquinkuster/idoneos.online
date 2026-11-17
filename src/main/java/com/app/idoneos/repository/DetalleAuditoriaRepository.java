@@ -12,4 +12,7 @@ public interface DetalleAuditoriaRepository extends JpaRepository<DetalleAuditor
     /** Los campos afectados por una acción, en orden alfabético. */
     java.util.List<DetalleAuditoria> findByAuditoriaOrderByCampo(com.app.idoneos.model.Auditoria auditoria);
 
+    /** Los campos afectados por varias acciones, en orden alfabético. */
+    java.util.List<DetalleAuditoria> findByAuditoriaInOrderByCampo(java.util.Collection<com.app.idoneos.model.Auditoria> auditorias);
+
 }

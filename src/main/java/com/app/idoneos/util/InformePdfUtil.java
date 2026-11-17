@@ -37,6 +37,12 @@ public final class InformePdfUtil {
     private static final float ANCHO = 523;
     private static final float ALTO_PAGINA = 842;
 
+    /** Posición (desde arriba) hasta donde llega el contenido de una página: debajo va el pie. */
+    private static final float LIMITE = 778;
+
+    /** Radio de la torta de ingresos por categoría. */
+    private static final float RADIO_TORTA = 48;
+
     private static final Color NAVY = new Color(0x0B, 0x14, 0x24);
     private static final Color PIZARRA = new Color(0x2D, 0x4A, 0x70);
     private static final Color DORADO = PdfUtil.DORADO;
@@ -71,7 +77,7 @@ public final class InformePdfUtil {
     public static byte[] alumnos(InformeAlumnos datos, String emisor, String empresa) {
         return armar((h, pagina) -> {
             String periodo = FECHA.format(datos.desde()) + " al " + FECHA.format(datos.hasta());
-            String pie = "SISTEMA DE INFORME DE ALUMNOS POR CURSO • " + empresa.toUpperCase(Locale.ROOT);
+            String pie = "INFORME DE ALUMNOS POR CURSO • " + empresa.toUpperCase(Locale.ROOT);
             if (pagina == 1) {
                 float top = encabezado(h, "INFORME DE ALUMNOS POR CURSO",
                         "Período: " + periodo + " • Emitido: " + FECHA.format(LocalDate.now()) + " por " + emisor);
@@ -81,8 +87,8 @@ public final class InformePdfUtil {
                         new Color[] { NAVY, VERDE, AZUL, ROJO });
                 top = tarjetaBarras(h, top, MARGEN, ANCHO, "1. COMPARACIÓN DE INSCRIPCIONES ENTRE CURSOS",
                         "Volumen total de inscriptos en el período, contrastando el curso seleccionado con el catálogo.", datos.porCurso(),
-                        v -> ENTERO.format((long) v) + " alumnos", v -> ENTERO.format((long) v) + " unid.", NAVY, PIZARRA, " (Seleccionado)");
-                tarjetaEvolucion(h, top + 12, "2. EVOLUCIÓN DIARIA DE DEMANDA", "Comportamiento de las inscripciones registradas a lo largo del período seleccionado, con una línea por programa.",
+                        v -> ENTERO.format((long) v) + " alumnos", v -> ENTERO.format((long) v) + " unid.", NAVY, PIZARRA, " (Seleccionado)", 0);
+                tarjetaEvolucion(h, top + 12, LIMITE, "2. EVOLUCIÓN DIARIA DE DEMANDA", "Comportamiento de las inscripciones registradas a lo largo del período seleccionado, con una línea por programa.",
                         datos.evolucion(), false);
             } else {
                 float top = encabezado(h, "INFORME DE ALUMNOS (CONT.)", "Curso: " + datos.curso().getNombre() + " • Período: " + periodo);
@@ -92,28 +98,30 @@ public final class InformePdfUtil {
                 tarjetaBarras(h, top + 12, MARGEN, ANCHO, "4. EFECTIVIDAD POR PROGRAMA ACADÉMICO",
                         "Comparativa entre versiones de programa para identificar cuál captó mayor volumen de alumnos.", programas,
                         v -> ENTERO.format((long) v) + " alumnos" + (total > 0 ? " (" + Math.round(v * 100 / total) + "%)" : ""),
-                        v -> ENTERO.format((long) v) + " unid.", VERDE, PIZARRA, "");
+                        v -> ENTERO.format((long) v) + " unid.", VERDE, PIZARRA, "", LIMITE);
             }
             pie(h, pie, pagina, 2);
         });
     }
 
     private static float tarjetaAbandono(Hoja h, float top, InformeAlumnos d) {
-        float alto = 142;
+        float alto = 182;
         float interior = tarjeta(h, MARGEN, top, ANCHO, alto, "3. TASA DE ABANDONO Y RETENCIÓN DE CURSADA",
                 "Proporción de alumnos activos/completados frente a bajas o deserciones registradas.");
         double abandono = d.porcentajeAbandono();
-        float cx = MARGEN + 84;
-        float cy = h.y(interior + 46);
+        float radio = 56;
+        float cx = MARGEN + 15 + radio + 20;
+        float centro = interior + 6 + radio;
+        float cy = h.y(centro);
         double[] partes = d.total() == 0 ? new double[] { 1, 0 } : new double[] { d.retenidas(), d.bajas() };
-        sectores(h, cx, cy, 52, partes, new Color[] { VERDE, ROJO });
-        h.circulo(cx, cy, 29, Color.WHITE);
-        h.texto(String.format(Locale.US, "%.1f%%", abandono), cx, cy, h.negrita, 13, NAVY, PdfContentByte.ALIGN_CENTER);
-        h.texto("ABANDONO", cx, cy - 9, h.negrita, 6, ROJO, PdfContentByte.ALIGN_CENTER);
-        float lx = MARGEN + 208;
-        leyenda(h, lx, interior + 22, VERDE, String.format(Locale.US, "%.1f%% Retención Exitosa", 100 - abandono),
+        sectores(h, cx, cy, radio, partes, new Color[] { VERDE, ROJO });
+        h.circulo(cx, cy, 32, Color.WHITE);
+        h.texto(String.format(Locale.US, "%.1f%%", abandono), cx, cy, h.negrita, 14, NAVY, PdfContentByte.ALIGN_CENTER);
+        h.texto("ABANDONO", cx, cy - 10, h.negrita, 6, ROJO, PdfContentByte.ALIGN_CENTER);
+        float lx = MARGEN + 230;
+        leyenda(h, lx, centro - 34, VERDE, String.format(Locale.US, "%.1f%% Retención Exitosa", 100 - abandono),
                 ENTERO.format(d.retenidas()) + " alumnos (" + ENTERO.format(d.completadas()) + " completados y el resto cursando o con acceso a vencer)");
-        leyenda(h, lx, interior + 52, ROJO, String.format(Locale.US, "%.1f%% Tasa de Abandono / Bajas", abandono),
+        leyenda(h, lx, centro + 10, ROJO, String.format(Locale.US, "%.1f%% Tasa de Abandono / Bajas", abandono),
                 ENTERO.format(d.bajas()) + " alumnos dados de baja durante la cursada");
         return top + alto;
     }
@@ -133,7 +141,7 @@ public final class InformePdfUtil {
     public static byte[] ingresos(InformeIngresos datos, String emisor, String empresa) {
         return armar((h, pagina) -> {
             String periodo = FECHA.format(datos.desde()) + " al " + FECHA.format(datos.hasta());
-            String pie = "SISTEMA DE INFORME DE INGRESOS POR CURSO • " + empresa.toUpperCase(Locale.ROOT);
+            String pie = "INFORME DE INGRESOS POR CURSO • " + empresa.toUpperCase(Locale.ROOT);
             if (pagina == 1) {
                 float top = encabezado(h, "INFORME DE INGRESOS POR CURSO",
                         "Período: " + periodo + " • Emitido: " + FECHA.format(LocalDate.now()) + " por " + emisor);
@@ -142,13 +150,14 @@ public final class InformePdfUtil {
                         new String[] { "NETO ACREDITADO", "PRECIO LISTA BRUTO", "DESCUENTOS APLICADOS", "PAGOS ACREDITADOS" }, new Color[] { VERDE, NAVY, NARANJA, NAVY });
                 top = tarjetaBarras(h, top, MARGEN, ANCHO, "1. COMPARACIÓN DE FACTURACIÓN ENTRE CURSOS",
                         "Monto total recaudado en el período, contrastando el curso seleccionado frente a la oferta total.", datos.porCurso(),
-                        v -> dinero(v) + " ARS", InformePdfUtil::millones, VERDE, PIZARRA, " (Seleccionado)");
-                tarjetaEvolucion(h, top + 12, "2. EVOLUCIÓN DIARIA DE FACTURACIÓN", "Comportamiento de los ingresos percibidos a lo largo del período seleccionado, con una línea por programa.",
+                        v -> dinero(v) + " ARS", InformePdfUtil::millones, VERDE, PIZARRA, " (Seleccionado)", 0);
+                tarjetaEvolucion(h, top + 12, LIMITE, "2. EVOLUCIÓN DIARIA DE FACTURACIÓN", "Comportamiento de los ingresos percibidos a lo largo del período seleccionado, con una línea por programa.",
                         datos.evolucion(), true);
             } else {
                 float top = encabezado(h, "INFORME DE INGRESOS (ANÁLISIS DE MÁRGENES)", "Curso: " + datos.curso().getNombre() + " • Período: " + periodo);
                 float ancho = (ANCHO - 14) / 2;
-                float alto = 190;
+                int partesTorta = Math.min(datos.porCategoria().size(), 6);
+                float alto = Math.max(200, 43 + 6 + 2 * RADIO_TORTA + 14 + Math.max(1, partesTorta) * 11 + 16);
                 float interior = tarjeta(h, MARGEN, top + 14, ancho, alto, "3. INGRESOS POR CATEGORÍA TEMÁTICA", "Participación porcentual en la facturación global.");
                 torta(h, MARGEN, interior, ancho, datos.porCategoria());
                 float x2 = MARGEN + ancho + 14;
@@ -156,14 +165,17 @@ public final class InformePdfUtil {
                 double bruto = datos.bruto();
                 String pd = bruto > 0 ? Math.round(datos.descuentos() * 100 / bruto) + "" : "0";
                 String pn = bruto > 0 ? Math.round(datos.neto() * 100 / bruto) + "" : "0";
-                float y = interior;
-                y += fila(h, x2 + 14, y, ancho - 28, "Precio Bruto (100%)", millonesTexto(bruto), bruto, bruto, NAVY, millones(bruto), Color.WHITE, false);
-                y += fila(h, x2 + 14, y, ancho - 28, "Descuentos (-" + pd + "%)", millonesTexto(datos.descuentos()), datos.descuentos(), bruto, DORADO, millones(datos.descuentos()), NAVY, false);
-                fila(h, x2 + 14, y, ancho - 28, "Neto Acreditado (" + pn + "%)", millonesTexto(datos.neto()), datos.neto(), bruto, VERDE, millones(datos.neto()), Color.WHITE, false);
+                float paso = Math.min(48, (alto - (interior - top - 14) - 15) / 3);
+                float y = interior + 4;
+                fila(h, x2 + 15, y, ancho - 30, "Precio Bruto (100%)", millonesTexto(bruto), bruto, bruto, NAVY, millones(bruto), Color.WHITE, false);
+                y += paso;
+                fila(h, x2 + 15, y, ancho - 30, "Descuentos (-" + pd + "%)", millonesTexto(datos.descuentos()), datos.descuentos(), bruto, DORADO, millones(datos.descuentos()), NAVY, false);
+                y += paso;
+                fila(h, x2 + 15, y, ancho - 30, "Neto Acreditado (" + pn + "%)", millonesTexto(datos.neto()), datos.neto(), bruto, VERDE, millones(datos.neto()), Color.WHITE, false);
                 List<Barra> programas = datos.porPrograma().stream().limit(6).toList();
                 tarjetaBarras(h, top + 14 + alto + 12, MARGEN, ANCHO, "5. EFECTIVIDAD POR PROGRAMA ACADÉMICO",
                         "Comparación entre los programas del curso según el ingreso neto generado, para identificar cuál resultó más efectivo facturando.", programas,
-                        v -> dinero(v) + " ARS", InformePdfUtil::millones, VERDE, PIZARRA, "");
+                        v -> dinero(v) + " ARS", InformePdfUtil::millones, VERDE, PIZARRA, "", LIMITE);
             }
             pie(h, pie, pagina, 2);
         });
@@ -177,7 +189,7 @@ public final class InformePdfUtil {
     private static float encabezado(Hoja h, String titulo, String subtitulo) {
         float top = 30;
         float alto = 53;
-        float izquierda = 180;
+        float izquierda = 196;
         h.rectangulo(MARGEN, top, ANCHO, alto, 4, NAVY, NAVY);
         h.rectanguloIzquierdo(MARGEN, top, izquierda, alto, 4, Color.WHITE);
         h.c.saveState();
@@ -186,11 +198,26 @@ public final class InformePdfUtil {
         h.c.roundRectangle(MARGEN, h.y(top + alto), ANCHO, alto, 4);
         h.c.stroke();
         h.c.restoreState();
-        PdfUtil.dibujarEncabezado(h.c, MARGEN + 22, h.y(top + alto) + 3.5f);
+        // Marca: el logo y, a su derecha, el nombre y la leyenda, dentro del bloque blanco
+        float x = MARGEN + 16;
+        Image logo = PdfUtil.logo();
+        if (logo != null) {
+            logo.scaleToFit(48, 44);
+            logo.setAbsolutePosition(x, h.y(top + alto / 2) - logo.getScaledHeight() / 2);
+            try {
+                h.c.addImage(logo);
+            } catch (DocumentException e) {
+                // el logo es decorativo: si falla, el encabezado sigue con el texto
+            }
+            x += logo.getScaledWidth() + 9;
+        }
+        h.texto("IDÓNEOS ", x, h.y(top + 25), h.negrita, 12.5f, NAVY, PdfContentByte.ALIGN_LEFT);
+        h.texto("ONLINE", x + h.negrita.getWidthPoint("IDÓNEOS ", 12.5f), h.y(top + 25), h.negrita, 12.5f, DORADO, PdfContentByte.ALIGN_LEFT);
+        h.texto("FINANZAS & MERCADOS", x, h.y(top + 36), h.negrita, 6.2f, DORADO, PdfContentByte.ALIGN_LEFT);
         float derecha = MARGEN + ANCHO - 16;
         h.texto(titulo, derecha, h.y(top + 22), h.negrita, titulo.length() > 36 ? 10.5f : 13, Color.WHITE, PdfContentByte.ALIGN_RIGHT);
         float y = top + 35;
-        for (String linea : envolver(subtitulo, h.normal, 6.8f, ANCHO - izquierda - 32)) {
+        for (String linea : envolver(subtitulo, h.normal, 6.8f, ANCHO - izquierda - 28)) {
             h.texto(linea, derecha, h.y(y), h.normal, 6.8f, new Color(0xA8, 0xB3, 0xC4), PdfContentByte.ALIGN_RIGHT);
             y += 9;
         }
@@ -208,10 +235,7 @@ public final class InformePdfUtil {
         float x = MARGEN + ANCHO - ancho;
         h.rectangulo(x, base - 12, ancho, 16, 4, vigente ? new Color(0xFE, 0xF3, 0xC7) : new Color(0xF1, 0xF5, 0xF9),
                 vigente ? new Color(0xF5, 0xD8, 0x8A) : BORDE);
-        h.texto(insignia, x + ancho / 2 + 4, h.y(base - 1.5f), h.negrita, 6.3f, vigente ? new Color(0x92, 0x40, 0x0E) : GRIS, PdfContentByte.ALIGN_CENTER);
-        if (vigente) {
-            h.circulo(x + 9, h.y(base - 4), 2.8f, new Color(0x92, 0x40, 0x0E));
-        }
+        h.texto(insignia, x + ancho / 2, h.y(base - 1.5f), h.negrita, 6.3f, vigente ? new Color(0x92, 0x40, 0x0E) : GRIS, PdfContentByte.ALIGN_CENTER);
         return base + 14;
     }
 
@@ -246,13 +270,19 @@ public final class InformePdfUtil {
         return y + 3;
     }
 
-    /** Dibuja una sección de barras horizontales. Devuelve la posición donde termina. */
+    /**
+     * Dibuja una sección de barras horizontales. Devuelve la posición donde termina.
+     *
+     * @param hasta posición hasta donde puede llegar la tarjeta: las filas se separan más para aprovechar el lugar. Con cero, las filas van juntas.
+     */
     private static float tarjetaBarras(Hoja h, float top, float x, float ancho, String titulo, String subtitulo, List<Barra> barras,
             java.util.function.DoubleFunction<String> derecha, java.util.function.DoubleFunction<String> interno, Color colorSeleccionada, Color colorResto,
-            String marca) {
-        float inicio = top + 32 + envolver(subtitulo, h.normal, 6.6f, ancho - 30).size() * 8.5f + 3;
+            String marca, float hasta) {
+        float inicio = top + 32 + envolver(subtitulo, h.normal, 6.6f, ancho - 30).size() * 8.5f + 6;
+        int filas = Math.max(1, barras.size());
+        float paso = hasta > 0 ? Math.max(30, Math.min(46, (hasta - inicio - 15) / filas)) : 32;
         double maximo = barras.stream().mapToDouble(Barra::valor).max().orElse(0);
-        float alto = inicio - top + Math.max(1, barras.size()) * 28 + 6;
+        float alto = inicio - top + (filas - 1) * paso + 22 + 15;
         tarjeta(h, x, top, ancho, alto, titulo, subtitulo);
         float y = inicio;
         if (barras.isEmpty()) {
@@ -260,8 +290,9 @@ public final class InformePdfUtil {
         }
         for (Barra b : barras) {
             Color color = b.seleccionada() ? colorSeleccionada : colorResto;
-            y += fila(h, x + 15, y, ancho - 30, b.etiqueta() + (b.seleccionada() ? marca : ""), derecha.apply(b.valor()), b.valor(), maximo, color,
+            fila(h, x + 15, y, ancho - 30, b.etiqueta() + (b.seleccionada() ? marca : ""), derecha.apply(b.valor()), b.valor(), maximo, color,
                     interno.apply(b.valor()), Color.WHITE, b.seleccionada());
+            y += paso;
         }
         return top + alto;
     }
@@ -286,10 +317,10 @@ public final class InformePdfUtil {
     }
 
     /** Dibuja una sección con un gráfico de líneas de evolución. Devuelve la posición donde termina. */
-    private static float tarjetaEvolucion(Hoja h, float top, String titulo, String subtitulo, Evolucion evolucion, boolean dinero) {
-        float alto = 190;
+    private static float tarjetaEvolucion(Hoja h, float top, float hasta, String titulo, String subtitulo, Evolucion evolucion, boolean dinero) {
+        float alto = Math.min(hasta - top, 330);
         float inicio = tarjeta(h, MARGEN, top, ANCHO, alto, titulo, subtitulo);
-        lineas(h, MARGEN + 15, inicio + 4, ANCHO - 30, top + alto - inicio - 14, evolucion, dinero);
+        lineas(h, MARGEN + 15, inicio + 4, ANCHO - 30, top + alto - inicio - 4 - 15, evolucion, dinero);
         return top + alto;
     }
 
@@ -404,7 +435,7 @@ public final class InformePdfUtil {
         for (int i = 0; i < valores.length; i++) {
             colores[i] = PALETA_TORTA[i % PALETA_TORTA.length];
         }
-        float radio = 44;
+        float radio = RADIO_TORTA;
         float cx = x + ancho / 2;
         float cy = top + radio + 6;
         sectores(h, cx, h.y(cy), radio, valores, colores);

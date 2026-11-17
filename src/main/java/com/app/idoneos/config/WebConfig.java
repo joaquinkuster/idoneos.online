@@ -49,6 +49,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/perfiles/**")
                 .addResourceLocations(carpetaPerfiles.endsWith("/") ? carpetaPerfiles : carpetaPerfiles + "/")
                 .setCacheControl(semana);
+        String carpetaInstitucion = directorioCursos.resolve("institucion").toUri().toString();
+        registry.addResourceHandler("/uploads/institucion/**")
+                .addResourceLocations(carpetaInstitucion.endsWith("/") ? carpetaInstitucion : carpetaInstitucion + "/")
+                .setCacheControl(semana);
         String carpeta = directorioCursos.resolve("portadas").toUri().toString();
         registry.addResourceHandler("/uploads/portadas/*")
                 .addResourceLocations(carpeta.endsWith("/") ? carpeta : carpeta + "/")

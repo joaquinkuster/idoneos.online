@@ -2,6 +2,11 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <style>
+        /* Selector de archivo del logo: el botón nativo queda alineado con el texto y con la altura de los demás campos */
+        input[type="file"].pn-input { display: flex; align-items: center; height: auto; min-height: 42px; padding: 6px 10px; line-height: 1.4; }
+        input[type="file"].pn-input::file-selector-button { margin: 0 12px 0 0; padding: 6px 14px; border: 1px solid var(--pn-borde-input); border-radius: 6px; background: #F1F5F9; color: var(--pn-texto); font-size: 13px; font-weight: 600; cursor: pointer; }
+    </style>
 </head>
 <body class="pn-body">
 <div class="pn-app" id="pnApp">
@@ -11,6 +16,8 @@
         <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
+            <th:block th:replace="~{fragments/layout/breadcrumb :: panel('Configuración', 'Parámetros')}"></th:block>
+
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Parámetros</h1>
@@ -18,33 +25,67 @@
                 </div>
             </div>
 
-            <form th:action="@{/configuracion/modificar}" method="post" class="form-ajax" data-validar novalidate>
-                <section class="pn-card mb-4" style="padding: 24px;" th:each="seccion : ${secciones}">
+            <form th:action="@{/configuracion/modificar}" method="post" enctype="multipart/form-data" class="form-ajax" data-validar novalidate>
+                <!-- Cada sección usa el mismo diseño que los pasos de los formularios de las ventanas -->
+                <section class="pn-card mb-4" th:each="seccion : ${secciones}">
+                  <div class="pn-modal-cuerpo" style="padding: 36px 40px 40px;">
                     <div class="pn-seccion-titulo">
                         <h4 th:text="${seccion.titulo}">Sección</h4>
                         <p th:text="${seccion.descripcion}">Descripción</p>
                     </div>
                     <div class="row g-3">
                         <div class="col-md-6 pn-campo" th:each="p : ${seccion.parametros}">
-                            <label class="pn-etiqueta">
-                                <span th:text="${p.etiqueta}">Parámetro</span>
-                                <span class="pn-obligatorio" th:if="${p.obligatorio}">*</span>
-                                <span class="text-muted" th:if="${!#strings.isEmpty(p.unidad)}" th:text="${'(' + p.unidad + ')'}">(minutos)</span>
-                            </label>
                             <th:block th:switch="${p.tipo.name()}">
-                                <input th:case="'ENTERO'" type="number" th:name="${p.clave}" class="pn-input" step="1" th:min="${p.minimo}" th:max="${p.maximo}"
-                                       th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
-                                <input th:case="'SECRETO'" type="password" th:name="${p.clave}" class="pn-input" autocomplete="new-password" th:maxlength="${p.largo}"
-                                       th:placeholder="${cargados.contains(p.clave) ? '••••••••  (cargado: dejalo vacío para conservarlo)' : 'Sin cargar'}">
-                                <input th:case="'CORREO'" type="email" th:name="${p.clave}" class="pn-input" th:maxlength="${p.largo}"
-                                       th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
-                                <input th:case="*" type="text" th:name="${p.clave}" class="pn-input" th:maxlength="${p.largo}"
-                                       th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
+                                <!-- Números: etiqueta con su unidad -->
+                                <th:block th:case="'ENTERO'">
+                                    <label class="pn-etiqueta">
+                                        <th:block th:text="${p.etiqueta + (#strings.isEmpty(p.unidad) ? '' : ' (' + p.unidad + ')')}">Parámetro (minutos)</th:block>
+                                        <span class="pn-obligatorio" th:if="${p.obligatorio}">*</span>
+                                        <i class="fa-solid fa-circle-info pn-info" th:if="${!#strings.isEmpty(p.ayuda)}" th:title="${p.ayuda}"></i>
+                                    </label>
+                                    <input type="number" th:name="${p.clave}" class="pn-input" step="1" th:min="${p.minimo}" th:max="${p.maximo}"
+                                           th:placeholder="${'De ' + p.minimo + ' a ' + p.maximo}" th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
+                                </th:block>
+                                <!-- Logo: vista previa de la imagen cargada y de la que se elige -->
+                                <th:block th:case="'IMAGEN'">
+                                    <label class="pn-etiqueta">
+                                        <th:block th:text="${p.etiqueta}">Logo</th:block>
+                                        <i class="fa-solid fa-circle-info pn-info" th:if="${!#strings.isEmpty(p.ayuda)}" th:title="${p.ayuda}"></i>
+                                    </label>
+                                    <div style="margin-bottom: 12px;">
+                                        <img class="pn-vista-previa" th:classappend="${#strings.isEmpty(valores[p.clave])} ? 'd-none'"
+                                             th:src="${!#strings.isEmpty(valores[p.clave])} ? @{${valores[p.clave]}}" th:attr="data-original=${valores[p.clave]}"
+                                             alt="Logo de la institución" style="max-height: 96px; max-width: 100%; object-fit: contain;">
+                                    </div>
+                                    <input type="file" name="logoArchivo" class="pn-input imagen-curso" accept="image/jpeg,image/png,image/webp" data-comprimir-imagen>
+                                </th:block>
+                                <!-- Secretos: nunca se muestran, se dejan vacíos para conservar el valor -->
+                                <th:block th:case="'SECRETO'">
+                                    <label class="pn-etiqueta">
+                                        <th:block th:text="${p.etiqueta}">Secreto</th:block>
+                                        <i class="fa-solid fa-circle-info pn-info" th:title="${'Se guarda cifrado. Dejalo vacío para conservar el valor actual.' + (#strings.isEmpty(p.ayuda) ? '' : ' ' + p.ayuda)}"></i>
+                                    </label>
+                                    <input type="password" th:name="${p.clave}" class="pn-input" autocomplete="new-password" th:maxlength="${p.largo}"
+                                           th:placeholder="${cargados.contains(p.clave) ? '••••••••  (cargado)' : 'Sin cargar'}">
+                                </th:block>
+                                <!-- Textos y correos: etiqueta con el contador de caracteres -->
+                                <th:block th:case="*">
+                                    <div class="pn-etiqueta-fila">
+                                        <label class="pn-etiqueta">
+                                            <th:block th:text="${p.etiqueta}">Parámetro</th:block>
+                                            <span class="pn-obligatorio" th:if="${p.obligatorio}">*</span>
+                                            <i class="fa-solid fa-circle-info pn-info" th:if="${!#strings.isEmpty(p.ayuda)}" th:title="${p.ayuda}"></i>
+                                        </label>
+                                        <span class="pn-contador" th:text="${(valores[p.clave] != null ? #strings.length(valores[p.clave]) : 0) + ' / ' + p.largo}">0 / 50</span>
+                                    </div>
+                                    <input th:type="${p.tipo.name() == 'CORREO' ? 'email' : 'text'}" th:name="${p.clave}" class="pn-input" th:maxlength="${p.largo}"
+                                           th:placeholder="${p.etiqueta}" th:value="${valores[p.clave]}" data-contador th:required="${p.obligatorio}">
+                                </th:block>
                             </th:block>
-                            <small class="text-muted" th:if="${!#strings.isEmpty(p.ayuda)}" th:text="${p.ayuda}">Ayuda</small>
                             <div class="pn-ayuda-error"></div>
                         </div>
                     </div>
+                  </div>
                 </section>
 
                 <div class="d-flex justify-content-end mb-4">

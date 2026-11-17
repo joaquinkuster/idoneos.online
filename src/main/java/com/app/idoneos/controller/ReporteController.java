@@ -1,6 +1,5 @@
 package com.app.idoneos.controller;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -83,10 +82,12 @@ public class ReporteController {
             Usuario actor = (Usuario) authentication.getPrincipal();
             byte[] pdf = reporteService.generarInforme(actor.getAdministrador(), tipo, idCurso, desde, hasta);
             Curso curso = cursoService.buscarPorId(idCurso).orElseThrow();
+            // El nombre va en ASCII (sin tildes): así el navegador lo muestra tal cual en la pestaña donde abre el PDF
+            String sinTildes = java.text.Normalizer.normalize(curso.getNombre(), java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
             String nombre = (TipoReporte.INFORME_ALUMNOS.equals(tipo) ? "informe-alumnos-" : "informe-ingresos-")
-                    + curso.getNombre().toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", "") + "-" + LocalDate.now() + ".pdf";
+                    + sinTildes.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("(^-|-$)", "") + "-" + LocalDate.now() + ".pdf";
             return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
-                    .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(nombre, StandardCharsets.UTF_8).build().toString())
+                    .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.inline().filename(nombre).build().toString())
                     .body(pdf);
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);

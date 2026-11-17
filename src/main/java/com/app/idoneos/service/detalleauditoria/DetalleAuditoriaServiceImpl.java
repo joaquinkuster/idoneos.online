@@ -31,6 +31,16 @@ public class DetalleAuditoriaServiceImpl implements DetalleAuditoriaService {
         return detalleAuditoriaRepository.findByAuditoriaOrderByCampo(auditoria);
     }
 
+    /** Obtiene, en una sola consulta, los campos afectados por varias acciones auditadas. */
+    @Override
+    public java.util.Map<Integer, List<DetalleAuditoria>> buscarPorAuditorias(java.util.Collection<com.app.idoneos.model.Auditoria> auditorias) {
+        if (auditorias.isEmpty()) {
+            return java.util.Map.of();
+        }
+        return detalleAuditoriaRepository.findByAuditoriaInOrderByCampo(auditorias).stream()
+                .collect(java.util.stream.Collectors.groupingBy(d -> d.getAuditoria().getIdAuditoria()));
+    }
+
     /** Obtiene todos los registros. */
     @Override
     public List<DetalleAuditoria> obtenerTodo() {

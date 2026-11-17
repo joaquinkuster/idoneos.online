@@ -11,6 +11,8 @@
         <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
+            <th:block th:replace="~{fragments/layout/breadcrumb :: panel('Configuración', 'Auditoría')}"></th:block>
+
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Auditoría</h1>
@@ -45,7 +47,8 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="a : ${registros}" data-fila
+                            <th:block th:each="a : ${registros}">
+                            <tr data-fila
                                 th:data-o-fecha="${#temporals.format(a.fechaHora, 'yyyyMMddHHmmss') + #numbers.formatInteger(a.idAuditoria, 10, 'NONE')}"
                                 th:data-o-registro="${#numbers.formatInteger(a.idRegistro, 10, 'NONE')}">
                                 <td th:text="${#temporals.format(a.fechaHora, 'dd/MM/yyyy HH:mm:ss')}">16/11/2026 09:12:30</td>
@@ -59,15 +62,45 @@
                                           th:text="${a.tipoAuditoria.nombre}">Crear</span>
                                 </td>
                                 <td th:text="${entidades[a.idAuditoria]}">Pago</td>
-                                <td th:text="${'#' + a.idRegistro}">#12</td>
+                                <td th:text="${'ID. ' + a.idRegistro}">ID. 12</td>
                                 <td th:text="${a.ipUsuario}">190.12.3.4</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" th:data-bs-target="'#modalDetalleAuditoria' + ${a.idAuditoria}"
-                                                th:data-modal-url="@{'/auditoria/detalle/' + ${a.idAuditoria}}">Ver detalle</button>
+                                        <button type="button" class="pn-btn pn-btn-ver pn-btn-chico"
+                                                th:data-progreso-detalle="${'detalleAuditoria' + a.idAuditoria}" aria-expanded="false"
+                                                th:attr="aria-controls=${'detalleAuditoria' + a.idAuditoria}">Ver detalle</button>
                                     </div>
                                 </td>
                             </tr>
+                            <!-- Detalle de los campos afectados: se despliega debajo de la fila -->
+                            <tr class="pn-fila-detalle" th:id="${'detalleAuditoria' + a.idAuditoria}">
+                                <td colspan="7">
+                                    <div class="pn-detalle">
+                                        <div class="pn-detalle-interior">
+                                            <table class="pn-tabla pn-tabla-anidada">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Campo</th>
+                                                        <th>Valor anterior</th>
+                                                        <th>Valor nuevo</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr th:each="d : ${detalles.get(a.idAuditoria)}">
+                                                        <td th:text="${d.campo}">estado</td>
+                                                        <td><span class="pn-truncar pn-truncar-largo" th:text="${d.valorAnterior != null ? d.valorAnterior : '—'}" th:title="${d.valorAnterior}">Pendiente</span></td>
+                                                        <td><span class="pn-truncar pn-truncar-largo" th:text="${#strings.isEmpty(d.valorNuevo) ? '—' : d.valorNuevo}" th:title="${d.valorNuevo}">Aprobado</span></td>
+                                                    </tr>
+                                                    <tr th:if="${detalles.get(a.idAuditoria) == null}">
+                                                        <td colspan="3" class="text-center">La acción no tiene datos de detalle.</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-clipboard-list', 'No se encontraron acciones', 'Ninguna acción coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
@@ -96,5 +129,6 @@
 </div>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/pages/progreso/progreso.js}"></script>
 </body>
 </html>

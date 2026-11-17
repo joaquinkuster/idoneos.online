@@ -11,6 +11,8 @@
         <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido">
+            <th:block th:replace="~{fragments/layout/breadcrumb :: panel('Reportes y Estadísticas', 'Reportes')}"></th:block>
+
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Reportes</h1>
@@ -85,7 +87,7 @@
     </div>
 </div>
 
-<!-- Ventana para generar un informe: el PDF se descarga al generarlo -->
+<!-- Ventana para generar un informe: el PDF se abre en una pestaña nueva -->
 <div class="modal fade pn-modal" id="modalGenerarInforme" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -94,9 +96,19 @@
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/reporte/generar}" method="post" id="formGenerarInforme" novalidate>
-                    <div class="row g-3">
-                        <div class="col-md-6 pn-campo">
+                <form th:action="@{/reporte/generar}" method="post" id="formGenerarInforme" data-validar data-pasos data-resumen="Informe" data-modo="alta" novalidate>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Informe</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Período</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Informe">
+        <div class="pn-seccion-titulo">
+            <h4>Datos del informe</h4>
+            <p>Tipo de informe y curso sobre el que se informa</p>
+        </div>
+        <div class="row g-3">
+<div class="col-12 pn-campo">
                             <label class="pn-etiqueta">Tipo de informe <span class="pn-obligatorio">*</span></label>
                             <select name="tipo" class="pn-input" required>
                                 <option value="">Tipo de informe</option>
@@ -105,7 +117,7 @@
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+<div class="col-12 pn-campo">
                             <label class="pn-etiqueta">Curso <span class="pn-obligatorio">*</span></label>
                             <select name="cursoId" class="pn-input" data-buscable required>
                                 <option value="">Curso</option>
@@ -113,22 +125,40 @@
                             </select>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Período">
+        <div class="pn-seccion-titulo">
+            <h4>Período</h4>
+            <p>Rango de fechas que abarca el informe</p>
+        </div>
+        <div class="row g-3">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Desde <span class="pn-obligatorio">*</span></label>
                             <input type="date" name="desde" class="pn-input" th:value="${#temporals.format(inicioMes, 'yyyy-MM-dd')}" th:max="${#temporals.format(hoy, 'yyyy-MM-dd')}" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                        <div class="col-md-6 pn-campo">
+<div class="col-md-6 pn-campo">
                             <label class="pn-etiqueta">Hasta <span class="pn-obligatorio">*</span></label>
                             <input type="date" name="hasta" class="pn-input" th:value="${#temporals.format(hoy, 'yyyy-MM-dd')}" th:max="${#temporals.format(hoy, 'yyyy-MM-dd')}" required>
                             <div class="pn-ayuda-error"></div>
                         </div>
-                    </div>
-                    <div class="pn-modal-pie">
-                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="pn-btn pn-btn-primario" id="btnGenerarInforme">Generar y descargar</button>
-                    </div>
-                </form>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de generar el informe</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" id="btnGenerarInforme" data-paso-guardar>Confirmar y generar</button>
+    </div>
+</form>
             </div>
         </div>
     </div>

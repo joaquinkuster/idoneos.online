@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.app.idoneos.model.Auditoria;
@@ -45,23 +44,13 @@ public class AuditoriaController {
         Map<Integer, String> entidades = new HashMap<>();
         pagina.filas().forEach(a -> entidades.put(a.getIdAuditoria(), legible(a.getEntidadAfectada())));
         model.addAttribute("entidades", entidades);
+        model.addAttribute("detalles", detalleAuditoriaService.buscarPorAuditorias(pagina.filas()));
         if (PaginacionUtil.pideSoloFilas(request)) {
             return "pages/auditoria/buscar :: filas"; // solo las filas de la página pedida
         }
         model.addAttribute("titulo", "Auditoría | Idóneos Online");
         model.addAttribute("menuActivo", "auditoria");
         return "pages/auditoria/buscar";
-    }
-
-    /** GET /auditoria/detalle/{id}: Ventana con los campos afectados por una acción, con su valor anterior y su valor nuevo. */
-    @GetMapping("/detalle/{id}")
-    public String detalle(@PathVariable("id") Integer id, Model model) {
-        Auditoria auditoria = auditoriaService.buscarPorId(id)
-                .orElseThrow(() -> new IllegalArgumentException("Error! El registro de auditoría no se encuentra disponible."));
-        model.addAttribute("a", auditoria);
-        model.addAttribute("entidad", legible(auditoria.getEntidadAfectada()));
-        model.addAttribute("detalles", detalleAuditoriaService.buscarPorAuditoria(auditoria));
-        return "pages/auditoria/detalle :: modal(a=${a})";
     }
 
     /** Pasa el nombre de la entidad (por ejemplo TemaRecurso) a como se lee (Tema recurso). */

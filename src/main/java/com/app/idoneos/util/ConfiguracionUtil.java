@@ -12,7 +12,7 @@ public final class ConfiguracionUtil {
 
     /** Tipo de dato de un parámetro. */
     public enum Tipo {
-        ENTERO, DECIMAL, TEXTO, CORREO, SECRETO
+        ENTERO, DECIMAL, TEXTO, CORREO, SECRETO, IMAGEN
     }
 
     /**
@@ -58,7 +58,7 @@ public final class ConfiguracionUtil {
                     texto(Parametro.INSTITUCION_RAZON_SOCIAL, "Razón social", "", 100, true),
                     texto(Parametro.INSTITUCION_CUIT, "CUIT", "Con el formato 30-12345678-9.", 13, true),
                     texto(Parametro.INSTITUCION_DOMICILIO, "Domicilio", "", 150, true),
-                    texto(Parametro.INSTITUCION_LOGO, "Logo", "Dirección de la imagen (por ejemplo /img/logos/image.png).", 255, true),
+                    new Definicion(Parametro.INSTITUCION_LOGO, "Logo", "JPG, PNG o WebP, hasta 2 MB.", Tipo.IMAGEN, "", 0, 0, 255, false),
                     new Definicion(Parametro.INSTITUCION_EMAIL, "Correo de contacto", "", Tipo.CORREO, "", 0, 0, 100, true),
                     texto(Parametro.INSTITUCION_TELEFONO, "Teléfono de contacto", "", 30, true),
                     texto(Parametro.CBU_INSTITUCION, "CBU bancario", "Cuenta que reciben los alumnos para pagar por transferencia (22 dígitos).", 22, true))),

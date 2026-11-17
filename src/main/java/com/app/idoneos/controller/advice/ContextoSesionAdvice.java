@@ -28,6 +28,15 @@ public class ContextoSesionAdvice {
     @Autowired
     private com.app.idoneos.service.notificacion.NotificacionService notificacionService;
 
+    @Autowired
+    private com.app.idoneos.service.institucion.InstitucionService institucionService;
+
+    /** Agrega los datos institucionales (logo, razón social, contacto) que muestran el navbar y el pie de todas las pantallas. */
+    @ModelAttribute("institucion")
+    public com.app.idoneos.service.institucion.InstitucionService.Institucion agregarInstitucion() {
+        return institucionService.obtener();
+    }
+
     /** Agrega el mensaje guardado en la sesión, si lo hay, por ejemplo el de inicio de sesión exitoso. */
     @ModelAttribute
     public void agregarMensajeDeSesion(HttpServletRequest request, Model model) {

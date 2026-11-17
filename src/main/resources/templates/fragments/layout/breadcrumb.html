@@ -1,3 +1,14 @@
+<!-- Ruta de navegación de las vistas del panel del administrador, igual que la del panel del curso. grupo: grupo del menú lateral (opcional). Actual. -->
+<nav th:fragment="panel(grupo, actual)" class="ac-migas" aria-label="Ruta de navegación">
+    <a th:href="@{/inicio}">Página principal</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <th:block th:if="${grupo != null}">
+        <span th:text="${grupo}">Grupo</span>
+        <i class="fa-solid fa-chevron-right"></i>
+    </th:block>
+    <strong th:text="${actual}">Vista</strong>
+</nav>
+
 <!-- Ruta de navegación (breadcrumb), debajo del banner. padre/urlPadre: nivel intermedio opcional. Actual. -->
 <div th:fragment="migas(padre, urlPadre, actual)" class="wf-migas-barra">
     <nav class="wf-migas" aria-label="Ruta de navegación">

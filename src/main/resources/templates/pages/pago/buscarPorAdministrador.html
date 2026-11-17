@@ -11,6 +11,8 @@
         <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
 
         <main class="pn-contenido" th:attr="data-abrir-modal=${registrarPara != null ? 'modalRegistrarPago' : null}">
+            <th:block th:replace="~{fragments/layout/breadcrumb :: panel('Inscripciones', 'Pagos')}"></th:block>
+
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Pagos</h1>

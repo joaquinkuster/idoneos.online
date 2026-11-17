@@ -3,8 +3,9 @@
     <div class="sf-footer-contenido">
         <div class="sf-footer-marca">
             <a th:href="@{/inicio}" class="sf-footer-logo">
-                <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
-                <span><span class="sf-footer-serif">Idóneos</span> <b>Online</b> S.A.S.</span>
+                <img th:src="@{${institucion != null ? institucion.logo : '/img/logos/image.png'}}" src="/img/logos/image.png" alt="Logo">
+                <span th:if="${institucion != null}"><span class="sf-footer-serif" th:text="${institucion.nombreSerif}">Idóneos</span> <b th:text="${institucion.razonSocial.substring(institucion.nombreSerif.length()).trim()}">Online S.A.S.</b></span>
+                <span th:unless="${institucion != null}"><span class="sf-footer-serif">Idóneos</span> <b>Online</b> S.A.S.</span>
             </a>
             <p>Plataforma de educación financiera, economía y mercado de capitales.</p>
             <a href="https://www.instagram.com/idoneos.online/" target="_blank" rel="noopener noreferrer" class="sf-footer-red" aria-label="Instagram de Idóneos Online">
@@ -19,12 +20,16 @@
         </div>
         <div class="sf-footer-columna">
             <h6>Institucional</h6>
+            <p th:if="${institucion != null and !#strings.isEmpty(institucion.domicilio)}" th:text="${institucion.domicilio}">Domicilio</p>
+            <p th:if="${institucion != null and !#strings.isEmpty(institucion.email)}" th:text="${institucion.email}">contacto@idoneos.online</p>
+            <p th:if="${institucion != null and !#strings.isEmpty(institucion.telefono)}" th:text="${institucion.telefono}">Teléfono</p>
+            <p th:if="${institucion != null and !#strings.isEmpty(institucion.cuit)}" th:text="${'CUIT ' + institucion.cuit}">CUIT</p>
             <p>FCEQyN - UNaM</p>
             <p>Proyecto Software (LSI) / Trabajo Final (ASI)</p>
         </div>
     </div>
     <div class="sf-footer-pie">
-        <span>© 2026 Idóneos Online S.A.S.</span>
+        <span th:text="${'© 2026 ' + (institucion != null ? institucion.razonSocial : 'Idóneos Online S.A.S.')}">© 2026 Idóneos Online S.A.S.</span>
         <span>Desarrollado por Küster y Martinez.</span>
     </div>
 </footer>

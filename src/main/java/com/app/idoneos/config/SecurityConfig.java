@@ -74,7 +74,7 @@ public class SecurityConfig {
                                 // Portada de cada curso: el resto de las carpetas no es público
                                 "/uploads/portadas/*",
                                 // Fotos de perfil, que se ven en el menú y en las listas de participantes
-                                "/uploads/perfiles/**")
+                                "/uploads/perfiles/**", "/uploads/institucion/**")
                         .permitAll()
                         // buscar, registrar y modificar inscripciones (Administrador). Corregir
                         // los datos del certificado (Administrador). Dar de baja (Alumno la suya, Administrador)

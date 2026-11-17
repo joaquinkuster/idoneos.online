@@ -18,4 +18,12 @@ public interface DetalleAuditoriaService extends CrudService<DetalleAuditoria, I
      */
     java.util.List<DetalleAuditoria> buscarPorAuditoria(com.app.idoneos.model.Auditoria auditoria);
 
+    /**
+     * Obtiene, en una sola consulta, los campos afectados por varias acciones auditadas.
+     *
+     * @param auditorias las acciones auditadas
+     * @return los detalles agrupados por identificador de auditoría, en orden alfabético de campo
+     */
+    java.util.Map<Integer, java.util.List<DetalleAuditoria>> buscarPorAuditorias(java.util.Collection<com.app.idoneos.model.Auditoria> auditorias);
+
 }
