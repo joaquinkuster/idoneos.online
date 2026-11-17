@@ -86,7 +86,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el administrador ve el listado con sus filtros, estados, certificados y ventanas")
+    @DisplayName("CU-52: el administrador ve el listado con sus filtros, estados, certificados y ventanas")
     void buscarComoAdministrador() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/inscripcion/buscarPorAdministrador"))
@@ -105,7 +105,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el menú lateral del administrador tiene el enlace a Inscripciones")
+    @DisplayName("CU-52: el menú lateral del administrador tiene el enlace a Inscripciones")
     void menuConInscripciones() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(content().string(containsString("/inscripcion/buscar")))
                 .andExpect(content().string(containsString("Inscripciones")));
@@ -113,7 +113,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el alumno ve en /inscripcion/buscar solo sus cursos, no el listado de todas las inscripciones")
+    @DisplayName("CU-52: el alumno ve en /inscripcion/buscar solo sus cursos, no el listado de todas las inscripciones")
     void alumnoNoVeElListadoDelAdministrador() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.view().name("pages/inscripcion/buscarPorAlumno"));
@@ -121,14 +121,14 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = DOCENTE, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el docente no accede al listado de inscripciones")
+    @DisplayName("CU-52: el docente no accede al listado de inscripciones")
     void docenteNoVeElListado() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el alumno ve el estado de acceso de cada inscripción y no puede entrar a las que no están vigentes")
+    @DisplayName("CU-52: el alumno ve el estado de acceso de cada inscripción y no puede entrar a las que no están vigentes")
     void misCursosConEstadosDeAcceso() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Pendiente de pago")))
@@ -140,7 +140,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el alumno con acceso vigente ve el botón para acceder al curso")
+    @DisplayName("CU-52: el alumno con acceso vigente ve el botón para acceder al curso")
     void misCursosConAccesoVigente() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Acceder al curso")));
@@ -148,7 +148,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-44: el alumno con el acceso vencido ve su inscripción bloqueada")
+    @DisplayName("CU-52: el alumno con el acceso vencido ve su inscripción bloqueada")
     void accesoVencido() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Acceso vencido")));
@@ -160,7 +160,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: el alumno se inscribe a un curso gratuito y se lo lleva a Mis cursos")
+    @DisplayName("CU-53: el alumno se inscribe a un curso gratuito y se lo lleva a Mis cursos")
     void inscribirseGratis() throws Exception {
         Cohorte cohorte = cohorteAbierta("Macroeconomía de Coyuntura");
 
@@ -175,7 +175,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: al inscribirse a un curso con costo no hay alerta de éxito: se va directo a la caja")
+    @DisplayName("CU-53: al inscribirse a un curso con costo no hay alerta de éxito: se va directo a la caja")
     void inscribirseConCosto() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
 
@@ -188,7 +188,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: sin aceptar los términos y condiciones no se inscribe")
+    @DisplayName("CU-53: sin aceptar los términos y condiciones no se inscribe")
     void inscribirseSinTerminos() throws Exception {
         Cohorte cohorte = cohorteAbierta("Macroeconomía de Coyuntura");
 
@@ -201,7 +201,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: no se inscribe dos veces a la misma cohorte")
+    @DisplayName("CU-53: no se inscribe dos veces a la misma cohorte")
     void inscribirseDosVeces() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
 
@@ -213,7 +213,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = DOCENTE, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: solo los alumnos se inscriben")
+    @DisplayName("CU-53: solo los alumnos se inscriben")
     void soloLosAlumnosSeInscriben() throws Exception {
         mockMvc.perform(post("/inscripcion/inscribir").param("cohorteId", "1").param("terminos", "true"))
                 .andExpect(status().isForbidden());
@@ -221,14 +221,14 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: el administrador tampoco se inscribe: registra la inscripción de un alumno (CU-46)")
+    @DisplayName("CU-53: el administrador tampoco se inscribe: registra la inscripción de un alumno (CU-54)")
     void elAdministradorNoSeInscribe() throws Exception {
         mockMvc.perform(post("/inscripcion/inscribir").param("cohorteId", "1").param("terminos", "true"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    @DisplayName("CU-45: en la ficha, el visitante ve un enlace para ingresar y no el botón de inscripción")
+    @DisplayName("CU-53: en la ficha, el visitante ve un enlace para ingresar y no el botón de inscripción")
     void fichaParaElVisitante() throws Exception {
         Integer idCurso = cursoService.buscarPorNombre("Macroeconomía de Coyuntura").orElseThrow().getIdCurso();
 
@@ -239,7 +239,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: en la ficha, el alumno ve el botón y la ventana para inscribirse con los términos")
+    @DisplayName("CU-53: en la ficha, el alumno ve el botón y la ventana para inscribirse con los términos")
     void fichaParaElAlumno() throws Exception {
         Integer idCurso = cursoService.buscarPorNombre("Finanzas Personales e Inversión").orElseThrow().getIdCurso();
 
@@ -252,7 +252,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = DOCENTE, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-45: en la ficha, quien no es alumno ve que solo los alumnos se inscriben")
+    @DisplayName("CU-53: en la ficha, quien no es alumno ve que solo los alumnos se inscriben")
     void fichaParaElDocente() throws Exception {
         Integer idCurso = cursoService.buscarPorNombre("Macroeconomía de Coyuntura").orElseThrow().getIdCurso();
 
@@ -267,7 +267,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-46: el administrador registra la inscripción de un alumno")
+    @DisplayName("CU-54: el administrador registra la inscripción de un alumno")
     void registrar() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
         Integer idAlumno = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA).getAlumno().getIdAlumno();
@@ -280,7 +280,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-46: pide el alumno y la confirmación de los términos")
+    @DisplayName("CU-54: pide el alumno y la confirmación de los términos")
     void registrarIncompleto() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
 
@@ -291,7 +291,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-46: el alumno no registra inscripciones de otros")
+    @DisplayName("CU-54: el alumno no registra inscripciones de otros")
     void alumnoNoRegistra() throws Exception {
         mockMvc.perform(post("/inscripcion/registrar").param("alumnoId", "1").param("cohorteId", "1")
                 .param("terminos", "true")).andExpect(status().isForbidden());
@@ -303,7 +303,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-47: el administrador modifica una inscripción")
+    @DisplayName("CU-55: el administrador modifica una inscripción")
     void modificar() throws Exception {
         Inscripcion pendiente = inscripcion(LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO);
         // Mientras está pendiente de pago no tiene vencimiento: se calcula cuando se habilita
@@ -322,7 +322,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-47: el administrador suspende el acceso de una inscripción habilitada y lo reactiva")
+    @DisplayName("CU-55: el administrador suspende el acceso de una inscripción habilitada y lo reactiva")
     void suspenderYReactivar() throws Exception {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -339,7 +339,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-47: el vencimiento no se modifica, aunque se envíe una fecha")
+    @DisplayName("CU-55: el vencimiento no se modifica, aunque se envíe una fecha")
     void elVencimientoNoSeModifica() throws Exception {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -354,7 +354,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-47: el alumno no modifica inscripciones")
+    @DisplayName("CU-55: el alumno no modifica inscripciones")
     void alumnoNoModifica() throws Exception {
         mockMvc.perform(post("/inscripcion/modificar/1").param("vencimiento", LocalDate.now().plusYears(1).toString()))
                 .andExpect(status().isForbidden());
@@ -366,7 +366,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-48: el administrador corrige el nombre y el DNI de un certificado")
+    @DisplayName("CU-56: el administrador corrige el nombre y el DNI de un certificado")
     void corregirCertificado() throws Exception {
         var certificado = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente();
 
@@ -380,7 +380,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-48: rechaza un DNI inválido")
+    @DisplayName("CU-56: rechaza un DNI inválido")
     void corregirCertificadoConDniInvalido() throws Exception {
         var certificado = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente();
 
@@ -392,7 +392,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-48: el alumno no corrige certificados")
+    @DisplayName("CU-56: el alumno no corrige certificados")
     void alumnoNoCorrigeCertificados() throws Exception {
         mockMvc.perform(post("/certificado/corregir/1").param("nombre", "X").param("dni", "12345678"))
                 .andExpect(status().isForbidden());
@@ -404,7 +404,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-49: el alumno se da de baja de su inscripción, con motivo")
+    @DisplayName("CU-57: el alumno se da de baja de su inscripción, con motivo")
     void alumnoSeDaDeBaja() throws Exception {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -418,7 +418,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-49: el alumno no da de baja la inscripción de otro")
+    @DisplayName("CU-57: el alumno no da de baja la inscripción de otro")
     void alumnoNoDaDeBajaLaAjena() throws Exception {
         Inscripcion deMartin = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -431,7 +431,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-49: el administrador da de baja cualquier inscripción")
+    @DisplayName("CU-57: el administrador da de baja cualquier inscripción")
     void administradorDaDeBaja() throws Exception {
         Inscripcion deMartin = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -443,7 +443,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-49: las pantallas del foro muestran de forma anónima la consulta de quien se dio de baja")
+    @DisplayName("CU-57: las pantallas del foro muestran de forma anónima la consulta de quien se dio de baja")
     void foroAnonimo() throws Exception {
         var consulta = consultaForoRepository.findAll().stream()
                 .filter(c -> c.getInscripcion().getAlumno().getUsuario().getCorreo().equals(VALENTINA)).findFirst().orElseThrow();
@@ -458,7 +458,7 @@ class InscripcionGestionControllerTest {
 
     @Test
     @WithUserDetails(value = DOCENTE, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-49: el docente no da de baja inscripciones")
+    @DisplayName("CU-57: el docente no da de baja inscripciones")
     void docenteNoDaDeBaja() throws Exception {
         mockMvc.perform(post("/inscripcion/darDeBaja/1")).andExpect(status().isForbidden());
     }

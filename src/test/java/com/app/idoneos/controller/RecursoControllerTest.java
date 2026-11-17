@@ -76,7 +76,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-28: el docente ve el material de su curso, incluido el oculto, con el selector de recursos")
+    @DisplayName("CU-36: el docente ve el recurso de su curso, incluido el oculto, con el selector de recursos")
     void docenteBuscaMaterial() throws Exception {
         mockMvc.perform(get("/recurso/buscar").param("cursoId", String.valueOf(idCursoPrincipal())))
                 .andExpect(status().isOk()).andExpect(view().name("pages/recurso/buscar"))
@@ -104,7 +104,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-28: el título que llega por la URL lo filtra el servidor")
+    @DisplayName("CU-36: el título que llega por la URL lo filtra el servidor")
     void filtraLaBusqueda() throws Exception {
         mockMvc.perform(get("/recurso/buscar").param("cursoId", String.valueOf(idCursoPrincipal()))
                 .param("titulo", "borrador"))
@@ -115,7 +115,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-29: con ?nuevo={tipo} la página abre sola el formulario de ese tipo en el tema elegido")
+    @DisplayName("CU-37: con ?nuevo={tipo} la página abre sola el formulario de ese tipo en el tema elegido")
     void abreElFormularioDelTipoElegido() throws Exception {
         String grabacion = "GRABACION";
         int tema = temaDeRentaFija().getIdTema();
@@ -134,7 +134,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-28: sin curso se avisa y se vuelve a Mis cursos")
+    @DisplayName("CU-36: sin curso se avisa y se vuelve a Mis cursos")
     void sinCurso() throws Exception {
         mockMvc.perform(get("/recurso/buscar")).andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/curso/buscar"))
@@ -143,7 +143,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-28: un docente no accede al material de un curso en el que no participa")
+    @DisplayName("CU-36: un docente no accede al recurso de un curso en el que no participa")
     void docenteAjenoAlCurso() throws Exception {
         mockMvc.perform(get("/recurso/buscar").param("cursoId", String.valueOf(idCurso("Macroeconomía de Coyuntura"))))
                 .andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/curso/buscar"))
@@ -152,7 +152,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El alumno no accede al ABM de materiales")
+    @DisplayName("El alumno no accede al ABM de recursos")
     void alumnoSinAcceso() throws Exception {
         mockMvc.perform(get("/recurso/buscar").param("cursoId", String.valueOf(idCursoPrincipal())))
                 .andExpect(status().isForbidden());
@@ -161,7 +161,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-28: el administrador busca el material de cualquier curso, pero no sube ni modifica")
+    @DisplayName("CU-36: el administrador busca el recurso de cualquier curso, pero no sube ni modifica")
     void administradorSoloBuscaYDaDeBaja() throws Exception {
         mockMvc.perform(get("/recurso/buscar").param("cursoId", String.valueOf(idCursoPrincipal())))
                 .andExpect(status().isOk())
@@ -177,7 +177,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-29: el docente sube una grabación y el formulario responde con el mensaje de éxito")
+    @DisplayName("CU-37: el docente sube una grabación y el formulario responde con el mensaje de éxito")
     void subeUnaGrabacion() throws Exception {
         long antes = materialRepository.count();
 
@@ -189,7 +189,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-29: un archivo que no corresponde al tipo se rechaza con el motivo y no se registra")
+    @DisplayName("CU-37: un archivo que no corresponde al tipo se rechaza con el motivo y no se registra")
     void rechazaUnArchivoInvalido() throws Exception {
         long antes = materialRepository.count();
 
@@ -203,7 +203,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-30: el docente modifica un material")
+    @DisplayName("CU-38: el docente modifica un recurso")
     void modificaUnMaterial() throws Exception {
         TemaRecurso material = materialRepository.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
@@ -218,7 +218,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-31: el docente da de baja un material y una baja masiva es todo o nada")
+    @DisplayName("CU-39: el docente da de baja un recurso y una baja masiva es todo o nada")
     void daDeBaja() throws Exception {
         TemaRecurso uno = materialRepository.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
@@ -241,7 +241,7 @@ class RecursoControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-31: el administrador puede dar de baja un material de cualquier curso")
+    @DisplayName("CU-39: el administrador puede dar de baja un recurso de cualquier curso")
     void administradorDaDeBaja() throws Exception {
         TemaRecurso material = materialRepository.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();

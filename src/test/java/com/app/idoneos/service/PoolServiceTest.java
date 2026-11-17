@@ -81,7 +81,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-61: crea un pool con sus preguntas y opciones de los tres tipos")
+    @DisplayName("CU-69: crea un pool con sus preguntas y opciones de los tres tipos")
     void crearPool() {
         Pool pool = poolService.registrar(fausto(), terceraDeMercado().getIdTema(), "  Opciones  ", List.of(
                 pregunta("Única", false, "*A", "B"), pregunta("Múltiple", true, "*A", "*B", "C"),
@@ -95,7 +95,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-61: rechaza un pool sin nombre, repetido, sin preguntas o con preguntas mal armadas")
+    @DisplayName("CU-69: rechaza un pool sin nombre, repetido, sin preguntas o con preguntas mal armadas")
     void validacionesDelAlta() {
         int tema = terceraDeMercado().getIdTema();
         assertError("nombre", () -> poolService.registrar(fausto(), tema, " ", dosPreguntas()));
@@ -115,7 +115,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-61: solo el docente que participa en el curso puede crear pools")
+    @DisplayName("CU-69: solo el docente que participa en el curso puede crear pools")
     void soloElDocenteDelCurso() {
         Tema macro = tema("Macroeconomía de Coyuntura", "Tipo de cambio");
         Docente sebastian = docente("sebastian.bordato@idoneos.online");
@@ -125,7 +125,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-62: modifica el nombre, edita, quita y agrega preguntas y opciones conservando lo que no cambió")
+    @DisplayName("CU-70: modifica el nombre, edita, quita y agrega preguntas y opciones conservando lo que no cambió")
     void modificar() {
         Pool pool = crear("Para modificar");
         Pregunta primera = pool.getPreguntasActivas().get(0);
@@ -151,7 +151,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-62: el contenido no puede modificarse si el pool tiene intentos asociados")
+    @DisplayName("CU-70: el contenido no puede modificarse si el pool tiene intentos asociados")
     void modificarConIntentos() {
         Pool marcoRegulatorio = pool("Marco regulatorio");
 
@@ -161,7 +161,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-62: el pool debe conservar las preguntas que necesita la autoevaluación que lo usa")
+    @DisplayName("CU-70: el pool debe conservar las preguntas que necesita la autoevaluación que lo usa")
     void modificarConAutoevaluacion() {
         Pool rentaFija = pool("Renta fija");
         assertEquals(6, rentaFija.getCantidadPreguntas());
@@ -183,7 +183,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-63: da de baja un pool sin autoevaluaciones y no el que usa una autoevaluación activa")
+    @DisplayName("CU-71: da de baja un pool sin autoevaluaciones y no el que usa una autoevaluación activa")
     void darDeBaja() {
         Pool libre = crear("Libre");
         poolService.darDeBaja(libre.getIdPool(), fausto());
@@ -210,7 +210,7 @@ class PoolServiceTest {
     }
 
     @Test
-    @DisplayName("CU-60: busca los pools de un curso por tema y nombre; los dados de baja van al final")
+    @DisplayName("CU-68: busca los pools de un curso por tema y nombre; los dados de baja van al final")
     void buscarPools() {
         int curso = terceraDeMercado().getCurso().getIdCurso();
         Pool nuevo = crear("Opciones de venta");

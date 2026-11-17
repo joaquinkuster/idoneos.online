@@ -29,7 +29,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-07: busca categorías por nombre y por estado")
+    @DisplayName("CU-09: busca categorías por nombre y por estado")
     void buscarCategorias() {
         assertEquals(1, categoriaService.buscarConFiltros("macro", null, "nombre").size());
         assertTrue(categoriaService.buscarConFiltros(null, true, "nombre").isEmpty());
@@ -37,7 +37,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-08: registra una categoría con su fecha de creación")
+    @DisplayName("CU-10: registra una categoría con su fecha de creación")
     void registrar() {
         Categoria categoria = categoriaService.registrar("  Bonos  ", "Renta fija");
 
@@ -47,19 +47,19 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-08: el nombre es obligatorio")
+    @DisplayName("CU-10: el nombre es obligatorio")
     void registrarCategoriaSinNombre() {
         assertThrows(IllegalArgumentException.class, () -> categoriaService.registrar("  ", null));
     }
 
     @Test
-    @DisplayName("CU-08: no admite otra categoría activa con el mismo nombre")
+    @DisplayName("CU-10: no admite otra categoría activa con el mismo nombre")
     void registrarCategoriaDuplicada() {
         assertThrows(IllegalArgumentException.class, () -> categoriaService.registrar("macroeconomía", null));
     }
 
     @Test
-    @DisplayName("CU-08: registrar una categoría con el nombre de una dada de baja la reactiva")
+    @DisplayName("CU-10: registrar una categoría con el nombre de una dada de baja la reactiva")
     void registrarCategoriaReactivaLaDadaDeBaja() {
         Categoria cripto = categoria("Criptoactivos");
         categoriaService.darDeBaja(cripto.getIdCategoria());
@@ -73,7 +73,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-09: modifica el nombre y la descripción de una categoría sin inscripciones")
+    @DisplayName("CU-11: modifica el nombre y la descripción de una categoría sin inscripciones")
     void modificar() {
         Categoria cripto = categoria("Criptoactivos");
 
@@ -84,7 +84,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-09: no modifica una categoría con inscripciones activas")
+    @DisplayName("CU-11: no modifica una categoría con inscripciones activas")
     void modificarCategoriaConInscripciones() {
         Categoria mercado = categoria("Mercado de Capitales");
         assertTrue(categoriaService.contarInscripcionesActivas(mercado) > 0);
@@ -94,7 +94,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-09: el nombre no puede quedar vacío ni coincidir con otra categoría activa")
+    @DisplayName("CU-11: el nombre no puede quedar vacío ni coincidir con otra categoría activa")
     void modificarCategoriaConNombreInvalido() {
         Categoria cripto = categoria("Criptoactivos");
 
@@ -105,7 +105,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-10: no da de baja una categoría con cursos activos")
+    @DisplayName("CU-12: no da de baja una categoría con cursos activos")
     void darDeBajaCategoriaConCursos() {
         Categoria macro = categoria("Macroeconomía");
 
@@ -113,7 +113,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-10: da de baja una categoría sin cursos activos")
+    @DisplayName("CU-12: da de baja una categoría sin cursos activos")
     void darDeBajaCategoriaSinCursos() {
         Categoria cripto = categoria("Criptoactivos");
 
@@ -123,7 +123,7 @@ class CategoriaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-07: ordena por nombre o por las más recientes, con las dadas de baja al final")
+    @DisplayName("CU-09: ordena por nombre o por las más recientes, con las dadas de baja al final")
     void ordenarCategorias() {
         categoriaService.darDeBaja(categoria("Criptoactivos").getIdCategoria());
 

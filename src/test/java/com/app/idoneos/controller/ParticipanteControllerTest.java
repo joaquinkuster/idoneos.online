@@ -48,7 +48,7 @@ class ParticipanteControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-25: el docente ve el equipo docente y los alumnos del curso, con filtros que se aplican en la pantalla")
+    @DisplayName("CU-29: el docente ve el equipo docente y los alumnos del curso, con filtros que se aplican en la pantalla")
     void docenteVeLosParticipantes() throws Exception {
         mockMvc.perform(get("/participante/buscar").param("cursoId", String.valueOf(cursoDeMercado())))
                 .andExpect(status().isOk())
@@ -70,7 +70,7 @@ class ParticipanteControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-25: el administrador también ve los participantes de cualquier curso, dentro del panel del curso")
+    @DisplayName("CU-29: el administrador también ve los participantes de cualquier curso, dentro del panel del curso")
     void administradorVeLosParticipantes() throws Exception {
         mockMvc.perform(get("/participante/buscar").param("cursoId", String.valueOf(cursoDeMercado())))
                 .andExpect(status().isOk())
@@ -81,7 +81,7 @@ class ParticipanteControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el alumno ve el equipo docente y los alumnos de su cohorte, sin filtro ni columna de cohorte")
+    @DisplayName("CU-31: el alumno ve el equipo docente y los alumnos de su cohorte, sin filtro ni columna de cohorte")
     void alumnoVeElEquipoDeSuCurso() throws Exception {
         mockMvc.perform(get("/participante/ver/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())

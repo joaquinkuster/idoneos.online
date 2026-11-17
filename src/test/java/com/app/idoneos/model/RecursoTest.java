@@ -51,7 +51,7 @@ class RecursoTest {
     }
 
     @Test
-    @DisplayName("Un material está publicado si ni él ni su recurso están dados de baja ni ocultos")
+    @DisplayName("Un recurso está publicado si ni él ni su recurso están dados de baja ni ocultos")
     void publicado() {
         Recurso recurso = grabacion("a.mp4");
         TemaRecurso material = material(recurso);

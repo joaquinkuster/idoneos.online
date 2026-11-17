@@ -223,7 +223,7 @@ class TemaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-22: dar de baja un tema responde en JSON y se rechaza si el programa tiene inscripciones activas")
+    @DisplayName("CU-26: dar de baja un tema responde en JSON y se rechaza si el programa tiene inscripciones activas")
     void darDeBaja() throws Exception {
         Tema tema = primeraDe(macro());
         Tema deMercado = primeraDe(mercado());

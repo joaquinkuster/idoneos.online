@@ -58,7 +58,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-11: busca cohortes por estado calculado a partir de sus fechas")
+    @DisplayName("CU-13: busca cohortes por estado calculado a partir de sus fechas")
     void buscarCohortesPorEstado() {
         Integer idPrograma = programaDe("Mercado de Capitales Argentino").getIdPrograma();
 
@@ -69,7 +69,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: registra una cohorte de un curso grabado")
+    @DisplayName("CU-14: registra una cohorte de un curso grabado")
     void registrarCohorteDeCursoGrabado() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
 
@@ -82,7 +82,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: el dictado debe empezar después de la fecha de fin de inscripción, no el mismo día")
+    @DisplayName("CU-14: el dictado debe empezar después de la fecha de fin de inscripción, no el mismo día")
     void registrarCohorteConInicioDeDictadoElMismoDiaQueElFinDeInscripcion() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
         int semanas = programa.getDuracionTotalDias();
@@ -99,7 +99,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: un curso en vivo exige las fechas de dictado")
+    @DisplayName("CU-14: un curso en vivo exige las fechas de dictado")
     void registrarCohorteEnVivoSinFechasDeDictado() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
 
@@ -110,7 +110,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: registra una cohorte en vivo con dictado posterior a la inscripción")
+    @DisplayName("CU-14: registra una cohorte en vivo con dictado posterior a la inscripción")
     void registrarCohorteEnVivo() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
 
@@ -121,7 +121,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: el fin del dictado se calcula: el inicio más la duración del curso")
+    @DisplayName("CU-14: el fin del dictado se calcula: el inicio más la duración del curso")
     void registrarCohorteCalculaElFinDelDictado() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
         int duracion = programa.getCurso().getDuracionDias();
@@ -134,7 +134,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: el acceso no puede ser menor a la duración del curso, aunque la cohorte no tenga programa")
+    @DisplayName("CU-14: el acceso no puede ser menor a la duración del curso, aunque la cohorte no tenga programa")
     void registrarCohorteConAccesoMenorALaDuracionDelCurso() {
         var curso = programaDe("Macroeconomía de Coyuntura").getCurso();
 
@@ -151,7 +151,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: el dictado no puede comenzar antes de que termine la inscripción")
+    @DisplayName("CU-14: el dictado no puede comenzar antes de que termine la inscripción")
     void registrarCohorteConDictadoAntesDelFinDeInscripcion() {
         Programa programa = programaDe("Mercado de Capitales Argentino");
 
@@ -161,7 +161,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: valida fechas de inscripción, cupo y semanas de acceso")
+    @DisplayName("CU-14: valida fechas de inscripción, cupo y semanas de acceso")
     void registrarCohorteConDatosInvalidos() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         Integer id = programa.getIdPrograma();
@@ -178,7 +178,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: las semanas de acceso y el cupo tienen un máximo razonable, con un mensaje para cada regla")
+    @DisplayName("CU-14: las semanas de acceso y el cupo tienen un máximo razonable, con un mensaje para cada regla")
     void registrarCohorteConValoresMaximosExcedidos() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         Integer id = programa.getIdPrograma();
@@ -205,7 +205,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: con el contenido del programa incompleto la cohorte se registra como pendiente")
+    @DisplayName("CU-14: con el contenido del programa incompleto la cohorte se registra como pendiente")
     void registrarCohorteConContenidoIncompleto() {
         Programa programa = programaSinContenido();
         assertEquals(0, programa.getCantidadTemasConMaterialPublicado());
@@ -218,7 +218,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: con el contenido del programa completo la cohorte nace activa, sin plazo mínimo")
+    @DisplayName("CU-14: con el contenido del programa completo la cohorte nace activa, sin plazo mínimo")
     void registrarCohorteConContenidoCompleto() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         LocalDate manana = LocalDate.now().plusDays(1);
@@ -230,7 +230,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: una cohorte pendiente necesita el plazo mínimo para completar el contenido")
+    @DisplayName("CU-14: una cohorte pendiente necesita el plazo mínimo para completar el contenido")
     void registrarCohortePendienteConPlazoInsuficiente() {
         Programa programa = programaSinContenido();
         int plazo = cohorteService.plazoMinimoParaCompletarContenidoDias();
@@ -287,7 +287,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: una cohorte se registra sin programa y queda pendiente hasta que el docente elija uno")
+    @DisplayName("CU-14: una cohorte se registra sin programa y queda pendiente hasta que el docente elija uno")
     void registrarCohorteSinPrograma() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         var curso = programa.getCurso();
@@ -311,7 +311,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: el programa de la cohorte debe ser del curso")
+    @DisplayName("CU-14: el programa de la cohorte debe ser del curso")
     void registrarCohorteConProgramaDeOtroCurso() {
         Programa programa = programaDe("Macroeconomía de Coyuntura");
         Programa ajeno = programaDe("Mercado de Capitales Argentino");
@@ -323,7 +323,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-11: filtra las cohortes pendientes y las canceladas, distintas de las dadas de baja")
+    @DisplayName("CU-13: filtra las cohortes pendientes y las canceladas, distintas de las dadas de baja")
     void buscarCohortesPendientesYCanceladas() {
         assertTrue(!cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.PENDIENTE, null, null, "recientes", null).isEmpty());
         assertTrue(cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.PENDIENTE, null, null, "recientes", null).stream()
@@ -334,7 +334,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-13: una cohorte cancelada no se modifica")
+    @DisplayName("CU-15: una cohorte cancelada no se modifica")
     void modificarCohorteCancelada() {
         Cohorte cancelada = cohorteService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoCohorte.CANCELADA, null, null, "recientes", null).get(0);
 
@@ -344,7 +344,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-13: modifica una cohorte sin inscripciones")
+    @DisplayName("CU-15: modifica una cohorte sin inscripciones")
     void modificarCohorteSinInscripciones() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         int duracion = cohorte.getPrograma().getDuracionTotalDias();
@@ -357,7 +357,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-13: no modifica una cohorte con inscripciones activas")
+    @DisplayName("CU-15: no modifica una cohorte con inscripciones activas")
     void modificarCohorteConInscripciones() {
         Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         assertTrue(cohorte.getCantidadInscriptos() > 0);
@@ -367,7 +367,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-14: no da de baja una cohorte con inscripciones activas")
+    @DisplayName("CU-16: no da de baja una cohorte con inscripciones activas")
     void darDeBajaCohorteConInscripciones() {
         Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.ABIERTA);
 
@@ -375,7 +375,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-14: no da de baja una cohorte con clases en vivo activas")
+    @DisplayName("CU-16: no da de baja una cohorte con clases en vivo activas")
     void darDeBajaCohorteConClasesEnVivo() {
         Cohorte cohorte = cohorte("Mercado de Capitales Argentino", "En dictado");
         assertTrue(cohorte.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja()));
@@ -384,7 +384,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-14: da de baja una cohorte y la desvincula de los docentes que la tienen como contexto de trabajo")
+    @DisplayName("CU-16: da de baja una cohorte y la desvincula de los docentes que la tienen como contexto de trabajo")
     void darDeBajaCohorteDesvinculaAlDocente() {
         Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA);
         Docente fausto = docenteService.buscarHabilitados().stream()
@@ -399,7 +399,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-11: el docente cambia su contexto de trabajo solo en los cursos en los que participa")
+    @DisplayName("CU-13: el docente cambia su contexto de trabajo solo en los cursos en los que participa")
     void cambiarContextoDeTrabajo() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         List<Docente> docentes = docenteService.buscarHabilitados();
@@ -413,7 +413,7 @@ class CohorteServiceTest {
     }
 
     @Test
-    @DisplayName("CU-11: ordena por inicio de inscripción más reciente o por curso, con las dadas de baja al final")
+    @DisplayName("CU-13: ordena por inicio de inscripción más reciente o por curso, con las dadas de baja al final")
     void ordenarCohortes() {
         Integer idPrograma = programaDe("Mercado de Capitales Argentino").getIdPrograma();
         Cohorte finalizada = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA);

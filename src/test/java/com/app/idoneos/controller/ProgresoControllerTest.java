@@ -40,7 +40,7 @@ class ProgresoControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-55: el docente ve el avance de los alumnos del curso, con el filtro por alumno en la pantalla")
+    @DisplayName("CU-63: el docente ve el avance de los alumnos del curso, con el filtro por alumno en la pantalla")
     void docenteVeElProgreso() throws Exception {
         Inscripcion inscripcion = inscripcionDeMercado();
         mockMvc.perform(get("/progreso/buscar").param("cursoId", String.valueOf(inscripcion.getCurso().getIdCurso())))
@@ -64,7 +64,7 @@ class ProgresoControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-55: el administrador también ve el progreso de cualquier curso; sin curso vuelve al listado")
+    @DisplayName("CU-63: el administrador también ve el progreso de cualquier curso; sin curso vuelve al listado")
     void administradorVeElProgreso() throws Exception {
         Inscripcion inscripcion = inscripcionDeMercado();
         mockMvc.perform(get("/progreso/buscar").param("cursoId", String.valueOf(inscripcion.getCurso().getIdCurso())))
@@ -78,7 +78,7 @@ class ProgresoControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-55: debajo de cada alumno se despliega la tabla de temas, con si fue completada y la fecha")
+    @DisplayName("CU-63: debajo de cada alumno se despliega la tabla de temas, con si fue completado y la fecha")
     void detalleDebajoDeCadaAlumno() throws Exception {
         Inscripcion inscripcion = inscripcionDeMercado();
         mockMvc.perform(get("/progreso/buscar").param("cursoId", String.valueOf(inscripcion.getCurso().getIdCurso())))
@@ -95,7 +95,7 @@ class ProgresoControllerTest {
 
     @Test
     @WithUserDetails(value = "lucia.fernandez@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-55: el alumno no entra a la pantalla de progreso de los alumnos")
+    @DisplayName("CU-63: el alumno no entra a la pantalla de progreso de los alumnos")
     void alumnoNoEntra() throws Exception {
         Inscripcion inscripcion = inscripcionDeMercado();
         mockMvc.perform(get("/progreso/buscar").param("cursoId", String.valueOf(inscripcion.getCurso().getIdCurso())))
@@ -103,7 +103,7 @@ class ProgresoControllerTest {
     }
 
     @Test
-    @DisplayName("CU-55: sin sesión se pide iniciar sesión")
+    @DisplayName("CU-63: sin sesión se pide iniciar sesión")
     void sinSesion() throws Exception {
         mockMvc.perform(get("/progreso/buscar")).andExpect(status().is3xxRedirection());
     }

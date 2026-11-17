@@ -309,7 +309,7 @@ class TerminoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-33: registrar un término responde en JSON, y un error de validación responde 400")
+    @DisplayName("CU-41: registrar un término responde en JSON, y un error de validación responde 400")
     void registrar() throws Exception {
         mockMvc.perform(post("/termino/registrar").param("temaId", String.valueOf(tercera()))
                 .param("termino", "Opción").param("definicion", "Derecho a comprar o vender."))
@@ -331,7 +331,7 @@ class TerminoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-34: modificar un término responde en JSON y se ve en el glosario")
+    @DisplayName("CU-42: modificar un término responde en JSON y se ve en el glosario")
     void modificar() throws Exception {
         int id = idTermino(segunda(), "TIR");
 
@@ -347,7 +347,7 @@ class TerminoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-35: dar de baja un término responde en JSON y deja de mostrarse")
+    @DisplayName("CU-43: dar de baja un término responde en JSON y deja de mostrarse")
     void darDeBaja() throws Exception {
         int id = idTermino(primera(), "CNV");
 

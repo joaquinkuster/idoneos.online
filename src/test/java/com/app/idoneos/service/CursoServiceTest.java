@@ -182,8 +182,8 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-04: la duración la define el administrador y no cambia con un programa con cohortes activas o con todos sus días repartidos")
-    void modificarCursoNoPermiteCambiarLaDuracionConUnProgramaCompleto() {
+    @DisplayName("CU-04: con una cohorte publicada en el catálogo no se puede cambiar la duración del curso")
+    void modificarCursoNoPermiteCambiarLaDuracionConUnaCohortePublicada() {
         Curso curso = curso("Macroeconomía de Coyuntura");
         int cronograma = curso.getProgramaVigente().getDuracionTotalDias();
         assertTrue(cronograma > 1);
@@ -195,8 +195,8 @@ class CursoServiceTest {
                         curso.getModalidades().stream().map(Modalidad::getIdModalidad).toList(),
                         curso.getDocenteTitular().getIdDocente(),
                         curso.getDocentesAyudantes().stream().map(Docente::getIdDocente).toList()));
-        assertTrue(error.getMessage().contains("No se puede modificar la duración del curso"), error.getMessage());
-        assertTrue(error.getMessage().contains("tiene cohortes activas"), error.getMessage());
+        assertTrue(error.getMessage().contains("No se puede modificar el curso"), error.getMessage());
+        assertTrue(error.getMessage().contains("tiene cohortes publicadas en el catálogo"), error.getMessage());
 
         // con la duración que ya tiene, se guarda
         Curso modificado = cursoService.modificar(curso.getIdCurso(), curso.getNombre(), curso.getDescripcion(),
@@ -307,7 +307,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-04: no se puede desvincular a un docente con clases o material activo en el curso")
+    @DisplayName("CU-04: no se puede desvincular a un docente con clases o recurso activo en el curso")
     void modificarCursoNoPermiteDesvincularDocenteConMaterial() {
         Curso curso = curso("Mercado de Capitales Argentino");
 
@@ -335,7 +335,7 @@ class CursoServiceTest {
     @Test
     @DisplayName("CU-04: no se puede quitar la modalidad Grabada si el curso tiene grabaciones publicadas")
     void noSePuedeQuitarGrabadaConGrabacionesPublicadas() {
-        Curso curso = curso("Fondos Comunes de Inversión");
+        Curso curso = curso("Planificación Fiscal Corporativa");
         var tema = curso.getTemas().stream().filter(u -> !u.getBaja()).findFirst().orElseThrow();
         var participacion = curso.getParticipacionesDocente().stream().findFirst().orElseThrow();
         int grabaciones = curso.getMaterialesPublicadosDeModalidad(Modalidad.GRABADA).size() + 1;
@@ -380,7 +380,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-05: no se puede dar de baja un curso con programas o temas activos")
+    @DisplayName("CU-06: no se puede dar de baja un curso con programas o temas activos")
     void darDeBajaCursoConProgramasActivos() {
         Curso curso = curso("Macroeconomía de Coyuntura");
 
@@ -388,7 +388,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-05: da de baja un curso sin dependencias y deja de estar activo")
+    @DisplayName("CU-06: da de baja un curso sin dependencias y deja de estar activo")
     void darDeBajaCursoSinDependencias() {
         Curso curso = curso("Introducción a las Finanzas");
 
@@ -399,14 +399,14 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-06: el catálogo incluye cursos activos con cohortes con inscripción abierta o próxima")
+    @DisplayName("CU-07: el catálogo incluye solo los cursos activos con cohortes publicadas")
     void catalogoSoloConCohortesAbiertas() {
         List<String> nombres = cursoService.buscarEnCatalogo(null, null, null, null, null).stream()
                 .map(Curso::getNombre).toList();
 
         assertTrue(nombres.contains("Mercado de Capitales Argentino"));
         assertTrue(nombres.contains("Macroeconomía de Coyuntura"));
-        assertTrue(nombres.contains("Análisis Técnico Bursátil"), "su cohorte es próxima: se ofrece con «Recordarme»");
+        assertFalse(nombres.contains("Análisis Técnico Bursátil"), "su cohorte todavía está pendiente de contenido");
         assertFalse(nombres.contains("Introducción a las Finanzas"), "no tiene cohortes");
         assertFalse(nombres.contains("Economía Argentina 2024"), "está dado de baja");
     }
@@ -455,7 +455,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-27: el docente accede a un curso en el que participa, con su programa y su cohorte de trabajo")
+    @DisplayName("CU-31: el docente accede a un curso en el que participa, con su programa y su cohorte de trabajo")
     void docenteAccedeAsuCurso() {
         Curso curso = curso("Mercado de Capitales Argentino");
 
@@ -467,7 +467,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-27: el docente no accede a un curso en el que no participa")
+    @DisplayName("CU-31: el docente no accede a un curso en el que no participa")
     void docenteAjenoAlCurso() {
         Curso curso = curso("Macroeconomía de Coyuntura");
 
@@ -478,7 +478,7 @@ class CursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-27: el docente accede a un curso sin programas (ahí registra el primero), pero no a uno dado de baja")
+    @DisplayName("CU-31: el docente accede a un curso sin programas (ahí registra el primero), pero no a uno dado de baja")
     void cursoNoDisponible() {
         Curso sinPrograma = curso("Introducción a las Finanzas");
         IntegranteEquipo participacion = cursoService.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN));

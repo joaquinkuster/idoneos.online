@@ -93,7 +93,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el administrador ve todos los pagos con sus filtros, comprobantes y ventanas")
+    @DisplayName("CU-58: el administrador ve todos los pagos con sus filtros, comprobantes y ventanas")
     void buscarComoAdministrador() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/pago/buscarPorAdministrador"))
@@ -110,7 +110,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-53: se llega a registrar el pago desde la inscripción pendiente y se abre la ventana con ella elegida")
+    @DisplayName("CU-61: se llega a registrar el pago desde la inscripción pendiente y se abre la ventana con ella elegida")
     void registrarParaUnaInscripcion() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -127,7 +127,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el alumno ve en /pago/buscar solo sus pagos, no el listado del administrador")
+    @DisplayName("CU-58: el alumno ve en /pago/buscar solo sus pagos, no el listado del administrador")
     void alumnoNoVeElListadoDelAdministrador() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("Registrar pago"))));
@@ -135,7 +135,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = DOCENTE, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el docente no accede a los pagos")
+    @DisplayName("CU-58: el docente no accede a los pagos")
     void docenteNoVeLosPagos() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isForbidden());
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isForbidden());
@@ -143,7 +143,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el administrador ve en /pago/buscar el listado de todos los pagos, no la pantalla del alumno")
+    @DisplayName("CU-58: el administrador ve en /pago/buscar el listado de todos los pagos, no la pantalla del alumno")
     void administradorNoUsaMisPagos() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Registrar pago")));
@@ -151,7 +151,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50 y CU-52: el alumno ve sus pagos y puede reintentar el rechazado y bajar el comprobante del aprobado")
+    @DisplayName("CU-58 y CU-60: el alumno ve sus pagos y puede reintentar el rechazado y bajar el comprobante del aprobado")
     void misPagosConReintento() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/pago/buscarPorAlumno"))
@@ -164,7 +164,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el alumno con todo pago no ve el botón para reintentar")
+    @DisplayName("CU-58: el alumno con todo pago no ve el botón para reintentar")
     void misPagosSinReintento() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("data-pagar"))))
@@ -173,7 +173,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: en Mis cursos, la inscripción pendiente de pago ofrece pagar y lleva a la caja")
+    @DisplayName("CU-59: en Mis cursos, la inscripción pendiente de pago ofrece pagar y lleva a la caja")
     void misCursosOfrecePagar() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("/pago/caja/")))
@@ -183,7 +183,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: la caja resume la compra con el descuento aplicado y ofrece pagar")
+    @DisplayName("CU-59: la caja resume la compra con el descuento aplicado y ofrece pagar")
     void caja() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -197,7 +197,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: sin inscripciones pendientes de pago no se ofrece pagar")
+    @DisplayName("CU-59: sin inscripciones pendientes de pago no se ofrece pagar")
     void misCursosSinPendientes() throws Exception {
         mockMvc.perform(get("/inscripcion/buscar")).andExpect(status().isOk())
                 .andExpect(content().string(not(containsString("data-pagar"))));
@@ -209,7 +209,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: el alumno inicia el pago y recibe la dirección del sitio de pagos de MODO")
+    @DisplayName("CU-59: el alumno inicia el pago y recibe la dirección del sitio de pagos de MODO")
     void pagar() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -224,7 +224,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: con un descuento que cubre todo el precio, la respuesta es aprobada y sin pago; la caja ofrece habilitar el acceso")
+    @DisplayName("CU-59: con un descuento que cubre todo el precio, la respuesta es aprobada y sin pago; la caja ofrece habilitar el acceso")
     void pagarConDescuentoTotal() throws Exception {
         descuentoRepository.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 5, 0));
@@ -245,7 +245,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: el alumno no paga la inscripción de otro")
+    @DisplayName("CU-59: el alumno no paga la inscripción de otro")
     void noPagaLaAjena() throws Exception {
         mockMvc.perform(post("/pago/pagar/" + pendienteDeLucia().getIdInscripcion()))
                 .andExpect(status().isBadRequest())
@@ -254,7 +254,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: no se paga una inscripción que ya está paga")
+    @DisplayName("CU-59: no se paga una inscripción que ya está paga")
     void noPagaDosVeces() throws Exception {
         Inscripcion pagada = inscripcionService.buscarConFiltros(null, MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0);
 
@@ -264,14 +264,14 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: el administrador no paga como alumno")
+    @DisplayName("CU-59: el administrador no paga como alumno")
     void administradorNoPaga() throws Exception {
         mockMvc.perform(post("/pago/pagar/1")).andExpect(status().isForbidden());
     }
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-52: el alumno reintenta su pago rechazado, que queda como estaba, y se crea un pago nuevo en curso")
+    @DisplayName("CU-60: el alumno reintenta su pago rechazado, que queda como estaba, y se crea un pago nuevo en curso")
     void reintentar() throws Exception {
         Pago rechazado = pendienteDeLucia().getPagoSinAprobar();
 
@@ -284,7 +284,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-52: no se reintenta un pago ajeno ni uno que no está rechazado")
+    @DisplayName("CU-60: no se reintenta un pago ajeno ni uno que no está rechazado")
     void reintentarInvalido() throws Exception {
         Pago rechazadoDeLucia = pendienteDeLucia().getPagoSinAprobar();
         mockMvc.perform(post("/pago/reintentar/" + rechazadoDeLucia.getIdPago())).andExpect(status().isBadRequest());
@@ -296,7 +296,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: el estado del pago se concilia con MODO y el navegador lo consulta hasta que se resuelve")
+    @DisplayName("CU-59: el estado del pago se concilia con MODO y el navegador lo consulta hasta que se resuelve")
     void estadoDelPago() throws Exception {
         pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
@@ -313,7 +313,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = MARTIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: el alumno no consulta el estado del pago de otro")
+    @DisplayName("CU-59: el alumno no consulta el estado del pago de otro")
     void estadoDePagoAjeno() throws Exception {
         Pago deLucia = pendienteDeLucia().getPagoSinAprobar();
 
@@ -322,7 +322,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = DOCENTE, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-51: quien no es alumno ni administrador no consulta pagos")
+    @DisplayName("CU-59: quien no es alumno ni administrador no consulta pagos")
     void estadoParaElDocente() throws Exception {
         Pago deLucia = pendienteDeLucia().getPagoSinAprobar();
 
@@ -331,7 +331,7 @@ class PagoControllerTest {
 
     @Test
     @WithAnonymousUser
-    @DisplayName("CU-51: el aviso de MODO (webhook) no requiere sesión, responde 200 y concilia el pago")
+    @DisplayName("CU-59: el aviso de MODO (webhook) no requiere sesión, responde 200 y concilia el pago")
     void webhook() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
         var solicitud = pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno());
@@ -345,7 +345,7 @@ class PagoControllerTest {
 
     @Test
     @WithAnonymousUser
-    @DisplayName("CU-51: un aviso falso o vacío no aprueba nada y se responde igual con 200")
+    @DisplayName("CU-59: un aviso falso o vacío no aprueba nada y se responde igual con 200")
     void webhookInvalido() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -363,7 +363,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-53: el administrador registra el pago por transferencia")
+    @DisplayName("CU-61: el administrador registra el pago por transferencia")
     void registrarPago() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -378,7 +378,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-53: pide la inscripción, el monto y el comprobante")
+    @DisplayName("CU-61: pide la inscripción, el monto y el comprobante")
     void registrarPagoIncompleto() throws Exception {
         mockMvc.perform(post("/pago/registrar")).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(containsString("inscripción")));
@@ -389,7 +389,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-53: el alumno no registra pagos")
+    @DisplayName("CU-61: el alumno no registra pagos")
     void alumnoNoRegistraPagos() throws Exception {
         mockMvc.perform(post("/pago/registrar").param("idInscripcion", "1").param("monto", "100").param("referencia", "X"))
                 .andExpect(status().isForbidden());
@@ -397,7 +397,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-46: al registrar una inscripción pendiente de pago se pasa a registrar su pago")
+    @DisplayName("CU-54: al registrar una inscripción pendiente de pago se pasa a registrar su pago")
     void registrarInscripcionLlevaARegistrarElPago() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
         Integer idAlumno = inscripcionService.buscarConFiltros(null, VALENTINA, null).get(0).getAlumno().getIdAlumno();
@@ -415,7 +415,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-54: el administrador acredita un pago de MODO que no se confirmó")
+    @DisplayName("CU-62: el administrador acredita un pago de MODO que no se confirmó")
     void modificar() throws Exception {
         Inscripcion lucia = pendienteDeLucia();
         Pago rechazado = pagoPendienteDeLucia();
@@ -431,7 +431,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-54: rechaza datos inválidos y los pagos que ya están aprobados")
+    @DisplayName("CU-62: rechaza datos inválidos y los pagos que ya están aprobados")
     void modificarPagoInvalido() throws Exception {
         Pago rechazado = pagoPendienteDeLucia();
         // acreditar un pago de MODO exige el código de referencia y, después, el nombre y el DNI del pagador
@@ -451,7 +451,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-54: el alumno no modifica pagos")
+    @DisplayName("CU-62: el alumno no modifica pagos")
     void alumnoNoModificaPagos() throws Exception {
         mockMvc.perform(post("/pago/modificar/1").param("estado", "Aprobado").param("monto", "100"))
                 .andExpect(status().isForbidden());
@@ -463,7 +463,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el alumno descarga el comprobante de su pago aprobado, en PDF")
+    @DisplayName("CU-58: el alumno descarga el comprobante de su pago aprobado, en PDF")
     void descargaElComprobante() throws Exception {
         Pago aprobado = pagoAprobadoDe(VALENTINA);
 
@@ -478,7 +478,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = LUCIA, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el alumno no descarga el comprobante de otro, ni de un pago sin aprobar")
+    @DisplayName("CU-58: el alumno no descarga el comprobante de otro, ni de un pago sin aprobar")
     void comprobanteAjenoOSinAprobar() throws Exception {
         Pago deValentina = pagoAprobadoDe(VALENTINA);
         mockMvc.perform(get("/pago/comprobante/" + deValentina.getIdPago())).andExpect(status().isNotFound());
@@ -490,7 +490,7 @@ class PagoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-50: el administrador descarga el comprobante de cualquier pago aprobado")
+    @DisplayName("CU-58: el administrador descarga el comprobante de cualquier pago aprobado")
     void administradorDescargaCualquierComprobante() throws Exception {
         Pago aprobado = pagoAprobadoDe(VALENTINA);
 
@@ -500,7 +500,7 @@ class PagoControllerTest {
 
     @Test
     @WithAnonymousUser
-    @DisplayName("CU-50: sin sesión no se accede a los pagos ni a los comprobantes")
+    @DisplayName("CU-58: sin sesión no se accede a los pagos ni a los comprobantes")
     void sinSesion() throws Exception {
         mockMvc.perform(get("/pago/buscar")).andExpect(status().is3xxRedirection());
         mockMvc.perform(get("/pago/buscar")).andExpect(status().is3xxRedirection());

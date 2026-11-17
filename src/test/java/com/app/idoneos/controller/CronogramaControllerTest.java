@@ -185,7 +185,7 @@ class CronogramaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-24: modificar el cronograma responde en JSON y la página muestra el nuevo orden y los nuevos días")
+    @DisplayName("CU-28: modificar el cronograma responde en JSON y la página muestra el nuevo orden y los nuevos días")
     void modificar() throws Exception {
         Programa programa = programaDe(macro());
         List<Integer> temas = temasDe(macro());
@@ -206,7 +206,7 @@ class CronogramaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-24: las duraciones inválidas y el programa con inscripciones responden 400 con el mensaje del CU")
+    @DisplayName("CU-28: las duraciones inválidas y el programa con inscripciones responden 400 con el mensaje del CU")
     void rechazos() throws Exception {
         Programa programa = programaDe(macro());
         List<Integer> temas = temasDe(macro());

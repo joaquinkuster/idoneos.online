@@ -57,7 +57,7 @@ class InscripcionConSesionControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-45: el alumno se inscribe desde su sesión (con el alumno desconectado de Hibernate) y queda registrada")
+    @DisplayName("CU-53: el alumno se inscribe desde su sesión (con el alumno desconectado de Hibernate) y queda registrada")
     void inscribirseConElAlumnoDeLaSesion() throws Exception {
         Cohorte cohorte = cohorteAbierta("Macroeconomía de Coyuntura");
         try {
@@ -75,7 +75,7 @@ class InscripcionConSesionControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-45: al inscribirse a un curso con costo desde la sesión, la inscripción queda pendiente de pago")
+    @DisplayName("CU-53: al inscribirse a un curso con costo desde la sesión, la inscripción queda pendiente de pago")
     void inscribirseConCostoDesdeLaSesion() throws Exception {
         Cohorte cohorte = cohorteAbierta("Finanzas Personales e Inversión");
         try {

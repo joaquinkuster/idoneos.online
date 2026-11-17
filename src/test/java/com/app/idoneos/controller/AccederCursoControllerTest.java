@@ -40,7 +40,7 @@ class AccederCursoControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el acordeón muestra los temas completado, en curso y bloqueada con su contenido publicado")
+    @DisplayName("CU-31: el acordeón muestra los temas completado, en curso y bloqueada con su contenido publicado")
     void acordeonDeTemas() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
@@ -62,7 +62,7 @@ class AccederCursoControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: la barra lateral se agrupa por Curso, Programa, Cohorte y contenido, y los enlaces del módulo van en la barra superior")
+    @DisplayName("CU-31: la barra lateral se agrupa por Curso, Programa, Cohorte y contenido, y los enlaces del módulo van en la barra superior")
     void barraLateralYBarraSuperior() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ class AccederCursoControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el cronograma marca la semana actual y que el alumno va al día")
+    @DisplayName("CU-31: el cronograma marca la semana actual y que el alumno va al día")
     void cronograma() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com"))
                 .param("seccion", "cronograma"))
@@ -153,7 +153,7 @@ class AccederCursoControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: las clases en vivo de la cohorte se listan con su estado")
+    @DisplayName("CU-31: las clases en vivo de la cohorte se listan con su estado")
     void clasesEnVivo() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com"))
                 .param("seccion", "clases"))
@@ -165,7 +165,7 @@ class AccederCursoControllerTest {
 
     @Test
     @WithUserDetails(value = "lucia.fernandez@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: si el dictado de la cohorte todavía no comenzó, se avisa y se vuelve a Mis cursos")
+    @DisplayName("CU-31: si el dictado de la cohorte todavía no comenzó, se avisa y se vuelve a Mis cursos")
     void dictadoSinComenzar() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("lucia.fernandez@correo.com")))
                 .andExpect(status().is3xxRedirection())
@@ -175,7 +175,7 @@ class AccederCursoControllerTest {
 
     @Test
     @WithUserDetails(value = "martin.gomez@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: un alumno no puede acceder a la inscripción de otro alumno")
+    @DisplayName("CU-31: un alumno no puede acceder a la inscripción de otro alumno")
     void inscripcionAjena() throws Exception {
         mockMvc.perform(get("/inscripcion/acceder/" + inscripcionDe("valentina.ruiz@correo.com")))
                 .andExpect(status().is3xxRedirection())

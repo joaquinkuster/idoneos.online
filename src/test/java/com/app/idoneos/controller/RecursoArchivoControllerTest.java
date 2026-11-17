@@ -139,7 +139,7 @@ class RecursoArchivoControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El alumno no recibe el material de un tema bloqueado ni el material oculto")
+    @DisplayName("El alumno no recibe el recurso de un tema bloqueado ni el recurso oculto")
     void alumnoSinAccesoABloqueadoNiOculto() throws Exception {
         TemaRecurso deTemaBloqueada = subir(tema("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
         TemaRecurso oculto = subirEnTemaDos(true);
@@ -150,7 +150,7 @@ class RecursoArchivoControllerTest {
 
     @Test
     @WithUserDetails(value = "martin.gomez@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El alumno cuyo dictado todavía no comenzó no recibe el material")
+    @DisplayName("El alumno cuyo dictado todavía no comenzó no recibe el recurso")
     void alumnoConDictadoSinComenzar() throws Exception {
         TemaRecurso material = subirEnTemaDos(false);
 
@@ -159,7 +159,7 @@ class RecursoArchivoControllerTest {
 
     @Test
     @WithUserDetails(value = "tomas.herrera@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El alumno que no está inscripto en el curso no recibe el material")
+    @DisplayName("El alumno que no está inscripto en el curso no recibe el recurso")
     void alumnoSinInscripcion() throws Exception {
         TemaRecurso material = subirEnTemaDos(false);
 
@@ -168,7 +168,7 @@ class RecursoArchivoControllerTest {
 
     @Test
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Un docente que no participa en el curso no recibe el material")
+    @DisplayName("Un docente que no participa en el curso no recibe el recurso")
     void docenteAjenoAlCurso() throws Exception {
         TemaRecurso material = subir(tema("Macroeconomía de Coyuntura", "Inflación y precios"), false);
 
@@ -186,7 +186,7 @@ class RecursoArchivoControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Un enlace externo no tiene contenido propio, y un material dado de baja o inexistente responde 404")
+    @DisplayName("Un enlace externo no tiene contenido propio, y un recurso dado de baja o inexistente responde 404")
     void enlaceBajaOInexistente() throws Exception {
         TemaRecurso enlace = materialService.subir(docente("fausto.spotorno@idoneos.online"),
                 tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),

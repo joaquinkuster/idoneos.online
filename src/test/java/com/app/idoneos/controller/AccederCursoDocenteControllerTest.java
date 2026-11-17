@@ -50,7 +50,7 @@ class AccederCursoDocenteControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el docente ve todos los temas habilitados, con su contenido y sin avance")
+    @DisplayName("CU-31: el docente ve todos los temas habilitados, con su contenido y sin avance")
     void docenteVeLasTemasSinBloqueos() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))
                 .andExpect(status().isOk())
@@ -80,7 +80,7 @@ class AccederCursoDocenteControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el cronograma del docente (en su propia página) muestra la semana de la cohorte pero no el atraso del alumno")
+    @DisplayName("CU-31: el cronograma del docente (en su propia página) muestra la semana de la cohorte pero no el atraso del alumno")
     void docenteVeElCronogramaSinAtraso() throws Exception {
         mockMvc.perform(get("/cronograma/buscar").param("cursoId", String.valueOf(idCurso("Mercado de Capitales Argentino"))))
                 .andExpect(status().isOk())
@@ -130,7 +130,7 @@ class AccederCursoDocenteControllerTest {
 
     @Test
     @WithUserDetails(value = "sebastian.bordato@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: un docente no puede acceder a un curso en el que no participa")
+    @DisplayName("CU-31: un docente no puede acceder a un curso en el que no participa")
     void docenteAjenoAlCurso() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Macroeconomía de Coyuntura")))
                 .andExpect(status().is3xxRedirection())
@@ -140,7 +140,7 @@ class AccederCursoDocenteControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-27: el alumno no puede usar el acceso del docente")
+    @DisplayName("CU-31: el alumno no puede usar el acceso del docente")
     void alumnoNoAccedeComoDocente() throws Exception {
         mockMvc.perform(get("/curso/acceder/" + idCurso("Mercado de Capitales Argentino")))
                 .andExpect(status().isForbidden());

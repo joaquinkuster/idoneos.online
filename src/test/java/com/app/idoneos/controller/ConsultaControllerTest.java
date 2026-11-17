@@ -361,7 +361,7 @@ class ConsultaControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-36 y CU-37: registrar y modificar una consulta responde en JSON, con el error de validación en 400")
+    @DisplayName("CU-44 y CU-45: registrar y modificar una consulta responde en JSON, con el error de validación en 400")
     void alumnoRegistraYModifica() throws Exception {
         mockMvc.perform(post("/consulta/registrar").param("temaId", String.valueOf(segunda())).param("texto", "Nueva duda"))
                 .andExpect(status().isOk())
@@ -383,7 +383,7 @@ class ConsultaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-40: el docente responde; el error de validación responde 400")
+    @DisplayName("CU-48: el docente responde; el error de validación responde 400")
     void docenteResponde() throws Exception {
         int id = consultaDe(segunda()).getIdConsulta();
 
@@ -398,7 +398,7 @@ class ConsultaControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-38 y CU-42: el administrador da de baja la respuesta y la consulta, y vuelve al foro")
+    @DisplayName("CU-46 y CU-50: el administrador da de baja la respuesta y la consulta, y vuelve al foro")
     void administradorModera() throws Exception {
         ConsultaForo consulta = consultaDe(primera());
         int respuesta = consulta.getRespuestasVigentes().get(0).getIdRespuesta();

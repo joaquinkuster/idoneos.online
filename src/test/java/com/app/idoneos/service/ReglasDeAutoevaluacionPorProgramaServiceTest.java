@@ -64,7 +64,7 @@ class ReglasDeAutoevaluacionPorProgramaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-12: si algún tema del programa no tiene autoevaluación visible, la cohorte queda pendiente")
+    @DisplayName("CU-14: si algún tema del programa no tiene autoevaluación visible, la cohorte queda pendiente")
     void registrar() {
         assertDoesNotThrow(() -> registrar(macro()));
         assertTrue(cohorteService.faltantesDeContenido(macro()).isEmpty());
@@ -120,7 +120,7 @@ class ReglasDeAutoevaluacionPorProgramaServiceTest {
     }
 
     @Test
-    @DisplayName("CU-25: con cohortes en curso el cronograma no puede incluir un tema sin autoevaluación visible")
+    @DisplayName("CU-29: con cohortes en curso el cronograma no puede incluir un tema sin autoevaluación visible")
     void modificar() {
         Programa programa = macro();
         List<TemaCronograma> cronograma = programa.getCronogramaOrdenado();

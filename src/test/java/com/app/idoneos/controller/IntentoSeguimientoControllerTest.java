@@ -60,7 +60,7 @@ class IntentoSeguimientoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-68: el docente ve los intentos con el filtro en su cohorte y la opción de aprobar, no la de dar de baja")
+    @DisplayName("CU-76: el docente ve los intentos con el filtro en su cohorte y la opción de aprobar, no la de dar de baja")
     void docenteVeLosIntentos() throws Exception {
         mockMvc.perform(get("/intento/buscar").param("cursoId", cursoId()))
                 .andExpect(status().isOk())
@@ -77,7 +77,7 @@ class IntentoSeguimientoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-68 y CU-72: el administrador ve los intentos y puede darlos de baja, no aprobarlos")
+    @DisplayName("CU-76 y CU-80: el administrador ve los intentos y puede darlos de baja, no aprobarlos")
     void administradorVeLosIntentos() throws Exception {
         mockMvc.perform(get("/intento/buscar").param("cursoId", cursoId()))
                 .andExpect(status().isOk())
@@ -98,7 +98,7 @@ class IntentoSeguimientoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-71: el docente aprueba un intento; el administrador no puede dar de baja desde su cuenta")
+    @DisplayName("CU-79: el docente aprueba un intento; el administrador no puede dar de baja desde su cuenta")
     void docenteApruebaUnIntento() throws Exception {
         mockMvc.perform(post("/intento/aprobar/" + intentoConNota(4f)))
                 .andExpect(status().isOk())
@@ -119,7 +119,7 @@ class IntentoSeguimientoControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-69: el docente ve la matriz con la mejor nota de cada alumno")
+    @DisplayName("CU-77: el docente ve la matriz con la mejor nota de cada alumno")
     void docenteVeLaMatriz() throws Exception {
         mockMvc.perform(get("/intento/buscarPorAutoevaluacion").param("cursoId", cursoId()))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ class IntentoSeguimientoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-69: el alumno ve solo sus calificaciones")
+    @DisplayName("CU-77: el alumno ve solo sus calificaciones")
     void alumnoVeSusCalificaciones() throws Exception {
         mockMvc.perform(get("/intento/buscarPorInscripcion/" + valentina().getIdInscripcion()))
                 .andExpect(status().isOk())

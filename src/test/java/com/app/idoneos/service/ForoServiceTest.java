@@ -101,7 +101,7 @@ class ForoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-35: se buscan las consultas por texto y por rango de fechas, sin distinguir mayúsculas ni tildes")
+    @DisplayName("CU-43: se buscan las consultas por texto y por rango de fechas, sin distinguir mayúsculas ni tildes")
     void busca() {
         assertEquals(1, consultaService.buscarConFiltros(primera(), null, null, null).size());
         assertEquals(1, consultaService.buscarConFiltros(primera(), "MATRICULA", null, null).size());
@@ -115,7 +115,7 @@ class ForoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-35: las consultas se listan con el último mensaje más reciente primero")
+    @DisplayName("CU-43: las consultas se listan con el último mensaje más reciente primero")
     void ordenaPorUltimoMensaje() {
         ConsultaForo nueva = consultaService.registrar(valentina(), primera().getIdTema(), "Otra consulta");
 
@@ -130,7 +130,7 @@ class ForoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-36: el alumno con el tema habilitado registra una consulta")
+    @DisplayName("CU-44: el alumno con el tema habilitado registra una consulta")
     void registraConsulta() {
         ConsultaForo consulta = consultaService.registrar(valentina(), segunda().getIdTema(),
                 "  ¿Qué es el cupón corrido?  ");
@@ -143,7 +143,7 @@ class ForoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-36: falta el texto, supera el máximo o el alumno no tiene el tema habilitado")
+    @DisplayName("CU-44: falta el texto, supera el máximo o el alumno no tiene el tema habilitado")
     void validaAlRegistrar() {
         int tema = segunda().getIdTema();
         assertTrue(mensaje(() -> consultaService.registrar(valentina(), tema, " "))
@@ -169,7 +169,7 @@ class ForoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-37: el alumno modifica su consulta dentro del plazo")
+    @DisplayName("CU-45: el alumno modifica su consulta dentro del plazo")
     void modificaConsulta() {
         ConsultaForo consulta = consultaService.registrar(valentina(), segunda().getIdTema(), "Texto");
 
@@ -181,7 +181,7 @@ class ForoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-37: no se modifica una consulta ajena, vencida, vacía o dada de baja")
+    @DisplayName("CU-45: no se modifica una consulta ajena, vencida, vacía o dada de baja")
     void validaAlModificarConsulta() {
         ConsultaForo consulta = consultaService.registrar(valentina(), segunda().getIdTema(), "Texto");
         int id = consulta.getIdConsulta();
@@ -206,7 +206,7 @@ class ForoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-38: dar de baja una consulta también da de baja sus respuestas")
+    @DisplayName("CU-46: dar de baja una consulta también da de baja sus respuestas")
     void daDeBajaConsultaConRespuestas() {
         ConsultaForo consulta = primera().getConsultasForoOrdenadas().get(0);
         int idRespuesta = consulta.getRespuestasVigentes().get(0).getIdRespuesta();
@@ -225,7 +225,7 @@ class ForoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-40: el docente del curso responde una consulta y esta deja de estar sin responder")
+    @DisplayName("CU-48: el docente del curso responde una consulta y esta deja de estar sin responder")
     void respondeConsulta() {
         ConsultaForo consulta = segunda().getConsultasForoOrdenadas().get(0);
         assertTrue(consulta.estaSinResponder());
@@ -240,7 +240,7 @@ class ForoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-40: falta el texto, supera el máximo, la consulta no está activa o el docente no participa")
+    @DisplayName("CU-48: falta el texto, supera el máximo, la consulta no está activa o el docente no participa")
     void validaAlResponder() {
         ConsultaForo consulta = segunda().getConsultasForoOrdenadas().get(0);
         int id = consulta.getIdConsulta();
@@ -261,7 +261,7 @@ class ForoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-41: el docente modifica su respuesta dentro del plazo, pero no la ajena ni la vencida")
+    @DisplayName("CU-49: el docente modifica su respuesta dentro del plazo, pero no la ajena ni la vencida")
     void modificaRespuesta() {
         ConsultaForo consulta = segunda().getConsultasForoOrdenadas().get(0);
         RespuestaForo respuesta = respuestaService.registrar(fausto(), consulta.getIdConsulta(), "Texto");
@@ -281,7 +281,7 @@ class ForoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-42: el administrador da de baja una respuesta y la consulta vuelve a estar sin responder")
+    @DisplayName("CU-50: el administrador da de baja una respuesta y la consulta vuelve a estar sin responder")
     void daDeBajaRespuesta() {
         ConsultaForo consulta = primera().getConsultasForoOrdenadas().get(0);
         assertFalse(consulta.estaSinResponder());

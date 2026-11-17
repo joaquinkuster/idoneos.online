@@ -109,7 +109,7 @@ class ConsolidacionDeProgresoServiceTest {
     }
 
     @Test
-    @DisplayName("No completa temas de una inscripción dada de baja ni de otro programa")
+    @DisplayName("No completa temas de una inscripción dado de baja ni de otro programa")
     void noCompleta() {
         Inscripcion inscripcion = valentina();
         Tema segunda = temas(inscripcion).get(1);

@@ -90,7 +90,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-44: busca las inscripciones por estado")
+    @DisplayName("CU-52: busca las inscripciones por estado")
     void buscarPorEstado() {
         assertEquals(5, inscripcionService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoInscripcion.HABILITADA).size());
         assertEquals(1, inscripcionService.buscarConFiltros(null, null, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO).size());
@@ -98,7 +98,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-44: busca por curso y por alumno (nombre, DNI o correo, sin tildes ni mayúsculas)")
+    @DisplayName("CU-52: busca por curso y por alumno (nombre, DNI o correo, sin tildes ni mayúsculas)")
     void buscarPorCursoYAlumno() {
         Integer idCurso = cursoService.buscarPorNombre("Finanzas Personales e Inversión").orElseThrow().getIdCurso();
 
@@ -109,7 +109,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-44: no lista las inscripciones dadas de baja")
+    @DisplayName("CU-52: no lista las inscripciones dadas de baja")
     void buscarNoListaLasDadasDeBaja() {
         int antes = inscripcionService.buscarConFiltros(null, null, null).size();
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
@@ -120,7 +120,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: inscribirse a un curso gratuito deja el acceso habilitado, con vencimiento y progreso inicial")
+    @DisplayName("CU-53: inscribirse a un curso gratuito deja el acceso habilitado, con vencimiento y progreso inicial")
     void inscribirCursoGratuito() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         Alumno valentina = alumno(VALENTINA);
@@ -140,7 +140,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: inscribirse a un curso con costo deja la inscripción pendiente de pago")
+    @DisplayName("CU-53: inscribirse a un curso con costo deja la inscripción pendiente de pago")
     void inscribirCursoConCosto() {
         Cohorte cohorte = cohorte("Finanzas Personales e Inversión", com.app.idoneos.model.EstadoCohorte.ABIERTA);
 
@@ -151,7 +151,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: con fechas de dictado, el vencimiento se cuenta desde el inicio del dictado")
+    @DisplayName("CU-53: con fechas de dictado, el vencimiento se cuenta desde el inicio del dictado")
     void inscribirCohorteConDictado() {
         Cohorte cohorte = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         cohorte.getPrograma().getCurso().setPrecio(0);
@@ -164,7 +164,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: la inscripción se rechaza fuera de la ventana de inscripción")
+    @DisplayName("CU-53: la inscripción se rechaza fuera de la ventana de inscripción")
     void inscribirFueraDeLaVentana() {
         Cohorte finalizada = cohorte("Mercado de Capitales Argentino", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA);
 
@@ -174,7 +174,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: la inscripción se rechaza si la cohorte alcanzó su cupo máximo")
+    @DisplayName("CU-53: la inscripción se rechaza si la cohorte alcanzó su cupo máximo")
     void inscribirSinCupo() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         inscripcionService.inscribir(alumno(LUCIA), cohorte.getIdCohorte(), true); // curso sin costo: queda habilitada y ocupa un lugar
@@ -186,7 +186,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: no admite dos inscripciones activas del mismo alumno a una cohorte")
+    @DisplayName("CU-53: no admite dos inscripciones activas del mismo alumno a una cohorte")
     void inscribirDuplicada() {
         Cohorte cohorte = cohorte("Finanzas Personales e Inversión", com.app.idoneos.model.EstadoCohorte.ABIERTA); // Martín ya está inscripto
 
@@ -196,7 +196,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-45: exige aceptar los términos y condiciones, un alumno y una cohorte disponible")
+    @DisplayName("CU-53: exige aceptar los términos y condiciones, un alumno y una cohorte disponible")
     void inscribirSinTerminosNiDatos() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         Alumno valentina = alumno(VALENTINA);
@@ -212,7 +212,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-46: el administrador registra la inscripción de un alumno con las mismas reglas")
+    @DisplayName("CU-54: el administrador registra la inscripción de un alumno con las mismas reglas")
     void registrar() {
         Cohorte cohorte = cohorte("Macroeconomía de Coyuntura", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         Integer idAlumno = alumno(LUCIA).getIdAlumno();
@@ -232,7 +232,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: modifica las observaciones y suspende el acceso, sin tocar el vencimiento")
+    @DisplayName("CU-55: modifica las observaciones y suspende el acceso, sin tocar el vencimiento")
     void modificar() {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         LocalDateTime vencimiento = vigente.getFechaVencimientoAcceso();
@@ -250,7 +250,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: reactivar una suspendida cuyo vencimiento ya pasó la deja con el acceso vencido")
+    @DisplayName("CU-55: reactivar una suspendida cuyo vencimiento ya pasó la deja con el acceso vencido")
     void reactivarUnaSuspendidaVencida() {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         inscripcionService.modificar(vigente.getIdInscripcion(), null, false);
@@ -278,7 +278,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: el administrador no habilita a mano una inscripción pendiente de pago: se habilita al aprobarse el pago")
+    @DisplayName("CU-55: el administrador no habilita a mano una inscripción pendiente de pago: se habilita al aprobarse el pago")
     void noHabilitaSinPagoAprobado() {
         Inscripcion pendiente = inscripcion(LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO);
 
@@ -290,7 +290,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: las observaciones tienen un máximo de caracteres")
+    @DisplayName("CU-55: las observaciones tienen un máximo de caracteres")
     void modificarConObservacionesLargas() {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -299,7 +299,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: una inscripción cancelada por falta de pago o dada de baja no admite ningún cambio")
+    @DisplayName("CU-55: una inscripción cancelada por falta de pago o dada de baja no admite ningún cambio")
     void noModificaUnaInscripcionInmutable() {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         Inscripcion pendiente = inscripcion(LUCIA, com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO);
@@ -318,7 +318,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-47: no se modifica una inscripción dada de baja")
+    @DisplayName("CU-55: no se modifica una inscripción dada de baja")
     void modificarInscripcionDadaDeBaja() {
         Inscripcion vigente = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         inscripcionService.darDeBaja(vigente.getIdInscripcion(), null, null);
@@ -328,7 +328,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-48: corrige el nombre y el DNI de un certificado emitido")
+    @DisplayName("CU-56: corrige el nombre y el DNI de un certificado emitido")
     void corregirCertificado() {
         Certificado certificado = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente();
 
@@ -340,7 +340,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-48: valida los campos obligatorios y el DNI")
+    @DisplayName("CU-56: valida los campos obligatorios y el DNI")
     void corregirCertificadoConDatosInvalidos() {
         Integer id = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA).getCertificadoVigente().getIdCertificado();
 
@@ -352,7 +352,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-48: no se corrige el certificado de una inscripción dada de baja")
+    @DisplayName("CU-56: no se corrige el certificado de una inscripción dada de baja")
     void corregirCertificadoDeInscripcionDadaDeBaja() {
         Inscripcion vencida = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA);
         Integer id = vencida.getCertificadoVigente().getIdCertificado();
@@ -362,7 +362,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-49: el alumno se da de baja: revoca el acceso, da de baja certificado e intentos y conserva los progresos")
+    @DisplayName("CU-57: el alumno se da de baja: revoca el acceso, da de baja certificado e intentos y conserva los progresos")
     void darDeBajaDelAlumno() {
         Inscripcion vencida = inscripcion(MARTIN, com.app.idoneos.model.EstadoInscripcion.VENCIDA);
         Certificado certificado = vencida.getCertificadoVigente();
@@ -389,7 +389,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-49: las consultas de foro del alumno que se da de baja quedan de forma anónima")
+    @DisplayName("CU-57: las consultas de foro del alumno que se da de baja quedan de forma anónima")
     void darDeBajaAnonimizaLosForos() {
         Inscripcion valentina = inscripcionConActividad();
         List<ConsultaForo> consultas = consultaForoRepository.findAll().stream()
@@ -405,7 +405,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-49: un alumno no puede dar de baja la inscripción de otro; el administrador puede con cualquiera")
+    @DisplayName("CU-57: un alumno no puede dar de baja la inscripción de otro; el administrador puede con cualquiera")
     void darDeBajaAjenaYDelAdministrador() {
         Inscripcion valentina = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
         Alumno martin = alumno(MARTIN);
@@ -420,7 +420,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-49: no se da de baja dos veces una inscripción y el motivo tiene un máximo")
+    @DisplayName("CU-57: no se da de baja dos veces una inscripción y el motivo tiene un máximo")
     void darDeBajaInvalida() {
         Inscripcion valentina = inscripcion(VALENTINA, com.app.idoneos.model.EstadoInscripcion.HABILITADA);
 
@@ -433,7 +433,7 @@ class InscripcionGestionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-49: una inscripción dada de baja libera el cupo de la cohorte")
+    @DisplayName("CU-57: una inscripción dada de baja libera el cupo de la cohorte")
     void darDeBajaLiberaElCupo() {
         Cohorte cohorte = cohorte("Finanzas Personales e Inversión", com.app.idoneos.model.EstadoCohorte.ABIERTA);
         int inscriptos = cohorte.getCantidadInscriptos();

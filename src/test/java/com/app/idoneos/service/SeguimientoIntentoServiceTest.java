@@ -61,7 +61,7 @@ class SeguimientoIntentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-68: busca los intentos vigentes del curso y rechaza al docente que no participa en él")
+    @DisplayName("CU-76: busca los intentos vigentes del curso y rechaza al docente que no participa en él")
     void buscarDelCurso() {
         Inscripcion valentina = valentina();
         int idCurso = valentina.getCurso().getIdCurso();
@@ -77,7 +77,7 @@ class SeguimientoIntentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-71: el docente aprueba un intento no aprobado sin cambiar su nota; no uno aprobado ni uno en curso")
+    @DisplayName("CU-79: el docente aprueba un intento no aprobado sin cambiar su nota; no uno aprobado ni uno en curso")
     void aprobarPorDocente() {
         IntentoAutoevaluacion reprobado = intentoConNota(4f);
         assertEquals(IntentoAutoevaluacion.RESULTADO_NO_APROBADO, reprobado.getResultado());
@@ -106,7 +106,7 @@ class SeguimientoIntentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-72: al dar de baja el intento que aprobaba el tema, ésta vuelve a quedar pendiente; aprobar otro la completa de nuevo")
+    @DisplayName("CU-80: al dar de baja el intento que aprobaba el tema, ésta vuelve a quedar pendiente; aprobar otro la completa de nuevo")
     void darDeBajaRevierteLaTema() {
         Inscripcion valentina = valentina();
         var tema1 = autoevaluacionDeLaTema1().getTema();
@@ -124,7 +124,7 @@ class SeguimientoIntentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-72: dar de baja un intento no aprobado o en curso no toca el progreso")
+    @DisplayName("CU-80: dar de baja un intento no aprobado o en curso no toca el progreso")
     void darDeBajaSinEfectoEnElProgreso() {
         Inscripcion valentina = valentina();
         var tema1 = autoevaluacionDeLaTema1().getTema();

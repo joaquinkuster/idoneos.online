@@ -130,7 +130,7 @@ class PagoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-51: el descuento sin condición se aplica a todos y se calcula el monto con él")
+    @DisplayName("CU-59: el descuento sin condición se aplica a todos y se calcula el monto con él")
     void descuentoSinCondicion() {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -140,7 +140,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: aplica un solo descuento, el de mayor porcentaje entre los que cumple")
+    @DisplayName("CU-59: aplica un solo descuento, el de mayor porcentaje entre los que cumple")
     void descuentoDeMayorPorcentaje() {
         // Valentina compró 2 cursos (Mercado y Análisis): cumple "Alumno frecuente" (20%) y el de bienvenida (10%)
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
@@ -150,7 +150,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: no aplica descuentos vencidos, agotados, próximos ni dados de baja")
+    @DisplayName("CU-59: no aplica descuentos vencidos, agotados, próximos ni dados de baja")
     void descuentosNoVigentes() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
         descuento("Alumno frecuente").setCantidadUsada(50); // agotado
@@ -162,7 +162,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: los cursos comprados son las inscripciones habilitadas con pago aprobado")
+    @DisplayName("CU-59: los cursos comprados son las inscripciones habilitadas con pago aprobado")
     void cursosComprados() {
         // Valentina compró 2 cursos y Lucía solo 1: el descuento de 2 cursos le corresponde a Valentina y no a Lucía
         Inscripcion deValentina = inscribirAFinanzas(VALENTINA);
@@ -179,7 +179,7 @@ class PagoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-52: reintentar crea un pago nuevo; el rechazado conserva su identificador de intención y su motivo")
+    @DisplayName("CU-60: reintentar crea un pago nuevo; el rechazado conserva su identificador de intención y su motivo")
     void reintentaConUnPagoNuevo() {
         Inscripcion lucia = pendienteDeLucia();
         Pago rechazado = lucia.getPagoSinAprobar();
@@ -209,7 +209,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: un pago nuevo se registra pendiente, con MODO como método, el monto con descuento y su solicitud")
+    @DisplayName("CU-59: un pago nuevo se registra pendiente, con MODO como método, el monto con descuento y su solicitud")
     void iniciaUnPagoNuevo() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
 
@@ -227,7 +227,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: con el pago aprobado se habilita el acceso, se cuenta el uso del descuento y se emite el comprobante")
+    @DisplayName("CU-59: con el pago aprobado se habilita el acceso, se cuenta el uso del descuento y se emite el comprobante")
     void apruebaElPago() {
         Inscripcion lucia = pendienteDeLucia();
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
@@ -251,7 +251,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: un pago rechazado queda rechazado con el motivo, no habilita el acceso ni cuenta el descuento")
+    @DisplayName("CU-59: un pago rechazado queda rechazado con el motivo, no habilita el acceso ni cuenta el descuento")
     void rechazaElPago() {
         Inscripcion lucia = pendienteDeLucia();
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
@@ -273,7 +273,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: sin pago el pago sigue pendiente hasta el vencimiento más el margen y entonces, con la respuesta de MODO, se rechaza")
+    @DisplayName("CU-59: sin pago el pago sigue pendiente hasta el vencimiento más el margen y entonces, con la respuesta de MODO, se rechaza")
     void vencePorFaltaDePago() {
         pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
@@ -305,7 +305,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: mientras MODO diga Processing el pago no se rechaza, aunque haya pasado el vencimiento y el margen")
+    @DisplayName("CU-59: mientras MODO diga Processing el pago no se rechaza, aunque haya pasado el vencimiento y el margen")
     void procesandoNoSeRechaza() {
         Inscripcion lucia = pendienteDeLucia();
         SolicitudPago solicitud = pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno());
@@ -322,7 +322,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: si MODO no responde no se decide nada: el pago sigue pendiente y la inscripción conserva su lugar")
+    @DisplayName("CU-59: si MODO no responde no se decide nada: el pago sigue pendiente y la inscripción conserva su lugar")
     void sinRespuestaDeModoNoSeRechaza() {
         pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
@@ -344,7 +344,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: si MODO ya aprobó el pago, vence el plazo pero gana el resultado de MODO")
+    @DisplayName("CU-59: si MODO ya aprobó el pago, vence el plazo pero gana el resultado de MODO")
     void elResultadoDeModoGanaAlPlazo() {
         Inscripcion lucia = pendienteDeLucia();
         SolicitudPago solicitud = pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno());
@@ -355,7 +355,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: volver a pagar con un pago en curso retoma su solicitud en lugar de crear otra")
+    @DisplayName("CU-59: volver a pagar con un pago en curso retoma su solicitud en lugar de crear otra")
     void retomaElPagoEnCurso() {
         pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
@@ -372,7 +372,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-46: al registrar la inscripción, si el descuento del alumno cubre todo el precio queda habilitada sin pago")
+    @DisplayName("CU-54: al registrar la inscripción, si el descuento del alumno cubre todo el precio queda habilitada sin pago")
     void administradorHabilitaSiNoHayQuePagar() {
         Descuento beca = descuentoRepository.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 5, 0));
@@ -391,7 +391,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: si el descuento cubre todo el precio, se habilita el acceso sin registrar ningún pago ni comprobante")
+    @DisplayName("CU-59: si el descuento cubre todo el precio, se habilita el acceso sin registrar ningún pago ni comprobante")
     void descuentoTotal() {
         descuentoRepository.save(new Descuento("Beca completa", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 5, 0));
@@ -412,7 +412,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: el descuento que cubre todo el precio cuenta su uso y, al agotarse, deja de aplicarse")
+    @DisplayName("CU-59: el descuento que cubre todo el precio cuenta su uso y, al agotarse, deja de aplicarse")
     void descuentoTotalCuentaSuUso() {
         descuentoRepository.save(new Descuento("Beca de uno", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 1, 0));
@@ -429,7 +429,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: la inscripción habilitada por un descuento total no cuenta como curso comprado")
+    @DisplayName("CU-59: la inscripción habilitada por un descuento total no cuenta como curso comprado")
     void descuentoTotalNoCuentaComoCursoComprado() {
         descuentoRepository.save(new Descuento("Beca de uno", 0, 100, LocalDateTime.now().minusDays(1),
                 LocalDateTime.now().plusDays(10), 1, 0));
@@ -444,7 +444,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: no se crea una solicitud por un monto menor al mínimo de MODO")
+    @DisplayName("CU-59: no se crea una solicitud por un monto menor al mínimo de MODO")
     void montoMenorAlMinimo() {
         Inscripcion lucia = pendienteDeLucia();
         lucia.getCurso().setPrecio(20f);
@@ -455,7 +455,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: solo el dueño paga una inscripción que no esté habilitada, paga ni vencida")
+    @DisplayName("CU-59: solo el dueño paga una inscripción que no esté habilitada, paga ni vencida")
     void validacionesDelPago() {
         Inscripcion lucia = pendienteDeLucia();
         assertThrows(IllegalArgumentException.class,
@@ -476,7 +476,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-52: solo se reintenta un pago rechazado, de una inscripción sin acceso, y propio")
+    @DisplayName("CU-60: solo se reintenta un pago rechazado, de una inscripción sin acceso, y propio")
     void validacionesDelReintento() {
         Inscripcion lucia = pendienteDeLucia();
         Pago rechazado = lucia.getPagoSinAprobar();
@@ -492,7 +492,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: el aviso de MODO identifica el pago por su solicitud o su identificador externo y se concilia")
+    @DisplayName("CU-59: el aviso de MODO identifica el pago por su solicitud o su identificador externo y se concilia")
     void procesaElAvisoDeModo() {
         Inscripcion lucia = pendienteDeLucia();
         SolicitudPago solicitud = pagoService.iniciar(lucia.getIdInscripcion(), lucia.getAlumno());
@@ -506,7 +506,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: la conciliación periódica resuelve los pagos pendientes")
+    @DisplayName("CU-59: la conciliación periódica resuelve los pagos pendientes")
     void conciliaLosPendientes() {
         pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
@@ -523,7 +523,7 @@ class PagoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-54: en un pago de MODO el código de referencia son letras y números, y el número de comprobante, solo números")
+    @DisplayName("CU-62: en un pago de MODO el código de referencia son letras y números, y el número de comprobante, solo números")
     void formatosDeUnPagoDeModo() {
         Integer id = pagoPendienteDeLucia().getIdPago();
         String comprobante = "123456789012345678901234567890";
@@ -548,7 +548,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-51: si el monto a cobrar cambió respecto del que el alumno vio en la caja, no se cobra y se avisa")
+    @DisplayName("CU-59: si el monto a cobrar cambió respecto del que el alumno vio en la caja, no se cobra y se avisa")
     void avisaSiCambioElMonto() {
         Inscripcion lucia = pendienteDeLucia();
         float actual = pagoService.calcularMontoAPagar(lucia);
@@ -561,7 +561,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-53: un pago aprobado que no cubre el precio del curso no habilita la inscripción")
+    @DisplayName("CU-61: un pago aprobado que no cubre el precio del curso no habilita la inscripción")
     void pagoParcialNoHabilita() {
         Inscripcion lucia = pendienteDeLucia();
 
@@ -573,7 +573,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-53: registra el pago por transferencia: queda aprobado, habilita el acceso y emite el comprobante")
+    @DisplayName("CU-61: registra el pago por transferencia: queda aprobado, habilita el acceso y emite el comprobante")
     void registraUnPagoManual() {
         Inscripcion lucia = pendienteDeLucia();
         Pago anterior = lucia.getPagoSinAprobar(); // el rechazado de MODO se conserva
@@ -595,7 +595,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-53: al registrar un pago aprobado, el pago pendiente de la inscripción queda rechazado y se crea uno nuevo")
+    @DisplayName("CU-61: al registrar un pago aprobado, el pago pendiente de la inscripción queda rechazado y se crea uno nuevo")
     void registrarUnPagoRechazaElPendiente() {
         Inscripcion lucia = pendienteDeLucia();
         Pago pendiente = lucia.getPagoSinAprobar();
@@ -614,7 +614,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-53: informa los datos obligatorios que faltan y los inválidos")
+    @DisplayName("CU-61: informa los datos obligatorios que faltan y los inválidos")
     void validacionesDelPagoManual() {
         Inscripcion lucia = pendienteDeLucia();
         Integer id = lucia.getIdInscripcion();
@@ -634,7 +634,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-53: no se registra el pago de una inscripción que ya está paga")
+    @DisplayName("CU-61: no se registra el pago de una inscripción que ya está paga")
     void pagoManualDeUnaInscripcionPaga() {
         Inscripcion deMartin = inscripcionService.buscarConFiltros(null, MARTIN, com.app.idoneos.model.EstadoInscripcion.HABILITADA).get(0);
 
@@ -643,7 +643,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-53: una inscripción nueva sin pagos recibe un registro de pago nuevo")
+    @DisplayName("CU-61: una inscripción nueva sin pagos recibe un registro de pago nuevo")
     void pagoManualDeUnaInscripcionNueva() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
 
@@ -660,7 +660,7 @@ class PagoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-54: acredita un pago de MODO pendiente indicando el pagador: habilita el acceso y emite el comprobante")
+    @DisplayName("CU-62: acredita un pago de MODO pendiente indicando el pagador: habilita el acceso y emite el comprobante")
     void acreditaUnPagoDeModo() {
         Inscripcion lucia = pendienteDeLucia();
         Pago pendiente = pagoPendienteDeLucia();
@@ -676,7 +676,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-54: al aprobar un pago con descuento cuenta su uso, igual que el pago online")
+    @DisplayName("CU-62: al aprobar un pago con descuento cuenta su uso, igual que el pago online")
     void acreditarCuentaElDescuento() {
         Pago pendiente = pagoPendienteDeLucia();
         int usosAntes = descuento("Descuento de bienvenida").getCantidadUsada();
@@ -687,7 +687,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-54: exige el nombre y el DNI del pagador para aprobar un pago de MODO")
+    @DisplayName("CU-62: exige el nombre y el DNI del pagador para aprobar un pago de MODO")
     void exigeElPagadorDeModo() {
         Pago pendiente = pagoPendienteDeLucia();
         Integer id = pendiente.getIdPago();
@@ -699,7 +699,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-54: marca un pago pendiente como rechazado: solo pide el motivo, que es obligatorio, y ya no se vuelve a modificar")
+    @DisplayName("CU-62: marca un pago pendiente como rechazado: solo pide el motivo, que es obligatorio, y ya no se vuelve a modificar")
     void rechazaManualmente() {
         pasarela.dejarPendiente();
         Inscripcion lucia = pendienteDeLucia();
@@ -724,7 +724,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-54: solo se modifica un pago pendiente (el aprobado y el rechazado no), con un estado válido y un monto válido")
+    @DisplayName("CU-62: solo se modifica un pago pendiente (el aprobado y el rechazado no), con un estado válido y un monto válido")
     void validacionesDeModificarPago() {
         Pago rechazado = pendienteDeLucia().getPagoSinAprobar();
         Pago pendiente = pagoPendienteDeLucia();
@@ -742,7 +742,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-54: un pago por transferencia exige su comprobante y no admite uno repetido")
+    @DisplayName("CU-62: un pago por transferencia exige su comprobante y no admite uno repetido")
     void transferenciaExigeComprobante() {
         Inscripcion nueva = inscribirAFinanzas(VALENTINA);
         Pago transferencia = pagoRepository.save(new Pago(estadoPagoRepository.findByNombre(EstadoPago.PENDIENTE).orElseThrow(),
@@ -764,7 +764,7 @@ class PagoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-50: busca por estado, curso, alumno y fechas")
+    @DisplayName("CU-58: busca por estado, curso, alumno y fechas")
     void buscaPagos() {
         assertEquals(6, pagoService.buscarConFiltros(null, null, "Aprobado", null, null, null).size());
         assertEquals(1, pagoService.buscarConFiltros(null, null, "rechazado", null, null, null).size());
@@ -782,7 +782,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-50: el alumno ve solo sus pagos, del más reciente al más antiguo")
+    @DisplayName("CU-58: el alumno ve solo sus pagos, del más reciente al más antiguo")
     void elAlumnoVeSoloSusPagos() {
         List<Pago> deLucia = pagoService.buscarConFiltros(null, null, null, null, null, alumno(LUCIA));
 
@@ -793,7 +793,7 @@ class PagoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-50: el alumno no accede al pago de otro, el administrador sí")
+    @DisplayName("CU-58: el alumno no accede al pago de otro, el administrador sí")
     void pagoVisible() {
         Pago deLucia = pendienteDeLucia().getPagoSinAprobar();
 

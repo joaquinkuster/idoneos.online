@@ -89,7 +89,7 @@ class TerminoGlosarioServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-32: sin texto se devuelven todos los términos del tema, en orden alfabético")
+    @DisplayName("CU-40: sin texto se devuelven todos los términos del tema, en orden alfabético")
     void buscaTodos() {
         assertEquals(List.of("BYMA", "CNV", "ON"), nombres(glosarioService.buscarConFiltros(primera(), null, true)));
         assertEquals(List.of("Duration", "TIR"), nombres(glosarioService.buscarConFiltros(segunda(), "  ", true)));
@@ -97,7 +97,7 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-32: la casilla decide si se busca solo en el término o también en la definición")
+    @DisplayName("CU-40: la casilla decide si se busca solo en el término o también en la definición")
     void buscaEnTerminosYDefiniciones() {
         // "mercado" figura en las definiciones de BYMA y CNV, pero en ningún término
         assertEquals(List.of("BYMA", "CNV"), nombres(glosarioService.buscarConFiltros(primera(), "mercado", true)));
@@ -107,14 +107,14 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-32: la búsqueda no distingue mayúsculas ni tildes")
+    @DisplayName("CU-40: la búsqueda no distingue mayúsculas ni tildes")
     void buscaSinTildesNiMayusculas() {
         assertEquals(List.of("CNV"), nombres(glosarioService.buscarConFiltros(primera(), "COMISION", true)));
         assertEquals(List.of("ON"), nombres(glosarioService.buscarConFiltros(primera(), "obligación", true)));
     }
 
     @Test
-    @DisplayName("CU-32: los términos con tilde se ordenan según su letra, no al final")
+    @DisplayName("CU-40: los términos con tilde se ordenan según su letra, no al final")
     void ordenaSinTildes() {
         glosarioService.registrar(fausto(), primera().getIdTema(), "Álgebra", "Definición");
         glosarioService.registrar(fausto(), primera().getIdTema(), "Zeta", "Definición");
@@ -128,7 +128,7 @@ class TerminoGlosarioServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-33: el docente del curso registra un término con su definición")
+    @DisplayName("CU-41: el docente del curso registra un término con su definición")
     void registra() {
         TerminoGlosario nuevo = glosarioService.registrar(fausto(), tercera().getIdTema(), "  Opción  ",
                 " Derecho a comprar o vender un activo a un precio fijado. ");
@@ -141,7 +141,7 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-33: faltan datos, superan el máximo, el término ya existe o el docente no participa")
+    @DisplayName("CU-41: faltan datos, superan el máximo, el término ya existe o el docente no participa")
     void validaAlRegistrar() {
         int tema = primera().getIdTema();
         assertTrue(mensaje(() -> glosarioService.registrar(fausto(), tema, "", "Definición"))
@@ -168,7 +168,7 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-33: un docente que no participa en el curso no puede registrar términos")
+    @DisplayName("CU-41: un docente que no participa en el curso no puede registrar términos")
     void docenteAjenoNoRegistra() {
         Tema ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios");
 
@@ -177,7 +177,7 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-33: un término dado de baja se vuelve a dar de alta con la nueva definición")
+    @DisplayName("CU-41: un término dado de baja se vuelve a dar de alta con la nueva definición")
     void reactivaElTerminoDadoDeBaja() {
         TerminoGlosario byma = terminoRepository.findByTema(primera()).stream()
                 .filter(t -> t.getTermino().equals("BYMA")).findFirst().orElseThrow();
@@ -198,7 +198,7 @@ class TerminoGlosarioServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-34: el docente modifica el término y la definición, y queda registrada la fecha")
+    @DisplayName("CU-42: el docente modifica el término y la definición, y queda registrada la fecha")
     void modifica() {
         TerminoGlosario tir = terminoRepository.findByTema(segunda()).stream()
                 .filter(t -> t.getTermino().equals("TIR")).findFirst().orElseThrow();
@@ -214,7 +214,7 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-34: valida los datos, rechaza un término repetido y exige participar en el curso")
+    @DisplayName("CU-42: valida los datos, rechaza un término repetido y exige participar en el curso")
     void validaAlModificar() {
         TerminoGlosario tir = terminoRepository.findByTema(segunda()).stream()
                 .filter(t -> t.getTermino().equals("TIR")).findFirst().orElseThrow();
@@ -231,7 +231,7 @@ class TerminoGlosarioServiceTest {
     }
 
     @Test
-    @DisplayName("CU-34 y CU-35: un docente que no participa en el curso no modifica ni da de baja sus términos")
+    @DisplayName("CU-42 y CU-43: un docente que no participa en el curso no modifica ni da de baja sus términos")
     void docenteAjenoNoModificaNiDaDeBaja() {
         Tema ajena = tema("Macroeconomía de Coyuntura", "Inflación y precios");
         TerminoGlosario ipc = glosarioService.registrar(fausto(), ajena.getIdTema(), "IPC",
@@ -250,7 +250,7 @@ class TerminoGlosarioServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-35: el docente da de baja un término (baja lógica) y el administrador también, sin participar")
+    @DisplayName("CU-43: el docente da de baja un término (baja lógica) y el administrador también, sin participar")
     void daDeBaja() {
         TerminoGlosario cnv = terminoRepository.findByTema(primera()).stream()
                 .filter(t -> t.getTermino().equals("CNV")).findFirst().orElseThrow();

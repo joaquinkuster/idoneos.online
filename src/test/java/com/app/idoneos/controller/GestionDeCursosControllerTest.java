@@ -27,7 +27,7 @@ class GestionDeCursosControllerTest {
     private MockMvc mockMvc;
 
     @Test
-    @DisplayName("CU-06: el catálogo de cursos es público")
+    @DisplayName("CU-07: el catálogo de cursos es público")
     void catalogoEsPublico() throws Exception {
         mockMvc.perform(get("/catalogo"))
                 .andExpect(status().isOk())
@@ -74,7 +74,7 @@ class GestionDeCursosControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-01, CU-07 y CU-11: el administrador accede a los listados del panel de cursos, categorías y cohortes")
+    @DisplayName("CU-01, CU-09 y CU-13: el administrador accede a los listados del panel de cursos, categorías y cohortes")
     void administradorAccedeALasBusquedas() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/curso/buscarPorAdministrador"));
@@ -145,7 +145,7 @@ class GestionDeCursosControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-11: \"Mis cohortes\" del docente trae todas sus cohortes y las filtra en la pantalla, aunque llegue un filtro por la URL")
+    @DisplayName("CU-13: \"Mis cohortes\" del docente trae todas sus cohortes y las filtra en la pantalla, aunque llegue un filtro por la URL")
     void docenteFiltraSusCohortesEnLaPantalla() throws Exception {
         mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1").param("estado", com.app.idoneos.model.EstadoCohorte.CURSADA_FINALIZADA))
                 .andExpect(status().isOk())
@@ -169,7 +169,7 @@ class GestionDeCursosControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-01 y CU-11: el docente busca cursos y cohortes, pero no gestiona categorías")
+    @DisplayName("CU-01 y CU-13: el docente busca cursos y cohortes, pero no gestiona categorías")
     void docenteBuscaCursosYCohortes() throws Exception {
         mockMvc.perform(get("/curso/buscar")).andExpect(status().isOk());
         mockMvc.perform(get("/cohorte/buscar").param("cursoId", "1")).andExpect(status().isOk());

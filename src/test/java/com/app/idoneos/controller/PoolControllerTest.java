@@ -63,7 +63,7 @@ class PoolControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-60: el docente ve el listado sin 'Ver detalle' ni 'Última modificación', con las ventanas de crear y modificar")
+    @DisplayName("CU-68: el docente ve el listado sin 'Ver detalle' ni 'Última modificación', con las ventanas de crear y modificar")
     void listadoDelDocente() throws Exception {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
@@ -83,7 +83,7 @@ class PoolControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-62: el pool con intentos no se modifica: su botón está deshabilitado y no tiene ventana de edición")
+    @DisplayName("CU-70: el pool con intentos no se modifica: su botón está deshabilitado y no tiene ventana de edición")
     void poolConIntentos() throws Exception {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
@@ -117,7 +117,7 @@ class PoolControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-61: la ventana de alta ofrece los temas del programa y la de modificación trae las preguntas del pool")
+    @DisplayName("CU-69: la ventana de alta ofrece los temas del programa y la de modificación trae las preguntas del pool")
     void ventanasDelFormulario() throws Exception {
         mockMvc.perform(get("/pool/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ class PoolControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-61 y CU-62: registrar y modificar responden en JSON e informan los errores")
+    @DisplayName("CU-69 y CU-70: registrar y modificar responden en JSON e informan los errores")
     void registrarYModificar() throws Exception {
         String tema = String.valueOf(tema("Renta variable y opciones"));
         mockMvc.perform(post("/pool/registrar").param("temaId", tema).param("nombre", "Nuevo pool")
@@ -161,7 +161,7 @@ class PoolControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-63: dar de baja responde en JSON y se rechaza si una autoevaluación activa usa el pool")
+    @DisplayName("CU-71: dar de baja responde en JSON y se rechaza si una autoevaluación activa usa el pool")
     void darDeBaja() throws Exception {
         mockMvc.perform(post("/pool/darDeBaja/" + pool("Renta fija")))
                 .andExpect(status().isBadRequest())

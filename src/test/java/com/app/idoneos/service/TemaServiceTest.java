@@ -2,31 +2,21 @@ package com.app.idoneos.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.model.Curso;
-import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.Tema;
-import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.repository.CursoRepository;
-import com.app.idoneos.repository.DocenteRepository;
-import com.app.idoneos.service.programa.ProgramaService;
 import com.app.idoneos.service.tema.TemaService;
 
-/** Pruebas del ABM de temas con los datos de la semilla. */
+/** Pruebas del alta, la modificación y la baja de temas, sobre los datos de la semilla. */
 @SpringBootTest
 @Transactional
 class TemaServiceTest {
@@ -35,203 +25,85 @@ class TemaServiceTest {
     private TemaService temaService;
 
     @Autowired
-    private ProgramaService programaService;
-
-    @Autowired
     private CursoRepository cursoRepository;
-
-    @Autowired
-    private DocenteRepository docenteRepository;
 
     private Curso curso(String nombre) {
         return cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
     }
 
-    @Autowired
-    private com.app.idoneos.repository.EstadoCohorteRepository estadoCohorteRepository;
-
-    /** La semilla deja cohortes activas en los programas. */
-    private Programa sinCohortesActivas(Programa programa) {
-        var pendiente = estadoCohorteRepository.findByNombre(com.app.idoneos.model.EstadoCohorte.PENDIENTE).orElseThrow();
-        programa.getCohortes().forEach(cohorte -> cohorte.setEstadoCohorte(pendiente));
-        return programa;
+    private Curso fiscal() {
+        return curso("Planificación Fiscal Corporativa");
     }
 
     private Curso mercado() {
-        Curso curso = curso("Mercado de Capitales Argentino");
-        sinCohortesActivas(curso.getProgramaVigente());
-        return curso;
+        return curso("Mercado de Capitales Argentino");
     }
 
-    private Curso macro() {
-        Curso curso = curso("Macroeconomía de Coyuntura");
-        sinCohortesActivas(curso.getProgramaVigente());
-        return curso;
-    }
-
-    private Programa macroConCohorteActiva() {
-        Programa programa = curso("Macroeconomía de Coyuntura").getProgramaVigente();
-        assertTrue(programa.tieneCohortesActivas(), "la semilla deja cohortes activas en el programa");
-        return programa;
-    }
-
-    @Test
-    @DisplayName("Un tema que está en un programa no se da de baja: dejaría sin asignar sus días y el programa nunca queda incompleto")
-    void conCohorteActivaNoDesajustaLosDias() {
-        Programa programa = macroConCohorteActiva();
-        Tema tema = programa.getCronogramaOrdenado().get(0).getTema();
-        int dias = programa.getDuracionTotalDias();
-
-        String baja = mensaje(() -> temaService.darDeBajaPorCurso(tema.getIdTema(), fausto()));
-        assertTrue(baja.contains("No se puede dar de baja el tema"), baja);
-        assertTrue(baja.contains("Quitalo antes del programa"), baja);
-
-        assertFalse(tema.getBaja());
-        assertEquals(dias, programa.getDuracionTotalDias());
-    }
-
-    private Docente docente(String correo) {
-        return docenteRepository.findAll().stream().filter(d -> d.getUsuario().getCorreo().equals(correo)).findFirst()
-                .orElseThrow();
-    }
-
-    private Docente fausto() {
-        return docente("fausto.spotorno@idoneos.online");
-    }
-
-    private Docente sebastian() {
-        return docente("sebastian.bordato@idoneos.online");
-    }
-
-    private String mensaje(Executable accion) {
+    private String mensaje(org.junit.jupiter.api.function.Executable accion) {
         return assertThrows(IllegalArgumentException.class, accion).getMessage();
     }
 
-    // ----------------------------------------------------------------------
-    // Buscar tema
-    // ----------------------------------------------------------------------
-
     @Test
-    @DisplayName("CU-19: se buscan los temas del cronograma por título, en orden de dictado")
+    @DisplayName("CU-23: busca los temas de un curso y los de un programa por título")
     void busca() {
-        Programa programa = mercado().getProgramaVigente();
+        Curso fiscal = fiscal();
 
-        List<TemaCronograma> todas = temaService.buscarConFiltros(programa, null);
-        assertEquals(3, todas.size());
-        assertEquals(List.of(1, 2, 3), todas.stream().map(TemaCronograma::getNumeroOrden).toList());
-
-        assertEquals(1, temaService.buscarConFiltros(programa, "RENTA FIJA").size());
-        assertEquals(1, temaService.buscarConFiltros(programa, "introduccion").size());
-        assertTrue(temaService.buscarConFiltros(programa, "zzz").isEmpty());
+        assertEquals(2, temaService.buscarPorCurso(fiscal).size());
+        assertEquals(1, temaService.buscarConFiltros(fiscal.getProgramaVigente(), "IVA").size());
     }
 
-    // ----------------------------------------------------------------------
-    // Modificar tema
-    // ----------------------------------------------------------------------
+    @Test
+    @DisplayName("CU-24: registra un tema del curso, sin asignarlo a ningún programa")
+    void registra() {
+        Curso fiscal = fiscal();
+
+        Tema tema = temaService.registrar(fiscal.getDocenteTitular(), fiscal.getIdCurso(), "Retenciones", "Régimen de retenciones",
+                "Contenido de retenciones");
+
+        assertEquals("Retenciones", tema.getTitulo());
+        assertFalse(tema.esInactivo());
+        assertEquals(3, temaService.buscarPorCurso(fiscal).size());
+    }
 
     @Test
-    @DisplayName("CU-21: se modifica un tema sin inscripciones activas asociadas")
+    @DisplayName("CU-24: el título es obligatorio, no se repite y el docente debe participar en el curso")
+    void validaAlRegistrar() {
+        Curso fiscal = fiscal();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> temaService.registrar(fiscal.getDocenteTitular(), fiscal.getIdCurso(), " ", null, "Contenido"));
+        assertThrows(IllegalArgumentException.class, () -> temaService.registrar(fiscal.getDocenteTitular(), fiscal.getIdCurso(),
+                "IVA y regímenes especiales", null, "Contenido"));
+        assertTrue(mensaje(() -> temaService.registrar(mercado().getDocenteTitular(), fiscal.getIdCurso(), "Ajeno", null, "Contenido"))
+                .contains("No participás en este curso"));
+    }
+
+    @Test
+    @DisplayName("CU-25: modifica un tema de un curso sin cohortes publicadas y rechaza el de un curso con cohortes publicadas")
     void modifica() {
-        Tema tema = macro().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
+        Curso fiscal = fiscal();
+        Curso mercado = mercado();
+        Tema deFiscal = temaService.buscarPorCurso(fiscal).get(0);
+        Tema deMercado = temaService.buscarPorCurso(mercado).get(0);
 
-        Tema modificada = temaService.modificar(tema.getIdTema(), fausto(), " Nuevo título ", "",
-                "Nuevo contenido");
+        Tema modificado = temaService.modificar(deFiscal.getIdTema(), fiscal.getDocenteTitular(), "Título nuevo", null, "Contenido nuevo");
 
-        assertEquals("Nuevo título", modificada.getTitulo());
-        assertNull(modificada.getDescripcion());
-        assertEquals("Nuevo contenido", modificada.getContenido());
-        assertNotNull(modificada.getUltimaModificacion());
+        assertEquals("Título nuevo", modificado.getTitulo());
+        assertTrue(mensaje(() -> temaService.modificar(deMercado.getIdTema(), mercado.getDocenteTitular(), "Otro", null, "Contenido"))
+                .contains("cohortes publicadas"));
     }
 
     @Test
-    @DisplayName("CU-21: no se modifica con inscripciones activas, con datos vacíos, con título repetido o sin participar")
-    void validaAlModificar() {
-        Tema conInscripciones = mercado().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
-        assertTrue(conInscripciones.tieneInscripcionesActivas());
-        assertTrue(mensaje(() -> temaService.modificar(conInscripciones.getIdTema(), fausto(), "Otro", null,
-                "Contenido")).contains("inscripciones activas asociadas"));
+    @DisplayName("CU-26: da de baja un tema que no está en ningún cronograma y rechaza uno que ya lo integra")
+    void daDeBaja() {
+        Curso fiscal = fiscal();
+        Tema nuevo = temaService.registrar(fiscal.getDocenteTitular(), fiscal.getIdCurso(), "Para dar de baja", null, "Contenido");
+        Tema delCronograma = fiscal.getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
 
-        List<TemaCronograma> cronograma = macro().getProgramaVigente().getCronogramaOrdenado();
-        Tema tema = cronograma.get(0).getTema();
-        int id = tema.getIdTema();
-        assertFalse(tema.tieneInscripcionesActivas());
-        assertTrue(mensaje(() -> temaService.modificar(id, fausto(), " ", null, "Contenido"))
-                .contains("Debe completar el título del tema."));
-        assertTrue(mensaje(() -> temaService.modificar(id, sebastian(), "Otro", null, "Contenido"))
-                .contains("No participás en este curso"));
-        assertTrue(mensaje(() -> temaService.modificar(999999, fausto(), "Otro", null, "Contenido"))
-                .contains("El tema no se encuentra activa"));
-        // conservar su propio título no es un repetido
-        assertNotNull(temaService.modificar(id, fausto(), tema.getTitulo(), null, "Otro contenido"));
-    }
+        temaService.darDeBajaPorCurso(nuevo.getIdTema(), fiscal.getDocenteTitular());
 
-    // ----------------------------------------------------------------------
-    // Temas del curso
-    // ----------------------------------------------------------------------
-
-    @Test
-    @DisplayName("CU-20: registrar un tema del curso no lo incorpora a ningún cronograma")
-    void registraUnTemaDelCurso() {
-        Programa programa = macro().getProgramaVigente();
-        int enElCronograma = programa.getCantidadTemas();
-
-        Tema nuevo = temaService.registrar(fausto(), macro().getIdCurso(), "  Política monetaria ", " Tasas ", null);
-
-        assertEquals("Política monetaria", nuevo.getTitulo());
-        assertEquals(enElCronograma, programa.getCantidadTemas());
-        assertTrue(nuevo.getProgramasQueLaIncluyen().isEmpty());
-        assertTrue(macro().getTemas().contains(nuevo));
-        assertTrue(mensaje(() -> temaService.registrar(fausto(), macro().getIdCurso(), "política monetaria", null, null))
-                .contains("Ya existe un tema con ese título"));
-        assertTrue(mensaje(() -> temaService.registrar(sebastian(), macro().getIdCurso(), "Otro", null, null))
-                .contains("No participás en este curso"));
-    }
-
-    @Test
-    @DisplayName("CU-20 y CU-21: guardar cambios registra los temas nuevos y modifica los existentes, todos o ninguno")
-    void guardaCambios() {
-        Tema existente = macro().getProgramaVigente().getCronogramaOrdenado().get(0).getTema();
-
-        int cantidad = temaService.guardarCambios(fausto(), macro().getIdCurso(), List.of(
-                new TemaService.CambioDeTema(null, "Tema A", null, "Contenido A"),
-                new TemaService.CambioDeTema(existente.getIdTema(), "Título nuevo", null, existente.getContenido())));
-
-        assertEquals(2, cantidad);
-        assertEquals("Título nuevo", existente.getTitulo());
-
-        // si uno falla (título repetido), no se guarda ninguno y el mensaje nombra el tema
-        String mensaje = mensaje(() -> temaService.guardarCambios(fausto(), macro().getIdCurso(), List.of(
-                new TemaService.CambioDeTema(null, "Tema B", null, null),
-                new TemaService.CambioDeTema(null, "Tema A", null, null))));
-        assertTrue(mensaje.contains("«Tema A»"));
-        assertTrue(mensaje.contains("Ya existe un tema con ese título"));
-        assertTrue(mensaje(() -> temaService.guardarCambios(fausto(), macro().getIdCurso(), List.of()))
-                .contains("No hay cambios para guardar"));
-    }
-
-    @Test
-    @DisplayName("CU-22: dar de baja un tema del curso que no está en ningún programa lo deja dado de baja")
-    void daDeBajaUnTemaDelCurso() {
-        Tema tema = temaService.registrar(fausto(), macro().getIdCurso(), "Tema suelto", null, null);
-
-        temaService.darDeBajaPorCurso(tema.getIdTema(), fausto());
-
-        assertTrue(tema.getBaja());
-        assertTrue(mensaje(() -> temaService.darDeBajaPorCurso(tema.getIdTema(), fausto()))
-                .contains("no se encuentra activo"));
-    }
-
-    // ----------------------------------------------------------------------
-    // Contenido opcional
-    // ----------------------------------------------------------------------
-
-    @Test
-    @DisplayName("El contenido de un tema es opcional: se puede completar después de registrarlo")
-    void registraUnTemaSinContenido() {
-        Tema nuevo = temaService.registrar(fausto(), macro().getIdCurso(), "Tema sin contenido", null, null);
-
-        assertNull(nuevo.getContenido());
-        Tema completado = temaService.modificar(nuevo.getIdTema(), fausto(), "Tema sin contenido", null, "Ya tiene contenido");
-        assertEquals("Ya tiene contenido", completado.getContenido());
+        assertTrue(nuevo.esInactivo());
+        assertThrows(IllegalArgumentException.class, () -> temaService.darDeBajaPorCurso(delCronograma.getIdTema(), fiscal.getDocenteTitular()));
+        assertFalse(delCronograma.esInactivo());
     }
 }

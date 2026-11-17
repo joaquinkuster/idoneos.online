@@ -89,7 +89,7 @@ class RecursoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-29: sube una grabación como recurso del docente y la guarda en curso{id}/tema{id}/recurso{id}.mp4")
+    @DisplayName("CU-37: sube una grabación como recurso del docente y la guarda en curso{id}/tema{id}/recurso{id}.mp4")
     void subeUnaGrabacion() {
         TemaRecurso material = subirGrabacion("Clase 3: Valuación de bonos");
 
@@ -110,7 +110,7 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-29: cada tipo guarda sus datos propios: presentación, bibliografía y enlace")
+    @DisplayName("CU-37: cada tipo guarda sus datos propios: presentación, bibliografía y enlace")
     void subeCadaTipo() {
         int tema = temaDeRentaFija().getIdTema();
 
@@ -146,7 +146,7 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-29: valida el título, el tipo y los datos que pide cada tipo de material")
+    @DisplayName("CU-37: valida el título, el tipo y los datos que pide cada tipo de recurso")
     void validaLosDatos() {
         int tema = temaDeRentaFija().getIdTema();
 
@@ -171,7 +171,7 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-29: el docente debe participar en el curso y el tema debe estar activo")
+    @DisplayName("CU-37: el docente debe participar en el curso y el tema debe estar activo")
     void validaElDocenteYElTema() {
         Tema macro = temaRepository.findAll().stream().filter(u -> u.getCurso().getNombre().equals("Macroeconomía de Coyuntura"))
                 .findFirst().orElseThrow();
@@ -189,7 +189,7 @@ class RecursoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-30: desde el panel del curso solo se cambia la visibilidad del material; los datos del recurso no se tocan")
+    @DisplayName("CU-38: desde el panel del curso solo se cambia la visibilidad del recurso; los datos del recurso no se tocan")
     void cambiaLaVisibilidad() {
         TemaRecurso material = subirGrabacion("Clase original");
         String rutaAnterior = material.getRutaArchivo();
@@ -207,7 +207,7 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-30: la visibilidad la cambia un docente del curso, y un material dado de baja no se modifica")
+    @DisplayName("CU-38: la visibilidad la cambia un docente del curso, y un recurso dado de baja no se modifica")
     void cambiaLaVisibilidadDeUnMaterialBibliografico() {
         TemaRecurso materialBibliografico = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "MATERIAL_BIBLIOGRAFICO",
                 datos("Manual", "Autor", null, "978-0-00-000000-0"), null, true);
@@ -228,7 +228,7 @@ class RecursoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-31: la baja da de baja el uso en el tema; el recurso sigue en la biblioteca para reutilizarlo y conserva el archivo")
+    @DisplayName("CU-39: la baja da de baja el uso en el tema; el recurso sigue en la biblioteca para reutilizarlo y conserva el archivo")
     void daDeBaja() {
         TemaRecurso material = subirGrabacion("Clase a borrar");
 
@@ -241,7 +241,7 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-31: el administrador puede dar de baja sin participar en el curso; otro docente no")
+    @DisplayName("CU-39: el administrador puede dar de baja sin participar en el curso; otro docente no")
     void permisosDeBaja() {
         Tema macro = temaRepository.findAll().stream().filter(u -> u.getCurso().getNombre().equals("Macroeconomía de Coyuntura"))
                 .findFirst().orElseThrow();
@@ -275,7 +275,7 @@ class RecursoServiceTest {
     // ----------------------------------------------------------------------
 
     @Test
-    @DisplayName("CU-28: la búsqueda incluye el material oculto y filtra por tema, tipo, título y estado")
+    @DisplayName("CU-36: la búsqueda incluye el recurso oculto y filtra por tema, tipo, título y estado")
     void busca() {
         TemaRecurso oculto = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "ENLACE",
                 new DatosRecurso("Enlace escondido", null, true, null, "https://sitio.com", null, null, null, null, null), null,
@@ -565,7 +565,7 @@ class RecursoServiceTest {
     }
 
     @Test
-    @DisplayName("No se da de baja ni se oculta el único material de un tema si eso deja incompleto el diseño de un curso en marcha")
+    @DisplayName("No se da de baja ni se oculta el único recurso de un tema si eso deja incompleto el diseño de un curso en marcha")
     void noQuitaElUnicoMaterialDeUnCursoEnMarcha() {
         TemaRecurso unico = temaRecursoRepository.findAll().stream().filter(m -> !m.getBaja() && m.getModalidadAsociada() == null)
                 .filter(m -> m.getTema().getProgramasQueLaIncluyen().stream().anyMatch(p -> p.tieneCohortesActivas()))

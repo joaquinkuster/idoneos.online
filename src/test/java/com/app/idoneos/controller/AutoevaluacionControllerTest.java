@@ -73,7 +73,7 @@ class AutoevaluacionControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Desde la vista del curso, el docente modifica o da de baja cada autoevaluación con el mismo menú que los materiales")
+    @DisplayName("Desde la vista del curso, el docente modifica o da de baja cada autoevaluación con el mismo menú que los recursos")
     void menuDesdeLaVistaDelCurso() throws Exception {
         int id = autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
         mockMvc.perform(get("/curso/acceder/" + curso()))
@@ -96,7 +96,7 @@ class AutoevaluacionControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-64: el docente ve el listado con sus columnas, el formulario de alta y los modales de cada autoevaluación")
+    @DisplayName("CU-72: el docente ve el listado con sus columnas, el formulario de alta y los modales de cada autoevaluación")
     void listadoDelDocente() throws Exception {
         mockMvc.perform(get("/autoevaluacion/buscar").param("cursoId", curso()))
                 .andExpect(status().isOk())
@@ -185,7 +185,7 @@ class AutoevaluacionControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-65 y CU-66: registrar y modificar responden en JSON e informan los errores con su campo")
+    @DisplayName("CU-73 y CU-74: registrar y modificar responden en JSON e informan los errores con su campo")
     void registrarYModificar() throws Exception {
         String tema = String.valueOf(tema("Renta fija y bonos"));
         String pool = String.valueOf(pool("Renta fija"));
@@ -217,7 +217,7 @@ class AutoevaluacionControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-67: dar de baja responde en JSON y se rechaza si la autoevaluación tiene intentos")
+    @DisplayName("CU-75: dar de baja responde en JSON y se rechaza si la autoevaluación tiene intentos")
     void darDeBaja() throws Exception {
         mockMvc.perform(post("/autoevaluacion/darDeBaja/" + autoevaluacion("Autoevaluación Tema 1: Marco regulatorio")))
                 .andExpect(status().isBadRequest())

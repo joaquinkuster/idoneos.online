@@ -50,7 +50,7 @@ class MinimoDeContenidoTest {
     }
 
     @Test
-    @DisplayName("Un tema cuenta solo si tiene material publicado y al menos una autoevaluación visible")
+    @DisplayName("Un tema cuenta solo si tiene recurso publicado y al menos una autoevaluación visible")
     void unaTemaCuentaConMaterialYAutoevaluacion() {
         Programa programa = programa();
         int cuentan = programa.getCantidadTemasConMaterialPublicado();
@@ -65,7 +65,7 @@ class MinimoDeContenidoTest {
     }
 
     @Test
-    @DisplayName("No se puede dar de baja el material que deja al programa con cohortes en curso por debajo del mínimo")
+    @DisplayName("No se puede dar de baja el recurso que deja al programa con cohortes en curso por debajo del mínimo")
     void noSePuedeDarDeBajaMaterialPorDebajoDelMinimo() {
         Programa programa = programa();
         int minimo = parametroService.obtenerEntero("programa.minimo_temas_con_material", 1);
@@ -98,7 +98,7 @@ class MinimoDeContenidoTest {
     }
 
     @Test
-    @DisplayName("Con el programa justo en el mínimo, no se puede dar de baja el material de un tema que cuenta")
+    @DisplayName("Con el programa justo en el mínimo, no se puede dar de baja el recurso de un tema que cuenta")
     void justoEnElMinimoNoSePuedeQuitarOtraTema() {
         Programa programa = programa();
         int minimo = parametroService.obtenerEntero("programa.minimo_temas_con_material", 1);
@@ -115,7 +115,7 @@ class MinimoDeContenidoTest {
     }
 
     @Test
-    @DisplayName("El material de un tema que no cuenta para el mínimo tampoco se da de baja si deja incompleto el diseño del curso")
+    @DisplayName("El recurso de un tema que no cuenta para el mínimo tampoco se da de baja si deja incompleto el diseño del curso")
     void elMaterialDeUnTemaQueNoCuentaParaElMinimoNoSeDaDeBajaSiDejaIncompletoElDiseno() {
         Programa programa = programa();
         // Un tema con material pero sin autoevaluación visible no cuenta para el mínimo

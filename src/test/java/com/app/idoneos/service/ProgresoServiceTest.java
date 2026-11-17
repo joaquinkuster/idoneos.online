@@ -35,7 +35,7 @@ class ProgresoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-55: lista las inscripciones activas del curso, de todas sus cohortes")
+    @DisplayName("CU-63: lista las inscripciones activas del curso, de todas sus cohortes")
     void listaLasInscripcionesDelCurso() {
         Inscripcion inscripcion = conProgreso();
         int cursoId = inscripcion.getCurso().getIdCurso();
@@ -47,7 +47,7 @@ class ProgresoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-55: filtra por alumno (nombre, DNI o correo) sin distinguir mayúsculas ni tildes")
+    @DisplayName("CU-63: filtra por alumno (nombre, DNI o correo) sin distinguir mayúsculas ni tildes")
     void filtraPorAlumno() {
         Inscripcion inscripcion = conProgreso();
         int cursoId = inscripcion.getCurso().getIdCurso();
@@ -64,7 +64,7 @@ class ProgresoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-55: el detalle muestra cada tema del programa de la cohorte, si fue completada y su fecha")
+    @DisplayName("CU-63: el detalle muestra cada tema del programa de la cohorte, si fue completada y su fecha")
     void detalleDelProgreso() {
         Inscripcion inscripcion = conProgreso();
 
@@ -89,7 +89,7 @@ class ProgresoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-55: el detalle de una inscripción inexistente se informa como error")
+    @DisplayName("CU-63: el detalle de una inscripción inexistente se informa como error")
     void detalleInexistente() {
         assertThrows(IllegalArgumentException.class, () -> progresoService.buscarDetalle(-1));
     }

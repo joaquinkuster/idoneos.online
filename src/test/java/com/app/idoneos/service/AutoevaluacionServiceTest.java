@@ -115,7 +115,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-65: crea una autoevaluación asociada a los pools de su tema")
+    @DisplayName("CU-73: crea una autoevaluación asociada a los pools de su tema")
     void crearAutoevaluacion() {
         Autoevaluacion creada = autoevaluacionService.registrar(fausto(), segunda().getIdTema(),
                 solicitud("  Segunda autoevaluación ", pool("Renta fija")));
@@ -133,7 +133,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-65: una autoevaluación combina pools de su tema y de cualquier otro tema del curso (repaso o evaluación final)")
+    @DisplayName("CU-73: una autoevaluación combina pools de su tema y de cualquier otro tema del curso (repaso o evaluación final)")
     void poolsDeTemasAnteriores() {
         // El tema 3 (la última) puede usar los pools de los tres temas
         Autoevaluacion final_ = autoevaluacionService.registrar(fausto(), tercera().getIdTema(),
@@ -158,7 +158,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-65: valida los campos obligatorios, los valores enteros, las fechas y las preguntas disponibles")
+    @DisplayName("CU-73: valida los campos obligatorios, los valores enteros, las fechas y las preguntas disponibles")
     void validacionesDelAlta() {
         int tema = segunda().getIdTema();
         Pool renta = pool("Renta fija");
@@ -191,7 +191,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-66: sin intentos se modifican todos los datos, incluidos los pools")
+    @DisplayName("CU-74: sin intentos se modifican todos los datos, incluidos los pools")
     void modificarSinIntentos() {
         Autoevaluacion creada = autoevaluacionService.registrar(fausto(), segunda().getIdTema(),
                 solicitud("Para modificar", pool("Renta fija")));
@@ -212,7 +212,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-66: con intentos solo se extiende el cierre, se oculta o se amplían los intentos")
+    @DisplayName("CU-74: con intentos solo se extiende el cierre, se oculta o se amplían los intentos")
     void modificarConIntentos() {
         Autoevaluacion primera = autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
         assertTrue(primera.tieneIntentosActivos());
@@ -235,7 +235,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-66 y CU-67: no se oculta ni se da de baja la última autoevaluación visible de un tema con cohortes en curso")
+    @DisplayName("CU-74 y CU-75: no se oculta ni se da de baja la última autoevaluación visible de un tema con cohortes en curso")
     void ultimaAutoevaluacionVisible() {
         Autoevaluacion unica = autoevaluacion("Autoevaluación del tema 3");
         assertTrue(tercera().tieneCohortesActivas());
@@ -256,7 +256,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-67: no se da de baja una autoevaluación con intentos; la baja masiva es todo o nada")
+    @DisplayName("CU-75: no se da de baja una autoevaluación con intentos; la baja masiva es todo o nada")
     void darDeBaja() {
         Autoevaluacion conIntentos = autoevaluacion("Autoevaluación Tema 1: Marco regulatorio");
         Autoevaluacion libre = autoevaluacionService.registrar(fausto(), segunda().getIdTema(),
@@ -275,7 +275,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-66 y CU-67: al ocultar o dar de baja una autoevaluación se completa el tema de quien aprobó las demás")
+    @DisplayName("CU-74 y CU-75: al ocultar o dar de baja una autoevaluación se completa el tema de quien aprobó las demás")
     void completaLaTemaAlQuitarUnaAutoevaluacion() {
         Inscripcion valentina = inscripcionRepository.findAll().stream()
                 .filter(i -> i.getAlumno().getUsuario().getCorreo().equals("valentina.ruiz@correo.com")
@@ -307,7 +307,7 @@ class AutoevaluacionServiceTest {
     }
 
     @Test
-    @DisplayName("CU-64: busca las autoevaluaciones de un curso por tema y nombre; las dadas de baja van al final")
+    @DisplayName("CU-72: busca las autoevaluaciones de un curso por tema y nombre; las dadas de baja van al final")
     void buscarAutoevaluaciones() {
         int curso = primera().getCurso().getIdCurso();
         Autoevaluacion libre = autoevaluacionService.registrar(fausto(), segunda().getIdTema(),

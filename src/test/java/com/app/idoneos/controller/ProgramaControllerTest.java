@@ -199,7 +199,7 @@ class ProgramaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-16: registrar un programa responde en JSON y el error de validación en 400")
+    @DisplayName("CU-20: registrar un programa responde en JSON y el error de validación en 400")
     void registrar() throws Exception {
         String curso = String.valueOf(macro().getIdCurso());
 
@@ -218,7 +218,7 @@ class ProgramaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-17: modificar un programa responde en JSON y se rechaza si tiene inscripciones activas")
+    @DisplayName("CU-21: modificar un programa responde en JSON y se rechaza si tiene inscripciones activas")
     void modificar() throws Exception {
         int sinInscripciones = macro().getProgramaVigente().getIdPrograma();
         int conInscripciones = mercado().getProgramaVigente().getIdPrograma();
@@ -234,7 +234,7 @@ class ProgramaControllerTest {
 
     @Test
     @WithUserDetails(value = FAUSTO, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("CU-18: dar de baja un programa responde en JSON y se rechaza si tiene cohortes activas")
+    @DisplayName("CU-22: dar de baja un programa responde en JSON y se rechaza si tiene cohortes activas")
     void darDeBaja() throws Exception {
         registrar(macro(), "Por error");
         int sinCohortes = macro().getProgramaVigente().getIdPrograma();

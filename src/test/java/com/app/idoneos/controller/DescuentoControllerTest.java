@@ -42,7 +42,7 @@ class DescuentoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-56: el administrador ve el listado completo con filtros, columnas y modales")
+    @DisplayName("CU-64: el administrador ve el listado completo con filtros, columnas y modales")
     void buscarDescuentos() throws Exception {
         mockMvc.perform(get("/descuento/buscar")).andExpect(status().isOk())
                 .andExpect(view().name("pages/descuento/buscar"))
@@ -57,7 +57,7 @@ class DescuentoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-56: el menú lateral del administrador tiene el enlace a Descuentos")
+    @DisplayName("CU-64: el menú lateral del administrador tiene el enlace a Descuentos")
     void menuConDescuentos() throws Exception {
         mockMvc.perform(get("/descuento/buscar"))
                 .andExpect(content().string(containsString("/descuento/buscar")))
@@ -66,7 +66,7 @@ class DescuentoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-57: registra un descuento y responde en JSON")
+    @DisplayName("CU-65: registra un descuento y responde en JSON")
     void registrar() throws Exception {
         mockMvc.perform(post("/descuento/registrar").param("nombre", "Nuevo").param("porcentaje", "12.5")
                 .param("vigenciaDesde", LocalDate.now().toString())
@@ -80,7 +80,7 @@ class DescuentoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-57: informa los campos obligatorios que faltan")
+    @DisplayName("CU-65: informa los campos obligatorios que faltan")
     void registrarDescuentoIncompleto() throws Exception {
         mockMvc.perform(post("/descuento/registrar").param("nombre", "Incompleto"))
                 .andExpect(status().isBadRequest())
@@ -89,7 +89,7 @@ class DescuentoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-58: modifica un descuento")
+    @DisplayName("CU-66: modifica un descuento")
     void modificar() throws Exception {
         int id = descuentoService.buscarPorNombre("Promo de verano").orElseThrow().getIdDescuento();
 
@@ -104,7 +104,7 @@ class DescuentoControllerTest {
 
     @Test
     @WithUserDetails(value = ADMIN, userDetailsServiceBeanName = SERVICIO)
-    @DisplayName("CU-59: da de baja un descuento sin usos y rechaza uno ya aplicado")
+    @DisplayName("CU-67: da de baja un descuento sin usos y rechaza uno ya aplicado")
     void darDeBaja() throws Exception {
         int promo = descuentoService.buscarPorNombre("Promo de verano").orElseThrow().getIdDescuento();
         int lanzamiento = descuentoService.buscarPorNombre("Lanzamiento").orElseThrow().getIdDescuento();

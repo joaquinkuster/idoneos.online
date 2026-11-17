@@ -72,7 +72,7 @@ class BajaMasivaControllerTest {
     }
 
     @Test
-    @DisplayName("CU-06: el catálogo entrega todos los cursos y los filtros y las páginas se aplican en el navegador")
+    @DisplayName("CU-07: el catálogo entrega todos los cursos y los filtros y las páginas se aplican en el navegador")
     void catalogoConFiltrosEnElNavegador() throws Exception {
         mockMvc.perform(get("/catalogo")).andExpect(status().isOk())
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("data-filtro-front")))
@@ -82,7 +82,7 @@ class BajaMasivaControllerTest {
     }
 
     @Test
-    @DisplayName("CU-06: la ficha del curso es una página independiente y pública")
+    @DisplayName("CU-07: la ficha del curso es una página independiente y pública")
     void fichaDelCurso() throws Exception {
         mockMvc.perform(get("/catalogo/ficha/1")).andExpect(status().isOk())
                 .andExpect(view().name("pages/curso/ficha"))

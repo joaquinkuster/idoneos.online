@@ -28,7 +28,7 @@ class ContenidoDeTemaTest {
     }
 
     @Test
-    @DisplayName("El tema entrega su material, glosario, autoevaluaciones y consultas del foro publicados")
+    @DisplayName("El tema entrega su recurso, glosario, autoevaluaciones y consultas del foro publicados")
     void contenidoPublicado() {
         Tema primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getTema();
 
@@ -40,7 +40,7 @@ class ContenidoDeTemaTest {
     }
 
     @Test
-    @DisplayName("El material oculto o dado de baja no se publica")
+    @DisplayName("El recurso oculto o dado de baja no se publica")
     void materialNoPublicado() {
         Tema primera = inscripcionDeValentina().getCohorte().getPrograma().getCronogramaOrdenado().get(0).getTema();
         TemaRecurso oculto = primera.getMateriales().iterator().next();

@@ -209,7 +209,7 @@ class IntentoControllerTest {
 
     @Test
     @WithUserDetails(value = VALENTINA, userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Desde el curso, el alumno llega a la ficha de cada autoevaluación de los temas que tiene habilitadas")
+    @DisplayName("Desde el curso, el alumno llega a la ficha de cada autoevaluación de los temas que tiene habilitados")
     void enlaceDesdeElCurso() throws Exception {
         int inscripcion = inscripcionRepository.findByBajaFalse().stream()
                 .filter(i -> i.getAlumno().getUsuario().getCorreo().equals(VALENTINA)

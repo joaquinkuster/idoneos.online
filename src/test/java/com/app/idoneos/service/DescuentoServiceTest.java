@@ -33,7 +33,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-56: busca por nombre (sin tildes ni mayúsculas) y por estado")
+    @DisplayName("CU-64: busca por nombre (sin tildes ni mayúsculas) y por estado")
     void buscarDescuentos() {
         assertEquals(1, descuentoService.buscarConFiltros("FRECUENTE", null, "nombre").size());
         assertEquals(1, descuentoService.buscarConFiltros(null, Descuento.ESTADO_PROXIMO, "nombre").size());
@@ -44,14 +44,14 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-56: puede ordenarse por mayor porcentaje")
+    @DisplayName("CU-64: puede ordenarse por mayor porcentaje")
     void ordenarPorPorcentaje() {
         List<Descuento> descuentos = descuentoService.buscarConFiltros(null, null, "porcentaje");
         assertEquals("Preventa agotada", descuentos.get(0).getNombre());
     }
 
     @Test
-    @DisplayName("CU-57: registra un descuento con cantidad usada en cero y sin condición si no se indica")
+    @DisplayName("CU-65: registra un descuento con cantidad usada en cero y sin condición si no se indica")
     void registrar() {
         Descuento d = descuentoService.registrar("  Nuevo  ", 15f, DESDE, HASTA, 10, null);
 
@@ -64,7 +64,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-57: informa cuáles campos obligatorios faltan")
+    @DisplayName("CU-65: informa cuáles campos obligatorios faltan")
     void registrarDescuentoSinCamposObligatorios() {
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> descuentoService.registrar(" ", null, DESDE, null, null, null));
@@ -76,7 +76,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-57: valida porcentaje, vigencia, cantidad límite y cursos requeridos")
+    @DisplayName("CU-65: valida porcentaje, vigencia, cantidad límite y cursos requeridos")
     void registrarDescuentoConDatosInvalidos() {
         assertThrows(IllegalArgumentException.class, () -> descuentoService.registrar("A", 0f, DESDE, HASTA, 10, 0));
         assertThrows(IllegalArgumentException.class, () -> descuentoService.registrar("A", 100.5f, DESDE, HASTA, 10, 0));
@@ -89,14 +89,14 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-57: no admite otro descuento con el mismo nombre")
+    @DisplayName("CU-65: no admite otro descuento con el mismo nombre")
     void registrarDescuentoDuplicado() {
         assertThrows(IllegalArgumentException.class,
                 () -> descuentoService.registrar("alumno frecuente", 10f, DESDE, HASTA, 10, 0));
     }
 
     @Test
-    @DisplayName("CU-57: registrar con el nombre de uno dado de baja lo reactiva")
+    @DisplayName("CU-65: registrar con el nombre de uno dado de baja lo reactiva")
     void registrarDescuentoReactivaElDadoDeBaja() {
         Descuento bienvenida = descuento("Descuento de bienvenida");
         descuentoService.darDeBaja(bienvenida.getIdDescuento());
@@ -112,7 +112,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-58: modifica un descuento y registra la fecha de modificación")
+    @DisplayName("CU-66: modifica un descuento y registra la fecha de modificación")
     void modificar() {
         Descuento d = descuento("Alumno frecuente");
 
@@ -125,7 +125,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-58: un descuento vencido puede modificarse para extender su vigencia")
+    @DisplayName("CU-66: un descuento vencido puede modificarse para extender su vigencia")
     void modificarDescuentoVencido() {
         Descuento lanzamiento = descuento("Lanzamiento");
 
@@ -135,7 +135,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-58: la cantidad límite no puede ser menor a la cantidad ya usada")
+    @DisplayName("CU-66: la cantidad límite no puede ser menor a la cantidad ya usada")
     void modificarDescuentoConLimiteMenorAlUso() {
         Descuento lanzamiento = descuento("Lanzamiento"); // usado 8 veces
         assertThrows(IllegalArgumentException.class, () -> descuentoService
@@ -143,7 +143,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-58: no admite el nombre de otro descuento ni modificar uno dado de baja")
+    @DisplayName("CU-66: no admite el nombre de otro descuento ni modificar uno dado de baja")
     void modificarDescuentoConNombreRepetidoODadoDeBaja() {
         Descuento d = descuento("Alumno frecuente");
         assertThrows(IllegalArgumentException.class, () -> descuentoService
@@ -156,7 +156,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-59: da de baja un descuento que nunca se aplicó")
+    @DisplayName("CU-67: da de baja un descuento que nunca se aplicó")
     void darDeBaja() {
         Descuento promo = descuento("Promo de verano");
 
@@ -167,7 +167,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-59: no permite dar de baja un descuento ya aplicado e informa la dependencia")
+    @DisplayName("CU-67: no permite dar de baja un descuento ya aplicado e informa la dependencia")
     void darDeBajaDescuentoAplicado() {
         Descuento lanzamiento = descuento("Lanzamiento");
 
@@ -179,7 +179,7 @@ class DescuentoServiceTest {
     }
 
     @Test
-    @DisplayName("CU-59: no permite dar de baja dos veces el mismo descuento")
+    @DisplayName("CU-67: no permite dar de baja dos veces el mismo descuento")
     void darDeBajaDescuentoDadoDeBaja() {
         Descuento promo = descuento("Promo de verano");
         descuentoService.darDeBaja(promo.getIdDescuento());

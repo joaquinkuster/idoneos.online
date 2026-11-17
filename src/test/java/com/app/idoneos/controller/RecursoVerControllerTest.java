@@ -98,7 +98,7 @@ class RecursoVerControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El material no ofrece ninguna forma de descarga y se protege del clic derecho, la impresión y la grabación")
+    @DisplayName("El recurso no ofrece ninguna forma de descarga y se protege del clic derecho, la impresión y la grabación")
     void sinDescargaYConProteccion() throws Exception {
         TemaRecurso video = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
         TemaRecurso pdf = subir(TipoRecurso.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
@@ -129,7 +129,7 @@ class RecursoVerControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Un material sin archivo muestra el aviso y su descripción")
+    @DisplayName("Un recurso sin archivo muestra el aviso y su descripción")
     void sinArchivo() throws Exception {
         Docente fausto = docenteRepository.findAll().stream()
                 .filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online")).findFirst().orElseThrow();
@@ -145,7 +145,7 @@ class RecursoVerControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El alumno con el tema habilitado ve el material, con su propio menú de gestión académica")
+    @DisplayName("El alumno con el tema habilitado ve el recurso, con su propio menú de gestión académica")
     void alumnoConAcceso() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
@@ -156,7 +156,7 @@ class RecursoVerControllerTest {
 
     @Test
     @WithUserDetails(value = "valentina.ruiz@correo.com", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El alumno no ve un material de un tema bloqueado")
+    @DisplayName("El alumno no ve un recurso de un tema bloqueado")
     void alumnoSinAcceso() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta variable y opciones");
 
@@ -165,7 +165,7 @@ class RecursoVerControllerTest {
 
     @Test
     @WithUserDetails(value = "admin@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("El administrador ve cualquier material")
+    @DisplayName("El administrador ve cualquier recurso")
     void administrador() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
@@ -175,7 +175,7 @@ class RecursoVerControllerTest {
 
     @Test
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
-    @DisplayName("Un material inexistente responde 404")
+    @DisplayName("Un recurso inexistente responde 404")
     void inexistente() throws Exception {
         mockMvc.perform(get("/recurso/ver/999999")).andExpect(status().isNotFound());
     }
