@@ -26,6 +26,12 @@ public interface InscripcionRepository extends JpaRepository<Inscripcion, Intege
     /** Encuentra todos los registros activos (no dados de baja). */
     List<Inscripcion> findByBajaFalse();
 
+    /** Busca las inscripciones registradas entre dos fechas (incluye las dadas de baja): desde inclusive, hasta exclusive. */
+    List<Inscripcion> findByFechaCreacionGreaterThanEqualAndFechaCreacionLessThan(java.time.LocalDateTime desde, java.time.LocalDateTime hasta);
+
+    /** Busca las inscripciones activas con un estado. */
+    List<Inscripcion> findByBajaFalseAndEstadoInscripcionNombre(String estado);
+
     /** Busca las inscripciones vigentes en un estado cuya cohorte ya cerró su inscripción (terminó antes del momento dado). */
     @Query("SELECT i FROM Inscripcion i WHERE i.baja = false AND i.estadoInscripcion.nombre = :estado "
             + "AND i.cohorte.fechaFinInscripcion < :ahora")

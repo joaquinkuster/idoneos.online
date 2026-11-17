@@ -9,3 +9,12 @@
 DROP TRIGGER IF EXISTS trg_oracion_pertenencia ON oracion ^^^
 CREATE TRIGGER trg_oracion_pertenencia BEFORE UPDATE OF texto ON oracion
     FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('texto') ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_oracion_auditoria ON oracion ^^^
+CREATE TRIGGER trg_oracion_auditoria AFTER INSERT OR UPDATE OR DELETE ON oracion
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Oracion') ^^^

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Reportes</h1>
+                    <p class="pn-subtitulo">Genera los informes de alumnos y de ingresos de un curso y consulta el historial de generaciones. El informe se descarga al generarlo y no se vuelve a generar</p>
+                </div>
+                <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalGenerarInforme">
+                    <i class="fa-solid fa-file-pdf"></i> Generar informe
+                </button>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/reporte/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Historial de generaciones</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="informe encontrado" data-plural="informes encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' informe encontrado' : ' informes encontrados')}">0 informes encontrados</span>
+                </div>
+
+                <!-- Filtros por columna -->
+                <form th:action="@{/reporte/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <a th:href="@{/reporte/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Fecha y hora" data-campo="fecha" data-filtro="fecha" data-orden-inicial="desc">Fecha y hora</th>
+                                <th data-col="Tipo de informe" data-campo="tipo" data-filtro="lista" data-sin-busqueda>Tipo de informe</th>
+                                <th data-col="Curso" data-campo="curso" data-filtro="texto">Curso</th>
+                                <th data-col="Generado por" data-campo="administrador" data-filtro="texto">Generado por</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="r : ${reportes}" data-fila
+                                th:data-o-fecha="${#temporals.format(r.fechaGeneracion, 'yyyyMMddHHmmss') + #numbers.formatInteger(r.idReporte, 10, 'NONE')}">
+                                <td th:text="${#temporals.format(r.fechaGeneracion, 'dd/MM/yyyy HH:mm')}">16/11/2026 09:12</td>
+                                <td>
+                                    <span class="pn-insignia" th:classappend="${r.tipoReporte.nombre == tipoAlumnos} ? 'pn-insignia-azul' : 'pn-insignia-verde'"
+                                          th:text="${r.tipoReporte.nombre}">Informe de alumnos</span>
+                                </td>
+                                <td><span class="pn-celda-principal pn-truncar" th:text="${r.curso.nombre}">Especialización en Idoneidad Bursátil</span></td>
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${r.administrador.usuario.apellido + ', ' + r.administrador.usuario.nombre}">Idóneos, Admin</span>
+                                    <span class="pn-celda-detalle d-block" th:text="${r.administrador.usuario.correo}">admin@idoneos.online</span>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(4, 'fa-file-pdf', 'No se encontraron informes', 'Todavía no se generó ningún informe o ninguno coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<!-- Ventana para generar un informe: el PDF se descarga al generarlo -->
+<div class="modal fade pn-modal" id="modalGenerarInforme" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Generar informe</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/reporte/generar}" method="post" id="formGenerarInforme" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Tipo de informe <span class="pn-obligatorio">*</span></label>
+                            <select name="tipo" class="pn-input" required>
+                                <option value="">Tipo de informe</option>
+                                <option th:value="${tipoAlumnos}" th:text="${tipoAlumnos}">Informe de alumnos</option>
+                                <option th:value="${tipoIngresos}" th:text="${tipoIngresos}">Informe de ingresos</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Curso <span class="pn-obligatorio">*</span></label>
+                            <select name="cursoId" class="pn-input" data-buscable required>
+                                <option value="">Curso</option>
+                                <option th:each="c : ${cursos}" th:value="${c.idCurso}" th:text="${c.nombre}">Curso</option>
+                            </select>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Desde <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="desde" class="pn-input" th:value="${#temporals.format(inicioMes, 'yyyy-MM-dd')}" th:max="${#temporals.format(hoy, 'yyyy-MM-dd')}" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                        <div class="col-md-6 pn-campo">
+                            <label class="pn-etiqueta">Hasta <span class="pn-obligatorio">*</span></label>
+                            <input type="date" name="hasta" class="pn-input" th:value="${#temporals.format(hoy, 'yyyy-MM-dd')}" th:max="${#temporals.format(hoy, 'yyyy-MM-dd')}" required>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="pn-btn pn-btn-primario" id="btnGenerarInforme">Generar y descargar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/pages/reporte/buscar.js}"></script>
+</body>
+</html>

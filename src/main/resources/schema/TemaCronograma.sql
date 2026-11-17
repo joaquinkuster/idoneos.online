@@ -92,3 +92,12 @@ CREATE CONSTRAINT TRIGGER trg_cronograma_completo AFTER INSERT OR UPDATE OR DELE
 DROP TRIGGER IF EXISTS trg_tema_cronograma_pertenencia ON tema_cronograma ^^^
 CREATE TRIGGER trg_tema_cronograma_pertenencia BEFORE UPDATE ON tema_cronograma
     FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_programa', 'id_tema') ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_tema_cronograma_auditoria ON tema_cronograma ^^^
+CREATE TRIGGER trg_tema_cronograma_auditoria AFTER INSERT OR UPDATE OR DELETE ON tema_cronograma
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('TemaCronograma') ^^^

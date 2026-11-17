@@ -9,3 +9,12 @@
 DROP TRIGGER IF EXISTS trg_pool_fuente_sin_borrado ON pool_fuente ^^^
 CREATE TRIGGER trg_pool_fuente_sin_borrado BEFORE DELETE ON pool_fuente
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_pool_fuente_auditoria ON pool_fuente ^^^
+CREATE TRIGGER trg_pool_fuente_auditoria AFTER INSERT OR UPDATE OR DELETE ON pool_fuente
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('PoolFuente') ^^^

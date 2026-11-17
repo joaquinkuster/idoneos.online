@@ -194,7 +194,7 @@ public class SecurityConfig {
                         // Acceder curso (Docente. El Administrador lo ve sin gestionar su contenido)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasAnyRole("Docente", "Administrador")
                         // gestión de cursos, categorías, cohortes y descuentos (Administrador)
-                        .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**", "/descuento/**").hasRole("Administrador")
+                        .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**", "/descuento/**", "/configuracion/**", "/auditoria/**", "/reporte/**", "/estadisticas/**").hasRole("Administrador")
                         // ABM de usuarios (Administrador). El perfil propio y el cambio de rol los puede usar cualquier usuario con sesión
                         .requestMatchers(HttpMethod.GET, "/usuario/buscar", "/usuario/modificar/*").hasRole("Administrador")
                         .requestMatchers(HttpMethod.POST, "/usuario/registrar", "/usuario/modificar/*", "/usuario/darDeBaja/*",

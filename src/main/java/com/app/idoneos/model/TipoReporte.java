@@ -13,6 +13,12 @@ import lombok.Setter;
 @NoArgsConstructor
 public class TipoReporte {
 
+    /** Informe de alumnos inscriptos a un curso. */
+    public static final String INFORME_ALUMNOS = "Informe de alumnos";
+
+    /** Informe de ingresos de un curso. */
+    public static final String INFORME_INGRESOS = "Informe de ingresos";
+
     /** Identificador único del tipo de reporte. */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

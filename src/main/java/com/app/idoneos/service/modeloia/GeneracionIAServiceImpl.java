@@ -293,11 +293,23 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return material;
     }
 
+    /** Valida que el docente no haya superado, esta semana, la cantidad de contenidos con IA que puede pedir. */
+    private void verificarTopeSemanal(Docente docente) {
+        int tope = parametroService.obtenerEntero(Parametro.TOPE_SEMANAL_CONTENIDOS_IA, Parametro.TOPE_SEMANAL_CONTENIDOS_IA_POR_DEFECTO);
+        java.time.LocalDateTime desde = java.time.LocalDate.now().with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY)).atStartOfDay();
+        long pedidos = recursoRepository.contarGeneradosConIa(docente, desde)
+                + poolRepository.countByDocenteAndEstadoGeneracionIaIsNotNullAndFechaCreacionGreaterThanEqual(docente, desde);
+        if (pedidos >= tope) {
+            throw new IllegalArgumentException("Error! Alcanzaste el máximo de " + tope + " contenidos generados con IA por semana. Podés pedir más desde el lunes.");
+        }
+    }
+
     /** Valida el pedido y registra el material, oculto y en espera, sin archivo. */
     private TemaRecurso registrar(Docente docente, Integer idTema, Tipo tipo, List<Integer> fuentes) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
+        verificarTopeSemanal(docente);
         Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(t -> !t.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activo."));
         IntegranteEquipo participacion = integranteEquipoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
@@ -398,6 +410,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
+        verificarTopeSemanal(docente);
         List<Documento> visibles = documentosDeBiblioteca(docente);
         List<Documento> elegidas = ids == null ? visibles.stream().filter(d -> !d.getRecurso().getGeneradoPorIa()).toList()
                 : visibles.stream().filter(d -> ids.contains(d.getIdDocumento())).toList();
@@ -1133,6 +1146,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
+        verificarTopeSemanal(docente);
         Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(t -> !t.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activo."));
         integranteEquipoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
@@ -1170,6 +1184,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         }
         Pool pool = new Pool(tema, nombre);
         pool.setRevisado(false);
+        pool.setDocente(docente);
         pool.setEstadoGeneracionIa(estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.PENDIENTE).orElseThrow());
         pool = poolRepository.save(pool);
         for (Documento fuente : elegidas) {

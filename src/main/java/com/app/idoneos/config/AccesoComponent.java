@@ -152,8 +152,8 @@ public class AccesoComponent {
         SesionTokenFilter.guardarCookie(request, response, sesion.getToken(), recordar);
         request.getSession().setAttribute(ContextoSesionAdvice.MENSAJE_DE_SESION,
                 "Sesión iniciada correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
-        // El administrador y el docente entran a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
-        return usuario.esAdministradorActivo() || usuario.esDocenteActivo() ? "/curso/buscar"
+        // El administrador entra a su tablero de estadísticas, el docente a sus cursos, el alumno a sus inscripciones y los demás roles al inicio
+        return usuario.esAdministradorActivo() ? "/estadisticas" : usuario.esDocenteActivo() ? "/curso/buscar"
                 : usuario.esAlumnoActivo() ? "/inscripcion/buscar" : "/inicio";
     }
 

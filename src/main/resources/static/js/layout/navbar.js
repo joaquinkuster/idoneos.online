@@ -78,13 +78,20 @@
         }
 
         // 4. Enlaces en pantallas chicas
+        /** Cambia las 3 barras por una cruz al abrir el cajón. Con la foto y la flecha del usuario no hay nada que cambiar: la flecha gira sola. */
+        function cambiarIcono(abierto) {
+            if (toggle && !toggle.classList.contains('nb-toggle-usuario')) {
+                toggle.querySelector('i').className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+            }
+        }
+
         function cerrar() {
             if (!enlaces) { return; }
             enlaces.classList.remove('abierto');
             navbar.classList.remove('menu-abierto');
             if (toggle) {
                 toggle.setAttribute('aria-expanded', 'false');
-                toggle.querySelector('i').className = 'fa-solid fa-bars';
+                cambiarIcono(false);
             }
         }
 
@@ -93,7 +100,7 @@
                 var abierto = enlaces.classList.toggle('abierto');
                 navbar.classList.toggle('menu-abierto', abierto);
                 toggle.setAttribute('aria-expanded', abierto ? 'true' : 'false');
-                toggle.querySelector('i').className = abierto ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+                cambiarIcono(abierto);
             });
         }
         document.addEventListener('click', function (evento) {

@@ -9,4 +9,7 @@ import com.app.idoneos.model.DetalleAuditoria;
 @Repository
 public interface DetalleAuditoriaRepository extends JpaRepository<DetalleAuditoria, Integer> {
 
+    /** Los campos afectados por una acción, en orden alfabético. */
+    java.util.List<DetalleAuditoria> findByAuditoriaOrderByCampo(com.app.idoneos.model.Auditoria auditoria);
+
 }

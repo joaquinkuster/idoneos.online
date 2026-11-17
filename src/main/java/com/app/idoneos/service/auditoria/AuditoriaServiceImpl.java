@@ -25,6 +25,12 @@ public class AuditoriaServiceImpl implements AuditoriaService {
         return auditoriaRepository.findById(id);
     }
 
+    /** Obtiene todos los registros de auditoría, del más reciente al más antiguo. */
+    @Override
+    public List<Auditoria> buscarRecientes() {
+        return auditoriaRepository.findAllByOrderByFechaHoraDescIdAuditoriaDesc();
+    }
+
     /** Obtiene todos los registros. */
     @Override
     public List<Auditoria> obtenerTodo() {

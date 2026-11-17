@@ -18,3 +18,12 @@ CREATE TRIGGER trg_administrador_pertenencia BEFORE UPDATE ON administrador
 DROP TRIGGER IF EXISTS trg_administrador_sin_borrado ON administrador ^^^
 CREATE TRIGGER trg_administrador_sin_borrado BEFORE DELETE ON administrador
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_administrador_auditoria ON administrador ^^^
+CREATE TRIGGER trg_administrador_auditoria AFTER INSERT OR UPDATE OR DELETE ON administrador
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Administrador') ^^^

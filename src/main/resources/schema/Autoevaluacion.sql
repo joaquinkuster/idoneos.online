@@ -158,3 +158,12 @@ CREATE TRIGGER trg_autoevaluacion_pertenencia BEFORE UPDATE ON autoevaluacion
 DROP TRIGGER IF EXISTS trg_autoevaluacion_sin_borrado ON autoevaluacion ^^^
 CREATE TRIGGER trg_autoevaluacion_sin_borrado BEFORE DELETE ON autoevaluacion
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_autoevaluacion_auditoria ON autoevaluacion ^^^
+CREATE TRIGGER trg_autoevaluacion_auditoria AFTER INSERT OR UPDATE OR DELETE ON autoevaluacion
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Autoevaluacion') ^^^

@@ -67,3 +67,12 @@ CREATE TRIGGER trg_consulta_foro_cascada AFTER UPDATE OF baja ON consulta_foro
 DROP TRIGGER IF EXISTS trg_consulta_foro_sin_borrado ON consulta_foro ^^^
 CREATE TRIGGER trg_consulta_foro_sin_borrado BEFORE DELETE ON consulta_foro
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_consulta_foro_auditoria ON consulta_foro ^^^
+CREATE TRIGGER trg_consulta_foro_auditoria AFTER INSERT OR UPDATE OR DELETE ON consulta_foro
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('ConsultaForo') ^^^

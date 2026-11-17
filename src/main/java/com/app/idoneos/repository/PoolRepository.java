@@ -33,6 +33,9 @@ public interface PoolRepository extends JpaRepository<Pool, Integer> {
     /** Busca todos los pools de un tema, incluidos los dados de baja. */
     List<Pool> findByTema(Tema tema);
 
+    /** Cuenta los pools que un docente pidió generar con IA desde una fecha. */
+    long countByDocenteAndEstadoGeneracionIaIsNotNullAndFechaCreacionGreaterThanEqual(com.app.idoneos.model.Docente docente, java.time.LocalDateTime desde);
+
     /** Busca los pools generados con inteligencia artificial que están en alguno de los estados indicados. */
     List<Pool> findByEstadoGeneracionIaNombreIn(java.util.Collection<String> estados);
 }

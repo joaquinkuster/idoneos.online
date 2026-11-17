@@ -79,3 +79,12 @@ CREATE TRIGGER trg_material_bibliografico_pertenencia BEFORE UPDATE ON material_
 DROP TRIGGER IF EXISTS trg_material_bibliografico_sin_borrado ON material_bibliografico ^^^
 CREATE TRIGGER trg_material_bibliografico_sin_borrado BEFORE DELETE ON material_bibliografico
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_material_bibliografico_auditoria ON material_bibliografico ^^^
+CREATE TRIGGER trg_material_bibliografico_auditoria AFTER INSERT OR UPDATE OR DELETE ON material_bibliografico
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('MaterialBibliografico') ^^^

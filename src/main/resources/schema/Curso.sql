@@ -145,3 +145,12 @@ CREATE TRIGGER trg_curso_cascada AFTER UPDATE OF baja ON curso
 DROP TRIGGER IF EXISTS trg_curso_sin_borrado ON curso ^^^
 CREATE TRIGGER trg_curso_sin_borrado BEFORE DELETE ON curso
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_curso_auditoria ON curso ^^^
+CREATE TRIGGER trg_curso_auditoria AFTER INSERT OR UPDATE OR DELETE ON curso
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Curso') ^^^

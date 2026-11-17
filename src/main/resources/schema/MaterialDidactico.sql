@@ -32,3 +32,12 @@ CREATE TRIGGER trg_material_didactico_pertenencia BEFORE UPDATE ON material_dida
 DROP TRIGGER IF EXISTS trg_material_didactico_sin_borrado ON material_didactico ^^^
 CREATE TRIGGER trg_material_didactico_sin_borrado BEFORE DELETE ON material_didactico
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_material_didactico_auditoria ON material_didactico ^^^
+CREATE TRIGGER trg_material_didactico_auditoria AFTER INSERT OR UPDATE OR DELETE ON material_didactico
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('MaterialDidactico') ^^^

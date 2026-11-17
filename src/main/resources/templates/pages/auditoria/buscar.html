@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Auditoría</h1>
+                    <p class="pn-subtitulo">Consulta las altas, modificaciones y bajas que hicieron los usuarios en el sistema, con el valor anterior y el nuevo de cada dato</p>
+                </div>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/auditoria/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Registro de auditoría</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="acción encontrada" data-plural="acciones encontradas"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' acción encontrada' : ' acciones encontradas')}">0 acciones encontradas</span>
+                </div>
+
+                <!-- Filtros por columna -->
+                <form th:action="@{/auditoria/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <a th:href="@{/auditoria/buscar}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Fecha y hora" data-campo="fecha" data-filtro="fecha" data-orden-inicial="desc">Fecha y hora</th>
+                                <th data-col="Usuario" data-campo="usuario" data-filtro="texto">Usuario</th>
+                                <th data-col="Acción" data-campo="accion" data-filtro="lista" data-sin-busqueda>Acción</th>
+                                <th data-col="Entidad" data-campo="entidad" data-filtro="lista">Entidad</th>
+                                <th data-col="Registro" data-campo="registro" data-filtro="numero">Registro</th>
+                                <th data-col="IP" data-campo="ip" data-filtro="texto">IP</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="a : ${registros}" data-fila
+                                th:data-o-fecha="${#temporals.format(a.fechaHora, 'yyyyMMddHHmmss') + #numbers.formatInteger(a.idAuditoria, 10, 'NONE')}"
+                                th:data-o-registro="${#numbers.formatInteger(a.idRegistro, 10, 'NONE')}">
+                                <td th:text="${#temporals.format(a.fechaHora, 'dd/MM/yyyy HH:mm:ss')}">16/11/2026 09:12:30</td>
+                                <td>
+                                    <span class="pn-celda-principal pn-truncar" th:text="${a.usuario.apellido + ', ' + a.usuario.nombre}">Gómez, Laura</span>
+                                    <span class="pn-celda-detalle d-block" th:text="${a.usuario.correo}">laura@correo.com</span>
+                                </td>
+                                <td>
+                                    <span class="pn-insignia"
+                                          th:classappend="${a.tipoAuditoria.nombre == 'Crear'} ? 'pn-insignia-verde' : (${a.tipoAuditoria.nombre == 'Eliminar'} ? 'pn-insignia-roja' : 'pn-insignia-azul')"
+                                          th:text="${a.tipoAuditoria.nombre}">Crear</span>
+                                </td>
+                                <td th:text="${entidades[a.idAuditoria]}">Pago</td>
+                                <td th:text="${'#' + a.idRegistro}">#12</td>
+                                <td th:text="${a.ipUsuario}">190.12.3.4</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" th:data-bs-target="'#modalDetalleAuditoria' + ${a.idAuditoria}"
+                                                th:data-modal-url="@{'/auditoria/detalle/' + ${a.idAuditoria}}">Ver detalle</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-clipboard-list', 'No se encontraron acciones', 'Ninguna acción coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+</body>
+</html>

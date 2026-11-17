@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<body>
+<!-- Ventana con el detalle de una acción auditada: qué datos cambiaron y cuál era su valor anterior. -->
+<div th:fragment="modal(a)" class="modal fade pn-modal" th:id="'modalDetalleAuditoria' + ${a.idAuditoria}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo" th:text="${a.tipoAuditoria.nombre + ' · ' + entidad + ' #' + a.idRegistro}">Modificar · Pago #12</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <p class="small text-muted">
+                    <strong th:text="${a.usuario.nombreCompleto}">Laura Gómez</strong> ·
+                    <span th:text="${#temporals.format(a.fechaHora, 'dd/MM/yyyy HH:mm:ss')}">16/11/2026 09:12:30</span> ·
+                    IP <span th:text="${a.ipUsuario}">190.12.3.4</span>
+                </p>
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr><th>Campo</th><th>Valor anterior</th><th>Valor nuevo</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="d : ${detalles}">
+                                <td><span class="pn-celda-principal" th:text="${d.campo}">estado</span></td>
+                                <td style="max-width: 260px; word-break: break-word;"><span th:if="${d.valorAnterior != null}" th:text="${d.valorAnterior}">Pendiente</span><span th:if="${d.valorAnterior == null}" class="pn-celda-secundaria">—</span></td>
+                                <td style="max-width: 260px; word-break: break-word;"><span th:if="${!#strings.isEmpty(d.valorNuevo)}" th:text="${d.valorNuevo}">Aprobado</span><span th:if="${#strings.isEmpty(d.valorNuevo)}" class="pn-celda-secundaria">—</span></td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(detalles)}"><td colspan="3" class="text-center text-muted">Sin datos de detalle.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="pn-modal-pie">
+                <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

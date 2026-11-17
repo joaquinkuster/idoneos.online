@@ -418,6 +418,21 @@ public class SemillaService {
                 String.valueOf(Parametro.IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.IA_CANTIDAD_PREGUNTAS_BANCO,
                 String.valueOf(Parametro.IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.CLASE_AVISO_VENCIMIENTO_DIAS,
+                String.valueOf(Parametro.CLASE_AVISO_VENCIMIENTO_DIAS_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.TOPE_SEMANAL_CLONES,
+                String.valueOf(Parametro.TOPE_SEMANAL_CLONES_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.TOPE_SEMANAL_CONTENIDOS_IA,
+                String.valueOf(Parametro.TOPE_SEMANAL_CONTENIDOS_IA_POR_DEFECTO)));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_RAZON_SOCIAL, "Idóneos Online S.A.S."));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_CUIT, "30-71234567-8"));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_DOMICILIO, "Av. Corrientes 1234, Posadas, Misiones"));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_LOGO, "/img/logos/image.png"));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_EMAIL, "contacto@idoneos.online"));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_TELEFONO, "+54 376 4000000"));
+        parametroService.registrarTexto(admin, Parametro.GOOGLE_CLIENT_ID, "");
+        parametroService.registrarTexto(admin, Parametro.GOOGLE_CLIENT_SECRET, "");
+        parametroService.registrarTexto(admin, Parametro.HEYGEN_API_KEY, "");
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
         // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");

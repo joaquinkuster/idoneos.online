@@ -18,3 +18,12 @@ CREATE TRIGGER trg_progreso_pertenencia BEFORE UPDATE ON progreso
 DROP TRIGGER IF EXISTS trg_progreso_sin_borrado ON progreso ^^^
 CREATE TRIGGER trg_progreso_sin_borrado BEFORE DELETE ON progreso
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_progreso_auditoria ON progreso ^^^
+CREATE TRIGGER trg_progreso_auditoria AFTER INSERT OR UPDATE OR DELETE ON progreso
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Progreso') ^^^

@@ -18,3 +18,12 @@ CREATE TRIGGER trg_rol_usuario_pertenencia BEFORE UPDATE ON rol_usuario
 DROP TRIGGER IF EXISTS trg_rol_usuario_sin_borrado ON rol_usuario ^^^
 CREATE TRIGGER trg_rol_usuario_sin_borrado BEFORE DELETE ON rol_usuario
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_rol_usuario_auditoria ON rol_usuario ^^^
+CREATE TRIGGER trg_rol_usuario_auditoria AFTER INSERT OR UPDATE OR DELETE ON rol_usuario
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('RolUsuario') ^^^

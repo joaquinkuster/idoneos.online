@@ -130,3 +130,12 @@ CREATE TRIGGER trg_programa_pertenencia BEFORE UPDATE ON programa
 DROP TRIGGER IF EXISTS trg_programa_sin_borrado ON programa ^^^
 CREATE TRIGGER trg_programa_sin_borrado BEFORE DELETE ON programa
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_programa_auditoria ON programa ^^^
+CREATE TRIGGER trg_programa_auditoria AFTER INSERT OR UPDATE OR DELETE ON programa
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Programa') ^^^

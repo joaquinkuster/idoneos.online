@@ -18,3 +18,12 @@ CREATE TRIGGER trg_parametro_pertenencia BEFORE UPDATE ON parametro
 DROP TRIGGER IF EXISTS trg_parametro_sin_borrado ON parametro ^^^
 CREATE TRIGGER trg_parametro_sin_borrado BEFORE DELETE ON parametro
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_parametro_auditoria ON parametro ^^^
+CREATE TRIGGER trg_parametro_auditoria AFTER INSERT OR UPDATE OR DELETE ON parametro
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Parametro') ^^^

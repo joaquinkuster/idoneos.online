@@ -40,3 +40,12 @@ CREATE TRIGGER trg_certificado_inmutable BEFORE UPDATE ON certificado
 DROP TRIGGER IF EXISTS trg_certificado_sin_borrado ON certificado ^^^
 CREATE TRIGGER trg_certificado_sin_borrado BEFORE DELETE ON certificado
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_certificado_auditoria ON certificado ^^^
+CREATE TRIGGER trg_certificado_auditoria AFTER INSERT OR UPDATE OR DELETE ON certificado
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Certificado') ^^^

@@ -56,6 +56,8 @@
 </th:block>
 
 <th:block th:fragment="enlacesAdministrador(activo)">
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/estadisticas', 'fa-chart-line', 'Tablero de estadísticas', ${activo}, 'estadisticas')}"></a>
+
     <div th:replace="~{fragments/layout/sidebar :: grupo('Cursos')}"></div>
     <a th:replace="~{fragments/layout/sidebar :: enlace('/curso/buscar', 'fa-book-open', 'Cursos', ${activo}, 'cursos')}"></a>
     <a th:replace="~{fragments/layout/sidebar :: enlace('/categoria/buscar', 'fa-tags', 'Categorías', ${activo}, 'categorias')}"></a>
@@ -69,6 +71,13 @@
     <div th:replace="~{fragments/layout/sidebar :: grupo('Usuarios')}"></div>
     <a th:replace="~{fragments/layout/sidebar :: enlace('/usuario/buscar', 'fa-users', 'Usuarios', ${activo}, 'usuarios')}"></a>
     <a th:replace="~{fragments/layout/sidebar :: enlace('/sesion/buscar', 'fa-laptop', 'Sesiones', ${activo}, 'sesiones')}"></a>
+
+    <div th:replace="~{fragments/layout/sidebar :: grupo('Reportes y Estadísticas')}"></div>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/reporte/buscar', 'fa-file-pdf', 'Reportes', ${activo}, 'reportes')}"></a>
+
+    <div th:replace="~{fragments/layout/sidebar :: grupo('Configuración')}"></div>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/auditoria/buscar', 'fa-clipboard-list', 'Auditoría', ${activo}, 'auditoria')}"></a>
+    <a th:replace="~{fragments/layout/sidebar :: enlace('/configuracion/buscar', 'fa-sliders', 'Parámetros', ${activo}, 'configuracion')}"></a>
 </th:block>
 
 <!-- ========== Gestión académica, para el alumno y el docente ==========

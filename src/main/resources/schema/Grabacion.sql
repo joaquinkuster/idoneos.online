@@ -18,3 +18,12 @@ CREATE TRIGGER trg_grabacion_pertenencia BEFORE UPDATE ON grabacion
 DROP TRIGGER IF EXISTS trg_grabacion_sin_borrado ON grabacion ^^^
 CREATE TRIGGER trg_grabacion_sin_borrado BEFORE DELETE ON grabacion
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_grabacion_auditoria ON grabacion ^^^
+CREATE TRIGGER trg_grabacion_auditoria AFTER INSERT OR UPDATE OR DELETE ON grabacion
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Grabacion') ^^^

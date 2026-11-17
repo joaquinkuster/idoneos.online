@@ -52,3 +52,12 @@ CREATE CONSTRAINT TRIGGER trg_indice_documento_con_entradas AFTER DELETE OR UPDA
 DROP TRIGGER IF EXISTS trg_indice_documento_fuente_ia ON indice_documento ^^^
 CREATE TRIGGER trg_indice_documento_fuente_ia BEFORE DELETE ON indice_documento
     FOR EACH ROW EXECUTE FUNCTION fn_documento_bloqueado_por_ia('modificar') ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_indice_documento_auditoria ON indice_documento ^^^
+CREATE TRIGGER trg_indice_documento_auditoria AFTER INSERT OR UPDATE OR DELETE ON indice_documento
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('IndiceDocumento') ^^^

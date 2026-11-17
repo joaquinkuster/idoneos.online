@@ -25,6 +25,12 @@ public class DetalleAuditoriaServiceImpl implements DetalleAuditoriaService {
         return detalleAuditoriaRepository.findById(id);
     }
 
+    /** Obtiene los campos afectados por una acción auditada. */
+    @Override
+    public List<DetalleAuditoria> buscarPorAuditoria(com.app.idoneos.model.Auditoria auditoria) {
+        return detalleAuditoriaRepository.findByAuditoriaOrderByCampo(auditoria);
+    }
+
     /** Obtiene todos los registros. */
     @Override
     public List<DetalleAuditoria> obtenerTodo() {

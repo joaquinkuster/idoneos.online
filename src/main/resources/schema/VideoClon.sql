@@ -18,3 +18,12 @@ CREATE TRIGGER trg_video_clon_pertenencia BEFORE UPDATE ON video_clon
 DROP TRIGGER IF EXISTS trg_video_clon_sin_borrado ON video_clon ^^^
 CREATE TRIGGER trg_video_clon_sin_borrado BEFORE DELETE ON video_clon
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_video_clon_auditoria ON video_clon ^^^
+CREATE TRIGGER trg_video_clon_auditoria AFTER INSERT OR UPDATE OR DELETE ON video_clon
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('VideoClon') ^^^

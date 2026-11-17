@@ -82,3 +82,12 @@ CREATE TRIGGER trg_categoria_baja BEFORE UPDATE OF baja ON categoria
 DROP TRIGGER IF EXISTS trg_categoria_sin_borrado ON categoria ^^^
 CREATE TRIGGER trg_categoria_sin_borrado BEFORE DELETE ON categoria
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_categoria_auditoria ON categoria ^^^
+CREATE TRIGGER trg_categoria_auditoria AFTER INSERT OR UPDATE OR DELETE ON categoria
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Categoria') ^^^

@@ -58,3 +58,12 @@ CREATE TRIGGER trg_integrante_equipo_pertenencia BEFORE UPDATE ON integrante_equ
 DROP TRIGGER IF EXISTS trg_integrante_equipo_sin_borrado ON integrante_equipo ^^^
 CREATE TRIGGER trg_integrante_equipo_sin_borrado BEFORE DELETE ON integrante_equipo
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_integrante_equipo_auditoria ON integrante_equipo ^^^
+CREATE TRIGGER trg_integrante_equipo_auditoria AFTER INSERT OR UPDATE OR DELETE ON integrante_equipo
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('IntegranteEquipo') ^^^

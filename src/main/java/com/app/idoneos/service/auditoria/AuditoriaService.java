@@ -10,4 +10,11 @@ public interface AuditoriaService extends CrudService<Auditoria, Integer> {
     // Lecturas
     // ----------------------------------------------------------------------
 
+    /**
+     * Obtiene todos los registros de auditoría, del más reciente al más antiguo.
+     *
+     * @return la lista de registros
+     */
+    java.util.List<Auditoria> buscarRecientes();
+
 }

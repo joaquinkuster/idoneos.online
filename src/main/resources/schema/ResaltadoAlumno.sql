@@ -17,3 +17,12 @@ CREATE TRIGGER trg_resaltado_alumno_pertenencia BEFORE UPDATE ON resaltado_alumn
 DROP TRIGGER IF EXISTS trg_resaltado_alumno_sin_borrado ON resaltado_alumno ^^^
 CREATE TRIGGER trg_resaltado_alumno_sin_borrado BEFORE DELETE ON resaltado_alumno
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_resaltado_alumno_auditoria ON resaltado_alumno ^^^
+CREATE TRIGGER trg_resaltado_alumno_auditoria AFTER INSERT OR UPDATE OR DELETE ON resaltado_alumno
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('ResaltadoAlumno') ^^^

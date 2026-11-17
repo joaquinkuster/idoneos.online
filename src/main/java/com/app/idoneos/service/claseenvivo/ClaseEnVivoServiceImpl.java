@@ -75,9 +75,6 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
     /** Formato de la fecha y la hora de una clase en los avisos. */
     private static final java.time.format.DateTimeFormatter FORMATO_AVISO = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm");
 
-    /** Días de anticipación con los que se avisa que una grabación está por vencer. */
-    private static final int DIAS_DE_AVISO_DE_VENCIMIENTO = 7;
-
     /** Largo máximo del título de la clase. */
     private static final int LONGITUD_TITULO = 50;
 
@@ -603,8 +600,10 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
     public void avisarGrabacionesPorVencer() {
         try {
             LocalDate hoy = LocalDate.now();
+            int diasDeAviso = Math.max(1, parametroService.obtenerEntero(Parametro.CLASE_AVISO_VENCIMIENTO_DIAS,
+                    Parametro.CLASE_AVISO_VENCIMIENTO_DIAS_POR_DEFECTO));
             for (ClaseEnVivo clase : claseEnVivoRepository
-                    .findByGrabacionIsNotNullAndFechaVencimientoGrabacionBefore(hoy.plusDays(DIAS_DE_AVISO_DE_VENCIMIENTO + 1L))) {
+                    .findByGrabacionIsNotNullAndFechaVencimientoGrabacionBefore(hoy.plusDays(diasDeAviso + 1L))) {
                 LocalDate vencimiento = clase.getFechaVencimientoGrabacion();
                 if (vencimiento.isBefore(hoy) || clase.getGrabacion().getRecurso().esInactivo()) {
                     continue;

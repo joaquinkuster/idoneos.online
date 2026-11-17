@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Parámetros</h1>
+                    <p class="pn-subtitulo">Configura los valores operativos del sistema sin tocar el código. El conjunto de parámetros está definido de antemano</p>
+                </div>
+            </div>
+
+            <form th:action="@{/configuracion/modificar}" method="post" class="form-ajax" data-validar novalidate>
+                <section class="pn-card mb-4" style="padding: 24px;" th:each="seccion : ${secciones}">
+                    <div class="pn-seccion-titulo">
+                        <h4 th:text="${seccion.titulo}">Sección</h4>
+                        <p th:text="${seccion.descripcion}">Descripción</p>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 pn-campo" th:each="p : ${seccion.parametros}">
+                            <label class="pn-etiqueta">
+                                <span th:text="${p.etiqueta}">Parámetro</span>
+                                <span class="pn-obligatorio" th:if="${p.obligatorio}">*</span>
+                                <span class="text-muted" th:if="${!#strings.isEmpty(p.unidad)}" th:text="${'(' + p.unidad + ')'}">(minutos)</span>
+                            </label>
+                            <th:block th:switch="${p.tipo.name()}">
+                                <input th:case="'ENTERO'" type="number" th:name="${p.clave}" class="pn-input" step="1" th:min="${p.minimo}" th:max="${p.maximo}"
+                                       th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
+                                <input th:case="'SECRETO'" type="password" th:name="${p.clave}" class="pn-input" autocomplete="new-password" th:maxlength="${p.largo}"
+                                       th:placeholder="${cargados.contains(p.clave) ? '••••••••  (cargado: dejalo vacío para conservarlo)' : 'Sin cargar'}">
+                                <input th:case="'CORREO'" type="email" th:name="${p.clave}" class="pn-input" th:maxlength="${p.largo}"
+                                       th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
+                                <input th:case="*" type="text" th:name="${p.clave}" class="pn-input" th:maxlength="${p.largo}"
+                                       th:value="${valores[p.clave]}" th:required="${p.obligatorio}">
+                            </th:block>
+                            <small class="text-muted" th:if="${!#strings.isEmpty(p.ayuda)}" th:text="${p.ayuda}">Ayuda</small>
+                            <div class="pn-ayuda-error"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="d-flex justify-content-end mb-4">
+                    <button type="submit" class="pn-btn pn-btn-primario">Guardar configuración</button>
+                </div>
+            </form>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+</body>
+</html>

@@ -48,3 +48,12 @@ CREATE TRIGGER trg_clase_en_vivo_cohorte_activa BEFORE INSERT OR UPDATE OF id_co
 DROP TRIGGER IF EXISTS trg_clase_en_vivo_sin_borrado ON clase_en_vivo ^^^
 CREATE TRIGGER trg_clase_en_vivo_sin_borrado BEFORE DELETE ON clase_en_vivo
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_clase_en_vivo_auditoria ON clase_en_vivo ^^^
+CREATE TRIGGER trg_clase_en_vivo_auditoria AFTER INSERT OR UPDATE OR DELETE ON clase_en_vivo
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('ClaseEnVivo') ^^^

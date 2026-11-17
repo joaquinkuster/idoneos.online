@@ -149,8 +149,69 @@ public class Parametro {
     /** Monto mínimo que se usa cuando el parámetro no está cargado (el del gateway Decidir). */
     public static final float MODO_MONTO_MINIMO_POR_DEFECTO = 30f;
 
+    // ----------------------------------------------------------------------
+    // Grabaciones: aviso previo al vencimiento
+    // ----------------------------------------------------------------------
+
+    /** Clave de los días de anticipación con que se avisa que una grabación está por dejar de estar disponible. */
+    public static final String CLASE_AVISO_VENCIMIENTO_DIAS = "clase_en_vivo.aviso_vencimiento_dias";
+
+    /** Días de aviso previo cuando el parámetro no está cargado (una semana). */
+    public static final int CLASE_AVISO_VENCIMIENTO_DIAS_POR_DEFECTO = 7;
+
+    // ----------------------------------------------------------------------
+    // Datos institucionales: los usan el sitio, los comprobantes y las constancias (el CBU es {@link #CBU_INSTITUCION})
+    // ----------------------------------------------------------------------
+
+    /** Razón social de la institución. */
+    public static final String INSTITUCION_RAZON_SOCIAL = "institucion.razon_social";
+
+    /** CUIT de la institución. */
+    public static final String INSTITUCION_CUIT = "institucion.cuit";
+
+    /** Domicilio de la institución. */
+    public static final String INSTITUCION_DOMICILIO = "institucion.domicilio";
+
+    /** Dirección (URL o ruta) del logo de la institución. */
+    public static final String INSTITUCION_LOGO = "institucion.logo";
+
+    /** Correo electrónico de contacto de la institución. */
+    public static final String INSTITUCION_EMAIL = "institucion.email";
+
+    /** Teléfono de contacto de la institución. */
+    public static final String INSTITUCION_TELEFONO = "institucion.telefono";
+
+    // ----------------------------------------------------------------------
+    // Credenciales de integración
+    // ----------------------------------------------------------------------
+
+    /** Identificador de cliente de Google OAuth. */
+    public static final String GOOGLE_CLIENT_ID = "google.client_id";
+
+    /** Secreto de cliente de Google OAuth. Se guarda cifrado. */
+    public static final String GOOGLE_CLIENT_SECRET = "google.client_secret";
+
+    /** Clave de la API de HeyGen (video con clon). Se guarda cifrada. */
+    public static final String HEYGEN_API_KEY = "heygen.api_key";
+
+    // ----------------------------------------------------------------------
+    // Topes semanales de generación por docente
+    // ----------------------------------------------------------------------
+
+    /** Clave de la cantidad máxima de clases generadas con clon que puede pedir un docente por semana. */
+    public static final String TOPE_SEMANAL_CLONES = "docente.tope_semanal_clones";
+
+    /** Clave de la cantidad máxima de contenidos generados con IA (bancos de preguntas, resúmenes y presentaciones) que puede pedir un docente por semana. */
+    public static final String TOPE_SEMANAL_CONTENIDOS_IA = "docente.tope_semanal_contenidos_ia";
+
+    /** Clones por semana cuando el parámetro no está cargado. */
+    public static final int TOPE_SEMANAL_CLONES_POR_DEFECTO = 3;
+
+    /** Contenidos con IA por semana cuando el parámetro no está cargado. */
+    public static final int TOPE_SEMANAL_CONTENIDOS_IA_POR_DEFECTO = 10;
+
     /** Claves de los parámetros cuyo valor se guarda cifrado y nunca se muestra completo. */
-    public static final java.util.Set<String> CLAVES_SENSIBLES = java.util.Set.of(MODO_CLAVE);
+    public static final java.util.Set<String> CLAVES_SENSIBLES = java.util.Set.of(MODO_CLAVE, GOOGLE_CLIENT_SECRET, HEYGEN_API_KEY);
 
     /** Lo que se muestra en lugar del valor de un parámetro sensible. */
     public static final String VALOR_ENMASCARADO = "••••••••";

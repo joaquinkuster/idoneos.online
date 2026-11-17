@@ -34,3 +34,12 @@ CREATE TRIGGER trg_usuario_validar BEFORE INSERT OR UPDATE ON usuario
 DROP TRIGGER IF EXISTS trg_usuario_sin_borrado ON usuario ^^^
 CREATE TRIGGER trg_usuario_sin_borrado BEFORE DELETE ON usuario
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_usuario_auditoria ON usuario ^^^
+CREATE TRIGGER trg_usuario_auditoria AFTER INSERT OR UPDATE OR DELETE ON usuario
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Usuario') ^^^

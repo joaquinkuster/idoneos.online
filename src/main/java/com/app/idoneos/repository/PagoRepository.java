@@ -16,6 +16,9 @@ public interface PagoRepository extends JpaRepository<Pago, Integer> {
     /** Busca los registros de pago asociados a estadoPago. */
     List<Pago> findByEstadoPago(EstadoPago estadoPago);
 
+    /** Busca los pagos con un estado cuya fecha de aprobación está entre dos fechas: desde inclusive, hasta exclusive. */
+    List<Pago> findByEstadoPagoNombreAndFechaAprobacionGreaterThanEqualAndFechaAprobacionLessThan(String estado, java.time.LocalDateTime desde, java.time.LocalDateTime hasta);
+
     /** Busca los registros de pago asociados a inscripcion. */
     List<Pago> findByInscripcion(Inscripcion inscripcion);
 

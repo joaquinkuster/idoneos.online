@@ -11,6 +11,9 @@ import com.app.idoneos.model.Reporte;
 @Repository
 public interface ReporteRepository extends JpaRepository<Reporte, Integer> {
 
+    /** Todos los reportes, del más reciente al más antiguo. */
+    java.util.List<Reporte> findAllByOrderByFechaGeneracionDescIdReporteDesc();
+
     /** Busca los registros de reporte asociados a curso. */
     List<Reporte> findByCurso(Curso curso);
 }

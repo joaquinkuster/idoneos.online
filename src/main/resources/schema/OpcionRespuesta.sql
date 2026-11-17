@@ -83,3 +83,12 @@ CREATE TRIGGER trg_opcion_respuesta_pertenencia BEFORE UPDATE ON opcion_respuest
 DROP TRIGGER IF EXISTS trg_opcion_respuesta_sin_borrado ON opcion_respuesta ^^^
 CREATE TRIGGER trg_opcion_respuesta_sin_borrado BEFORE DELETE ON opcion_respuesta
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_opcion_respuesta_auditoria ON opcion_respuesta ^^^
+CREATE TRIGGER trg_opcion_respuesta_auditoria AFTER INSERT OR UPDATE OR DELETE ON opcion_respuesta
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('OpcionRespuesta') ^^^

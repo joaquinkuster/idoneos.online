@@ -119,3 +119,12 @@ CREATE TRIGGER trg_inscripcion_cascada AFTER UPDATE OF baja ON inscripcion
 DROP TRIGGER IF EXISTS trg_inscripcion_sin_borrado ON inscripcion ^^^
 CREATE TRIGGER trg_inscripcion_sin_borrado BEFORE DELETE ON inscripcion
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_inscripcion_auditoria ON inscripcion ^^^
+CREATE TRIGGER trg_inscripcion_auditoria AFTER INSERT OR UPDATE OR DELETE ON inscripcion
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Inscripcion') ^^^

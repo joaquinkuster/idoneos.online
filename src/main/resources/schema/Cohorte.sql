@@ -260,3 +260,12 @@ CREATE TRIGGER trg_cohorte_pertenencia BEFORE UPDATE ON cohorte
 DROP TRIGGER IF EXISTS trg_cohorte_sin_borrado ON cohorte ^^^
 CREATE TRIGGER trg_cohorte_sin_borrado BEFORE DELETE ON cohorte
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_cohorte_auditoria ON cohorte ^^^
+CREATE TRIGGER trg_cohorte_auditoria AFTER INSERT OR UPDATE OR DELETE ON cohorte
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Cohorte') ^^^

@@ -41,3 +41,12 @@ CREATE TRIGGER trg_comprobante_inmutable BEFORE UPDATE ON comprobante
 DROP TRIGGER IF EXISTS trg_comprobante_sin_borrado ON comprobante ^^^
 CREATE TRIGGER trg_comprobante_sin_borrado BEFORE DELETE ON comprobante
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_comprobante_auditoria ON comprobante ^^^
+CREATE TRIGGER trg_comprobante_auditoria AFTER INSERT OR UPDATE OR DELETE ON comprobante
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Comprobante') ^^^

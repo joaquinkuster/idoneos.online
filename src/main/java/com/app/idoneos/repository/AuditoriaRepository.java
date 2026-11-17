@@ -9,4 +9,7 @@ import com.app.idoneos.model.Auditoria;
 @Repository
 public interface AuditoriaRepository extends JpaRepository<Auditoria, Integer> {
 
+    /** Todos los registros, del más reciente al más antiguo. */
+    java.util.List<Auditoria> findAllByOrderByFechaHoraDescIdAuditoriaDesc();
+
 }

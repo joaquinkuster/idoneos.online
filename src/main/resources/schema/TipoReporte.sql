@@ -2,6 +2,20 @@
 -- Cada sentencia termina con ^^^ porque los cuerpos de las funciones llevan punto y coma adentro. Se puede ejecutar más de una vez.
 
 -- ----------------------------------------------------------------------
+-- Valores predefinidos
+-- ----------------------------------------------------------------------
+
+DO $do$
+BEGIN
+    PERFORM set_config('idoneos.carga_inicial', 'on', true);
+    INSERT INTO tipo_reporte (nombre) VALUES
+        ('Informe de alumnos'),
+        ('Informe de ingresos')
+    ON CONFLICT (nombre) DO NOTHING;
+END
+$do$ ^^^
+
+-- ----------------------------------------------------------------------
 -- Columnas que no cambian
 -- ----------------------------------------------------------------------
 

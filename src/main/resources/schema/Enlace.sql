@@ -50,3 +50,12 @@ CREATE TRIGGER trg_enlace_pertenencia BEFORE UPDATE ON enlace
 DROP TRIGGER IF EXISTS trg_enlace_sin_borrado ON enlace ^^^
 CREATE TRIGGER trg_enlace_sin_borrado BEFORE DELETE ON enlace
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_enlace_auditoria ON enlace ^^^
+CREATE TRIGGER trg_enlace_auditoria AFTER INSERT OR UPDATE OR DELETE ON enlace
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('Enlace') ^^^

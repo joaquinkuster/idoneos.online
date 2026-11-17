@@ -10,4 +10,12 @@ public interface DetalleAuditoriaService extends CrudService<DetalleAuditoria, I
     // Lecturas
     // ----------------------------------------------------------------------
 
+    /**
+     * Obtiene los campos afectados por una acción auditada.
+     *
+     * @param auditoria la acción auditada
+     * @return los detalles, en orden alfabético de campo
+     */
+    java.util.List<DetalleAuditoria> buscarPorAuditoria(com.app.idoneos.model.Auditoria auditoria);
+
 }

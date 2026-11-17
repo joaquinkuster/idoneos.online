@@ -12,8 +12,13 @@
     </div>
 
     <!-- Pantallas chicas: abre y cierra los enlaces y el menú del usuario -->
-    <button type="button" class="nb-toggle" data-nb-toggle aria-label="Abrir menú" aria-expanded="false" aria-controls="nbEnlaces">
-        <i class="fa-solid fa-bars"></i>
+    <button type="button" class="nb-toggle" th:classappend="${usuario != null} ? 'nb-toggle-usuario'" data-nb-toggle aria-label="Abrir menú" aria-expanded="false" aria-controls="nbEnlaces">
+        <!-- Visitante: las 3 barras. Usuario: su foto y una flecha -->
+        <i class="fa-solid fa-bars" th:if="${usuario == null}"></i>
+        <th:block th:if="${usuario != null}">
+            <th:block th:replace="~{fragments/components/avatar :: avatar(${usuario}, 'av-menu')}"></th:block>
+            <i class="fa-solid fa-chevron-down nb-toggle-flecha"></i>
+        </th:block>
     </button>
 
     <nav class="nb-enlaces" id="nbEnlaces" aria-label="Navegación principal">

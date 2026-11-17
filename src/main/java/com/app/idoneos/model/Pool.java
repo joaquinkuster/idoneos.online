@@ -31,6 +31,11 @@ public class Pool {
     @JoinColumn(name = "idTema", nullable = false)
     private Tema tema;
 
+    /** Docente que pidió generar el pool con inteligencia artificial. Es nulo si lo cargó a mano o es anterior a este dato. */
+    @ManyToOne
+    @JoinColumn(name = "idDocente", nullable = true)
+    private Docente docente;
+
     /** Nombre del pool. */
     @Column(name = "nombre", nullable = false, length = 50)
     private String nombre;

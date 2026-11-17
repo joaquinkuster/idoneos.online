@@ -50,3 +50,12 @@ CREATE TRIGGER trg_termino_glosario_pertenencia BEFORE UPDATE ON termino_glosari
 DROP TRIGGER IF EXISTS trg_termino_glosario_sin_borrado ON termino_glosario ^^^
 CREATE TRIGGER trg_termino_glosario_sin_borrado BEFORE DELETE ON termino_glosario
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_termino_glosario_auditoria ON termino_glosario ^^^
+CREATE TRIGGER trg_termino_glosario_auditoria AFTER INSERT OR UPDATE OR DELETE ON termino_glosario
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('TerminoGlosario') ^^^

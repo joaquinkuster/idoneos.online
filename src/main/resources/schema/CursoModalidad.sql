@@ -24,3 +24,12 @@ $$ LANGUAGE plpgsql ^^^
 DROP TRIGGER IF EXISTS trg_curso_modalidad_congelado ON curso_modalidad ^^^
 CREATE TRIGGER trg_curso_modalidad_congelado BEFORE INSERT OR UPDATE OR DELETE ON curso_modalidad
     FOR EACH ROW EXECUTE FUNCTION fn_curso_modalidad_congelada() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_curso_modalidad_auditoria ON curso_modalidad ^^^
+CREATE TRIGGER trg_curso_modalidad_auditoria AFTER INSERT OR UPDATE OR DELETE ON curso_modalidad
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('CursoModalidad') ^^^

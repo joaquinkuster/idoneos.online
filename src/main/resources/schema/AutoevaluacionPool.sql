@@ -40,3 +40,12 @@ CREATE TRIGGER trg_autoevaluacion_pool_congelado BEFORE INSERT OR UPDATE OR DELE
 DROP TRIGGER IF EXISTS trg_autoevaluacion_pool_pertenencia ON autoevaluacion_pool ^^^
 CREATE TRIGGER trg_autoevaluacion_pool_pertenencia BEFORE UPDATE ON autoevaluacion_pool
     FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_autoevaluacion', 'id_pool') ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_autoevaluacion_pool_auditoria ON autoevaluacion_pool ^^^
+CREATE TRIGGER trg_autoevaluacion_pool_auditoria AFTER INSERT OR UPDATE OR DELETE ON autoevaluacion_pool
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('AutoevaluacionPool') ^^^

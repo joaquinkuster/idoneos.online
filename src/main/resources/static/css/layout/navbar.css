@@ -342,14 +342,9 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         width: 100%;
     }
 
+    /* En el cajón no se repite la foto, el nombre y el rol: el usuario entra a su perfil desde la pestaña "Mi perfil" */
     .nb .um-trigger {
-        width: 100%;
-        padding: 14px 12px;
-        border: 0;
-        border-bottom: 1px solid var(--pn-borde);
-        border-radius: 0;
-        background: transparent !important;
-        pointer-events: none;
+        display: none;
     }
 
     .nb .um-datos {
@@ -428,4 +423,25 @@ body:not(.pn-body) .nb + :not(.wf-hero-banner):not(.wf-hero-section):not(.auth-p
         display: inline;
         font-size: 15px;
     }
+}
+
+/* Botón del cajón del usuario en pantallas chicas: su foto y una flecha, en lugar de las 3 barras */
+.nb-toggle-usuario {
+    width: auto;
+    gap: 6px;
+    padding: 0 6px;
+}
+
+.nb-toggle-usuario::before {
+    width: 100%;
+    height: 100%;
+}
+
+.nb-toggle-flecha {
+    font-size: 11px;
+    transition: transform 0.2s ease;
+}
+
+.nb-toggle[aria-expanded="true"] .nb-toggle-flecha {
+    transform: rotate(180deg);
 }

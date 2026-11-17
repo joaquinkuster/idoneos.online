@@ -17,3 +17,12 @@ CREATE TRIGGER trg_recordatorio_cohorte_pertenencia BEFORE UPDATE ON recordatori
 DROP TRIGGER IF EXISTS trg_recordatorio_cohorte_sin_borrado ON recordatorio_cohorte ^^^
 CREATE TRIGGER trg_recordatorio_cohorte_sin_borrado BEFORE DELETE ON recordatorio_cohorte
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_recordatorio_cohorte_auditoria ON recordatorio_cohorte ^^^
+CREATE TRIGGER trg_recordatorio_cohorte_auditoria AFTER INSERT OR UPDATE OR DELETE ON recordatorio_cohorte
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('RecordatorioCohorte') ^^^

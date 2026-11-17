@@ -180,3 +180,12 @@ CREATE TRIGGER trg_tema_recurso_pertenencia BEFORE UPDATE ON tema_recurso
 DROP TRIGGER IF EXISTS trg_tema_recurso_sin_borrado ON tema_recurso ^^^
 CREATE TRIGGER trg_tema_recurso_sin_borrado BEFORE DELETE ON tema_recurso
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_tema_recurso_auditoria ON tema_recurso ^^^
+CREATE TRIGGER trg_tema_recurso_auditoria AFTER INSERT OR UPDATE OR DELETE ON tema_recurso
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('TemaRecurso') ^^^

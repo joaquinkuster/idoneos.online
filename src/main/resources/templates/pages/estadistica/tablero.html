@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <style>
+        .tb-indicadores { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 18px; }
+        .tb-indicador { padding: 18px 20px; border-left: 4px solid var(--tb-color, #2563EB); }
+        .tb-indicador-titulo { font-size: 13px; font-weight: 500; color: var(--pn-texto-suave); margin: 0 0 6px; }
+        .tb-indicador-valor { font-size: 32px; font-weight: 800; color: #0F233D; line-height: 1.1; margin: 0; }
+        .tb-indicador-detalle { font-size: 12px; color: var(--pn-texto-suave); margin: 6px 0 0; }
+        .tb-subida { color: #059669; font-weight: 600; }
+        .tb-bajada { color: #DC2626; font-weight: 600; }
+        .tb-paneles { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+        .tb-panel { padding: 20px; }
+        .tb-panel-cabecera { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .tb-panel-titulo { font-size: 15px; font-weight: 700; color: #0F233D; margin: 0; }
+        .tb-panel-etiqueta { font-size: 11px; color: #2563EB; background: #EFF6FF; padding: 2px 8px; border-radius: 4px; }
+        .tb-grafico { position: relative; height: 230px; }
+        .tb-resumen { font-size: 12px; color: var(--pn-texto-suave); margin: 10px 0 0; }
+        .tb-fila { margin-bottom: 14px; }
+        .tb-fila-texto { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px; color: #334155; }
+        .tb-fila-texto strong { color: #0F233D; }
+        .tb-pista { background: #F1F5F9; border-radius: 4px; height: 8px; overflow: hidden; }
+        .tb-barra { height: 100%; border-radius: 4px; }
+    </style>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <th:block th:replace="~{fragments/layout/sidebar :: administrador(${menuActivo})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido">
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Tablero de estadísticas</h1>
+                    <p class="pn-subtitulo">Un pantallazo rápido de cómo viene el negocio, sin esperar a generar un informe</p>
+                </div>
+            </div>
+
+            <!-- Indicadores -->
+            <div class="tb-indicadores">
+                <section class="pn-card tb-indicador" style="--tb-color: #2563EB;">
+                    <p class="tb-indicador-titulo">Alumnos activos en plataforma</p>
+                    <p class="tb-indicador-valor" th:text="${#numbers.formatInteger(t.alumnosActivos, 1, 'POINT')}">1.240</p>
+                    <p class="tb-indicador-detalle">Alumnos con al menos una inscripción habilitada</p>
+                </section>
+                <section class="pn-card tb-indicador" style="--tb-color: #D4A03D;">
+                    <p class="tb-indicador-titulo">Inscripciones vigentes totales</p>
+                    <p class="tb-indicador-valor" th:text="${#numbers.formatInteger(t.inscripcionesVigentes, 1, 'POINT')}">1.420</p>
+                    <p class="tb-indicador-detalle" th:text="${'En ' + t.cursosActivos + (t.cursosActivos == 1 ? ' curso activo' : ' cursos activos')}">En 3 cursos activos</p>
+                </section>
+                <section class="pn-card tb-indicador" style="--tb-color: #059669;">
+                    <p class="tb-indicador-titulo">Ingresos del mes facturados</p>
+                    <p class="tb-indicador-valor" th:text="${'$' + #numbers.formatDecimal(t.ingresosMes, 1, 'POINT', 0, 'COMMA')}">$17.400.000</p>
+                    <p class="tb-indicador-detalle" th:if="${t.variacionIngresos() == null}">Sin ingresos el mes anterior para comparar</p>
+                    <p class="tb-indicador-detalle" th:if="${t.variacionIngresos() != null}">
+                        <span th:classappend="${t.variacionIngresos() >= 0} ? 'tb-subida' : 'tb-bajada'">
+                            <i class="fa-solid" th:classappend="${t.variacionIngresos() >= 0} ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                            <th:block th:text="${(t.variacionIngresos() >= 0 ? '+' : '') + #numbers.formatDecimal(t.variacionIngresos(), 1, 'POINT', 1, 'COMMA') + '%'}">+22%</th:block>
+                        </span> vs mes anterior
+                    </p>
+                </section>
+            </div>
+
+            <div class="tb-paneles">
+                <!-- Inscripciones de los últimos 30 días -->
+                <section class="pn-card tb-panel">
+                    <div class="tb-panel-cabecera">
+                        <h2 class="tb-panel-titulo">Inscripciones (últimos 30 días)</h2>
+                        <span class="tb-panel-etiqueta">Gráfico de línea</span>
+                    </div>
+                    <div class="tb-grafico"><canvas id="graficoInscripciones" aria-label="Inscripciones de los últimos 30 días"></canvas></div>
+                    <p class="tb-resumen">
+                        <strong th:text="${'Promedio diario: ' + #numbers.formatDecimal(t.promedioDiario, 1, 'POINT', 1, 'COMMA') + ' inscripciones'}">Promedio diario: 4,8 inscripciones</strong>
+                        <th:block th:if="${t.diaPico != null}" th:text="${' · Pico máximo: ' + t.picoInscripciones + ' el ' + #temporals.format(t.diaPico, 'dd/MM/yyyy')}"> · Pico máximo: 9 el 15/08/2026</th:block>
+                    </p>
+                </section>
+
+                <!-- Top 5 de cursos -->
+                <section class="pn-card tb-panel">
+                    <div class="tb-panel-cabecera">
+                        <h2 class="tb-panel-titulo">Top 5 cursos con más inscriptos</h2>
+                        <span class="tb-panel-etiqueta">Barras horizontales</span>
+                    </div>
+                    <p class="text-muted small" th:if="${#lists.isEmpty(t.top5)}">Todavía no hay inscripciones.</p>
+                    <div class="tb-fila" th:each="b, it : ${t.top5}">
+                        <div class="tb-fila-texto">
+                            <span th:text="${(it.index + 1) + '. ' + b.etiqueta}">1. Curso</span>
+                            <strong th:text="${#numbers.formatInteger(b.valor, 1, 'POINT') + ' inscriptos'}">840 inscriptos</strong>
+                        </div>
+                        <div class="tb-pista"><div class="tb-barra" th:style="${'width:' + (b.valor * 100 / t.top5.get(0).valor) + '%; background:' + (it.index == 0 ? '#2563EB' : it.index == 1 ? '#059669' : it.index == 2 ? '#64748B' : it.index == 3 ? '#D97706' : '#7C3AED')}"></div></div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del administrador')}"></th:block>
+    </div>
+</div>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script th:inline="javascript">
+    (function () {
+        var lienzo = document.getElementById('graficoInscripciones');
+        if (!lienzo || !window.Chart) { return; }
+        var etiquetas = /*[[${t.etiquetasDias}]]*/ [];
+        var valores = /*[[${valoresDias}]]*/ [];
+        new Chart(lienzo, {
+            type: 'line',
+            data: { labels: etiquetas, datasets: [{ label: 'Inscripciones', data: valores, borderColor: '#2563EB', backgroundColor: 'rgba(37,99,235,0.10)',
+                fill: true, tension: 0.3, pointRadius: 2, pointBackgroundColor: '#D4A03D', pointBorderColor: '#0F233D' }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { ticks: { maxTicksLimit: 8 } } } }
+        });
+    })();
+</script>
+</body>
+</html>

@@ -40,3 +40,12 @@ CREATE TRIGGER trg_titulo_docente_pertenencia BEFORE UPDATE ON titulo_docente
 DROP TRIGGER IF EXISTS trg_titulo_docente_sin_borrado ON titulo_docente ^^^
 CREATE TRIGGER trg_titulo_docente_sin_borrado BEFORE DELETE ON titulo_docente
     FOR EACH ROW EXECUTE FUNCTION fn_sin_borrado() ^^^
+
+-- ----------------------------------------------------------------------
+-- Auditoría
+-- ----------------------------------------------------------------------
+
+-- Registra quién creó, modificó o eliminó cada registro (solo cuando lo hace una persona con sesión iniciada).
+DROP TRIGGER IF EXISTS trg_titulo_docente_auditoria ON titulo_docente ^^^
+CREATE TRIGGER trg_titulo_docente_auditoria AFTER INSERT OR UPDATE OR DELETE ON titulo_docente
+    FOR EACH ROW EXECUTE FUNCTION fn_auditar('TituloDocente') ^^^
