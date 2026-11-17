@@ -106,6 +106,10 @@
             <div th:replace="~{fragments/layout/sidebar :: grupo('Contenido')}"></div>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/recurso/buscar?cursoId=' + ${curso.idCurso}, 'Recursos', ${activo}, 'materiales', true, false)}"></a>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/pool/buscar?cursoId=' + ${curso.idCurso}, 'Pools', ${activo}, 'pools', false, false)}"></a>
+            <!-- Los videos con clon solo existen en los cursos con esa modalidad -->
+            <th:block th:if="${curso.incluyeModalidad('Con clon de IA')}">
+                <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/videoClon/buscar?cursoId=' + ${curso.idCurso}, 'Videos con clon', ${activo}, 'videosClon', false, false)}"></a>
+            </th:block>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/autoevaluacion/buscar?cursoId=' + ${curso.idCurso}, 'Autoevaluaciones', ${activo}, 'autoevaluaciones', false, false)}"></a>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/glosario/buscar?cursoId=' + ${curso.idCurso}, 'Glosario', ${activo}, 'glosario', false, false)}"></a>
             <a th:replace="~{fragments/layout/sidebar :: enlaceGuia('/foro/buscar?cursoId=' + ${curso.idCurso}, 'Foros', ${activo}, 'foros', false, false)}"></a>

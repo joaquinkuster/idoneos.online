@@ -282,7 +282,14 @@ public class SemillaService {
     private java.nio.file.Path directorioCursos;
 
     /** Nombre del PDF de requisitos del proyecto, en la carpeta de ejemplos, que la semilla carga como bibliografía con índice. */
+    /** Clave de la API de HeyGen, de application-local.properties (no se sube a git): la semilla la guarda cifrada en Parámetros. */
+    @Value("${idoneos.heygen.api-key:}")
+    private String heygenApiKey;
+
     private static final String ARCHIVO_DE_REQUISITOS = "Requisitos.pdf";
+
+    /** Video con el clon de Fausto, generado en HeyGen: va a su biblioteca y no se reparte como video de ejemplo de las clases. */
+    private static final String ARCHIVO_VIDEO_CLON_FAUSTO = "videoclon-fausto.mp4";
 
     /** Nombre del PDF teórico de ingeniería de software, en la carpeta de ejemplos, que la semilla también carga como bibliografía. */
     private static final String ARCHIVO_TEORICO = "LEC ING SIST 0099 2020.pdf";
@@ -425,14 +432,14 @@ public class SemillaService {
         parametroRepository.save(new Parametro(admin, Parametro.TOPE_SEMANAL_CONTENIDOS_IA,
                 String.valueOf(Parametro.TOPE_SEMANAL_CONTENIDOS_IA_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_RAZON_SOCIAL, "Idóneos Online S.A.S."));
-        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_CUIT, "30-71234567-8"));
+        parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_CUIT, "30-71884920-4"));
         parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_DOMICILIO, "Av. Corrientes 1234, Posadas, Misiones"));
         parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_LOGO, "/img/logos/image.png"));
         parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_EMAIL, "contacto@idoneos.online"));
         parametroRepository.save(new Parametro(admin, Parametro.INSTITUCION_TELEFONO, "+54 376 4000000"));
         parametroService.registrarTexto(admin, Parametro.GOOGLE_CLIENT_ID, "");
         parametroService.registrarTexto(admin, Parametro.GOOGLE_CLIENT_SECRET, "");
-        parametroService.registrarTexto(admin, Parametro.HEYGEN_API_KEY, "");
+        parametroService.registrarTexto(admin, Parametro.HEYGEN_API_KEY, heygenApiKey);
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
         // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
@@ -458,6 +465,11 @@ public class SemillaService {
         // Docentes
         Docente fausto = crearDocente("Fausto", "Spotorno", "23456789", "fausto.spotorno@idoneos.online", rolDocente, 20,
                 "12845", "Economista UCA, Director de Maestría en UADE y socio de Orlando J. Ferreres & Asoc.");
+        // Clon de Fausto en HeyGen (avatar y voz ya creados): evita volver a generarlos en cada arranque con la base nueva
+        fausto.setAvatarId("12f2e2c92aa9c3897074fa2331c8399c");
+        fausto.setVoiceId("a7cd87ae5da24ad88ba9d4522be0c6cb");
+        docenteRepository.save(fausto);
+        agregarVideoClonDeFaustoEnLaBiblioteca(fausto);
         Docente sebastian = crearDocente("Sebastián", "Bordato", "24567890", "sebastian.bordato@idoneos.online", rolDocente, 15,
                 "15932", "Contador Público UBA. Experto en planificación fiscal corporativa y mercado de capitales.");
         Docente mariano = crearDocente("Mariano", "Otálora", "25678901", "mariano.otalora@idoneos.online", rolDocente, 18,
@@ -971,6 +983,7 @@ public class SemillaService {
         try (java.util.stream.Stream<java.nio.file.Path> archivos = java.nio.file.Files.list(carpeta)) {
             // Requisitos.pdf se carga aparte, como bibliografía con índice: no se reparte como un PDF de ejemplo más
             return archivos.filter(a -> a.getFileName().toString().toLowerCase().endsWith("." + extension))
+                    .filter(a -> !a.getFileName().toString().equalsIgnoreCase(ARCHIVO_VIDEO_CLON_FAUSTO))
                     .filter(a -> !a.getFileName().toString().equalsIgnoreCase(ARCHIVO_DE_REQUISITOS)
                             && !a.getFileName().toString().equalsIgnoreCase(ARCHIVO_TEORICO)).sorted().toList();
         } catch (java.io.IOException e) {
@@ -1320,6 +1333,31 @@ public class SemillaService {
         grabacion.setTamanioBytes((Long) video[1]);
         recurso.setGrabacion(grabacionRepository.save(grabacion));
         return recurso;
+    }
+
+    /**
+     * Deja en la biblioteca de Fausto el video que generó su clon en HeyGen, ya listo. El archivo se toma de la carpeta de recursos de ejemplo
+     * (videoclon-fausto.mp4); si no está, la semilla sigue sin este video.
+     */
+    private void agregarVideoClonDeFaustoEnLaBiblioteca(Docente fausto) {
+        java.nio.file.Path origen = java.nio.file.Path.of(carpetaDeRecursosDeEjemplo).resolve(ARCHIVO_VIDEO_CLON_FAUSTO);
+        if (!java.nio.file.Files.isRegularFile(origen)) {
+            return;
+        }
+        Recurso recurso = recursoRepository.save(new Recurso(fausto, "Video con clon: presentación de Fausto"));
+        VideoClon video = new VideoClon(recurso, estadoGeneracionIaRepository.findByNombre(EstadoGeneracionIA.LISTO).orElseThrow(),
+                "Hola, soy Fausto Spotorno. Este es un video generado con mi clon.");
+        String relativa = "biblioteca/docente" + fausto.getIdDocente() + "/videoclon" + recurso.getIdRecurso() + ".mp4";
+        java.nio.file.Path destino = directorioCursos.resolve(relativa);
+        try {
+            java.nio.file.Files.createDirectories(destino.getParent());
+            java.nio.file.Files.copy(origen, destino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            video.setRutaArchivo(relativa);
+            video.setTamanioBytes(java.nio.file.Files.size(destino));
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("No se pudo cargar el video con clon de Fausto en la semilla.", e);
+        }
+        recurso.setVideoClon(videoClonRepository.save(video));
     }
 
     /** Un material de lectura (presentación en PDF): público en la biblioteca. */

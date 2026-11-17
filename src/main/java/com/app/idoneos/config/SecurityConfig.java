@@ -144,6 +144,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/pool/darDeBaja/*", "/pool/darDeBajaMasiva")
                         .hasAnyRole("Docente", "Administrador")
                         .requestMatchers("/pool/**").hasRole("Docente")
+                        // Videos con clon: el docente y el administrador los buscan, el docente además los genera
+                        .requestMatchers(HttpMethod.GET, "/videoClon/buscar").hasAnyRole("Docente", "Administrador")
+                        .requestMatchers("/videoClon/**").hasRole("Docente")
                         // ABM de autoevaluaciones (el docente y el administrador las buscan y las dan de baja, el
                         // docente además las crea y las modifica)
                         .requestMatchers(HttpMethod.GET, "/autoevaluacion/buscar").hasAnyRole("Docente", "Administrador")
@@ -194,6 +197,7 @@ public class SecurityConfig {
                         // Acceder curso (Docente. El Administrador lo ve sin gestionar su contenido)
                         .requestMatchers(HttpMethod.GET, "/curso/acceder/*").hasAnyRole("Docente", "Administrador")
                         // gestión de cursos, categorías, cohortes y descuentos (Administrador)
+                        .requestMatchers("/clon/**").hasRole("Docente")
                         .requestMatchers("/curso/**", "/categoria/**", "/cohorte/**", "/descuento/**", "/configuracion/**", "/auditoria/**", "/reporte/**", "/estadisticas/**").hasRole("Administrador")
                         // ABM de usuarios (Administrador). El perfil propio y el cambio de rol los puede usar cualquier usuario con sesión
                         .requestMatchers(HttpMethod.GET, "/usuario/buscar", "/usuario/modificar/*").hasRole("Administrador")

@@ -60,6 +60,20 @@ public final class PdfUtil {
     }
 
     /**
+     * Arma la imagen del logo a partir de su contenido.
+     *
+     * @param contenido los bytes de la imagen
+     * @return la imagen, o {@code null} si no se puede leer
+     */
+    public static Image logo(byte[] contenido) {
+        try {
+            return Image.getInstance(contenido);
+        } catch (IOException | DocumentException e) {
+            return null;
+        }
+    }
+
+    /**
      * Carga el logo de la empresa.
      *
      * @return la imagen del logo, o {@code null} si no se puede leer
@@ -81,9 +95,20 @@ public final class PdfUtil {
      * @return el ancho que ocupó el encabezado
      */
     public static float dibujarEncabezado(PdfContentByte lienzo, float izquierda, float base) {
+        return dibujarEncabezado(lienzo, izquierda, base, "IDÓNEOS", "ONLINE", null);
+    }
+
+    /**
+     * Dibuja el encabezado de la institución con su logo y su nombre comercial.
+     *
+     * @param nombreSerif primera palabra del nombre (en azul)
+     * @param nombreNegrita resto del nombre (en dorado)
+     * @param imagenLogo contenido del logo, o {@code null} para usar el que viene con la aplicación
+     */
+    public static float dibujarEncabezado(PdfContentByte lienzo, float izquierda, float base, String nombreSerif, String nombreNegrita, byte[] imagenLogo) {
         float alto = 46;
         float x = izquierda;
-        Image logo = logo();
+        Image logo = imagenLogo == null ? logo() : logo(imagenLogo);
         if (logo != null) {
             logo.scaleToFit(alto * 1.4f, alto);
             logo.setAbsolutePosition(x, base);
@@ -96,14 +121,16 @@ public final class PdfUtil {
         }
         BaseFont negrita = helvetica(true);
         BaseFont normal = helvetica(false);
-        float anchoIdoneos = negrita.getWidthPoint("IDÓNEOS ", 15);
+        String primero = nombreSerif.toUpperCase(java.util.Locale.ROOT) + " ";
+        String resto = nombreNegrita.toUpperCase(java.util.Locale.ROOT);
+        float anchoIdoneos = negrita.getWidthPoint(primero, 15);
         lienzo.beginText();
         lienzo.setFontAndSize(negrita, 15);
         lienzo.setColorFill(AZUL);
         lienzo.setTextMatrix(x, base + alto - 18);
-        lienzo.showText("IDÓNEOS ");
+        lienzo.showText(primero);
         lienzo.setColorFill(DORADO);
-        lienzo.showText("ONLINE");
+        lienzo.showText(resto);
         lienzo.setFontAndSize(normal, 7);
         lienzo.setColorFill(GRIS);
         lienzo.setCharacterSpacing(0.8f);
@@ -112,7 +139,7 @@ public final class PdfUtil {
         lienzo.setCharacterSpacing(0);
         lienzo.endText();
         float anchoAreas = normal.getWidthPoint(AREAS, 7) + 0.8f * AREAS.length();
-        return x - izquierda + Math.max(anchoIdoneos + negrita.getWidthPoint("ONLINE", 15), anchoAreas);
+        return x - izquierda + Math.max(anchoIdoneos + negrita.getWidthPoint(resto, 15), anchoAreas);
     }
 
     /**

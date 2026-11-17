@@ -2,7 +2,7 @@
 <header th:fragment="navbar(segundos)" class="nb nb-intento" data-navbar>
     <div class="nb-izq">
         <span class="nb-marca">
-            <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online">
+            <img th:src="@{${institucion != null ? institucion.logo : '/img/logos/image.png'}}" src="/img/logos/image.png" alt="Idóneos Online">
             <span><span class="nb-marca-serif">Idóneos</span> <b>Online</b></span>
         </span>
     </div>

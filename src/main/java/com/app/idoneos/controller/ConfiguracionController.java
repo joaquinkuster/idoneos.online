@@ -104,9 +104,8 @@ public class ConfiguracionController {
                 }
             }
             boolean hayLogo = logo != null && !logo.isEmpty();
-            if (hayLogo) {
-                // Se valida antes de guardar nada: si el logo no sirve, no se cambia ningún parámetro
-                ManejadorArchivosUtil.validar(logo, LOGO_TAMANIO_MAXIMO, List.of("jpg", "png", "webp"));
+            if (hayLogo && logo.getSize() > LOGO_TAMANIO_MAXIMO) {
+                throw new IllegalArgumentException("Error! El logo no puede superar los 2 MB.");
             }
             if (cambios.isEmpty() && !hayLogo) {
                 return RespuestaFormularioUtil.armarRespuestaExitosa("No hay cambios para guardar.");

@@ -33,6 +33,13 @@ public interface InstitucionService {
      */
     Institucion obtener();
 
+    /**
+     * Lee el logo de la institución (el cargado en Parámetros o, si no se puede leer, el que viene con la aplicación).
+     *
+     * @return el contenido de la imagen, o {@code null} si no hay ninguna
+     */
+    byte[] leerLogo();
+
     /** Descarta los datos guardados en memoria: se vuelven a leer en el próximo pedido (se llama al guardar la configuración). */
     void invalidar();
 }

@@ -26,7 +26,7 @@ public class ReporteServiceImpl implements ReporteService {
     private com.app.idoneos.service.estadistica.EstadisticaService estadisticaService;
 
     @Autowired
-    private com.app.idoneos.service.parametro.ParametroService parametroService;
+    private com.app.idoneos.service.institucion.InstitucionService institucionService;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -81,13 +81,13 @@ public class ReporteServiceImpl implements ReporteService {
             throw new IllegalArgumentException("Error! Elegí el curso sobre el que querés informar.");
         }
         String emisor = administrador.getUsuario().getNombreCompleto();
-        String empresa = parametroService.obtenerTexto(com.app.idoneos.model.Parametro.INSTITUCION_RAZON_SOCIAL).filter(v -> !v.isBlank())
-                .orElse("Idóneos Online");
+        com.app.idoneos.service.institucion.InstitucionService.Institucion institucion = institucionService.obtener();
+        byte[] logo = institucionService.leerLogo();
         byte[] pdf;
         if (com.app.idoneos.model.TipoReporte.INFORME_ALUMNOS.equals(tipoReporte.getNombre())) {
-            pdf = com.app.idoneos.util.InformePdfUtil.alumnos(estadisticaService.informeAlumnos(curso, desde, hasta), emisor, empresa);
+            pdf = com.app.idoneos.util.InformePdfUtil.alumnos(estadisticaService.informeAlumnos(curso, desde, hasta), emisor, institucion, logo);
         } else {
-            pdf = com.app.idoneos.util.InformePdfUtil.ingresos(estadisticaService.informeIngresos(curso, desde, hasta), emisor, empresa);
+            pdf = com.app.idoneos.util.InformePdfUtil.ingresos(estadisticaService.informeIngresos(curso, desde, hasta), emisor, institucion, logo);
         }
         reporteRepository.save(new Reporte(administrador, tipoReporte, curso, java.time.LocalDateTime.now()));
         return pdf;

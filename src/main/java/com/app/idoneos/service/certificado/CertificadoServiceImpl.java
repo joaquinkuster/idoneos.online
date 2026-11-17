@@ -50,6 +50,9 @@ public class CertificadoServiceImpl implements CertificadoService {
     private static final Logger REGISTRO = LoggerFactory.getLogger(CertificadoServiceImpl.class);
 
     @Autowired
+    private com.app.idoneos.service.institucion.InstitucionService institucionService;
+
+    @Autowired
     private CertificadoRepository certificadoRepository;
 
     // ----------------------------------------------------------------------
@@ -97,6 +100,7 @@ public class CertificadoServiceImpl implements CertificadoService {
     @Override
     public byte[] generarPdf(Certificado certificado) {
         DateTimeFormatter formatoFecha = DateTimeFormatter.ofPattern("d 'de' MMMM 'de' yyyy", Locale.of("es", "AR"));
+        com.app.idoneos.service.institucion.InstitucionService.Institucion institucion = institucionService.obtener();
         Rectangle pagina = PageSize.A4.rotate();
         float ancho = pagina.getWidth();
         float alto = pagina.getHeight();
@@ -125,7 +129,7 @@ public class CertificadoServiceImpl implements CertificadoService {
             lienzo.restoreState();
 
             // Encabezado: logo, nombre y áreas a la izquierda, número del certificado a la derecha en una sola línea
-            PdfUtil.dibujarEncabezado(lienzo, 48, alto - 118);
+            PdfUtil.dibujarEncabezado(lienzo, 48, alto - 118, institucion.nombreSerif(), institucion.nombreNegrita(), institucionService.leerLogo());
             String etiquetaNumero = "N.\u00ba de certificado: ";
             float anchoNumero = normal.getWidthPoint(etiquetaNumero, 10) + negrita.getWidthPoint(certificado.getNumero(), 11);
             lienzo.beginText();
@@ -139,7 +143,7 @@ public class CertificadoServiceImpl implements CertificadoService {
             lienzo.endText();
 
             // Cuerpo
-            PdfUtil.centrado(lienzo, normal, 10, PdfUtil.GRIS, "ID\u00d3NEOS ONLINE S.A.S. OTORGA EL PRESENTE", centro, alto - 168, 2.2f);
+            PdfUtil.centrado(lienzo, normal, 10, PdfUtil.GRIS, institucion.razonSocial().toUpperCase(java.util.Locale.ROOT) + " OTORGA EL PRESENTE", centro, alto - 168, 2.2f);
             PdfUtil.centrado(lienzo, cinzel, 44, PdfUtil.AZUL, "CERTIFICADO", centro, alto - 222, 9f);
 
             String nombre = certificado.getNombreAlumno();

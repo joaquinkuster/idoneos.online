@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <!-- Ícono de la pestaña del navegador -->
-    <link rel="icon" type="image/png" th:href="@{/img/logos/image.png}" href="/img/logos/image.png">
+    <link rel="icon" th:href="@{${institucion != null ? institucion.logo : '/img/logos/image.png'}}" href="/img/logos/image.png">
 
     <!-- Estilos del Sistema Centralizados -->
     <th:block th:replace="~{fragments/layout/styles :: styles}"></th:block>

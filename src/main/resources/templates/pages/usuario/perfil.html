@@ -60,7 +60,15 @@
                             <!-- 01 · Datos personales -->
                             <section class="pf-seccion">
                                 <span class="ac-etiqueta">01 · Datos personales</span>
-                                <h3 class="ac-titulo">Tu información</h3>
+                                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                    <h3 class="ac-titulo">Tu información</h3>
+                                    <!-- Solo el docente tiene clon: con su foto y su voz se generan sus videos -->
+                                    <button type="button" class="pn-btn pn-btn-contorno" th:if="${perfil.docente != null and perfil.esDocente()}"
+                                            data-bs-toggle="modal" data-bs-target="#modalClon">
+                                        <i class="fa-solid fa-clone"></i>
+                                        <th:block th:text="${perfil.docente.avatarId != null and perfil.docente.voiceId != null} ? 'Recrear clon' : 'Crear clon'">Crear clon</th:block>
+                                    </button>
+                                </div>
                                 <div class="row g-3 pf-campos">
                                     <div class="col-md-6 pn-campo">
                                         <label class="pn-etiqueta">Nombre <span class="pn-obligatorio">*</span></label>
@@ -133,10 +141,90 @@
         </div>
     </div>
 
+    <!-- Ventana del clon: foto del docente y muestra de su voz -->
+    <div class="modal fade pn-modal" id="modalClon" tabindex="-1" aria-hidden="true" th:if="${perfil.docente != null and perfil.esDocente()}">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="pn-modal-cabecera">
+                    <h3 class="pn-modal-titulo">Crear clon</h3>
+                    <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="pn-modal-cuerpo" id="clon">
+                    <div class="pn-pasos pn-pasos-nombrados">
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto" data-clon-punto="1">1</span><span class="pn-pasos-nombre">Captura facial</span></span><span class="pn-pasos-linea"></span>
+                        <span class="pn-pasos-item"><span class="pn-pasos-punto" data-clon-punto="2">2</span><span class="pn-pasos-nombre">Muestra de voz</span></span>
+                    </div>
+
+                    <!-- 1. Captura facial -->
+                    <div data-clon-paso="1">
+                        <div class="pn-seccion-titulo">
+                            <h4>Captura facial</h4>
+                            <p>Una foto de frente, con buena luz, el rostro bien visible y sin anteojos de sol ni filtros</p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12 pn-campo text-center">
+                                <div style="min-height: 220px; display: flex; align-items: center; justify-content: center; margin-bottom: 14px;">
+                                    <video id="clonVideo" autoplay playsinline muted hidden style="max-width: 100%; max-height: 260px; border-radius: 12px;"></video>
+                                    <img id="clonFoto" class="d-none" alt="Tu foto" style="width: auto; height: auto; max-height: 260px; max-width: 100%; border-radius: 12px; object-fit: contain;">
+                                    <span id="clonFotoVacia" class="text-muted"><i class="fa-regular fa-image"></i> Todavía no elegiste una foto</span>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                    <label class="pn-btn pn-btn-contorno mb-0" for="clonArchivoFoto"><i class="fa-solid fa-upload"></i> Seleccionar archivo</label>
+                                    <input type="file" id="clonArchivoFoto" accept="image/jpeg,image/png" hidden>
+                                    <button type="button" class="pn-btn pn-btn-contorno" id="clonAbrirCamara"><i class="fa-solid fa-camera"></i> Abrir cámara</button>
+                                    <button type="button" class="pn-btn pn-btn-primario" id="clonCapturar" hidden><i class="fa-solid fa-circle-dot"></i> Capturar</button>
+                                </div>
+                                <small class="text-muted d-block mt-2">JPG o PNG, hasta 10 MB.</small>
+                            </div>
+                            <div class="col-12 pn-campo">
+                                <label class="d-flex gap-2 align-items-start" style="font-size: 13px;">
+                                    <input type="checkbox" id="clonTerminos" style="margin-top: 3px;">
+                                    <span>Acepto los términos y condiciones: autorizo el uso de mi imagen y mi voz para crear un clon digital con HeyGen, que se usa únicamente para generar videos de mis cursos en Idóneos Online.</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Muestra de voz -->
+                    <div data-clon-paso="2" hidden>
+                        <div class="pn-seccion-titulo">
+                            <h4>Muestra de voz</h4>
+                            <p>Un audio de 30 segundos a 2 minutos, hablando claro y sin ruido de fondo (por ejemplo, leyendo un texto)</p>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12 pn-campo text-center">
+                                <div style="min-height: 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; margin-bottom: 14px;">
+                                    <span id="clonTiempo" class="text-muted" hidden>Grabando... 00:00</span>
+                                    <audio id="clonReproductor" controls hidden style="max-width: 100%;"></audio>
+                                    <span id="clonAudioVacio" class="text-muted"><i class="fa-solid fa-microphone-lines"></i> Todavía no elegiste un audio</span>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                                    <label class="pn-btn pn-btn-contorno mb-0" for="clonArchivoAudio"><i class="fa-solid fa-upload"></i> Seleccionar archivo</label>
+                                    <input type="file" id="clonArchivoAudio" accept="audio/mpeg,audio/wav,audio/x-wav,audio/mp4,audio/x-m4a,.mp3,.wav,.m4a" hidden>
+                                    <button type="button" class="pn-btn pn-btn-contorno" id="clonGrabar"><i class="fa-solid fa-microphone"></i> Grabar voz</button>
+                                    <button type="button" class="pn-btn pn-btn-peligro" id="clonDetener" hidden><i class="fa-solid fa-stop"></i> Detener</button>
+                                </div>
+                                <small class="text-muted d-block mt-2">MP3, WAV o M4A, hasta 30 MB. Lo grabado se envía como WAV.</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="small text-muted text-center mt-3 mb-0" id="clonEstado" hidden></p>
+                    <div class="pn-modal-pie">
+                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="pn-btn pn-btn-primario" id="clonSiguiente">Siguiente</button>
+                        <button type="button" class="pn-btn pn-btn-primario" id="clonConfirmar" hidden>Confirmar y crear clon</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div th:replace="~{fragments/layout/scripts :: scripts}"></div>
     <script th:src="@{/js/core/comprimirImagen.js}"></script>
     <script th:src="@{/js/core/formulario.js}"></script>
     <script th:src="@{/js/core/validacion.js}"></script>
     <script th:src="@{/js/pages/usuario/perfil.js}"></script>
+    <script th:src="@{/js/pages/usuario/clon.js}"></script>
 </body>
 </html>

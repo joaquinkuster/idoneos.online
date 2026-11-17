@@ -33,6 +33,7 @@
                         <a th:href="${'/glosario/buscar?cursoId=' + curso.idCurso}">Glosario</a>
                         <a th:href="${'/foro/buscar?cursoId=' + curso.idCurso}">Foros</a>
                         <a th:href="${'/claseEnVivo/buscar?cursoId=' + curso.idCurso}" th:if="${curso.incluyeModalidad('En vivo')}">Clases en vivo</a>
+                        <a th:href="${'/videoClon/buscar?cursoId=' + curso.idCurso}" th:if="${curso.incluyeModalidad('Con clon de IA')}">Videos con clon</a>
                     </div>
                 </div>
 

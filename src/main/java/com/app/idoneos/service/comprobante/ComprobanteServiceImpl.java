@@ -43,6 +43,9 @@ public class ComprobanteServiceImpl implements ComprobanteService {
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Autowired
+    private com.app.idoneos.service.institucion.InstitucionService institucionService;
+
+    @Autowired
     private ComprobanteRepository comprobanteRepository;
 
     // ----------------------------------------------------------------------
@@ -75,6 +78,7 @@ public class ComprobanteServiceImpl implements ComprobanteService {
 
     @Override
     public byte[] generarPdf(Comprobante comprobante) {
+        com.app.idoneos.service.institucion.InstitucionService.Institucion institucion = institucionService.obtener();
         Pago pago = comprobante.getPago();
         Rectangle pagina = PageSize.A4;
         float ancho = pagina.getWidth();
@@ -83,7 +87,7 @@ public class ComprobanteServiceImpl implements ComprobanteService {
         Document documento = new Document(pagina, 0, 0, 0, 0);
         try {
             PdfWriter escritor = PdfWriter.getInstance(documento, salida);
-            PaginacionDelPie pie = new PaginacionDelPie();
+            PaginacionDelPie pie = new PaginacionDelPie(institucion);
             escritor.setPageEvent(pie);
             documento.open();
             PdfContentByte lienzo = escritor.getDirectContent();
@@ -91,7 +95,7 @@ public class ComprobanteServiceImpl implements ComprobanteService {
             BaseFont normal = PdfUtil.helvetica(false);
 
             // Encabezado: logo, nombre y áreas, y el distintivo gris rectangular
-            PdfUtil.dibujarEncabezado(lienzo, 48, alto - 94);
+            PdfUtil.dibujarEncabezado(lienzo, 48, alto - 94, institucion.nombreSerif(), institucion.nombreNegrita(), institucionService.leerLogo());
             String distintivo = "COMPROBANTE";
             float anchoDistintivo = PdfUtil.ancho(negrita, distintivo, 9, 0.8f) + 24;
             lienzo.setColorFill(new Color(0xF1, 0xF5, 0xF9));
@@ -182,6 +186,12 @@ public class ComprobanteServiceImpl implements ComprobanteService {
 
         private PdfTemplate total;
 
+        private final com.app.idoneos.service.institucion.InstitucionService.Institucion institucion;
+
+        PaginacionDelPie(com.app.idoneos.service.institucion.InstitucionService.Institucion institucion) {
+            this.institucion = institucion;
+        }
+
         @Override
         public void onOpenDocument(PdfWriter escritor, Document documento) {
             total = escritor.getDirectContent().createTemplate(40, 12);
@@ -201,7 +211,18 @@ public class ComprobanteServiceImpl implements ComprobanteService {
             lienzo.setFontAndSize(normal, 8);
             lienzo.setColorFill(PdfUtil.GRIS);
             lienzo.setTextMatrix(48, 48);
-            lienzo.showText("Idóneos Online S.A.S. \u00b7 CUIT 30-71884920-4");
+            lienzo.showText(institucion.razonSocial() + (institucion.cuit().isEmpty() ? "" : " \u00b7 CUIT " + institucion.cuit()));
+            // Segunda línea del pie: domicilio y contacto
+            java.util.List<String> contacto = new java.util.ArrayList<>();
+            for (String dato : new String[] { institucion.domicilio(), institucion.email(), institucion.telefono() }) {
+                if (!dato.isEmpty()) {
+                    contacto.add(dato);
+                }
+            }
+            if (!contacto.isEmpty()) {
+                lienzo.setTextMatrix(48, 36);
+                lienzo.showText(String.join(" \u00b7 ", contacto));
+            }
             String texto = "Página " + escritor.getPageNumber() + " de ";
             float anchoTexto = normal.getWidthPoint(texto, 8);
             lienzo.setTextMatrix(ancho - 48 - anchoTexto - 6, 48);

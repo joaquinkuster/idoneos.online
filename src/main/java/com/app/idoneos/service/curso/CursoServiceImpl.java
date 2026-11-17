@@ -855,6 +855,12 @@ public class CursoServiceImpl implements CursoService {
         if (!celdas.getOrDefault("Clase grabada", true)) {
             return new SiguienteRecurso("GRABACION", null);
         }
+        if (!celdas.getOrDefault("Video con clon", true)) {
+            return new SiguienteRecurso("videoClon", null);
+        }
+        if (!celdas.getOrDefault("Clase en vivo", true)) {
+            return new SiguienteRecurso("claseEnVivo", null);
+        }
         return new SiguienteRecurso(null, null);
     }
 
@@ -864,6 +870,9 @@ public class CursoServiceImpl implements CursoService {
         List<String> columnas = new ArrayList<>();
         if (curso.incluyeModalidad(Modalidad.CLON_IA)) {
             columnas.add("Video con clon");
+        }
+        if (curso.incluyeModalidad(Modalidad.EN_VIVO)) {
+            columnas.add("Clase en vivo");
         }
         if (curso.incluyeModalidad(Modalidad.GRABADA)) {
             columnas.add("Clase grabada");
@@ -881,6 +890,11 @@ public class CursoServiceImpl implements CursoService {
         if (curso.incluyeModalidad(Modalidad.CLON_IA)) {
             celdas.put("Video con clon", publicados.stream().anyMatch(m -> m.getRecurso().getVideoClon() != null
                     && EstadoGeneracionIA.LISTO.equals(m.getRecurso().getVideoClon().getEstadoGeneracionIa().getNombre())));
+        }
+        if (curso.incluyeModalidad(Modalidad.EN_VIVO)) {
+            // Una clase programada por tema: vale cualquiera que no esté cancelada ni dada de baja
+            celdas.put("Clase en vivo", tema.getClasesEnVivo().stream().anyMatch(c -> !c.getBaja()
+                    && !com.app.idoneos.model.EstadoClaseEnVivo.CANCELADA.equals(c.getEstadoClaseEnVivo().getNombre())));
         }
         if (curso.incluyeModalidad(Modalidad.GRABADA)) {
             celdas.put("Clase grabada", publicados.stream().anyMatch(m -> Modalidad.GRABADA.equals(m.getModalidadAsociada())));

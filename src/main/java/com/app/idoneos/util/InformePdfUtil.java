@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 
 import com.app.idoneos.service.estadistica.EstadisticaService.Barra;
+import com.app.idoneos.service.institucion.InstitucionService.Institucion;
 import com.app.idoneos.service.estadistica.EstadisticaService.Evolucion;
 import com.app.idoneos.service.estadistica.EstadisticaService.InformeAlumnos;
 import com.app.idoneos.service.estadistica.EstadisticaService.InformeIngresos;
@@ -71,11 +72,13 @@ public final class InformePdfUtil {
      *
      * @param datos los datos del informe
      * @param emisor nombre de quien lo genera
-     * @param empresa razón social que va en el pie
+     * @param institucion datos de la institución (nombre y razón social)
+     * @param logo contenido del logo de la institución, o {@code null}
      * @return el contenido del PDF
      */
-    public static byte[] alumnos(InformeAlumnos datos, String emisor, String empresa) {
-        return armar((h, pagina) -> {
+    public static byte[] alumnos(InformeAlumnos datos, String emisor, Institucion institucion, byte[] logo) {
+        String empresa = institucion.razonSocial();
+        return armar(institucion, logo, (h, pagina) -> {
             String periodo = FECHA.format(datos.desde()) + " al " + FECHA.format(datos.hasta());
             String pie = "INFORME DE ALUMNOS POR CURSO • " + empresa.toUpperCase(Locale.ROOT);
             if (pagina == 1) {
@@ -135,11 +138,13 @@ public final class InformePdfUtil {
      *
      * @param datos los datos del informe
      * @param emisor nombre de quien lo genera
-     * @param empresa razón social que va en el pie
+     * @param institucion datos de la institución (nombre y razón social)
+     * @param logo contenido del logo de la institución, o {@code null}
      * @return el contenido del PDF
      */
-    public static byte[] ingresos(InformeIngresos datos, String emisor, String empresa) {
-        return armar((h, pagina) -> {
+    public static byte[] ingresos(InformeIngresos datos, String emisor, Institucion institucion, byte[] logo) {
+        String empresa = institucion.razonSocial();
+        return armar(institucion, logo, (h, pagina) -> {
             String periodo = FECHA.format(datos.desde()) + " al " + FECHA.format(datos.hasta());
             String pie = "INFORME DE INGRESOS POR CURSO • " + empresa.toUpperCase(Locale.ROOT);
             if (pagina == 1) {
@@ -200,7 +205,7 @@ public final class InformePdfUtil {
         h.c.restoreState();
         // Marca: el logo y, a su derecha, el nombre y la leyenda, dentro del bloque blanco
         float x = MARGEN + 16;
-        Image logo = PdfUtil.logo();
+        Image logo = h.logo == null ? PdfUtil.logo() : PdfUtil.logo(h.logo);
         if (logo != null) {
             logo.scaleToFit(48, 44);
             logo.setAbsolutePosition(x, h.y(top + alto / 2) - logo.getScaledHeight() / 2);
@@ -211,8 +216,10 @@ public final class InformePdfUtil {
             }
             x += logo.getScaledWidth() + 9;
         }
-        h.texto("IDÓNEOS ", x, h.y(top + 25), h.negrita, 12.5f, NAVY, PdfContentByte.ALIGN_LEFT);
-        h.texto("ONLINE", x + h.negrita.getWidthPoint("IDÓNEOS ", 12.5f), h.y(top + 25), h.negrita, 12.5f, DORADO, PdfContentByte.ALIGN_LEFT);
+        String primero = h.institucion.nombreSerif().toUpperCase(Locale.ROOT) + " ";
+        h.texto(primero, x, h.y(top + 25), h.negrita, 12.5f, NAVY, PdfContentByte.ALIGN_LEFT);
+        h.texto(ajustar(h.institucion.nombreNegrita().toUpperCase(Locale.ROOT), h.negrita, 12.5f, 196 - (x - MARGEN) - h.negrita.getWidthPoint(primero, 12.5f) - 8),
+                x + h.negrita.getWidthPoint(primero, 12.5f), h.y(top + 25), h.negrita, 12.5f, DORADO, PdfContentByte.ALIGN_LEFT);
         h.texto("FINANZAS & MERCADOS", x, h.y(top + 36), h.negrita, 6.2f, DORADO, PdfContentByte.ALIGN_LEFT);
         float derecha = MARGEN + ANCHO - 16;
         h.texto(titulo, derecha, h.y(top + 22), h.negrita, titulo.length() > 36 ? 10.5f : 13, Color.WHITE, PdfContentByte.ALIGN_RIGHT);
@@ -563,7 +570,7 @@ public final class InformePdfUtil {
         void dibujar(Hoja hoja, int numero);
     }
 
-    private static byte[] armar(Pagina pagina) {
+    private static byte[] armar(Institucion institucion, byte[] logo, Pagina pagina) {
         ByteArrayOutputStream salida = new ByteArrayOutputStream();
         Document documento = new Document(PageSize.A4, 0, 0, 0, 0);
         try {
@@ -573,7 +580,7 @@ public final class InformePdfUtil {
                 if (numero == 2) {
                     documento.newPage();
                 }
-                pagina.dibujar(new Hoja(escritor.getDirectContent()), numero);
+                pagina.dibujar(new Hoja(escritor.getDirectContent(), institucion, logo), numero);
             }
         } catch (DocumentException e) {
             throw new IllegalStateException("No se pudo generar el informe.", e);
@@ -590,8 +597,13 @@ public final class InformePdfUtil {
         final BaseFont normal = PdfUtil.helvetica(false);
         final BaseFont negrita = PdfUtil.helvetica(true);
 
-        Hoja(PdfContentByte c) {
+        final Institucion institucion;
+        final byte[] logo;
+
+        Hoja(PdfContentByte c, Institucion institucion, byte[] logo) {
             this.c = c;
+            this.institucion = institucion;
+            this.logo = logo;
         }
 
         /** Pasa una posición medida desde arriba a la del PDF (desde abajo). */

@@ -12,7 +12,7 @@
                     <div class="ac-selector-lista" role="radiogroup" aria-label="Recursos y actividades">
                         <div class="ac-selector-grupo">Recursos</div>
 
-                        <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}"
+                        <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}" th:if="${t.name() != 'GRABACION' or curso == null or curso.incluyeModalidad('Grabada')}"
                                th:attr="data-tipo-id=${t.name()}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}, data-biblioteca='true',
                                      data-ia=${t.name() == 'PRESENTACION' ? 'presentacion' : (t.name() == 'APUNTE_DE_CATEDRA' ? 'resumen' : null)},
                                      data-ia-texto=${t.name() == 'PRESENTACION' ? 'Generar con IA' : (t.name() == 'APUNTE_DE_CATEDRA' ? 'Generar resumen con IA' : null)}">
@@ -20,10 +20,11 @@
                             <th:block th:replace="~{pages/recurso/icon :: icon(${t.nombre}, 'ac-recurso-icon-chico')}"></th:block>
                             <span th:text="${t.nombre}">Grabación</span>
                         </label>
-                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
-                            <input type="radio" name="recurso" disabled>
+                        <label class="ac-selector-opcion" th:if="${curso == null or curso.incluyeModalidad('Con clon de IA')}" data-ruta="/videoClon/buscar" data-nombre="Video con clon"
+                               data-descripcion="Generás un video en el que tu clon dice un guion: elegís el tema, el título y lo que dice. Se abre el listado de videos con clon del curso con el formulario de alta; el video queda pendiente hasta que HeyGen lo termina.">
+                            <input type="radio" name="recurso" value="videoClon">
                             <th:block th:replace="~{pages/recurso/icon :: icon('Video con clon', 'ac-recurso-icon-chico')}"></th:block>
-                            <span>Video con clon</span><small>Próximamente</small>
+                            <span>Video con clon</span>
                         </label>
                         <label class="ac-selector-opcion" data-glosario="true" data-nombre="Glosario"
                                data-descripcion="Registrás un nuevo término del glosario: cargás el término con su definición, para que los alumnos consulten el vocabulario del tema. Se abre el glosario del tema con el formulario de alta.">
@@ -38,6 +39,12 @@
                             <input type="radio" name="recurso" value="autoevaluacion">
                             <th:block th:replace="~{pages/recurso/icon :: icon('Autoevaluación', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Autoevaluación</span>
+                        </label>
+                        <label class="ac-selector-opcion" th:if="${curso == null or curso.incluyeModalidad('En vivo')}" data-ruta="/claseEnVivo/buscar" data-nombre="Clase en vivo"
+                               data-descripcion="Programás una clase en vivo del tema: elegís la cohorte, el tema, el título y el horario. Se abre el listado de clases en vivo del curso con el formulario de alta.">
+                            <input type="radio" name="recurso" value="claseEnVivo">
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Clase en vivo', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Clase en vivo</span>
                         </label>
                         <label class="ac-selector-opcion" data-ruta="/pool/buscar" data-nombre="Pool de preguntas" data-ia="pool" data-ia-texto="Generar con IA"
                                data-descripcion="Registrás un nuevo pool de preguntas: cargás el conjunto de preguntas de un tema, del que se sortean las de cada autoevaluación, y elegís el tema al que va. Se abre el listado de pools del curso con el formulario de alta.">

@@ -13,8 +13,15 @@ public class InstitucionServiceImpl implements InstitucionService {
     /** Tiempo, en milisegundos, que se conservan los datos antes de volver a leerlos. */
     private static final long VIGENCIA = 30_000;
 
+    /** Prefijo de la dirección del logo subido desde Parámetros. */
+    private static final String PREFIJO_LOGO_SUBIDO = "/uploads/institucion/";
+
     @Autowired
     private ParametroService parametroService;
+
+    @Autowired
+    @org.springframework.beans.factory.annotation.Qualifier("directorioCursos")
+    private java.nio.file.Path directorioCursos;
 
     private volatile Institucion guardada;
     private volatile long leidaEn;
@@ -29,6 +36,31 @@ public class InstitucionServiceImpl implements InstitucionService {
             leidaEn = System.currentTimeMillis();
         }
         return actual;
+    }
+
+    /** Lee el logo: el subido desde Parámetros está en el disco del servidor; el que viene con la aplicación, en sus recursos. */
+    @Override
+    public byte[] leerLogo() {
+        String ruta = obtener().logo();
+        try {
+            if (ruta.startsWith(PREFIJO_LOGO_SUBIDO)) {
+                java.nio.file.Path archivo = directorioCursos.resolve("institucion").resolve(ruta.substring(PREFIJO_LOGO_SUBIDO.length())).normalize();
+                if (archivo.startsWith(directorioCursos.resolve("institucion").normalize()) && java.nio.file.Files.isRegularFile(archivo)) {
+                    return java.nio.file.Files.readAllBytes(archivo);
+                }
+            } else if (ruta.startsWith("/")) {
+                try (java.io.InputStream entrada = InstitucionServiceImpl.class.getResourceAsStream("/static" + ruta)) {
+                    if (entrada != null) {
+                        return entrada.readAllBytes();
+                    }
+                }
+            }
+            try (java.io.InputStream entrada = InstitucionServiceImpl.class.getResourceAsStream("/static/img/logos/image.png")) {
+                return entrada == null ? null : entrada.readAllBytes();
+            }
+        } catch (java.io.IOException e) {
+            return null;
+        }
     }
 
     /** Descarta los datos guardados en memoria. */

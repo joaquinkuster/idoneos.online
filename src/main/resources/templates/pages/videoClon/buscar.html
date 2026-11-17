@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+</head>
+<body class="pn-body">
+<div class="pn-app" id="pnApp">
+    <!-- Menú lateral: el del docente (gestión académica) o, para el administrador, el del panel -->
+    <th:block th:replace="~{fragments/layout/sidebar :: gestionAcademica(${menuActivo}, ${urlBase})}"></th:block>
+
+    <div class="pn-principal">
+        <th:block th:replace="~{fragments/layout/panel :: barra(null)}"></th:block>
+
+        <main class="pn-contenido" th:attr="data-abrir-modal=${abrirModal}">
+            <nav class="ac-migas" aria-label="Ruta de navegación">
+                <a th:href="@{/inicio}">Página principal</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlMisCursos}}" th:text="${esAdministrador == true ? 'Cursos' : 'Mis cursos'}">Mis cursos</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <a th:href="@{${urlBase}}" th:text="${curso.nombre}">Curso</a>
+                <i class="fa-solid fa-chevron-right"></i>
+                <strong>Videos con clon</strong>
+            </nav>
+
+            <div class="pn-encabezado">
+                <div>
+                    <h1 class="pn-titulo">Videos con clon</h1>
+                    <p class="pn-subtitulo" th:text="${'Videos en los que tu clon dice un guion, para los temas de ' + curso.nombre}">Videos con clon</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap" th:if="${puedeGestionar}">
+                    <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalGenerarVideoClon"
+                            th:disabled="${#lists.isEmpty(temas)}" th:title="${#lists.isEmpty(temas) ? 'El programa todavía no tiene temas' : null}">
+                        <i class="fa-solid fa-robot"></i> Generar video con clon
+                    </button>
+                </div>
+            </div>
+
+            <section class="pn-card" data-tabla data-tabla-servidor="/videoClon/buscar" th:attr="data-opciones=${tablaOpciones}">
+                <div class="pn-lista-cabecera">
+                    <h2 class="pn-lista-titulo">Listado de videos con clon</h2>
+                    <span class="pn-seleccionados" data-total-filtradas data-singular="video encontrado" data-plural="videos encontrados"
+                          th:text="${tablaTotal + (tablaTotal == 1 ? ' video encontrado' : ' videos encontrados')}">0 videos encontrados</span>
+                </div>
+
+                <!-- Filtros -->
+                <form th:action="@{/videoClon/buscar}" method="get" class="pn-filtros" data-filtro-front>
+                    <input type="hidden" name="cursoId" th:value="${curso.idCurso}">
+                    <a th:href="@{/videoClon/buscar(cursoId=${curso.idCurso})}" class="pn-btn pn-btn-contorno" hidden>Limpiar</a>
+                </form>
+
+                <!-- Tabla -->
+                <div class="pn-tabla-contenedor">
+                    <table class="pn-tabla">
+                        <thead>
+                            <tr>
+                                <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
+                                <th data-col="Tema" data-campo="tema" data-filtro="lista">Tema</th>
+                                <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
+                                <th data-col="Docente" data-campo="docente" data-filtro="texto">Docente</th>
+                                <th data-col="Fecha de creación" data-campo="fechaCreacion" data-filtro="fecha" data-orden-inicial="desc">Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
+                            <tr th:each="m : ${videos}" data-fila
+                                th:attr="data-ver-url=${m.recurso.videoClon.estadoGeneracionIa.nombre == 'Listo'} ? @{'/recurso/ver/' + ${m.clave}}"
+                                th:data-o-fechaCreacion="${#temporals.format(m.recurso.fechaCreacion, 'yyyyMMddHHmmss') + #numbers.formatInteger(m.recurso.idRecurso, 10, 'NONE')}">
+                                <td>
+                                    <a class="pn-celda-principal pn-truncar pn-enlace-ver" th:if="${m.recurso.videoClon.estadoGeneracionIa.nombre == 'Listo'}" title="Ver el video"
+                                       th:href="@{'/recurso/ver/' + ${m.clave}}" th:text="${m.recurso.titulo}">Introducción</a>
+                                    <span class="pn-celda-principal pn-truncar" th:if="${m.recurso.videoClon.estadoGeneracionIa.nombre != 'Listo'}" th:text="${m.recurso.titulo}">Introducción</span>
+                                </td>
+                                <td><span class="pn-truncar" th:text="${m.tema.titulo}">Introducción al mercado</span></td>
+                                <td>
+                                    <!-- Pendiente: la pantalla consulta cada tanto y se recarga sola cuando termina (core/recargaGeneracion.js) -->
+                                    <span class="pn-insignia" th:title="${m.recurso.videoClon.detalleError}"
+                                          th:attr="data-generando=${m.recurso.videoClon.estadoGeneracionIa.nombre == 'Pendiente'} ? 'true' : null"
+                                          th:classappend="${m.recurso.videoClon.estadoGeneracionIa.nombre == 'Listo'} ? 'pn-insignia-verde' : (${m.recurso.videoClon.estadoGeneracionIa.nombre == 'Fallido'} ? 'pn-insignia-roja' : 'pn-insignia-dorada')"
+                                          th:text="${m.recurso.videoClon.estadoGeneracionIa.nombre}">Pendiente</span>
+                                </td>
+                                <td th:text="${m.recurso.docente.usuario.nombreCompleto}">Fausto Spotorno</td>
+                                <td th:text="${#temporals.format(m.recurso.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
+                                <td>
+                                    <div class="pn-acciones">
+                                        <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalBajaVideoClon"
+                                                th:if="${m.recurso.videoClon.estadoGeneracionIa.nombre != 'Pendiente'}"
+                                                th:data-baja-accion="@{'/recurso/darDeBaja/' + ${m.clave}}"
+                                                th:data-baja-pregunta="'¿Confirmas dar de baja el video «' + ${m.recurso.titulo} + '»?'"
+                                                th:data-baja-nota="'El video dejará de estar disponible en el tema.'">Dar de baja</button>
+                                        <span class="pn-celda-secundaria" th:if="${m.recurso.videoClon.estadoGeneracionIa.nombre == 'Pendiente'}">—</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:replace="~{fragments/components/empty :: fila(6, 'fa-robot', 'No se encontraron videos con clon', 'Todavía no generaste ningún video con tu clon o ninguno coincide con los criterios ingresados.')}"></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pie: filas por página y paginador -->
+                <div class="pn-tabla-pie">
+                    <div class="pn-por-pagina">
+                        <span>Filas por página:</span>
+                        <select data-por-pagina>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="0">Todo</option>
+                        </select>
+                        <span data-rango>0-0 de 0</span>
+                        <span data-seleccionados hidden></span>
+                    </div>
+                    <div class="pn-paginador" data-paginador></div>
+                </div>
+            </section>
+        </main>
+
+        <th:block th:replace="~{fragments/layout/panel :: pie('Panel del docente')}"></th:block>
+    </div>
+</div>
+
+<!-- Modal: generar un video con el clon del docente -->
+<div class="modal fade pn-modal" id="modalGenerarVideoClon" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Generar video con clon</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/videoClon/generar}" method="post" class="form-ajax" data-validar data-pasos data-resumen="Video con clon" data-modo="alta" novalidate>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Tema</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Título</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">3</span><span class="pn-pasos-nombre">Guion</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">4</span><span class="pn-pasos-nombre">Resumen</span></span>
+    </div>
+    <div class="pn-paso" data-grupo="Tema">
+        <div class="pn-seccion-titulo">
+            <h4>Tema del video</h4>
+            <p>El video queda oculto en este tema hasta que lo revises y lo publiques</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 pn-campo">
+                <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
+                <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
+                    <option value="">Seleccionar tema</option>
+                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:text="${uc.tema.titulo}"
+                            th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}">Tema</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12" th:if="${!tieneClon}">
+                <div class="alert alert-warning small mb-0">
+                    Todavía no creaste tu clon. Hacelo desde <a th:href="@{/usuario/perfil}">tu perfil</a> (botón «Crear clon») antes de generar un video.
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Título">
+        <div class="pn-seccion-titulo">
+            <h4>Título del video</h4>
+            <p>Con este nombre lo ven los alumnos en el tema</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Título <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador">0 / 150</span>
+                </div>
+                <input type="text" name="titulo" class="pn-input" maxlength="150" placeholder="Título" data-contador required>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+    <div class="pn-paso" data-grupo="Guion">
+        <div class="pn-seccion-titulo">
+            <h4>Guion</h4>
+            <p>Lo que dice tu clon en el video. Cuanto más largo el guion, más dura el video</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 pn-campo">
+                <div class="pn-etiqueta-fila">
+                    <label class="pn-etiqueta">Guion <span class="pn-obligatorio">*</span></label>
+                    <span class="pn-contador">0 / 500</span>
+                </div>
+                <textarea name="guion" class="pn-input" rows="5" maxlength="500" placeholder="Por ejemplo: Hola, soy Fausto y hoy vemos qué es un bono." data-contador required></textarea>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Resumen</h4>
+            <p>Revisá los datos antes de pedir el video: HeyGen puede tardar unos minutos</p>
+        </div>
+        <div class="pn-arbol" data-resumen-arbol></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y generar</button>
+    </div>
+</form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
+<th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaVideoClon', 'video', '¿Confirmas dar de baja?', '', '/recurso/darDeBaja/0', null, null)}"></th:block>
+
+<th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/modalModificar.js}"></script>
+<script th:src="@{/js/core/abrirModal.js}"></script>
+<script th:src="@{/js/core/curso.js}"></script>
+<script th:src="@{/js/core/recargaGeneracion.js}"></script>
+</body>
+</html>

@@ -52,12 +52,12 @@
                                         <th:block th:text="${p.etiqueta}">Logo</th:block>
                                         <i class="fa-solid fa-circle-info pn-info" th:if="${!#strings.isEmpty(p.ayuda)}" th:title="${p.ayuda}"></i>
                                     </label>
-                                    <div style="margin-bottom: 12px;">
+                                    <input type="file" name="logoArchivo" class="pn-input imagen-curso" accept="image/jpeg,image/png,image/webp" data-comprimir-imagen>
+                                    <div style="margin-top: 12px;">
                                         <img class="pn-vista-previa" th:classappend="${#strings.isEmpty(valores[p.clave])} ? 'd-none'"
                                              th:src="${!#strings.isEmpty(valores[p.clave])} ? @{${valores[p.clave]}}" th:attr="data-original=${valores[p.clave]}"
                                              alt="Logo de la institución" style="max-height: 96px; max-width: 100%; object-fit: contain;">
                                     </div>
-                                    <input type="file" name="logoArchivo" class="pn-input imagen-curso" accept="image/jpeg,image/png,image/webp" data-comprimir-imagen>
                                 </th:block>
                                 <!-- Secretos: nunca se muestran, se dejan vacíos para conservar el valor -->
                                 <th:block th:case="'SECRETO'">

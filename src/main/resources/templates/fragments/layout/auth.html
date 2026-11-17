@@ -10,7 +10,7 @@
 
 <!-- Cabecera de la tarjeta: logo, nombre de la plataforma y una línea de descripción. -->
 <div th:fragment="cabecera(subtitulo)" class="auth-cabecera">
-    <img th:src="@{/img/logos/image.png}" src="/img/logos/image.png" alt="Idóneos Online" class="auth-logo">
+    <img th:src="@{${institucion != null ? institucion.logo : '/img/logos/image.png'}}" src="/img/logos/image.png" alt="Idóneos Online" class="auth-logo">
     <h1 class="auth-titulo">Idóneos <span>Online</span></h1>
     <p class="auth-subtitulo" th:text="${subtitulo}">Plataforma de formación en Finanzas, Economía y Mercado de Capitales</p>
 </div>
