@@ -22,11 +22,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Inscripcion;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.InscripcionRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 
 /** Pruebas de las vistas y los formularios del ABM de programas y de los selectores de programa y cohorte por defecto de la vista del curso. */
 @SpringBootTest
@@ -43,7 +43,7 @@ class ProgramaControllerTest {
     private CursoRepository cursoRepository;
 
     @Autowired
-    private DocenteCursoRepository participacionRepository;
+    private IntegranteEquipoRepository participacionRepository;
 
     @Autowired
     private InscripcionRepository inscripcionRepository;
@@ -60,7 +60,7 @@ class ProgramaControllerTest {
         return curso("Macroeconomía de Coyuntura");
     }
 
-    private DocenteCurso participacionDeFausto(Curso curso) {
+    private IntegranteEquipo participacionDeFausto(Curso curso) {
         return participacionRepository.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getUsuario().getCorreo().equals(FAUSTO)).findFirst().orElseThrow();
     }
@@ -336,7 +336,7 @@ class ProgramaControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value("Ahora trabajás sobre la cohorte seleccionada."));
 
-        DocenteCurso participacion = participacionDeFausto(curso);
+        IntegranteEquipo participacion = participacionDeFausto(curso);
         assertEquals(finalizada.getIdCohorte(), participacion.getCohortePorDefecto().getIdCohorte());
         assertEquals(finalizada.getPrograma().getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
         assertEquals(finalizada.getIdCohorte(), participacion.getCohorteDeTrabajo().getIdCohorte());

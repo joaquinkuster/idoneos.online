@@ -184,3 +184,7 @@
 body > .ts-dropdown {
     z-index: 2700 !important;
 }
+
+/* Preguntas del pool: lista a la izquierda y detalle a la derecha, como en la ventana de temas */
+.pl-doble { display: grid; }
+.pl-doble .pn-temas-caja { max-height: 460px; }

@@ -121,6 +121,8 @@ public class RecordatorioCohorteServiceImpl implements RecordatorioCohorteServic
             String asunto = "Abre la inscripción de «" + cohorte.getCurso().getNombre() + "» el "
                     + cohorte.getFechaInicioInscripcion().format(FECHA);
             notificacion.setAsunto(asunto.length() > 150 ? asunto.substring(0, 149) + "…" : asunto);
+            notificacion.setMensaje(asunto);
+            notificacion.setUrl("/catalogo/ficha/" + cohorte.getCurso().getIdCurso());
             notificacionRepository.save(notificacion);
             creadas++;
         }

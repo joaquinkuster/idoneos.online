@@ -24,7 +24,7 @@
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo" th:text="${c.titulo}">Clase magistral: Operatoria de renta fija</h1>
-                    <p class="pn-subtitulo" th:text="${'Docente: ' + c.docenteCurso.docente.usuario.nombreCompleto + ' · Tema: ' + c.tema.titulo + ' · Horario: ' + c.horario}">Docente: Fausto Spotorno · Tema: Renta fija · Horario: 19:00 - 20:30</p>
+                    <p class="pn-subtitulo" th:text="${(c.integranteEquipo.esTitular ? 'Docente titular: ' : 'Docente ayudante: ') + c.integranteEquipo.docente.usuario.nombreCompleto + ' · Tema: ' + c.tema.titulo + ' · Horario: ' + c.horario}">Docente: Fausto Spotorno · Tema: Renta fija · Horario: 19:00 - 20:30</p>
                 </div>
             </div>
 

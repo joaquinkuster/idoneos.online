@@ -73,7 +73,7 @@ class RecursoArchivoControllerTest {
     }
 
     /** El pedido que hace el reproductor o el visor de la propia página del material. */
-    private MockHttpServletRequestBuilder pedidoDeLaPagina(int idMaterial) {
+    private MockHttpServletRequestBuilder pedidoDeLaPagina(TemaRecurso.Clave idMaterial) {
         return get("/recurso/archivo/" + idMaterial).header("Sec-Fetch-Dest", "video").header("Sec-Fetch-Site",
                 "same-origin");
     }
@@ -84,7 +84,7 @@ class RecursoArchivoControllerTest {
     void docenteRecibeElContenido() throws Exception {
         TemaRecurso material = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().isOk())
                 .andExpect(content().bytes(MP4)).andExpect(content().contentType("video/mp4"))
                 .andExpect(header().string("Content-Disposition", "inline"))
                 .andExpect(header().string("Cache-Control", Matchers.containsString("no-store")));
@@ -99,7 +99,7 @@ class RecursoArchivoControllerTest {
                 "PRESENTACION", datos("Diapositivas", false, "Autor", null),
                 new MockMultipartFile("archivo", "clase.pdf", "application/pdf", PDF), true);
 
-        mockMvc.perform(get("/recurso/archivo/" + pdf.getIdTemaRecurso()).header("Sec-Fetch-Dest", "empty")
+        mockMvc.perform(get("/recurso/archivo/" + pdf.getClave()).header("Sec-Fetch-Dest", "empty")
                 .header("Sec-Fetch-Site", "same-origin")).andExpect(status().isOk())
                 .andExpect(content().contentType("application/pdf"));
     }
@@ -108,7 +108,7 @@ class RecursoArchivoControllerTest {
     @WithUserDetails(value = "fausto.spotorno@idoneos.online", userDetailsServiceBeanName = "usuarioDetallesService")
     @DisplayName("No se entrega por navegación directa, en un iframe, desde otro sitio ni sin encabezados del navegador")
     void soloParaLaPropiaPagina() throws Exception {
-        int id = subirEnTemaDos(false).getIdTemaRecurso();
+        TemaRecurso.Clave id = subirEnTemaDos(false).getClave();
 
         // abrir la dirección en otra pestaña, o con "guardar enlace como"
         mockMvc.perform(get("/recurso/archivo/" + id).header("Sec-Fetch-Dest", "document").header("Sec-Fetch-Site",
@@ -129,9 +129,9 @@ class RecursoArchivoControllerTest {
     void alumnoRecibeElContenidoYPideUnRango() throws Exception {
         TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().isOk())
                 .andExpect(content().bytes(MP4));
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso()).header("Range", "bytes=0-3"))
+        mockMvc.perform(pedidoDeLaPagina(material.getClave()).header("Range", "bytes=0-3"))
                 .andExpect(status().isPartialContent())
                 .andExpect(content().bytes(new byte[] { 0, 0, 0, 0x18 }))
                 .andExpect(header().string("Content-Range", "bytes 0-3/" + MP4.length));
@@ -144,8 +144,8 @@ class RecursoArchivoControllerTest {
         TemaRecurso deTemaBloqueada = subir(tema("Mercado de Capitales Argentino", "Renta variable y opciones"), false);
         TemaRecurso oculto = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(deTemaBloqueada.getIdTemaRecurso())).andExpect(status().isForbidden());
-        mockMvc.perform(pedidoDeLaPagina(oculto.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(deTemaBloqueada.getClave())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(oculto.getClave())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -154,7 +154,7 @@ class RecursoArchivoControllerTest {
     void alumnoConDictadoSinComenzar() throws Exception {
         TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -163,7 +163,7 @@ class RecursoArchivoControllerTest {
     void alumnoSinInscripcion() throws Exception {
         TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -172,7 +172,7 @@ class RecursoArchivoControllerTest {
     void docenteAjenoAlCurso() throws Exception {
         TemaRecurso material = subir(tema("Macroeconomía de Coyuntura", "Inflación y precios"), false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -181,7 +181,7 @@ class RecursoArchivoControllerTest {
     void administradorRecibeElContenido() throws Exception {
         TemaRecurso material = subirEnTemaDos(true);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().isOk());
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().isOk());
     }
 
     @Test
@@ -192,11 +192,11 @@ class RecursoArchivoControllerTest {
                 tema("Mercado de Capitales Argentino", "Renta fija y bonos").getIdTema(),
                 "ENLACE", datos("Libro", false, "Autor", "https://sitio.com/libro.pdf"), null, true);
         TemaRecurso deBaja = subirEnTemaDos(false);
-        materialService.darDeBaja(deBaja.getIdTemaRecurso(), null);
+        materialService.darDeBaja(deBaja.getClave(), null);
 
-        mockMvc.perform(pedidoDeLaPagina(enlace.getIdTemaRecurso())).andExpect(status().isNotFound());
-        mockMvc.perform(pedidoDeLaPagina(deBaja.getIdTemaRecurso())).andExpect(status().isNotFound());
-        mockMvc.perform(pedidoDeLaPagina(999999)).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(enlace.getClave())).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(deBaja.getClave())).andExpect(status().isNotFound());
+        mockMvc.perform(pedidoDeLaPagina(new TemaRecurso.Clave(999999, 999999))).andExpect(status().isNotFound());
     }
 
     @Test
@@ -204,6 +204,6 @@ class RecursoArchivoControllerTest {
     void sinSesion() throws Exception {
         TemaRecurso material = subirEnTemaDos(false);
 
-        mockMvc.perform(pedidoDeLaPagina(material.getIdTemaRecurso())).andExpect(status().is3xxRedirection());
+        mockMvc.perform(pedidoDeLaPagina(material.getClave())).andExpect(status().is3xxRedirection());
     }
 }

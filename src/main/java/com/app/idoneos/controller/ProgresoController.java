@@ -1,6 +1,8 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.controller.component.PanelCursoComponent;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.util.PaginacionUtil;
@@ -56,7 +58,8 @@ public class ProgresoController {
                 parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
             }
             // El filtro, el orden por columna y la página los resuelve el servidor
-            PaginacionUtil.Pagina<Inscripcion> pagina = Filtros.tabla.paginar(inscripciones, parametros);
+            PaginacionUtil.Pagina<Inscripcion> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, inscripciones, parametros, request, model,
+                    i -> i.getCohorte().getEtiqueta(), null, null, "cohorte");
             PaginacionUtil.cargarEnModelo(model, pagina);
             // El detalle por tema se calcula solo para las filas de la página
             Map<Integer, DetalleProgreso> detalles = new LinkedHashMap<>();

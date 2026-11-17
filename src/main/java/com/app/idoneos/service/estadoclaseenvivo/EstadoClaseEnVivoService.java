@@ -6,7 +6,7 @@ import com.app.idoneos.model.EstadoClaseEnVivo;
 import java.util.Optional;
 
 /** Servicio del estado de la clase en vivo. */
-public interface EstadoClaseEnVivoService extends CrudService<EstadoClaseEnVivo> {
+public interface EstadoClaseEnVivoService extends CrudService<EstadoClaseEnVivo, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

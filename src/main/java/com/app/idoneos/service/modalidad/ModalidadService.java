@@ -6,7 +6,7 @@ import com.app.idoneos.model.Modalidad;
 import java.util.Optional;
 
 /** Servicio de la modalidad. */
-public interface ModalidadService extends CrudService<Modalidad> {
+public interface ModalidadService extends CrudService<Modalidad, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

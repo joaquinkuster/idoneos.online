@@ -29,7 +29,11 @@
                 </tr>
             </thead>
             <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                <tr th:each="s : ${sesiones}" data-fila
+                <th:block th:each="s, sIt : ${sesiones}">
+                <th:block th:if="${agrupar == true and (sIt.first or clavesGrupo[sIt.index] != clavesGrupo[sIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[sIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[sIt.index], 0L)}, 'sesión', 'sesiones')}"></tr>
+                            </th:block>
+                <tr data-fila
                     th:data-o-inicio="${#temporals.format(s.fechaInicio, 'yyyyMMddHHmmss')}"
                     th:data-o-vence="${#temporals.format(s.fechaFin, 'yyyyMMddHHmmss')}">
                     <td th:if="${esAdministrador}">
@@ -40,7 +44,7 @@
                     <td th:text="${#temporals.format(s.fechaInicio, 'dd/MM/yyyy HH:mm')}">16/11/2026 09:12</td>
                     <td th:text="${#temporals.format(s.fechaFin, 'dd/MM/yyyy HH:mm')}">16/11/2026 11:12</td>
                     <td th:text="${s.ip}">190.12.3.4</td>
-                    <td class="pn-truncar" th:text="${s.dispositivo}">Chrome en Windows</td>
+                    <td><span class="pn-truncar pn-truncar-ancho" th:text="${s.dispositivo}" th:title="${s.dispositivo}">Chrome en Windows</span></td>
                     <td>
                         <span class="pn-insignia" th:with="recordada=${#strings.startsWith(s.token, 'r.')}"
                               th:classappend="${recordada} ? 'pn-insignia-dorada' : 'pn-insignia-gris'"
@@ -57,6 +61,7 @@
                         </div>
                     </td>
                 </tr>
+                </th:block>
                 <tr th:replace="~{fragments/components/empty :: fila(${esAdministrador ? 7 : 6}, 'fa-laptop', 'No se encontraron sesiones', 'Ninguna sesión coincide con los criterios ingresados.')}"></tr>
             </tbody>
         </table>

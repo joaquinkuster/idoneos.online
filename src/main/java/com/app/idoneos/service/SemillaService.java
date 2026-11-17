@@ -13,9 +13,9 @@ import com.app.idoneos.model.Administrador;
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.Autoevaluacion;
 import com.app.idoneos.model.AutoevaluacionPool;
-import com.app.idoneos.model.Bibliografia;
+import com.app.idoneos.model.MaterialBibliografico;
 import com.app.idoneos.model.Categoria;
-import com.app.idoneos.model.CategoriaMaterialLectura;
+import com.app.idoneos.model.CategoriaMaterialDidactico;
 import com.app.idoneos.model.Certificado;
 import com.app.idoneos.model.ClaseEnVivo;
 import com.app.idoneos.model.Cohorte;
@@ -25,7 +25,7 @@ import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.CursoModalidad;
 import com.app.idoneos.model.Descuento;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Enlace;
 import com.app.idoneos.model.EstadoClaseEnVivo;
 import com.app.idoneos.model.EstadoCohorte;
@@ -35,7 +35,7 @@ import com.app.idoneos.model.EstadoPago;
 import com.app.idoneos.model.Grabacion;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.IntentoAutoevaluacion;
-import com.app.idoneos.model.MaterialLectura;
+import com.app.idoneos.model.MaterialDidactico;
 import com.app.idoneos.model.MetodoPago;
 import com.app.idoneos.model.Modalidad;
 import com.app.idoneos.model.Nivel;
@@ -64,8 +64,8 @@ import com.app.idoneos.repository.AdministradorRepository;
 import com.app.idoneos.repository.AlumnoRepository;
 import com.app.idoneos.repository.AutoevaluacionPoolRepository;
 import com.app.idoneos.repository.AutoevaluacionRepository;
-import com.app.idoneos.repository.BibliografiaRepository;
-import com.app.idoneos.repository.CategoriaMaterialLecturaRepository;
+import com.app.idoneos.repository.MaterialBibliograficoRepository;
+import com.app.idoneos.repository.CategoriaMaterialDidacticoRepository;
 import com.app.idoneos.repository.CategoriaRepository;
 import com.app.idoneos.repository.CertificadoRepository;
 import com.app.idoneos.repository.ClaseEnVivoRepository;
@@ -75,7 +75,7 @@ import com.app.idoneos.repository.ConsultaForoRepository;
 import com.app.idoneos.repository.CursoModalidadRepository;
 import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.DescuentoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.repository.EnlaceRepository;
 import com.app.idoneos.repository.EstadoClaseEnVivoRepository;
@@ -86,7 +86,7 @@ import com.app.idoneos.repository.EstadoPagoRepository;
 import com.app.idoneos.repository.GrabacionRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.IntentoAutoevaluacionRepository;
-import com.app.idoneos.repository.MaterialLecturaRepository;
+import com.app.idoneos.repository.MaterialDidacticoRepository;
 import com.app.idoneos.repository.MetodoPagoRepository;
 import com.app.idoneos.repository.ModalidadRepository;
 import com.app.idoneos.repository.NivelRepository;
@@ -146,7 +146,10 @@ public class SemillaService {
     private jakarta.persistence.EntityManager entityManager;
 
     @Autowired
-    private com.app.idoneos.service.indice.IndiceRecursoService indiceRecursoService;
+    private com.app.idoneos.service.indice.IndiceDocumentoService indiceDocumentoService;
+
+    @Autowired
+    private com.app.idoneos.service.estructura.EstructuraDocumentoService estructuraService;
 
     /** Indica si ya se cargó la bibliografía de requisitos, que se carga una sola vez. */
     private boolean requisitosAgregados = false;
@@ -214,7 +217,7 @@ public class SemillaService {
     private ModalidadRepository modalidadRepository;
 
     @Autowired
-    private CategoriaMaterialLecturaRepository categoriaMaterialLecturaRepository;
+    private CategoriaMaterialDidacticoRepository categoriaMaterialDidacticoRepository;
 
     @Autowired
     private EstadoGeneracionIARepository estadoGeneracionIaRepository;
@@ -241,7 +244,7 @@ public class SemillaService {
     private CursoModalidadRepository cursoModalidadRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private ProgramaRepository programaRepository;
@@ -265,10 +268,10 @@ public class SemillaService {
     private GrabacionRepository grabacionRepository;
 
     @Autowired
-    private MaterialLecturaRepository materialLecturaRepository;
+    private MaterialDidacticoRepository materialDidacticoRepository;
 
     @Autowired
-    private BibliografiaRepository bibliografiaRepository;
+    private MaterialBibliograficoRepository materialBibliograficoRepository;
 
     @Autowired
     private VideoClonRepository videoClonRepository;
@@ -372,7 +375,7 @@ public class SemillaService {
         Modalidad clonIa = predefinido(modalidadRepository.findByNombre(Modalidad.CLON_IA), "la modalidad Con clon de IA");
         TipoRecurso presentacion = TipoRecurso.PRESENTACION;
         TipoRecurso grabacion = TipoRecurso.GRABACION;
-        TipoRecurso bibliografia = TipoRecurso.BIBLIOGRAFIA;
+        TipoRecurso materialBibliografico = TipoRecurso.MATERIAL_BIBLIOGRAFICO;
         EstadoClaseEnVivo claseProgramada = predefinido(estadoClaseEnVivoRepository.findByNombre("Programada"), "el estado de clase Programada");
         EstadoClaseEnVivo claseEnVivoAhora = predefinido(estadoClaseEnVivoRepository.findByNombre(EstadoClaseEnVivo.EN_VIVO), "el estado de clase En vivo");
         EstadoClaseEnVivo claseFinalizada = predefinido(estadoClaseEnVivoRepository.findByNombre("Finalizada"), "el estado de clase Finalizada");
@@ -415,10 +418,6 @@ public class SemillaService {
                 String.valueOf(Parametro.IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO)));
         parametroRepository.save(new Parametro(admin, Parametro.IA_CANTIDAD_PREGUNTAS_BANCO,
                 String.valueOf(Parametro.IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO)));
-        parametroRepository.save(new Parametro(admin, Parametro.IA_PROPORCION_MODELO,
-                String.valueOf(Parametro.IA_PROPORCION_MODELO_POR_DEFECTO)));
-        parametroRepository.save(new Parametro(admin, Parametro.IA_ESTRATEGIA_BANCO,
-                String.valueOf(Parametro.IA_ESTRATEGIA_BANCO_POR_DEFECTO)));
         // Medio de pago MODO: credenciales de PRUEBA (ambiente de preproducción) publicadas en la documentación de MODO.
         // El cliente las reemplaza por las de su cuenta. La contraseña se guarda cifrada.
         parametroService.registrarTexto(admin, Parametro.MODO_USUARIO, "PLAYDIGITAL SA-318979-preprod");
@@ -476,7 +475,7 @@ public class SemillaService {
         LocalDateTime ahora = LocalDateTime.now();
 
         // Curso 1: Mercado de Capitales Argentino (en vivo + grabada), con cohortes abierta, en dictado y finalizada
-        DocenteCurso titular1 = crearCurso("Mercado de Capitales Argentino",
+        IntegranteEquipo titular1 = crearCurso("Mercado de Capitales Argentino",
                 "Aprendé a operar acciones, bonos, ONs y opciones en BYMA con docentes de primer nivel.", 150000f,
                 "mercado-capitales-argentino.jpg", mercadoCapitales, intermedio, true,
                 List.of(enVivo, grabada), fausto, List.of(sebastian, mariano));
@@ -513,8 +512,8 @@ public class SemillaService {
 
         // Contenido de los temas 1 y 2 (acceso al curso del alumno en dictado)
         agregarMaterial(tema1, titular1, grabacion, "Grabación: Estructura del mercado argentino");
-        agregarMaterial(tema1, titular1, bibliografia, "Ley 26.831 y modificatorias CNV");
-        agregarMaterial(tema2, titular1, bibliografia, "Guía teórica de renta fija");
+        agregarMaterial(tema1, titular1, materialBibliografico, "Ley 26.831 y modificatorias CNV");
+        agregarMaterial(tema2, titular1, materialBibliografico, "Guía teórica de renta fija");
         TemaRecurso borrador = agregarMaterial(tema2, titular1, presentacion, "Borrador: ejercicios de duration");
         if (borrador != null) {
             borrador.setOculto(true);
@@ -579,7 +578,7 @@ public class SemillaService {
         consultaForoRepository.save(consultaTir);
 
         // Curso 2: Macroeconomía de Coyuntura (grabada), con cohorte abierta sin inscriptos
-        DocenteCurso titular2 = crearCurso("Macroeconomía de Coyuntura",
+        IntegranteEquipo titular2 = crearCurso("Macroeconomía de Coyuntura",
                 "Tipo de cambio, inflación y tasas: las variables que mueven la economía argentina.", 0f,
                 "macroeconomia-coyuntura.jpg", macroeconomia, basico, true, List.of(grabada), fausto, List.of());
         Curso curso2 = titular2.getCurso();
@@ -594,7 +593,7 @@ public class SemillaService {
         crearCohorte(programa2, ahora.minusDays(5), ahora.plusDays(30), null, null, 8, null);
 
         // Curso 3: Planificación Fiscal Corporativa (no alcanza el mínimo de temas con material)
-        DocenteCurso titular3 = crearCurso("Planificación Fiscal Corporativa",
+        IntegranteEquipo titular3 = crearCurso("Planificación Fiscal Corporativa",
                 "Estrategias de planificación tributaria para empresas: IVA, ganancias y regímenes especiales.", 120000f,
                 "planificacion-fiscal-corporativa.jpg", impuestos, avanzado, true, List.of(grabada), sebastian, List.of());
         Curso curso3 = titular3.getCurso();
@@ -604,7 +603,7 @@ public class SemillaService {
         agregar(programa3, curso3, 2, 3, "IVA y regímenes especiales", "Débito, crédito y regímenes.", null, null);
 
         // Curso 4: Finanzas Personales e Inversión (grabada + clon de IA), con cohorte abierta e inscripción
-        DocenteCurso titular4 = crearCurso("Finanzas Personales e Inversión",
+        IntegranteEquipo titular4 = crearCurso("Finanzas Personales e Inversión",
                 "Organizá tus finanzas, aprendé a ahorrar e invertir con criterio y planificá tu patrimonio.", 80000f,
                 "finanzas-personales-inversion.jpg", finanzasPersonales, basico, true,
                 List.of(grabada, clonIa), mariano, List.of());
@@ -633,7 +632,7 @@ public class SemillaService {
                 MotivoPagoUtil.traducir("INSUFFICIENT_FUNDS"), ahora.minusHours(3));
 
         // Curso 5: Análisis Técnico Bursátil (en vivo + grabada), con cohorte próxima
-        DocenteCurso titular5 = crearCurso("Análisis Técnico Bursátil",
+        IntegranteEquipo titular5 = crearCurso("Análisis Técnico Bursátil",
                 "Gráficos, indicadores y patrones para tomar decisiones de compra y venta.", 95000f,
                 "analisis-tecnico-bursatil.jpg", cuantitativas, intermedio, true,
                 List.of(enVivo, grabada), mariano, List.of(fausto));
@@ -675,7 +674,7 @@ public class SemillaService {
                 "introduccion-finanzas.jpg", mercadoCapitales, basico, false, List.of(grabada), sebastian, List.of());
 
         // Curso 7: curso dado de baja (para ver cómo se listan los registros dados de baja)
-        DocenteCurso titular7 = crearCurso("Economía Argentina 2024",
+        IntegranteEquipo titular7 = crearCurso("Economía Argentina 2024",
                 "Edición histórica del curso de economía argentina. Ya no se dicta.", 60000f,
                 "economia-argentina-2024.jpg", macroeconomia, intermedio, false, List.of(grabada), fausto, List.of());
         Curso curso7 = titular7.getCurso();
@@ -876,8 +875,8 @@ public class SemillaService {
     /** Deja el contenido de todos los programas de la semilla completo y coherente con las modalidades de su curso: cada tema tiene su material, su autoevaluación y, si el curso es grabado o con clon, su grabación o su video con clon. */
     private void completarElContenidoDeLosProgramas(LocalDateTime ahora) {
         for (Curso curso : cursoRepository.findAll()) {
-            DocenteCurso titular = docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
-                    .filter(DocenteCurso::getEsTitular).findFirst().orElse(null);
+            IntegranteEquipo titular = integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
+                    .filter(IntegranteEquipo::getEsTitular).findFirst().orElse(null);
             if (curso.getBaja() || titular == null) {
                 continue;
             }
@@ -891,7 +890,7 @@ public class SemillaService {
                     List<TemaRecurso> publicados = temaRecursoRepository.findByTemaAndBajaFalse(tema).stream()
                             .filter(TemaRecurso::estaPublicado).toList();
                     if (publicados.stream().noneMatch(m -> m.getModalidadAsociada() == null)) {
-                        agregarMaterial(tema, titular, TipoRecurso.PRESENTACION, "Material: " + tema.getTitulo());
+                        agregarMaterial(tema, titular, TipoRecurso.PRESENTACION, "Presentación: " + tema.getTitulo());
                     }
                     if (grabado && publicados.stream().noneMatch(m -> Modalidad.GRABADA.equals(m.getModalidadAsociada()))) {
                         agregarMaterial(tema, titular, TipoRecurso.GRABACION, "Clase grabada: " + tema.getTitulo());
@@ -904,8 +903,8 @@ public class SemillaService {
                     }
                     // Una bibliografía real, con marcadores, para probar la generación de contenido con IA
                     if (!requisitosAgregados && "Retorno y riesgo".equals(tema.getTitulo())) {
-                        agregarBibliografiaDeRequisitos(tema, titular, ARCHIVO_DE_REQUISITOS, "Requisitos del Sistema - Idóneos Online");
-                        agregarBibliografiaDeRequisitos(tema, titular, ARCHIVO_TEORICO, "Ingeniería de Software y SWEBOK");
+                        agregarMaterialBibliograficoDeRequisitos(tema, titular, ARCHIVO_DE_REQUISITOS, "Requisitos del Sistema - Idóneos Online");
+                        agregarMaterialBibliograficoDeRequisitos(tema, titular, ARCHIVO_TEORICO, "Ingeniería de Software y SWEBOK");
                         requisitosAgregados = true;
                     }
                 }
@@ -917,7 +916,7 @@ public class SemillaService {
      * Incorpora al tema el PDF de requisitos del proyecto como bibliografía, con su índice sacado de los marcadores del archivo.
      * El PDF se toma de la carpeta de recursos de ejemplo (Requisitos.pdf y el texto teórico). Si no está, la semilla sigue sin esta bibliografía.
      */
-    private void agregarBibliografiaDeRequisitos(Tema tema, DocenteCurso autor, String archivo, String titulo) {
+    private void agregarMaterialBibliograficoDeRequisitos(Tema tema, IntegranteEquipo autor, String archivo, String titulo) {
         java.nio.file.Path origen = java.nio.file.Path.of(carpetaDeRecursosDeEjemplo).resolve(archivo);
         if (!java.nio.file.Files.isRegularFile(origen)) {
             return;
@@ -931,17 +930,17 @@ public class SemillaService {
         try {
             java.nio.file.Files.createDirectories(destino.getParent());
             java.nio.file.Files.copy(origen, destino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()),
+            MaterialBibliografico materialBibliografico = new MaterialBibliografico(recurso, String.format("978-987-%06d-0", recurso.getIdRecurso()),
                     docente.getUsuario().getNombreCompleto());
-            bibliografia.setRutaArchivo(relativa);
-            bibliografia.setTamanioBytes(java.nio.file.Files.size(destino));
-            bibliografia.setExtension("pdf");
-            recurso.setBibliografia(bibliografiaRepository.save(bibliografia));
+            materialBibliografico.setRutaArchivo(relativa);
+            materialBibliografico.setTamanioBytes(java.nio.file.Files.size(destino));
+            materialBibliografico.setExtension("pdf");
+            recurso.setMaterialBibliografico(materialBibliograficoRepository.save(materialBibliografico));
             List<java.util.Map<String, Object>> indice = new java.util.ArrayList<>();
             for (com.app.idoneos.util.MarcadoresPdfUtil.Marcador marcador : com.app.idoneos.util.MarcadoresPdfUtil.leer(destino)) {
                 indice.add(java.util.Map.of("titulo", marcador.titulo(), "pagina", marcador.pagina(), "nivel", marcador.nivel()));
             }
-            indiceRecursoService.reemplazar(recurso, new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(indice));
+            registrarEstructura(recurso, new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(indice));
         } catch (java.io.IOException e) {
             throw new IllegalStateException("No se pudo cargar la bibliografía de requisitos de la semilla.", e);
         }
@@ -1036,7 +1035,7 @@ public class SemillaService {
     }
 
     /** Incorpora al tema un video con el clon del docente, ya generado: el docente tiene uno solo y los temas lo reutilizan. */
-    private TemaRecurso agregarVideoClon(Tema tema, DocenteCurso autor, String titulo) {
+    private TemaRecurso agregarVideoClon(Tema tema, IntegranteEquipo autor, String titulo) {
         Docente docente = autor.getDocente();
         Recurso recurso = recursoParaElTema(tema, docente, "clon", () -> crearVideoClon(docente, tema, titulo));
         return recurso == null ? null : vincular(tema, recurso, autor);
@@ -1058,7 +1057,7 @@ public class SemillaService {
     private void crearCursoAbierto(String nombre, String descripcion, float precio, Categoria categoria, Nivel nivel,
             List<Modalidad> modalidades, Docente titular, TipoRecurso tipoMaterial, String tema1, String tema2,
             LocalDateTime ahora) {
-        DocenteCurso participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
+        IntegranteEquipo participacion = crearCurso(nombre, descripcion, precio, null, categoria, nivel, true,
                 modalidades, titular, List.of());
         Curso curso = participacion.getCurso();
         cursosAbiertosDeLaSemilla.add(curso);
@@ -1105,7 +1104,7 @@ public class SemillaService {
     }
 
     /** Crea un curso con sus modalidades y su equipo docente. */
-    private DocenteCurso crearCurso(String nombre, String descripcion, float precio, String imagen,
+    private IntegranteEquipo crearCurso(String nombre, String descripcion, float precio, String imagen,
             Categoria categoria, Nivel nivel, boolean emiteCertificado, List<Modalidad> modalidades,
             Docente titular, List<Docente> ayudantes) {
         Curso curso = new Curso(nivel, categoria, nombre, precio, CARGA_HORARIA_SEMILLA_MINUTOS, DURACION_SEMILLA_DIAS);
@@ -1117,9 +1116,9 @@ public class SemillaService {
             cursoModalidadRepository.save(new CursoModalidad(curso, modalidad));
         }
         for (Docente ayudante : ayudantes) {
-            docenteCursoRepository.save(new DocenteCurso(curso, ayudante, false));
+            integranteEquipoRepository.save(new IntegranteEquipo(curso, ayudante, false));
         }
-        return docenteCursoRepository.save(new DocenteCurso(curso, titular, true));
+        return integranteEquipoRepository.save(new IntegranteEquipo(curso, titular, true));
     }
 
     /** Crea el programa de un curso. Los objetivos que se indican son los del curso (si todavía no los tiene). */
@@ -1135,7 +1134,7 @@ public class SemillaService {
 
     /** Agrega un tema al curso y a su cronograma. */
     private Tema agregar(Programa programa, Curso curso, int numeroOrden, int semanas, String titulo,
-            String descripcion, DocenteCurso autorMaterial, TipoRecurso tipoMaterial) {
+            String descripcion, IntegranteEquipo autorMaterial, TipoRecurso tipoMaterial) {
         Tema tema = new Tema(curso, titulo, "Contenido del tema: " + titulo + ". " + descripcion);
         tema.setDescripcion(descripcion);
         tema = temaRepository.save(tema);
@@ -1151,7 +1150,7 @@ public class SemillaService {
             cursoRepository.saveAndFlush(curso);
         }
         if (autorMaterial != null) {
-            agregarMaterial(tema, autorMaterial, tipoMaterial, "Material: " + titulo);
+            agregarMaterial(tema, autorMaterial, tipoMaterial, tipoMaterial.getNombre() + ": " + titulo);
         }
         return tema;
     }
@@ -1221,10 +1220,10 @@ public class SemillaService {
 
     /** Crea un recurso del docente con los datos propios de su tipo y lo incorpora al tema. */
     /** Incorpora un material al tema. Cada docente tiene pocos recursos (con sus propios archivos) y los temas los reutilizan. */
-    private TemaRecurso agregarMaterial(Tema tema, DocenteCurso autor, TipoRecurso tipo, String titulo) {
+    private TemaRecurso agregarMaterial(Tema tema, IntegranteEquipo autor, TipoRecurso tipo, String titulo) {
         Docente docente = autor.getDocente();
         Recurso recurso = switch (tipo) {
-            case BIBLIOGRAFIA -> recursoParaElTema(tema, docente, "bibliografia", () -> crearBibliografia(docente, titulo));
+            case MATERIAL_BIBLIOGRAFICO -> recursoParaElTema(tema, docente, "bibliografia", () -> crearMaterialBibliografico(docente, titulo));
             case GRABACION -> recursoParaElTema(tema, docente, "grabacion", () -> crearGrabacion(docente, titulo));
             case ENLACE -> crearEnlace(docente, titulo);
             default -> recursoParaElTema(tema, docente, "material", () -> crearMaterialDeLectura(docente, titulo));
@@ -1233,7 +1232,7 @@ public class SemillaService {
     }
 
     /** Une un recurso a un tema, al final de sus materiales. */
-    private TemaRecurso vincular(Tema tema, Recurso recurso, DocenteCurso autor) {
+    private TemaRecurso vincular(Tema tema, Recurso recurso, IntegranteEquipo autor) {
         int orden = tema.getTemasRecurso().size() + 1;
         TemaRecurso material = temaRecursoRepository.save(new TemaRecurso(tema, recurso, autor, orden));
         tema.getTemasRecurso().add(material);
@@ -1277,18 +1276,25 @@ public class SemillaService {
     }
 
     /** Una bibliografía: siempre pública. */
-    private Recurso crearBibliografia(Docente docente, String titulo) {
+    private Recurso crearMaterialBibliografico(Docente docente, String titulo) {
         Recurso recurso = new Recurso(docente, titulo);
         recurso.setPrivado(false);
         recurso = recursoRepository.save(recurso);
-        Bibliografia bibliografia = new Bibliografia(recurso, String.format("978-987-%05d-0", recurso.getIdRecurso()),
+        MaterialBibliografico materialBibliografico = new MaterialBibliografico(recurso, String.format("978-987-%06d-0", recurso.getIdRecurso()),
                 docente.getUsuario().getNombreCompleto());
         Object[] pdf = subirArchivoDeEjemplo(recurso, "bibliografia", "pdf", indiceDeArchivo(docente, "pdf"));
-        bibliografia.setRutaArchivo((String) pdf[0]);
-        bibliografia.setTamanioBytes((Long) pdf[1]);
-        bibliografia.setExtension("pdf");
-        recurso.setBibliografia(bibliografiaRepository.save(bibliografia));
+        materialBibliografico.setRutaArchivo((String) pdf[0]);
+        materialBibliografico.setTamanioBytes((Long) pdf[1]);
+        materialBibliografico.setExtension("pdf");
+        recurso.setMaterialBibliografico(materialBibliograficoRepository.save(materialBibliografico));
+        registrarEstructura(recurso, null);
         return recurso;
+    }
+
+    /** Guarda el índice de un documento de la semilla (o la entrada por defecto si no tiene) y reparte sus oraciones entre las entradas. */
+    private void registrarEstructura(Recurso recurso, String indiceJson) {
+        indiceDocumentoService.crear(recurso.getDocumento(), indiceJson);
+        estructuraService.reconstruir(recurso.getDocumento());
     }
 
     /** Una grabación: privada, de uso del docente. */
@@ -1307,12 +1313,13 @@ public class SemillaService {
         recurso.setPrivado(false);
         recurso = recursoRepository.save(recurso);
         Object[] pdf = subirArchivoDeEjemplo(recurso, "presentacion", "pdf", indiceDeArchivo(docente, "pdf"));
-        MaterialLectura lectura = new MaterialLectura(recurso,
-                categoriaMaterialLecturaRepository.findByNombre(CategoriaMaterialLectura.PRESENTACION).orElseThrow(),
+        MaterialDidactico lectura = new MaterialDidactico(recurso,
+                categoriaMaterialDidacticoRepository.findByNombre(CategoriaMaterialDidactico.PRESENTACION).orElseThrow(),
                 (String) pdf[0], docente.getUsuario().getNombreCompleto());
         lectura.setTamanioBytes((Long) pdf[1]);
         lectura.setExtension("pdf");
-        recurso.setMaterialLectura(materialLecturaRepository.save(lectura));
+        recurso.setMaterialDidactico(materialDidacticoRepository.save(lectura));
+        registrarEstructura(recurso, null);
         return recurso;
     }
 

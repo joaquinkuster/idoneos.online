@@ -117,7 +117,7 @@ class IntentoControllerTest {
                 .andExpect(content().string(Matchers.containsString("data-reloj")))
                 .andExpect(content().string(Matchers.containsString("Vale <strong>2,00</strong>")));
 
-        mockMvc.perform(post("/intento/marcar/" + id).param("preguntaIntentoId", String.valueOf(tercera.getIdPreguntaIntento()))
+        mockMvc.perform(post("/intento/marcar/" + id).param("preguntaId", String.valueOf(tercera.getPregunta().getIdPregunta()))
                 .param("marcada", "true"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.marcadas").value(1));
@@ -180,7 +180,7 @@ class IntentoControllerTest {
         PreguntaIntento segunda = intento.getPreguntasOrdenadas().get(1);
         String opcion = String.valueOf(primera.getPregunta().getOpcionesActivas().get(0).getIdOpcionRespuesta());
 
-        mockMvc.perform(post("/intento/responder/" + id).param("preguntaIntentoId", String.valueOf(primera.getIdPreguntaIntento()))
+        mockMvc.perform(post("/intento/responder/" + id).param("preguntaId", String.valueOf(primera.getPregunta().getIdPregunta()))
                 .param("opcionIds", opcion))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.respondidas").value(1))
@@ -188,7 +188,7 @@ class IntentoControllerTest {
                 .andExpect(jsonPath("$.segundosRestantes").value(Matchers.greaterThan(1100)));
 
         // Otra pregunta que no es la actual se rechaza
-        mockMvc.perform(post("/intento/responder/" + id).param("preguntaIntentoId", String.valueOf(segunda.getIdPreguntaIntento()))
+        mockMvc.perform(post("/intento/responder/" + id).param("preguntaId", String.valueOf(segunda.getPregunta().getIdPregunta()))
                 .param("opcionIds", opcion))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").value(Matchers.containsString("pregunta actual")));
@@ -243,7 +243,7 @@ class IntentoControllerTest {
         IntentoAutoevaluacion intento = ultimoIntento();
         int id = intento.getIdIntentoAutoevaluacion();
         for (PreguntaIntento pregunta : intento.getPreguntasOrdenadas()) {
-            intentoService.responderPregunta(id, inscripcion.getAlumno(), pregunta.getIdPreguntaIntento(),
+            intentoService.responderPregunta(id, inscripcion.getAlumno(), pregunta.getPregunta().getIdPregunta(),
                     pregunta.getPregunta().getOpcionesActivas().stream().filter(o -> o.getEsCorrecta())
                             .map(o -> o.getIdOpcionRespuesta()).toList());
             intentoService.avanzarPregunta(id, inscripcion.getAlumno());

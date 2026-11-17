@@ -22,11 +22,14 @@ public class Recurso {
     /** Tipo de recurso: diapositivas de una clase. */
     public static final String PRESENTACION = "Presentación";
 
-    /** Tipo de recurso: resumen de un tema. */
-    public static final String RESUMEN = "Resumen";
+    /** Tipo de recurso: resúmenes, transcripciones de clases o compilaciones teóricas del equipo docente. */
+    public static final String APUNTE_DE_CATEDRA = "Apunte de Cátedra";
 
-    /** Tipo de recurso: bibliografía. */
-    public static final String BIBLIOGRAFIA = "Bibliografía";
+    /** Tipo de recurso: guía de lectura, de ejercicios o integrador que orienta el estudio de un tema. */
+    public static final String GUIA_DE_ESTUDIO = "Guía de Estudio";
+
+    /** Tipo de recurso: libro, manual o publicación formal con identificador. */
+    public static final String MATERIAL_BIBLIOGRAFICO = "Material bibliográfico";
 
     /** Tipo de recurso: grabación de una clase. */
     public static final String GRABACION = "Grabación";
@@ -35,7 +38,7 @@ public class Recurso {
     public static final String ENLACE = "Enlace";
 
     /** Tipo de recurso: video con clon de inteligencia artificial. */
-    public static final String VIDEO_CLON = "Video clon";
+    public static final String VIDEO_CLON = "Video con clon";
 
     /** Identificador único del recurso. */
     @Id
@@ -84,13 +87,9 @@ public class Recurso {
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
     private Grabacion grabacion;
 
-    /** Datos del recurso si es un material de lectura (presentación, resumen...). */
+    /** Documento del recurso, si tiene un archivo con texto (material bibliográfico o didáctico). */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
-    private MaterialLectura materialLectura;
-
-    /** Datos del recurso si es una bibliografía. */
-    @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
-    private Bibliografia bibliografia;
+    private Documento documento;
 
     /** Datos del recurso si es un video con clon. */
     @OneToOne(mappedBy = "recurso", cascade = CascadeType.ALL)
@@ -124,11 +123,11 @@ public class Recurso {
 
     /** Obtiene el tipo del recurso según la tabla que guarda sus datos. */
     public String getTipo() {
-        if (materialLectura != null) {
-            return materialLectura.getCategoriaMaterialLectura().getNombre();
+        if (getMaterialDidactico() != null) {
+            return getMaterialDidactico().getCategoriaMaterialDidactico().getNombre();
         }
-        if (bibliografia != null) {
-            return BIBLIOGRAFIA;
+        if (getMaterialBibliografico() != null) {
+            return MATERIAL_BIBLIOGRAFICO;
         }
         if (grabacion != null) {
             return GRABACION;
@@ -141,11 +140,11 @@ public class Recurso {
 
     /** Obtiene la ruta del archivo del recurso, o su dirección si es un enlace externo. */
     public String getRutaArchivo() {
-        if (materialLectura != null) {
-            return materialLectura.getRutaArchivo();
+        if (getMaterialDidactico() != null) {
+            return getMaterialDidactico().getRutaArchivo();
         }
-        if (bibliografia != null) {
-            return bibliografia.getRutaArchivo();
+        if (getMaterialBibliografico() != null) {
+            return getMaterialBibliografico().getRutaArchivo();
         }
         if (grabacion != null) {
             return grabacion.getRutaArchivo();
@@ -158,62 +157,62 @@ public class Recurso {
 
     /** Obtiene el estado del reconocimiento de texto (OCR) del archivo del recurso (de un material de lectura o de una bibliografía). */
     public EstadoOCR getEstadoOcr() {
-        if (materialLectura != null) {
-            return materialLectura.getEstadoOcr();
+        if (getMaterialDidactico() != null) {
+            return getMaterialDidactico().getEstadoOcr();
         }
-        return bibliografia == null ? null : bibliografia.getEstadoOcr();
+        return getMaterialBibliografico() == null ? null : getMaterialBibliografico().getEstadoOcr();
     }
 
     /** Cambia el estado del OCR del archivo del recurso (solo lo tienen los materiales de lectura y las bibliografías). */
     public void setEstadoOcr(EstadoOCR estado) {
-        if (materialLectura != null) {
-            materialLectura.setEstadoOcr(estado);
-        } else if (bibliografia != null) {
-            bibliografia.setEstadoOcr(estado);
+        if (getMaterialDidactico() != null) {
+            getMaterialDidactico().setEstadoOcr(estado);
+        } else if (getMaterialBibliografico() != null) {
+            getMaterialBibliografico().setEstadoOcr(estado);
         }
     }
 
     /** Actualiza el tamaño del archivo del recurso. */
     public void actualizarTamanioBytes(long bytes) {
-        if (materialLectura != null) {
-            materialLectura.setTamanioBytes(bytes);
-        } else if (bibliografia != null) {
-            bibliografia.setTamanioBytes(bytes);
+        if (getMaterialDidactico() != null) {
+            getMaterialDidactico().setTamanioBytes(bytes);
+        } else if (getMaterialBibliografico() != null) {
+            getMaterialBibliografico().setTamanioBytes(bytes);
         }
     }
 
     /** Obtiene el autor del recurso (de un material de lectura o de una bibliografía). */
     public String getAutor() {
-        if (materialLectura != null) {
-            return materialLectura.getAutor();
+        if (getMaterialDidactico() != null) {
+            return getMaterialDidactico().getAutor();
         }
-        return bibliografia == null ? null : bibliografia.getAutor();
+        return getMaterialBibliografico() == null ? null : getMaterialBibliografico().getAutor();
     }
 
     /** Indica si el recurso lo generó una inteligencia artificial. */
     public boolean getGeneradoPorIa() {
-        return videoClon != null || (materialLectura != null && materialLectura.getGeneradoPorIa());
+        return videoClon != null || (getMaterialDidactico() != null && getMaterialDidactico().getGeneradoPorIa());
     }
 
     /** Obtiene el estado de la generación con inteligencia artificial, o nulo si lo cargó el docente a mano. */
     public String getEstadoGeneracion() {
-        if (materialLectura != null && materialLectura.getEstadoGeneracionIa() != null) {
-            return materialLectura.getEstadoGeneracionIa().getNombre();
+        if (getMaterialDidactico() != null && getMaterialDidactico().getEstadoGeneracionIa() != null) {
+            return getMaterialDidactico().getEstadoGeneracionIa().getNombre();
         }
         return videoClon != null ? videoClon.getEstadoGeneracionIa().getNombre() : null;
     }
 
     /** Obtiene el motivo por el que falló la generación con inteligencia artificial, si falló. */
     public String getDetalleErrorGeneracion() {
-        if (materialLectura != null) {
-            return materialLectura.getDetalleError();
+        if (getMaterialDidactico() != null) {
+            return getMaterialDidactico().getDetalleError();
         }
         return videoClon == null ? null : videoClon.getDetalleError();
     }
 
     /** Indica si ya se puede usar: lo cargó el docente a mano o la inteligencia artificial terminó de generarlo. */
     public boolean getDisponible() {
-        return materialLectura == null || materialLectura.estaDisponible();
+        return getMaterialDidactico() == null || getMaterialDidactico().estaDisponible();
     }
 
     /** Indica si el recurso es un enlace externo. */
@@ -243,5 +242,25 @@ public class Recurso {
                     : Modalidad.GRABADA;
         }
         return videoClon != null ? Modalidad.CLON_IA : null;
+    }
+
+    /** Devuelve los datos del material didáctico, o nulo si el recurso no lo es. */
+    public MaterialDidactico getMaterialDidactico() {
+        return documento == null ? null : documento.getMaterialDidactico();
+    }
+
+    /** Asocia los datos del material didáctico recién guardado, con su documento. */
+    public void setMaterialDidactico(MaterialDidactico materialDidactico) {
+        this.documento = materialDidactico == null ? null : materialDidactico.getDocumento();
+    }
+
+    /** Devuelve los datos del material bibliográfico, o nulo si el recurso no lo es. */
+    public MaterialBibliografico getMaterialBibliografico() {
+        return documento == null ? null : documento.getMaterialBibliografico();
+    }
+
+    /** Asocia los datos del material bibliográfico recién guardado, con su documento. */
+    public void setMaterialBibliografico(MaterialBibliografico materialBibliografico) {
+        this.documento = materialBibliografico == null ? null : materialBibliografico.getDocumento();
     }
 }

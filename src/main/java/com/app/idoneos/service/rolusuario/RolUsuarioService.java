@@ -4,7 +4,7 @@ import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.RolUsuario;
 
 /** Servicio de la asignación de rol. */
-public interface RolUsuarioService extends CrudService<RolUsuario> {
+public interface RolUsuarioService extends CrudService<RolUsuario, RolUsuario.Clave> {
 
     // ----------------------------------------------------------------------
     // Lecturas

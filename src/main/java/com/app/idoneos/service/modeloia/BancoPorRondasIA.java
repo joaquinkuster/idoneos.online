@@ -3,6 +3,7 @@ package com.app.idoneos.service.modeloia;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,9 +84,12 @@ final class BancoPorRondasIA {
     }
 
     /**
-     * Arma preguntas de opción única por rondas.
+     * Arma preguntas por rondas, con la proporción de tipos pedida: de verdadero o falso (las arma el código, sin el modelo), de opción múltiple (dos
+     * correctas) y de opción única.
      *
      * @param cantidad Cuántas preguntas como máximo.
+     * @param multiples Cuántas de ellas son de opción múltiple.
+     * @param verdaderoFalso Cuántas de ellas son de verdadero o falso.
      * @param objetivos Las oraciones de las que se arman las preguntas, de la más a la menos importante.
      * @param todas Todas las oraciones del documento: de ahí salen el contexto y las opciones incorrectas.
      * @param usados Los enunciados ya usados, normalizados; se agregan los que se aceptan.
@@ -93,17 +97,32 @@ final class BancoPorRondasIA {
      * @param hayTiempo Dice si todavía se puede seguir con otra ronda.
      * @return Las preguntas aceptadas, hasta {@code cantidad}.
      */
-    List<Pregunta> armar(int cantidad, List<String> objetivos, List<String> todas, Set<String> usados, EntidadesUtil.Indice indice, BooleanSupplier hayTiempo) {
+    List<Pregunta> armar(int cantidad, int multiples, int verdaderoFalso, List<String> objetivos, List<String> todas, Set<String> usados, EntidadesUtil.Indice indice, BooleanSupplier hayTiempo) {
         List<List<String>> lemasDeTodas = new ArrayList<>();
         todas.forEach(oracion -> lemasDeTodas.add(GramaticaUtil.lemasDeContenido(oracion)));
         List<Pregunta> aceptadas = new ArrayList<>();
         objetivos = conCambiosPrimero(objetivos, todas, indice);
+        // Verdadero o falso: el código arma la afirmación con una oración tal cual (verdadera) o con un cambio de palabra (falsa); no hace falta el modelo
+        Set<String> deVerdaderoFalso = new HashSet<>();
+        for (String objetivo : objetivos) {
+            if (deVerdaderoFalso.size() >= Math.min(verdaderoFalso, cantidad)) {
+                break;
+            }
+            Pregunta pregunta = armarVerdaderoFalso(objetivo, deVerdaderoFalso.size() % 2 == 0, indice, todas, usados);
+            if (pregunta != null) {
+                deVerdaderoFalso.add(objetivo);
+                aceptadas.add(pregunta);
+            }
+        }
+        List<String> paraElModelo = objetivos.stream().filter(o -> !deVerdaderoFalso.contains(o)).toList();
+        objetivos = paraElModelo;
+        int multiplesAceptadas = 0;
         int siguiente = 0;
         for (int ronda = 1; ronda <= RONDAS_MAXIMAS && aceptadas.size() < cantidad && siguiente < objetivos.size() && hayTiempo.getAsBoolean(); ronda++) {
             int cuantas = Math.min(OBJETIVOS_POR_RONDA, objetivos.size() - siguiente);
             List<String> deEstaRonda = objetivos.subList(siguiente, siguiente + cuantas);
             siguiente += cuantas;
-            String contexto = BancoEnUnaLlamadaIA.contextoDe(deEstaRonda, todas, lemasDeTodas);
+            String contexto = contextoDe(deEstaRonda, todas, lemasDeTodas);
             Ronda respuesta;
             try {
                 respuesta = modelo.generarObjeto(INSTRUCCIONES, pedido(deEstaRonda, contexto), Ronda.class, EsquemasIA.ronda(cuantas), TOKENS_POR_RONDA);
@@ -147,17 +166,71 @@ final class BancoPorRondasIA {
                 }
                 List<Opcion> opciones = new ArrayList<>();
                 opciones.add(new Opcion(correcta, true));
-                incorrectas.forEach(texto -> opciones.add(new Opcion(texto, false)));
+                for (String texto : incorrectas) {
+                    opciones.add(new Opcion(texto, false));
+                }
+                Tipo tipo = Tipo.UNICA_RESPUESTA;
+                String enunciadoFinal = enunciado;
+                // Opción múltiple: dos correctas (la oración y otra parecida del documento) y dos incorrectas
+                if (multiplesAceptadas < multiples) {
+                    String pareja = parejaDe(objetivo, correcta, sinSujeto != null, todas, lemasDeTodas);
+                    String consigna = " Seleccioná las dos correctas.";
+                    if (pareja != null && enunciado.length() + consigna.length() <= LARGO_MAXIMO) {
+                        opciones = new ArrayList<>(List.of(new Opcion(correcta, true), new Opcion(pareja, true), new Opcion(incorrectas.get(0), false),
+                                new Opcion(incorrectas.get(1), false)));
+                        tipo = Tipo.MULTIPLE_CHOICE;
+                        enunciadoFinal = enunciado + consigna;
+                        multiplesAceptadas++;
+                    }
+                }
                 Collections.shuffle(opciones);
                 usados.add(LogicaPreguntasAurea.normalizar(enunciado));
                 // También queda marcada la oración, para que las reglas no armen otra pregunta con ella
                 usados.add(LogicaPreguntasAurea.normalizar(objetivo));
-                aceptadas.add(new Pregunta(enunciado, opciones, Tipo.UNICA_RESPUESTA));
+                aceptadas.add(new Pregunta(enunciadoFinal, opciones, tipo, objetivo));
             }
             REGISTRO.info("Ronda {}: {} oraciones objetivo, {} preguntas escritas; {} de {} aceptadas hasta ahora. Descartadas por motivo: {}", ronda, cuantas,
                     respuesta.preguntas().size(), aceptadas.size(), cantidad, motivos.isEmpty() ? "ninguna" : motivos);
         }
         return aceptadas;
+    }
+
+    /** Una afirmación de verdadero o falso: la oración tal cual (verdadera) o con un cambio de palabra (falsa). Nulo si no se puede armar. */
+    private Pregunta armarVerdaderoFalso(String objetivo, boolean verdadera, EntidadesUtil.Indice indice, List<String> todas, Set<String> usados) {
+        String afirmacion = objetivo;
+        if (!verdadera) {
+            List<String> cambiadas = EntidadesUtil.incorrectasPorCambio(objetivo, indice, todas, 1);
+            if (cambiadas.isEmpty()) {
+                return null;
+            }
+            afirmacion = cambiadas.get(0);
+        }
+        if (afirmacion.length() > LARGO_MAXIMO || usados.contains(LogicaPreguntasAurea.normalizar(afirmacion))) {
+            return null;
+        }
+        usados.add(LogicaPreguntasAurea.normalizar(afirmacion));
+        usados.add(LogicaPreguntasAurea.normalizar(objetivo));
+        List<Opcion> opciones = List.of(new Opcion("Verdadero", verdadera), new Opcion("Falso", !verdadera));
+        return new Pregunta(afirmacion, new ArrayList<>(opciones), Tipo.VERDADERO_FALSO, objetivo);
+    }
+
+    /** Otra oración del documento, parecida a la objetivo pero no casi igual, que sirve como segunda correcta. Nula si no hay. */
+    private static String parejaDe(String objetivo, String correcta, boolean sinSujeto, List<String> todas, List<List<String>> lemasDeTodas) {
+        double[] puntajes = Bm25Util.puntajes(lemasDeTodas, GramaticaUtil.conjuntoDeLemas(objetivo));
+        List<Integer> orden = new ArrayList<>();
+        for (int i = 0; i < todas.size(); i++) {
+            if (puntajes[i] > 0 && !todas.get(i).equals(objetivo)) {
+                orden.add(i);
+            }
+        }
+        orden.sort((x, y) -> Double.compare(puntajes[y], puntajes[x]));
+        for (int i : orden) {
+            String opcion = sinSujeto ? GramaticaUtil.sinSujeto(todas.get(i)) : todas.get(i);
+            if (opcion != null && opcion.length() <= LARGO_MAXIMO && !RellenoDeAureaIA.demasiadoParecida(correcta, opcion)) {
+                return opcion;
+            }
+        }
+        return null;
     }
 
     /**
@@ -314,5 +387,37 @@ final class BancoPorRondasIA {
                 && vistas.add(LogicaPreguntasAurea.normalizar(opcion))) {
             incorrectas.add(opcion);
         }
+    }
+
+    /** Cuántas oraciones parecidas a las objetivo se agregan como contexto. */
+    private static final int PARECIDAS_POR_LOTE = 5;
+
+    /** Hasta cuántos caracteres de contexto (las oraciones parecidas) se le dan al modelo. */
+    private static final int CARACTERES_DE_CONTEXTO = 1500;
+
+    /** El contexto de un lote: las oraciones del documento más parecidas a las objetivo (según BM25), sin repetir las objetivo, hasta el largo permitido. */
+    static String contextoDe(List<String> objetivos, List<String> todas, List<List<String>> lemasDeTodas) {
+        Set<String> consulta = new HashSet<>();
+        objetivos.forEach(oracion -> consulta.addAll(GramaticaUtil.conjuntoDeLemas(oracion)));
+        double[] puntajes = Bm25Util.puntajes(lemasDeTodas, consulta);
+        List<Integer> orden = new ArrayList<>();
+        for (int i = 0; i < todas.size(); i++) {
+            orden.add(i);
+        }
+        orden.sort((x, y) -> Double.compare(puntajes[y], puntajes[x]));
+        Set<String> elegidas = new LinkedHashSet<>();
+        int largo = 0;
+        for (int i : orden) {
+            String oracion = todas.get(i);
+            if (puntajes[i] <= 0 || elegidas.size() >= PARECIDAS_POR_LOTE || objetivos.contains(oracion)) {
+                continue;
+            }
+            if (largo + oracion.length() > CARACTERES_DE_CONTEXTO) {
+                break;
+            }
+            largo += oracion.length();
+            elegidas.add(oracion);
+        }
+        return String.join("\n", elegidas);
     }
 }

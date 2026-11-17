@@ -4,7 +4,7 @@ import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.Auditoria;
 
 /** Servicio de la auditoría. */
-public interface AuditoriaService extends CrudService<Auditoria> {
+public interface AuditoriaService extends CrudService<Auditoria, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

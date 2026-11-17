@@ -22,7 +22,7 @@ public class RolUsuarioServiceImpl implements RolUsuarioService {
 
     /** Busca la asignación de rol por su identificador. */
     @Override
-    public Optional<RolUsuario> buscarPorId(Integer id) {
+    public Optional<RolUsuario> buscarPorId(RolUsuario.Clave id) {
         return rolUsuarioRepository.findById(id);
     }
 
@@ -34,7 +34,7 @@ public class RolUsuarioServiceImpl implements RolUsuarioService {
 
     /** Verifica si existe un registro con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(RolUsuario.Clave id) {
         return rolUsuarioRepository.existsById(id);
     }
 

@@ -6,7 +6,7 @@ import com.app.idoneos.model.Rol;
 import java.util.Optional;
 
 /** Servicio del rol. */
-public interface RolService extends CrudService<Rol> {
+public interface RolService extends CrudService<Rol, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

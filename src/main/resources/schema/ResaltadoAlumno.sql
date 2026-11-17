@@ -7,7 +7,7 @@
 -- A quién pertenece este registro no cambia: solo cambian sus demás datos.
 DROP TRIGGER IF EXISTS trg_resaltado_alumno_pertenencia ON resaltado_alumno ^^^
 CREATE TRIGGER trg_resaltado_alumno_pertenencia BEFORE UPDATE ON resaltado_alumno
-    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_alumno', 'id_recurso', 'pagina') ^^^
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_alumno', 'id_documento', 'pagina') ^^^
 
 -- ----------------------------------------------------------------------
 -- Sin borrado

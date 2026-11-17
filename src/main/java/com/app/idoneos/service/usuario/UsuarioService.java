@@ -8,7 +8,7 @@ import com.app.idoneos.model.Rol;
 import com.app.idoneos.model.Usuario;
 
 /** Servicio del usuario. */
-public interface UsuarioService extends CrudService<Usuario> {
+public interface UsuarioService extends CrudService<Usuario, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -143,9 +143,10 @@ public interface UsuarioService extends CrudService<Usuario> {
      * Marca como validado el correo del usuario dueño del token y anula el token.
      *
      * @param token El token recibido en el enlace del correo.
+     * @return El usuario cuyo correo quedó validado.
      * @throws IllegalArgumentException Si el token no es válido o venció.
      */
-    void validarCorreo(String token);
+    Usuario validarCorreo(String token);
 
     /**
      * Envía al correo indicado el enlace para crear una contraseña nueva.

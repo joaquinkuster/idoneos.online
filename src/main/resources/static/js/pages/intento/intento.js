@@ -189,7 +189,7 @@
         guardado.textContent = 'Guardando...';
         guardado.classList.remove('in-guardado-error');
         var datos = new URLSearchParams();
-        datos.append('preguntaIntentoId', preguntaId);
+        datos.append('preguntaId', preguntaId);
         elegidas().forEach(function (v) { datos.append('opcionIds', v); });
         enviar('/intento/responder/' + id, datos).then(function (respuesta) {
             if (!respuesta.ok) {
@@ -233,7 +233,7 @@
     if (botonMarcar) {
         botonMarcar.addEventListener('click', function () {
             var marcar = botonMarcar.dataset.marcada !== 'true';
-            enviar('/intento/marcar/' + id, { preguntaIntentoId: preguntaId, marcada: marcar ? 'true' : 'false' }).then(function (datos) {
+            enviar('/intento/marcar/' + id, { preguntaId: preguntaId, marcada: marcar ? 'true' : 'false' }).then(function (datos) {
                 if (!datos.ok) { dialogo('No se pudo marcar', datos.error || 'Intentá nuevamente.', 'error'); return; }
                 fijarRestantes(datos.segundosRestantes);
                 botonMarcar.dataset.marcada = marcar ? 'true' : 'false';

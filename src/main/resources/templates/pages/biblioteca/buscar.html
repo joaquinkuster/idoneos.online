@@ -20,9 +20,14 @@
                     <h1 class="pn-titulo">Biblioteca digital</h1>
                     <p class="pn-subtitulo" th:text="${esAdministrador ? 'Todos los recursos de los docentes, públicos y privados' : 'Tus recursos y los que compartieron otros docentes'}">Tus recursos y los que compartieron otros docentes</p>
                 </div>
-                <button type="button" class="pn-btn pn-btn-primario" th:unless="${esAdministrador}" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
-                    <i class="fa-solid fa-plus"></i> Registrar recurso
-                </button>
+                <div class="d-flex gap-2 flex-wrap" th:unless="${esAdministrador}">
+                    <button type="button" class="pn-btn pn-btn-contorno" data-bs-toggle="modal" data-bs-target="#modalGenerarIa">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generar con IA
+                    </button>
+                    <button type="button" class="pn-btn pn-btn-primario" data-bs-toggle="modal" data-bs-target="#modalNuevoMaterial">
+                        <i class="fa-solid fa-plus"></i> Registrar recurso
+                    </button>
+                </div>
             </div>
 
             <section class="pn-card" data-tabla data-tabla-servidor="/biblioteca/buscar" th:attr="data-opciones=${tablaOpciones}">
@@ -53,8 +58,8 @@
                                 <th data-col="Título" data-campo="titulo" data-filtro="texto">Título</th>
                                 <th data-col="Tipo" data-campo="tipo">Tipo</th>
                                 <th data-col="Autor" data-campo="autor" data-filtro="texto">Autor</th>
-                                <th data-col="ISBN" data-campo="isbn" data-filtro="texto">ISBN</th>
-                                <th data-col="Editorial" data-campo="editorial" data-filtro="texto" data-oculta>Editorial</th>
+                                <th data-col="Identificador" data-campo="identificador" data-filtro="texto">Identificador</th>
+                                <th data-col="Publicado en" data-campo="publicadoEn" data-filtro="texto" data-oculta>Publicado en</th>
                                 <th data-col="Fecha de publicación" data-campo="fechaPublicacion" data-filtro="fecha" data-oculta>Fecha de publicación</th>
                                 <th data-col="Subido por" data-campo="docente" data-filtro="lista">Subido por</th>
                                 <th data-col="Compartido con docentes" data-campo="biblioteca" data-filtro="lista" data-sin-busqueda>Compartido con docentes</th>
@@ -82,15 +87,22 @@
                                     </span>
                                 </td>
                                 <td><span class="pn-truncar pn-truncar-corto" th:text="${r.autor != null and !#strings.isEmpty(r.autor) ? r.autor : '—'}">Autor</span></td>
-                                <td th:text="${r.bibliografia != null and !#strings.isEmpty(r.bibliografia.isbn) ? r.bibliografia.isbn : '—'}">978-987-00-0000-0</td>
-                                <td><span class="pn-truncar pn-truncar-corto" th:text="${r.bibliografia != null and !#strings.isEmpty(r.bibliografia.editorial) ? r.bibliografia.editorial : '—'}">Editorial</span></td>
-                                <td th:text="${r.bibliografia != null and r.bibliografia.fechaPublicacion != null ? #temporals.format(r.bibliografia.fechaPublicacion, 'dd/MM/yyyy') : '—'}">01/03/2020</td>
+                                <td th:text="${r.materialBibliografico != null and !#strings.isEmpty(r.materialBibliografico.identificador) ? r.materialBibliografico.identificador : '—'}">978-987-00-0000-0</td>
+                                <td><span class="pn-truncar pn-truncar-corto" th:text="${r.materialBibliografico != null and !#strings.isEmpty(r.materialBibliografico.publicadoEn) ? r.materialBibliografico.publicadoEn : '—'}">Editorial</span></td>
+                                <td th:text="${r.materialBibliografico != null and r.materialBibliografico.fechaPublicacion != null ? #temporals.format(r.materialBibliografico.fechaPublicacion, 'dd/MM/yyyy') : '—'}">01/03/2020</td>
                                 <td><span class="pn-truncar" th:text="${propio ? 'Vos' : r.docente.usuario.nombreCompleto}">Vos</span></td>
                                 <td>
                                     <span class="pn-insignia" th:classappend="${r.privado} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
                                           th:text="${r.privado} ? 'No' : 'Sí'">No</span>
                                 </td>
-                                <td th:text="${r.generadoPorIa ? 'Sí' : 'No'}">No</td>
+                                <td>
+                                    <span th:if="${!r.generadoPorIa}">No</span>
+                                    <span th:if="${r.generadoPorIa and (r.estadoGeneracion == null or r.estadoGeneracion == 'Listo')}">Sí</span>
+                                    <span class="pn-insignia" th:if="${r.generadoPorIa and r.estadoGeneracion != null and r.estadoGeneracion != 'Listo'}" th:title="${r.detalleErrorGeneracion}"
+                                          th:attr="data-generando=${r.estadoGeneracion == 'Pendiente'} ? 'true' : null"
+                                          th:classappend="${r.estadoGeneracion == 'Fallido'} ? 'pn-insignia-roja' : 'pn-insignia-dorada'"
+                                          th:text="${r.estadoGeneracion}">Pendiente</span>
+                                </td>
                                 <td th:text="${r.fechaCreacion != null ? #temporals.format(r.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
@@ -105,7 +117,7 @@
                                                         ? 'Tiene ' + usosPorRecurso.get(r.idRecurso) + (usosPorRecurso.get(r.idRecurso) == 1 ? ' tema asociado' : ' temas asociados') + ': no se puede dar de baja.'
                                                         : 'El recurso dejará de estar disponible en la biblioteca digital.'}">Dar de baja</button>
                                         <!-- Más: solo el docente, y solo para los recursos que se registran a mano en un tema -->
-                                        <div class="dropdown" th:if="${!esAdministrador and r.tipo != 'Video clon'}">
+                                        <div class="dropdown" th:if="${!esAdministrador and r.tipo != 'Video con clon'}">
                                             <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
                                                     aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
                                             <ul class="dropdown-menu dropdown-menu-end">
@@ -171,14 +183,18 @@
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo" data-campo-tipo>
-                            <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
+                            <div class="pn-etiqueta-con-ayuda">
+                                <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
+                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el tipo de recurso" title="Ayuda" data-ayuda-destino="ayudaTipoRecurso"><i class="fa-solid fa-circle-info"></i></button>
+                            </div>
                             <select class="pn-input" data-tipo-grupo aria-label="Tipo de recurso">
-                                <option value="MATERIAL_LECTURA">Material de lectura</option>
-                                <option value="BIBLIOGRAFIA">Bibliografía</option>
+                                <option value="MATERIAL_DIDACTICO" title="Lo que elaborás para tu curso: presentaciones, apuntes de cátedra y guías de estudio. Podés mantenerlo privado.">Material didáctico</option>
+                                <option value="MATERIAL_BIBLIOGRAFICO" title="Libros, manuales y publicaciones formales con ISBN, ISSN o DOI. Es público para todos los docentes.">Material bibliográfico</option>
                                 <option value="GRABACION">Grabación</option>
                                 <option value="ENLACE">Enlace</option>
                             </select>
-                            <!-- El servidor recibe el tipo concreto: lo arman estos selectores (Material de lectura + su clase) -->
+                            
+                            <!-- El servidor recibe el tipo concreto: lo arman estos selectores (Material didáctico + su categoría) -->
                             <select name="tipo" class="d-none" required tabindex="-1" aria-hidden="true">
                                 <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
                                         th:attr="data-nombre=${t.nombre},
@@ -192,9 +208,13 @@
 <div class="col-md-6 pn-campo" data-bloque="categoria-material">
                             <label class="pn-etiqueta">Categoría de material <span class="pn-obligatorio">*</span></label>
                             <select class="pn-input" data-categoria-material aria-label="Categoría de material">
-                                <option value="PRESENTACION">Presentación</option>
-                                <option value="RESUMEN">Resumen</option>
+                                <option value="PRESENTACION" title="Diapositivas que acompañan una clase o un tema.">Presentación</option>
+                                <option value="APUNTE_DE_CATEDRA" title="Resúmenes, transcripciones de clases, artículos o compilaciones teóricas elaboradas por el equipo docente.">Apunte de Cátedra</option>
+                                <option value="GUIA_DE_ESTUDIO" title="Guías de lectura, de ejercicios prácticos o integradores que orientan el estudio de un tema.">Guía de Estudio</option>
                             </select>
+                        </div>
+<div class="col-12 ayuda-desplegable" id="ayudaTipoRecurso">
+                            <div class="ayuda-desplegable-interior"><div class="cn-info"><div data-tipo-ayuda-texto></div></div></div>
                         </div>
 <div class="col-md-8 pn-campo">
                             <div class="pn-etiqueta-fila">
@@ -251,20 +271,20 @@
                             <input type="text" name="autor" class="pn-input" maxlength="100" placeholder="Autor" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo" data-bloque="isbn" hidden>
+<div class="col-md-6 pn-campo" data-bloque="identificador" hidden>
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
-                                <span class="pn-contador">0 / 17</span>
+                                <label class="pn-etiqueta">Identificador (ISBN, ISSN o DOI) <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 150</span>
                             </div>
-                            <input type="text" name="isbn" class="pn-input" maxlength="17" placeholder="978-0-00-000000-0" data-contador>
+                            <input type="text" name="identificador" class="pn-input" maxlength="150" placeholder="978-0-00-000000-0, 1234-5678 o 10.1000/ejemplo" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo" data-bloque="editorial" hidden>
+<div class="col-md-6 pn-campo" data-bloque="publicadoEn" hidden>
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Editorial (opcional)</label>
-                                <span class="pn-contador">0 / 100</span>
+                                <label class="pn-etiqueta">Publicado en: editorial, revista o congreso (opcional)</label>
+                                <span class="pn-contador">0 / 150</span>
                             </div>
-                            <input type="text" name="editorial" class="pn-input" maxlength="100" placeholder="Editorial" data-contador>
+                            <input type="text" name="publicadoEn" class="pn-input" maxlength="150" placeholder="Editorial, revista o congreso" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-6 pn-campo" data-bloque="fechaPublicacion" hidden>
@@ -317,6 +337,55 @@
         <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Confirmar y guardar</button>
     </div>
 </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: generar un resumen o una presentación con IA a partir de documentos de la biblioteca (sin tema). Queda como recurso de la biblioteca -->
+<div class="modal fade pn-modal" id="modalGenerarIa" tabindex="-1" aria-hidden="true" th:unless="${esAdministrador}">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="pn-modal-cabecera">
+                <h3 class="pn-modal-titulo">Generar con IA</h3>
+                <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="pn-modal-cuerpo">
+                <form th:action="@{/biblioteca/generarIa}" method="post" class="form-ajax" data-validar data-pasos novalidate>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Fuentes</span></span>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Qué generar</h4>
+            <p>Se arma solo con los documentos que elijas de la biblioteca y puede tardar unos minutos. Queda en tu biblioteca, privado, para que lo revises.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-12 pn-campo">
+                <label class="pn-etiqueta">Qué generar <span class="pn-obligatorio">*</span></label>
+                <select name="tipo" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar qué generar.">
+                    <option value="resumen">Resumen (Apunte de Cátedra)</option>
+                    <option value="presentacion">Presentación</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Fuentes</h4>
+            <p>Elegí los documentos de la biblioteca de los que sale el contenido: los tuyos y los que compartieron otros docentes</p>
+        </div>
+        <div data-fuentes-ia data-fuentes-url="/biblioteca/fuentes"></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Generar</button>
+    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -390,6 +459,9 @@
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/components/indiceDocumento.js}"></script>
+<script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 <script th:src="@{/js/pages/recurso/recurso.js}"></script>
+<script th:src="@{/js/components/fuentesIa.js}"></script>
+<script th:src="@{/js/core/recargaGeneracion.js}"></script>
 </body>
 </html>

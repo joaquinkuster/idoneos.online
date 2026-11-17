@@ -1,31 +1,40 @@
 package com.app.idoneos.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** Entidad que representa la asignación de un rol a un usuario. */
 @Entity
-@Table(name = "RolUsuario", uniqueConstraints = { @UniqueConstraint(columnNames = {"idRol", "idUsuario"}) })
+@Table(name = "RolUsuario")
+@IdClass(RolUsuario.Clave.class)
 @Getter
 @Setter
 @NoArgsConstructor
 public class RolUsuario {
-
-    /** Identificador único de la asignación de rol. */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idRolUsuario")
-    private int idRolUsuario;
+    /** Clave primaria compuesta de la asignación de rol. */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Clave implements Serializable {
+        private int usuario;
+        private int rol;
+    }
 
     /** Rol de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idRol", nullable = false)
     private Rol rol;
 
     /** Usuario de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
@@ -61,6 +70,6 @@ public class RolUsuario {
     /** Devuelve una representación en forma de cadena de la asignación de rol. */
     @Override
     public String toString() {
-        return "RolUsuario #" + idRolUsuario;
+        return "RolUsuario #" + usuario.getIdUsuario() + "-" + rol.getIdRol();
     }
 }

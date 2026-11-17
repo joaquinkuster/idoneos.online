@@ -42,7 +42,11 @@
                                     </tr>
                                 </thead>
                                 <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                                    <tr th:each="p : ${pagos}" data-fila th:data-f-mediodepago="${p.metodoPago.nombre}" th:data-f-monto="${p.monto}">
+                                    <th:block th:each="p, pIt : ${pagos}">
+                                    <th:block th:if="${agrupar == true and (pIt.first or clavesGrupo[pIt.index] != clavesGrupo[pIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[pIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[pIt.index], 0L)}, 'pago', 'pagos')}"></tr>
+                            </th:block>
+                                    <tr data-fila th:data-f-mediodepago="${p.metodoPago.nombre}" th:data-f-monto="${p.monto}">
                                         <td>
                                             <span class="pn-celda-principal pn-truncar" th:text="${p.inscripcion.curso.nombre}">Curso</span>
                                             <span class="pn-celda-secundaria d-block" th:if="${p.descuento != null}"
@@ -76,6 +80,7 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    </th:block>
                                     <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-credit-card', 'Todavía no hay pagos', 'Cuando te inscribas a un curso con costo y lo pagues, vas a ver acá el pago y su comprobante.')}"></tr>
                                 </tbody>
                             </table>

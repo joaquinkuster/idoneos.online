@@ -11,7 +11,7 @@
     var NIVEL_MAXIMO = 4;
     var ZOOMS = [0.75, 1, 1.25, 1.5, 2];
     // Los tipos de recurso que llevan índice: los que tienen un PDF obligatorio
-    var TIPOS_CON_INDICE = ['PRESENTACION', 'RESUMEN', 'BIBLIOGRAFIA'];
+    var TIPOS_CON_INDICE = ['PRESENTACION', 'APUNTE_DE_CATEDRA', 'GUIA_DE_ESTUDIO', 'MATERIAL_BIBLIOGRAFICO'];
 
     // ----------------------------------------------------------------------
     // PDF.js

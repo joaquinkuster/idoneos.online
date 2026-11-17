@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 /** Repositorio de TemaRecurso. */
 @Repository
-public interface TemaRecursoRepository extends JpaRepository<TemaRecurso, Integer> {
+public interface TemaRecursoRepository extends JpaRepository<TemaRecurso, TemaRecurso.Clave> {
 
     /** Busca en la base, con su tema y su curso ya cargados, filtrando por curso. */
     @org.springframework.data.jpa.repository.Query("""

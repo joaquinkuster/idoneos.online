@@ -18,13 +18,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.repository.CursoRepository;
 import com.app.idoneos.repository.DocenteRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.service.programa.ProgramaService;
 
 /** Pruebas del ABM de programas con los datos de la semilla. */
@@ -42,7 +42,7 @@ class ProgramaServiceTest {
     private DocenteRepository docenteRepository;
 
     @Autowired
-    private DocenteCursoRepository participacionRepository;
+    private IntegranteEquipoRepository participacionRepository;
 
     private Curso curso(String nombre) {
         return cursoRepository.findAll().stream().filter(c -> c.getNombre().equals(nombre)).findFirst().orElseThrow();
@@ -65,7 +65,7 @@ class ProgramaServiceTest {
         return docente("fausto.spotorno@idoneos.online");
     }
 
-    private DocenteCurso participacionDeFausto(Curso curso) {
+    private IntegranteEquipo participacionDeFausto(Curso curso) {
         return participacionRepository.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == fausto().getIdDocente()).findFirst().orElseThrow();
     }
@@ -183,7 +183,7 @@ class ProgramaServiceTest {
         assertEquals("Plan nuevo", nuevo.getDescripcion());
         assertEquals(0, nuevo.getCantidadTemas());
         assertEquals("Vigente", nuevo.getEstado());
-        DocenteCurso participacion = participacionDeFausto(macro());
+        IntegranteEquipo participacion = participacionDeFausto(macro());
         assertNull(participacion.getCohortePorDefecto());
         assertEquals(nuevo.getIdPrograma(), participacion.getProgramaDeTrabajo().getIdPrograma());
     }

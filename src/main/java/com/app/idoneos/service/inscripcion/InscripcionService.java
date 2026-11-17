@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio de la inscripción. */
-public interface InscripcionService extends CrudService<Inscripcion> {
+public interface InscripcionService extends CrudService<Inscripcion, Integer> {
 
     /**
      * Busca una inscripción vigente por su identificador.

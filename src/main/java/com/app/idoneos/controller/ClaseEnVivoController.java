@@ -472,7 +472,7 @@ public class ClaseEnVivoController {
                 new FiltroUtil.Columna<ClaseEnVivo>("cohorte", FiltroUtil.Tipo.LISTA, c -> c.getCohorte().getMesAnio()),
                 new FiltroUtil.Columna<ClaseEnVivo>("fechaHora", FiltroUtil.Tipo.FECHA, c -> FiltroUtil.formatearFechaHora(c.getFechaHoraInicio())),
                 new FiltroUtil.Columna<ClaseEnVivo>("docente", FiltroUtil.Tipo.LISTA,
-                        c -> c.getDocenteCurso().getDocente().getUsuario().getNombreCompleto()),
+                        c -> c.getIntegranteEquipo().getDocente().getUsuario().getNombreCompleto()),
                 new FiltroUtil.Columna<ClaseEnVivo>("estado", FiltroUtil.Tipo.LISTA,
                         c -> c.getBaja() ? "Dada de baja" : c.getEstadoClaseEnVivo().getNombre()),
                 new FiltroUtil.Columna<ClaseEnVivo>("vencimiento", FiltroUtil.Tipo.FECHA,

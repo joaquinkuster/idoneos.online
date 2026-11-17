@@ -37,11 +37,14 @@ public interface CorreoService {
     void enviarDefinicionContrasena(Usuario usuario, String token);
 
     /**
-     * Avisa al docente que un administrador lo habilitó o lo suspendió para dictar clases.
+     * Envía al usuario el correo de una notificación del sistema. A diferencia de los otros envíos, este espera a que el correo
+     * salga, para que quien lo pide sepa si funcionó.
      *
-     * @param usuario Usuario del docente.
-     * @param habilitado {@code true} si fue habilitado, {@code false} si fue suspendido.
+     * @param usuario Usuario destinatario.
+     * @param asunto Asunto del correo.
+     * @param mensaje Texto del aviso.
+     * @param url Dirección del sistema a la que lleva el botón del correo, o {@code null} si no lleva a ninguna.
      * @throws IllegalStateException Si el correo no pudo enviarse.
      */
-    void enviarCambioHabilitacionDocente(Usuario usuario, boolean habilitado);
+    void enviarNotificacion(Usuario usuario, String asunto, String mensaje, String url);
 }

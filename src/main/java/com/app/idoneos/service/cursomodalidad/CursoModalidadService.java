@@ -8,7 +8,7 @@ import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.CursoModalidad;
 
 /** Servicio de la relación entre curso y modalidad. */
-public interface CursoModalidadService extends CrudService<CursoModalidad> {
+public interface CursoModalidadService extends CrudService<CursoModalidad, CursoModalidad.Clave> {
 
     // ----------------------------------------------------------------------
     // Lecturas

@@ -18,6 +18,14 @@
             .then(function (respuesta) {
                 if (respuesta.type === 'opaqueredirect' || respuesta.status === 401 || respuesta.status === 403) {
                     detener();
+                    return null;
+                }
+                return respuesta.ok ? respuesta.json() : null;
+            })
+            .then(function (datos) {
+                // El latido también trae la cantidad de notificaciones sin leer, para la campana del navbar
+                if (datos && typeof datos.noLeidas === 'number' && window.actualizarNotificaciones) {
+                    window.actualizarNotificaciones(datos.noLeidas);
                 }
             })
             .catch(function () { /* sin conexión: se vuelve a intentar en el próximo latido */ });

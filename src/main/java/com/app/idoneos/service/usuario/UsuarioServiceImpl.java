@@ -6,11 +6,11 @@ import com.app.idoneos.model.Administrador;
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.TituloDocente;
-import com.app.idoneos.repository.ConsultaForoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.repository.InscripcionRepository;
-import com.app.idoneos.repository.RespuestaForoRepository;
+import com.app.idoneos.repository.RecordatorioCohorteRepository;
+import com.app.idoneos.repository.RecursoRepository;
 import com.app.idoneos.repository.RolUsuarioRepository;
 import com.app.idoneos.service.administrador.AdministradorService;
 import com.app.idoneos.service.docente.DocenteService;
@@ -54,6 +54,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     /** Roles del sistema, del de mayor jerarquía al de menor. */
     private static final List<String> ROLES_POR_JERARQUIA = List.of("Administrador", "Docente", "Alumno");
 
+    /** Máximo de años de experiencia profesional que se admite. */
+    public static final int ANIOS_EXPERIENCIA_MAXIMOS = 60;
+
     /** Formato de la matrícula de idóneo de la Comisión Nacional de Valores, por ejemplo 984. */
     private static final Pattern FORMATO_MATRICULA = Pattern.compile("^[0-9]{1,8}$");
 
@@ -86,6 +89,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     private CorreoService correoService;
 
     @Autowired
+    private com.app.idoneos.service.notificacion.NotificacionService notificacionService;
+
+    @Autowired
     private com.app.idoneos.service.sesion.SesionService sesionService;
 
     @Autowired
@@ -101,13 +107,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     private DocenteRepository docenteRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
-    private RespuestaForoRepository respuestaForoRepository;
+    private RecursoRepository recursoRepository;
 
     @Autowired
-    private ConsultaForoRepository consultaForoRepository;
+    private RecordatorioCohorteRepository recordatorioCohorteRepository;
 
     @Autowired
     private InscripcionRepository inscripcionRepository;
@@ -202,8 +208,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setEmailValidado(true);
         usuario.setRolPorDefecto(rolAlumno);
         usuario = usuarioRepository.save(usuario);
-        rolUsuarioService.guardar(new RolUsuario(rolAlumno, usuario));
-        alumnoService.guardar(new Alumno(usuario));
+        // El rol y el perfil también se agregan al usuario, que es el que se autentica y lleva sus roles a la sesión
+        usuario.getRoles().add(rolUsuarioService.guardar(new RolUsuario(rolAlumno, usuario)));
+        usuario.setAlumno(alumnoService.guardar(new Alumno(usuario)));
         return usuario;
     }
 
@@ -402,6 +409,9 @@ public class UsuarioServiceImpl implements UsuarioService {
                 rolUsuarioService.modificar(asignacion);
             }
         }
+        if (actuales.contains("Alumno") && !nuevos.contains("Alumno")) {
+            darDeBajaRecordatorios(usuario);
+        }
         for (String nombreRol : ROLES_POR_JERARQUIA) {
             if (nuevos.contains(nombreRol)) {
                 asignarRol(usuario, buscarRol(nombreRol), datosDocente);
@@ -413,24 +423,25 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario = usuarioRepository.save(usuario);
 
         if (nuevaHabilitacion != null) {
-            try {
-                correoService.enviarCambioHabilitacionDocente(usuario, nuevaHabilitacion);
-            } catch (IllegalStateException e) {
-                // El aviso es un complemento: si no se puede enviar, el cambio ya hecho se conserva
-            }
+            notificacionService.notificar(usuario, com.app.idoneos.model.TipoNotificacion.HABILITACION_DOCENTE,
+                    nuevaHabilitacion ? "Fuiste habilitado para dictar clases" : "Tu habilitación para dictar clases fue suspendida",
+                    nuevaHabilitacion ? "Un administrador te habilitó para dictar clases en Idóneos Online."
+                            : "Un administrador suspendió temporalmente tu habilitación para dictar clases. Tu cuenta y tu historial se conservan. "
+                                    + "Si tenés dudas, comunicate con la administración.",
+                    "/curso/buscar", null, true);
         }
         return usuario;
     }
 
     /** Marca como validado el correo del usuario dueño del token y anula el token. */
     @Override
-    public void validarCorreo(String token) {
+    public Usuario validarCorreo(String token) {
         Usuario usuario = buscarPorToken(token);
         usuario.setEmailValidado(true);
         usuario.setTokenVerificacion(null);
         usuario.setVencimientoTokenVerificacion(null);
         usuario.setUltimaModificacion(java.time.LocalDateTime.now());
-        usuarioRepository.save(usuario);
+        return usuarioRepository.save(usuario);
     }
 
     /** Envía al correo indicado el enlace para crear una contraseña nueva. */
@@ -563,6 +574,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.marcarInactivo();
         usuario.setUltimaModificacion(LocalDateTime.now());
         usuarioRepository.save(usuario);
+        darDeBajaRecordatorios(usuario);
         sesionService.cerrarTodas(usuario); // la cuenta pierde el acceso en todos sus dispositivos
     }
 
@@ -658,9 +670,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (datos.biografia().trim().length() > 2000) {
             throw RespuestaFormularioUtil.armarCampoInvalido("biografia", "Error! La biografía no puede superar los 2000 caracteres.");
         }
-        if (datos.aniosExperiencia() == null || datos.aniosExperiencia() < 0) {
+        if (datos.aniosExperiencia() == null || datos.aniosExperiencia() < 0 || datos.aniosExperiencia() > ANIOS_EXPERIENCIA_MAXIMOS) {
             throw RespuestaFormularioUtil.armarCampoInvalido("aniosExperiencia",
-                    "Error! Los años de experiencia deben ser un número entero mayor o igual a cero.");
+                    "Error! Los años de experiencia deben ser un número entero entre 0 y " + ANIOS_EXPERIENCIA_MAXIMOS + ".");
         }
         String cnv = limpiar(datos.matriculaCnv());
         if (!cnv.isEmpty()) {
@@ -769,7 +781,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     /** Cuenta los cursos activos de los que el docente es titular o ayudante. */
     private long contarCursosActivos(Docente docente) {
-        return docenteCursoRepository.findByDocenteAndBajaFalse(docente).stream()
+        return integranteEquipoRepository.findByDocenteAndBajaFalse(docente).stream()
                 .filter(participacion -> !participacion.getCurso().esInactivo()).count();
     }
 
@@ -779,17 +791,17 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (docente == null) {
             return null;
         }
+        long recursos = recursoRepository.findByDocenteAndBajaFalse(docente).size();
         long cursos = contarCursosActivos(docente);
-        long respuestas = respuestaForoRepository.countByDocenteCurso_DocenteAndBajaFalse(docente);
         List<String> partes = new ArrayList<>();
-        if (cursos > 0) {
-            partes.add("es titular o ayudante de " + MensajeErrorUtil.formatearCantidad(cursos, "curso activo", "cursos activos"));
+        if (recursos > 0) {
+            partes.add("tiene " + MensajeErrorUtil.formatearCantidad(recursos, "recurso activo", "recursos activos"));
         }
-        if (respuestas > 0) {
-            partes.add("tiene " + MensajeErrorUtil.formatearCantidad(respuestas, "respuesta activa", "respuestas activas") + " en los foros");
+        if (cursos > 0) {
+            partes.add("es integrante activo de " + MensajeErrorUtil.formatearCantidad(cursos, "curso", "cursos"));
         }
         return partes.isEmpty() ? null : String.join(" y ", partes)
-                + "|Reemplazalo como titular o ayudante y dá de baja sus respuestas primero.";
+                + "|Dá de baja sus recursos y reemplazalo en el equipo docente de sus cursos primero.";
     }
 
     /** Arma el motivo (y qué hacer) por el que un alumno no puede perder su rol, o devuelve null si no hay dependencias. El motivo y el paso a seguir van separados por una barra vertical. */
@@ -799,15 +811,20 @@ public class UsuarioServiceImpl implements UsuarioService {
             return null;
         }
         long inscripciones = inscripcionRepository.findByAlumnoAndBajaFalse(alumno).size();
-        long consultas = consultaForoRepository.countByInscripcion_AlumnoAndBajaFalse(alumno);
-        List<String> partes = new ArrayList<>();
-        if (inscripciones > 0) {
-            partes.add("tiene " + MensajeErrorUtil.formatearCantidad(inscripciones, "inscripción activa", "inscripciones activas"));
+        return inscripciones == 0 ? null : "tiene " + MensajeErrorUtil.formatearCantidad(inscripciones, "inscripción activa", "inscripciones activas")
+                + "|Dá de baja sus inscripciones primero.";
+    }
+
+    /** Da de baja los recordatorios de inicio de cohorte del alumno, que dejan de tener sentido sin su rol o su cuenta. */
+    private void darDeBajaRecordatorios(Usuario usuario) {
+        if (usuario.getAlumno() == null) {
+            return;
         }
-        if (consultas > 0) {
-            partes.add("tiene " + MensajeErrorUtil.formatearCantidad(consultas, "consulta activa", "consultas activas") + " en los foros");
-        }
-        return partes.isEmpty() ? null : String.join(" y ", partes) + "|Dá de baja sus inscripciones y consultas primero.";
+        recordatorioCohorteRepository.findByAlumnoAndBajaFalse(usuario.getAlumno()).forEach(recordatorio -> {
+            recordatorio.marcarInactivo();
+            recordatorio.setUltimaModificacion(LocalDateTime.now());
+            recordatorioCohorteRepository.save(recordatorio);
+        });
     }
 
     /** Guarda la foto de perfil nueva, o quita la actual, según se pida. Sin foto nueva ni pedido de quitarla, no cambia nada. */

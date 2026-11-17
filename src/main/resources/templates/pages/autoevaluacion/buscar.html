@@ -72,7 +72,11 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="a : ${autoevaluaciones}" data-fila th:attr="data-dependencias=${#lists.size(a.intentosActivos)}, data-f-pools=${#strings.listJoin(a.poolsActivos, '|')}">
+                            <th:block th:each="a, aIt : ${autoevaluaciones}">
+                            <th:block th:if="${agrupar == true and (aIt.first or clavesGrupo[aIt.index] != clavesGrupo[aIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[aIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[aIt.index], 0L)}, 'autoevaluación', 'autoevaluaciones')}"></tr>
+                            </th:block>
+                            <tr data-fila th:attr="data-dependencias=${#lists.size(a.intentosActivos)}, data-f-pools=${#strings.listJoin(a.poolsActivos, '|')}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${a.idAutoevaluacion}"></td>
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${a.nombre}">Autoevaluación Tema 1</span></td>
@@ -101,6 +105,7 @@
                                     </div>
                                 </td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(13, 'fa-clipboard-check', 'No se encontraron autoevaluaciones', 'Ninguna autoevaluación coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>

@@ -22,7 +22,7 @@ public class PreguntaIntentoServiceImpl implements PreguntaIntentoService {
 
     /** Busca la pregunta del intento por su identificador. */
     @Override
-    public Optional<PreguntaIntento> buscarPorId(Integer id) {
+    public Optional<PreguntaIntento> buscarPorId(PreguntaIntento.Clave id) {
         return preguntaIntentoRepository.findById(id);
     }
 
@@ -34,7 +34,7 @@ public class PreguntaIntentoServiceImpl implements PreguntaIntentoService {
 
     /** Verifica si existe un registro con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(PreguntaIntento.Clave id) {
         return preguntaIntentoRepository.existsById(id);
     }
 

@@ -7,6 +7,6 @@ import com.app.idoneos.model.AutoevaluacionPool;
 
 /** Repositorio de AutoevaluacionPool. */
 @Repository
-public interface AutoevaluacionPoolRepository extends JpaRepository<AutoevaluacionPool, Integer> {
+public interface AutoevaluacionPoolRepository extends JpaRepository<AutoevaluacionPool, AutoevaluacionPool.Clave> {
 
 }

@@ -22,7 +22,7 @@ public class CursoModalidadServiceImpl implements CursoModalidadService {
 
     /** Busca la relación entre curso y modalidad por su identificador. */
     @Override
-    public Optional<CursoModalidad> buscarPorId(Integer id) {
+    public Optional<CursoModalidad> buscarPorId(CursoModalidad.Clave id) {
         return cursoModalidadRepository.findById(id);
     }
 
@@ -34,7 +34,7 @@ public class CursoModalidadServiceImpl implements CursoModalidadService {
 
     /** Verifica si existe un registro con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(CursoModalidad.Clave id) {
         return cursoModalidadRepository.existsById(id);
     }
 

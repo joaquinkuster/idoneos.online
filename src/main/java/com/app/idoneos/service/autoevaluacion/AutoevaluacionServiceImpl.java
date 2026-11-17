@@ -10,7 +10,7 @@ import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.repository.AutoevaluacionPoolRepository;
 import com.app.idoneos.repository.AutoevaluacionRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.PoolRepository;
 import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.service.CrudService;
@@ -62,7 +62,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
     private TemaRepository temaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private ProgresoService progresoService;
@@ -277,7 +277,7 @@ public class AutoevaluacionServiceImpl implements AutoevaluacionService {
     // ----------------------------------------------------------------------
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 

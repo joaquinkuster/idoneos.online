@@ -8,7 +8,7 @@ import com.app.idoneos.model.TemaCronograma;
 import java.util.List;
 
 /** Servicio del tema del cronograma. */
-public interface TemaCronogramaService extends CrudService<TemaCronograma> {
+public interface TemaCronogramaService extends CrudService<TemaCronograma, TemaCronograma.Clave> {
 
     // ----------------------------------------------------------------------
     // Lecturas

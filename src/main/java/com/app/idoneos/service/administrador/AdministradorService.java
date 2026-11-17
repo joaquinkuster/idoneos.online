@@ -4,7 +4,7 @@ import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.Administrador;
 
 /** Servicio del administrador. */
-public interface AdministradorService extends CrudService<Administrador> {
+public interface AdministradorService extends CrudService<Administrador, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

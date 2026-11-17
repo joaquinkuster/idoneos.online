@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del intento de autoevaluación. */
-public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoevaluacion> {
+public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoevaluacion, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -83,23 +83,23 @@ public interface IntentoAutoevaluacionService extends CrudService<IntentoAutoeva
      *
      * @param idIntento identificador del intento
      * @param alumno el alumno autenticado
-     * @param idPreguntaIntento identificador de la pregunta del intento
+     * @param idPregunta identificador de la pregunta
      * @param idsOpciones las opciones elegidas (una en las de opción única)
      * @return el intento actualizado
      * @throws IllegalArgumentException si el intento no está en curso, se agotó el tiempo o la elección no es válida
      */
-    IntentoAutoevaluacion responderPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento, List<Integer> idsOpciones);
+    IntentoAutoevaluacion responderPregunta(Integer idIntento, Alumno alumno, Integer idPregunta, List<Integer> idsOpciones);
 
     /**
      * Marca o desmarca una pregunta para revisarla antes de entregar (solo con navegación libre).
      *
      * @param idIntento identificador del intento
      * @param alumno el alumno autenticado
-     * @param idPreguntaIntento identificador de la pregunta del intento
+     * @param idPregunta identificador de la pregunta
      * @param marcada si queda marcada
      * @return el intento actualizado
      */
-    IntentoAutoevaluacion marcarPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento, boolean marcada);
+    IntentoAutoevaluacion marcarPregunta(Integer idIntento, Alumno alumno, Integer idPregunta, boolean marcada);
 
     /**
      * En un cuestionario secuencial, pasa a la pregunta siguiente.

@@ -1,5 +1,7 @@
 package com.app.idoneos.service.certificado;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import com.lowagie.text.Font;
 
 import com.app.idoneos.model.Alumno;
@@ -38,6 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 /** Implementación de CertificadoService. */
 @Service
 public class CertificadoServiceImpl implements CertificadoService {
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
 
     /** Longitud máxima del nombre (la de la columna). */
     private static final int LONGITUD_NOMBRE = 100;
@@ -260,8 +265,10 @@ public class CertificadoServiceImpl implements CertificadoService {
                 usuario.getDni());
         certificado = certificadoRepository.save(certificado);
         inscripcion.getCertificados().add(certificado);
-        // El correo real llega con MOD-NF-01: por ahora el envío se registra en el log y el certificado queda sin enviar
-        REGISTRO.info("Certificado {} emitido para {} (envío por correo simulado)", numero, usuario.getCorreo());
+        notificacionService.notificar(usuario, TipoNotificacion.CERTIFICADO_EMITIDO, "Tu certificado está disponible",
+                "Se emitió tu certificado de finalización de «" + inscripcion.getCurso().getNombre() + "» (" + numero
+                        + "). Podés descargarlo desde Mis certificados.",
+                "/certificado/buscar", inscripcion.getCohorte(), true);
         return certificado;
     }
 

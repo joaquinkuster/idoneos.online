@@ -1,5 +1,7 @@
 package com.app.idoneos.service.intentoautoevaluacion;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.Autoevaluacion;
 import com.app.idoneos.model.Docente;
@@ -39,6 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
 /** Implementación de IntentoAutoevaluacionService. */
 @Service
 public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionService {
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
 
     private static final Logger REGISTRO = LoggerFactory.getLogger(IntentoAutoevaluacionServiceImpl.class);
 
@@ -229,10 +234,10 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
     /** Guarda la elección del alumno para una pregunta. */
     @Override
     @Transactional
-    public IntentoAutoevaluacion responderPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento,
+    public IntentoAutoevaluacion responderPregunta(Integer idIntento, Alumno alumno, Integer idPregunta,
             List<Integer> idsOpciones) {
         IntentoAutoevaluacion intento = intentoEnCurso(idIntento, alumno);
-        PreguntaIntento preguntaIntento = preguntaDelIntento(intento, idPreguntaIntento);
+        PreguntaIntento preguntaIntento = preguntaDelIntento(intento, idPregunta);
         validarQueEsLaPreguntaActual(intento, preguntaIntento);
 
         Pregunta pregunta = preguntaIntento.getPregunta();
@@ -260,12 +265,12 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
     /** Marca o desmarca una pregunta para revisarla (solo con navegación libre). */
     @Override
     @Transactional
-    public IntentoAutoevaluacion marcarPregunta(Integer idIntento, Alumno alumno, Integer idPreguntaIntento, boolean marcada) {
+    public IntentoAutoevaluacion marcarPregunta(Integer idIntento, Alumno alumno, Integer idPregunta, boolean marcada) {
         IntentoAutoevaluacion intento = intentoEnCurso(idIntento, alumno);
         if (!intento.getAutoevaluacion().getNavegacionLibre()) {
             throw new IllegalArgumentException("Error! Este cuestionario no permite marcar preguntas para revisar.");
         }
-        PreguntaIntento preguntaIntento = preguntaDelIntento(intento, idPreguntaIntento);
+        PreguntaIntento preguntaIntento = preguntaDelIntento(intento, idPregunta);
         preguntaIntento.setMarcada(marcada);
         preguntaIntentoRepository.save(preguntaIntento);
         return intento;
@@ -352,6 +357,9 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         intento.setUltimaModificacion(LocalDateTime.now());
         intentoAutoevaluacionRepository.save(intento);
         progresoService.actualizar(intento.getInscripcion(), intento.getAutoevaluacion().getTema());
+        notificacionService.notificar(intento.getInscripcion().getAlumno().getUsuario(), TipoNotificacion.INTENTO_APROBADO,
+                "Aprobaron tu intento", "El docente aprobó tu intento de «" + intento.getAutoevaluacion().getNombre() + "».",
+                "/intento/buscarPorInscripcion/" + intento.getInscripcion().getIdInscripcion(), intento.getInscripcion().getCohorte(), false);
         return intento;
     }
 
@@ -376,6 +384,9 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         intento.marcarInactivo();
         intento.setUltimaModificacion(LocalDateTime.now());
         intentoAutoevaluacionRepository.save(intento);
+        notificacionService.notificar(inscripcion.getAlumno().getUsuario(), TipoNotificacion.INTENTO_ANULADO, "Anularon tu intento",
+                "Se anuló tu intento de «" + intento.getAutoevaluacion().getNombre() + "».",
+                "/intento/buscarPorInscripcion/" + inscripcion.getIdInscripcion(), inscripcion.getCohorte(), false);
         if (inscripcion.estaTemaCompletada(tema) && !tema.estaAprobadaPor(inscripcion)) {
             return progresoService.revertir(inscripcion, tema);
         }
@@ -407,9 +418,9 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
         return intento;
     }
 
-    private PreguntaIntento preguntaDelIntento(IntentoAutoevaluacion intento, Integer idPreguntaIntento) {
+    private PreguntaIntento preguntaDelIntento(IntentoAutoevaluacion intento, Integer idPregunta) {
         return intento.getPreguntasIntento().stream()
-                .filter(p -> idPreguntaIntento != null && p.getIdPreguntaIntento() == idPreguntaIntento).findFirst()
+                .filter(p -> idPregunta != null && p.getPregunta().getIdPregunta() == idPregunta).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! La pregunta no pertenece al intento."));
     }
 
@@ -419,7 +430,7 @@ public class IntentoAutoevaluacionServiceImpl implements IntentoAutoevaluacionSe
             return;
         }
         PreguntaIntento actual = intento.getPreguntaActualSecuencial();
-        if (actual == null || actual.getIdPreguntaIntento() != preguntaIntento.getIdPreguntaIntento()) {
+        if (actual == null || actual.getPregunta().getIdPregunta() != preguntaIntento.getPregunta().getIdPregunta()) {
             throw new IllegalArgumentException("Error! En este cuestionario solo podés responder la pregunta actual.");
         }
     }

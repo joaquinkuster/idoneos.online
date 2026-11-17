@@ -1,5 +1,7 @@
 package com.app.idoneos.service.pago;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import java.util.regex.Pattern;
 
 import com.app.idoneos.model.Alumno;
@@ -44,6 +46,9 @@ import org.springframework.transaction.annotation.Transactional;
 /** Implementación de PagoService. */
 @Service
 public class PagoServiceImpl implements PagoService {
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
 
     private static final Logger REGISTRO = LoggerFactory.getLogger(PagoServiceImpl.class);
 
@@ -666,6 +671,15 @@ public class PagoServiceImpl implements PagoService {
         }
         pagoRepository.save(pago);
         comprobanteService.emitir(pago, nombrePagador, dniPagador);
+        notificacionService.notificar(inscripcion.getAlumno().getUsuario(), TipoNotificacion.PAGO_APROBADO, "Tu pago fue aprobado",
+                "Tu pago de " + formatearMonto(pago.getMonto()) + " para «" + inscripcion.getCurso().getNombre() + "» fue aprobado. "
+                        + (cubreElPrecio(inscripcion) ? "Ya podés acceder al curso." : "Todavía falta abonar el saldo para acceder al curso."),
+                "/pago/buscar", inscripcion.getCohorte(), true);
+    }
+
+    /** Da formato de pesos argentinos a un monto, por ejemplo $ 1.500,00. */
+    private String formatearMonto(float monto) {
+        return String.format(java.util.Locale.forLanguageTag("es-AR"), "$ %,.2f", monto);
     }
 
     /** Motivo con el que se rechaza un pago pendiente cuando se aprueba otro de la misma inscripción. */
@@ -690,6 +704,14 @@ public class PagoServiceImpl implements PagoService {
         if (inscripcion.estaConPagoEnCurso() && inscripcion.getPagos().stream().noneMatch(Pago::estaPendiente)) {
             inscripcion.setEstadoInscripcion(estadoInscripcion(com.app.idoneos.model.EstadoInscripcion.PENDIENTE_DE_PAGO));
             inscripcionRepository.save(inscripcion);
+        }
+        // Si se rechazó porque se aprobó otro pago de la inscripción, no hay nada que avisar: el alumno ya recibió la aprobación
+        if (!MOTIVO_OTRO_PAGO_APROBADO.equals(motivo)) {
+            notificacionService.notificar(inscripcion.getAlumno().getUsuario(), TipoNotificacion.PAGO_RECHAZADO, "Tu pago fue rechazado",
+                    "Tu pago de " + formatearMonto(pago.getMonto()) + " para «" + inscripcion.getCurso().getNombre()
+                            + "» fue rechazado. Motivo: " + (motivo.endsWith(".") ? motivo : motivo + ".")
+                            + " Podés reintentarlo desde Mis pagos.",
+                    "/pago/buscar", inscripcion.getCohorte(), true);
         }
     }
 

@@ -40,6 +40,7 @@
 .ac-recurso-icon-verde { background: #22C55E; }
 .ac-recurso-icon-amarillo { background: #EAB308; }
 .ac-recurso-icon-rosa { background: #EC4899; }
+.ac-recurso-icon-turquesa { background: #14B8A6; }
 .ac-recurso-icon-gris { background: #94A3B8; }
 
 .ac-recurso-icon-chico {
@@ -54,9 +55,11 @@
     align-items: center;
     justify-content: flex-start;
     gap: 8px;
-    width: 130px;
+    width: max-content;
+    min-width: 130px;
     margin: 0 auto;
     text-align: left;
+    white-space: nowrap;
 }
 
 .ac-tipo-celda .ac-recurso-icon {

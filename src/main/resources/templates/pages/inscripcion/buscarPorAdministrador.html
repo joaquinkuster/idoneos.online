@@ -55,7 +55,11 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="i : ${inscripciones}" data-fila th:classappend="${i.baja} ? 'pn-fila-baja'"
+                            <th:block th:each="i, iIt : ${inscripciones}">
+                            <th:block th:if="${agrupar == true and (iIt.first or clavesGrupo[iIt.index] != clavesGrupo[iIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[iIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[iIt.index], 0L)}, 'inscripción', 'inscripciones')}"></tr>
+                            </th:block>
+                            <tr data-fila th:classappend="${i.baja} ? 'pn-fila-baja'"
                                 th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
                                 th:data-f-curso="${i.curso.nombre}"
                                 th:data-f-cohorte="${i.cohorte.programa.nombre + ' · ' + i.cohorte.etiqueta}"
@@ -107,6 +111,7 @@
                                     </div>
                                 </td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(11, 'fa-user-graduate', 'No se encontraron inscripciones', 'Ninguna inscripción coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>

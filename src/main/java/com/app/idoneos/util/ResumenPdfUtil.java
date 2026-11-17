@@ -20,8 +20,13 @@ public final class ResumenPdfUtil {
     /** Resumen de un material, dividido en bloques con un subtítulo opcional y uno o más párrafos. */
     public record Resumen(String titulo, List<Bloque> bloques) {
 
-        /** Parte de un resumen, como la introducción, el desarrollo o las conclusiones. */
-        public record Bloque(String subtitulo, List<String> parrafos) {
+        /** Parte de un resumen, como la introducción, el desarrollo o las conclusiones, con su nivel en el índice (de 1 a 4). */
+        public record Bloque(String subtitulo, List<String> parrafos, int nivel) {
+
+            /** Un bloque de primer nivel. */
+            public Bloque(String subtitulo, List<String> parrafos) {
+                this(subtitulo, parrafos, 1);
+            }
         }
     }
 
@@ -52,8 +57,14 @@ public final class ResumenPdfUtil {
             documento.add(parrafo(titulo.isEmpty() ? limpiar(tituloPorDefecto) : titulo, fuenteTitulo, 14, 0));
             for (Resumen.Bloque bloque : resumen.bloques() == null ? List.<Resumen.Bloque>of() : resumen.bloques()) {
                 String subtitulo = limpiar(bloque.subtitulo());
+                int nivel = Math.max(1, Math.min(4, bloque.nivel()));
                 if (!subtitulo.isEmpty()) {
-                    documento.add(parrafo(subtitulo, fuenteSubtitulo, 6, 14));
+                    // Cada nivel más abajo se escribe un poco más chico y más a la derecha
+                    Font fuenteDelNivel = nivel == 1 ? fuenteSubtitulo
+                            : new Font(Font.HELVETICA, 13 - nivel, nivel == 4 ? Font.BOLDITALIC : Font.BOLD, PdfUtil.AZUL);
+                    Paragraph titular = parrafo(subtitulo, fuenteDelNivel, 6, nivel == 1 ? 14 : 8);
+                    titular.setIndentationLeft((nivel - 1) * 14f);
+                    documento.add(titular);
                 }
                 for (String texto : bloque.parrafos() == null ? List.<String>of() : bloque.parrafos()) {
                     String limpio = limpiar(texto);
@@ -64,7 +75,7 @@ public final class ResumenPdfUtil {
                     }
                 }
             }
-            documento.add(parrafo("Resumen generado con inteligencia artificial a partir de la bibliografía del tema. " + limpiar(lecturas),
+            documento.add(parrafo("Resumen generado con inteligencia artificial a partir del material bibliográfico del tema. " + limpiar(lecturas),
                     fuenteNota, 0, 24));
             int paginas = documento.getPageNumber();
             documento.close();

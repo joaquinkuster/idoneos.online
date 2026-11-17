@@ -1,38 +1,45 @@
 package com.app.idoneos.model;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** Entidad que representa una pregunta sorteada para un intento de autoevaluación. */
 @Entity
-@Table(name = "PreguntaIntento", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"idIntentoAutoevaluacion", "idPregunta"}),
-        @UniqueConstraint(columnNames = {"idIntentoAutoevaluacion", "orden"}) })
+@Table(name = "PreguntaIntento", uniqueConstraints = { @UniqueConstraint(columnNames = {"id_intento_autoevaluacion", "orden"}) })
+@IdClass(PreguntaIntento.Clave.class)
 @Getter
 @Setter
 @NoArgsConstructor
 public class PreguntaIntento {
-
-    /** Identificador único de la pregunta del intento. */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idPreguntaIntento")
-    private int idPreguntaIntento;
+    /** Clave primaria compuesta de la pregunta de un intento. */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Clave implements Serializable {
+        private int pregunta;
+        private int intentoAutoevaluacion;
+    }
 
     /** Intento autoevaluacion de este registro. */
+    @Id
     @ManyToOne
-    @JoinColumn(name = "idIntentoAutoevaluacion", nullable = false)
+    @JoinColumn(name = "id_intento_autoevaluacion", nullable = false)
     private IntentoAutoevaluacion intentoAutoevaluacion;
 
     /** Pregunta de este registro. */
+    @Id
     @ManyToOne
-    @JoinColumn(name = "idPregunta", nullable = false)
+    @JoinColumn(name = "id_pregunta", nullable = false)
     private Pregunta pregunta;
 
     /** Posición de la pregunta en el cuestionario, empezando en 1. */
@@ -78,6 +85,6 @@ public class PreguntaIntento {
     /** Devuelve una representación en forma de cadena de la pregunta del intento. */
     @Override
     public String toString() {
-        return "PreguntaIntento #" + idPreguntaIntento;
+        return "PreguntaIntento #" + pregunta.getIdPregunta() + "-" + intentoAutoevaluacion.getIdIntentoAutoevaluacion();
     }
 }

@@ -7,7 +7,7 @@ import com.app.idoneos.model.Pago;
 import java.util.Optional;
 
 /** Servicio del comprobante. */
-public interface ComprobanteService extends CrudService<Comprobante> {
+public interface ComprobanteService extends CrudService<Comprobante, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

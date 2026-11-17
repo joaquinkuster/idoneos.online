@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.HtmlUtils;
 
@@ -15,7 +16,7 @@ import com.app.idoneos.model.Usuario;
 
 import jakarta.mail.internet.MimeMessage;
 
-/** Implementación de CorreoService. */
+/** Implementación de CorreoService. Los correos se envían en segundo plano para que la operación que los pide no espere al servidor de correo. */
 @Service
 public class CorreoServiceImpl implements CorreoService {
 
@@ -52,6 +53,7 @@ public class CorreoServiceImpl implements CorreoService {
 
     /** Envía al usuario el enlace para validar su correo electrónico. */
     @Override
+    @Async
     public void enviarValidacionCuenta(Usuario usuario, String token) {
         String enlace = urlBase + RUTA_VALIDAR_CORREO + token;
         enviar(usuario, "Validá tu correo en Idóneos Online",
@@ -62,6 +64,7 @@ public class CorreoServiceImpl implements CorreoService {
 
     /** Envía al usuario el enlace para crear una contraseña nueva. */
     @Override
+    @Async
     public void enviarRecuperacionContrasena(Usuario usuario, String token) {
         String enlace = urlBase + RUTA_RESTABLECER + token;
         enviar(usuario, "Recuperá tu contraseña de Idóneos Online",
@@ -73,6 +76,7 @@ public class CorreoServiceImpl implements CorreoService {
 
     /** Envía al usuario creado por un administrador el enlace para que defina su contraseña. */
     @Override
+    @Async
     public void enviarDefinicionContrasena(Usuario usuario, String token) {
         String enlace = urlBase + RUTA_RESTABLECER + token;
         enviar(usuario, "Definí tu contraseña en Idóneos Online",
@@ -82,15 +86,10 @@ public class CorreoServiceImpl implements CorreoService {
                 "Definir mi contraseña", enlace);
     }
 
-    /** Avisa al docente que un administrador lo habilitó o lo suspendió para dictar clases. */
+    /** Envía al usuario el correo de una notificación del sistema, esperando a que salga. */
     @Override
-    public void enviarCambioHabilitacionDocente(Usuario usuario, boolean habilitado) {
-        enviar(usuario, habilitado ? "Fuiste habilitado para dictar clases" : "Tu habilitación para dictar clases fue suspendida",
-                habilitado ? "Habilitación para dictar clases" : "Suspensión de la habilitación",
-                habilitado ? "Un administrador te habilitó para dictar clases en Idóneos Online."
-                        : "Un administrador suspendió temporalmente tu habilitación para dictar clases en Idóneos Online. "
-                                + "Tu cuenta y tu historial se conservan. Si tenés dudas, comunicate con la administración.",
-                null, null);
+    public void enviarNotificacion(Usuario usuario, String asunto, String mensaje, String url) {
+        enviar(usuario, asunto, asunto, mensaje, url == null ? null : "Ver en Idóneos Online", url == null ? null : urlBase + url);
     }
 
     // ----------------------------------------------------------------------
@@ -128,8 +127,8 @@ public class CorreoServiceImpl implements CorreoService {
                 + "<h2 style=\"margin:0 0 12px;font-size:18px\">" + HtmlUtils.htmlEscape(titulo) + "</h2>"
                 + "<p style=\"margin:0 0 12px;line-height:1.5\">Hola " + nombre + ",</p>"
                 + "<p style=\"margin:0 0 20px;line-height:1.5\">" + HtmlUtils.htmlEscape(texto) + "</p>"
-                + (enlace == null ? "" : "<p style=\"margin:0 0 20px\"><a href=\"" + HtmlUtils.htmlEscape(enlace)
-                + "\" style=\"background:#D4A03D;color:#0F233D;text-decoration:none;padding:10px 18px;border-radius:8px;font-weight:bold\">"
+                + (enlace == null ? "" : "<p style=\"margin:0 0 20px\"><a target=\"_blank\" rel=\"noopener noreferrer\" href=\"" + HtmlUtils.htmlEscape(enlace)
+                + "\" style=\"display:inline-block;height:46px;line-height:46px;padding:0 26px;background:#D4A03D;border:1px solid #D4A03D;border-radius:8px;color:#081426;font-size:14px;font-weight:700;text-decoration:none\">"
                 + HtmlUtils.htmlEscape(boton) + "</a></p>"
                 + "<p style=\"margin:0;font-size:12px;color:#64748B;word-break:break-all\">Si el botón no funciona, copiá este enlace en tu navegador: "
                 + HtmlUtils.htmlEscape(enlace) + "</p>")

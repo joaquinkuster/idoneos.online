@@ -1,0 +1,37 @@
+<!-- Campana de notificaciones del navbar, al estilo de Moodle: contador de no leídas y un panel con las últimas. -->
+<div th:fragment="campana" class="nt-wrapper" th:if="${usuario != null}">
+    <button type="button" class="nt-boton" data-notificaciones aria-haspopup="true" aria-expanded="false" title="Notificaciones" aria-label="Notificaciones">
+        <i class="fa-regular fa-bell"></i>
+        <span class="nt-contador" data-nt-contador th:classappend="${notificacionesNoLeidas == null or notificacionesNoLeidas == 0} ? 'd-none'"
+              th:text="${notificacionesNoLeidas != null and notificacionesNoLeidas > 99 ? '99+' : notificacionesNoLeidas}">3</span>
+    </button>
+
+    <div class="nt-dropdown" role="dialog" aria-label="Notificaciones">
+        <div class="nt-cabecera">
+            <span class="nt-titulo">Notificaciones</span>
+            <button type="button" class="nt-marcar" data-nt-marcar-todas title="Marcar todas como leídas" aria-label="Marcar todas como leídas">
+                <i class="fa-solid fa-check"></i>
+            </button>
+        </div>
+        <div class="nt-lista" data-nt-lista>
+            <div class="nt-vacio"><i class="fa-regular fa-bell"></i><p>Cargando…</p></div>
+        </div>
+        <button type="button" class="nt-ver-todas" data-nt-ver-todas>Ver todas</button>
+    </div>
+</div>
+
+<!-- Lista de las últimas notificaciones: se pide al abrir el panel. -->
+<th:block th:fragment="panel">
+    <a th:each="n : ${notificaciones}" th:href="@{'/notificacion/abrir/' + ${n.idNotificacion}}" class="nt-item"
+       th:classappend="${!n.estaLeida()} ? 'nt-sin-leer'">
+        <span class="nt-icono"><i class="fa-solid" th:classappend="${n.icono}"></i></span>
+        <span class="nt-cuerpo">
+            <span class="nt-texto" th:text="${n.mensaje}">Fausto respondió tu consulta.</span>
+            <span class="nt-hora" th:text="${n.tiempoRelativo}">hace 2 horas</span>
+        </span>
+    </a>
+    <div class="nt-vacio" th:if="${#lists.isEmpty(notificaciones)}">
+        <i class="fa-regular fa-bell-slash"></i>
+        <p>No tenés notificaciones</p>
+    </div>
+</th:block>

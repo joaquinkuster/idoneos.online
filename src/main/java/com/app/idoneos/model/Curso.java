@@ -109,7 +109,7 @@ public class Curso {
 
     /** Participaciones docente que referencian a este registro. */
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
-    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
+    private Set<IntegranteEquipo> participacionesDocente = new HashSet<>();
 
     /** Curso modalidades que referencian a este registro. */
     @OneToMany(mappedBy = "curso", cascade = CascadeType.ALL)
@@ -158,15 +158,15 @@ public class Curso {
     }
 
     /** Obtiene las participaciones vigentes (no dadas de baja) que conforman el equipo docente del curso. */
-    public List<DocenteCurso> getEquipoDocente() {
+    public List<IntegranteEquipo> getEquipoDocente() {
         return participacionesDocente.stream().filter(participacion -> !participacion.getBaja())
-                .sorted(Comparator.comparingInt(DocenteCurso::getIdDocenteCurso)).toList();
+                .sorted(Comparator.comparingInt(IntegranteEquipo::getIdIntegranteEquipo)).toList();
     }
 
     /** Obtiene el docente titular vigente del curso. */
     public Docente getDocenteTitular() {
-        return getEquipoDocente().stream().filter(DocenteCurso::getEsTitular)
-                .map(DocenteCurso::getDocente).findFirst().orElse(null);
+        return getEquipoDocente().stream().filter(IntegranteEquipo::getEsTitular)
+                .map(IntegranteEquipo::getDocente).findFirst().orElse(null);
     }
 
     /** Indica si un docente forma parte del equipo docente vigente del curso (como titular o ayudante). */
@@ -183,7 +183,7 @@ public class Curso {
     /** Obtiene los docentes ayudantes vigentes del curso. */
     public List<Docente> getDocentesAyudantes() {
         return getEquipoDocente().stream().filter(participacion -> !participacion.getEsTitular())
-                .map(DocenteCurso::getDocente).toList();
+                .map(IntegranteEquipo::getDocente).toList();
     }
 
     /** Obtiene las modalidades de dictado en las que se ofrece el curso. */

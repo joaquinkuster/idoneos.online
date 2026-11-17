@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 /** Repositorio de RecordatorioCohorte. */
 @Repository
-public interface RecordatorioCohorteRepository extends JpaRepository<RecordatorioCohorte, Integer> {
+public interface RecordatorioCohorteRepository extends JpaRepository<RecordatorioCohorte, RecordatorioCohorte.Clave> {
 
     /** Busca el recordatorio de un alumno para una cohorte, esté vigente o quitado. */
     Optional<RecordatorioCohorte> findByAlumnoAndCohorte(Alumno alumno, Cohorte cohorte);

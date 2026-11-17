@@ -5,7 +5,7 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TerminoGlosario;
 import com.app.idoneos.model.Usuario;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.repository.TerminoGlosarioRepository;
 import com.app.idoneos.service.CrudService;
@@ -35,7 +35,7 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
     private TemaRepository temaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private TemaService temaService;
@@ -193,7 +193,7 @@ public class TerminoGlosarioServiceImpl implements TerminoGlosarioService {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        boolean participa = docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        boolean participa = integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");

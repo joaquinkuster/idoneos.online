@@ -8,7 +8,7 @@ import com.app.idoneos.model.Curso;
 import java.util.List;
 
 /** Servicio del alumno. */
-public interface AlumnoService extends CrudService<Alumno> {
+public interface AlumnoService extends CrudService<Alumno, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

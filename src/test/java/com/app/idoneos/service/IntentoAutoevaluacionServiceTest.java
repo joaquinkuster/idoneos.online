@@ -137,25 +137,25 @@ class IntentoAutoevaluacionServiceTest {
         PreguntaIntento unica = intento.getPreguntasOrdenadas().stream().filter(p -> !p.getPregunta().getEsOpcionMultiple()).findFirst().orElseThrow();
         PreguntaIntento otra = intento.getPreguntasOrdenadas().stream().filter(p -> p != unica).findFirst().orElseThrow();
 
-        intentoService.responderPregunta(id, alumno(), unica.getIdPreguntaIntento(), correctas(unica));
+        intentoService.responderPregunta(id, alumno(), unica.getPregunta().getIdPregunta(), correctas(unica));
         assertTrue(unica.estaRespondida());
         assertEquals(1, intento.getCantidadRespondidas());
 
-        intentoService.responderPregunta(id, alumno(), unica.getIdPreguntaIntento(), incorrecta(unica)); // reemplaza
+        intentoService.responderPregunta(id, alumno(), unica.getPregunta().getIdPregunta(), incorrecta(unica)); // reemplaza
         assertEquals(1, unica.getRespuestasIntento().size());
         assertFalse(unica.getOpcionesElegidas().get(0).getEsCorrecta());
 
         List<Integer> dos = unica.getPregunta().getOpcionesActivas().stream().limit(2).map(OpcionRespuesta::getIdOpcionRespuesta).toList();
-        assertError("una sola opción", () -> intentoService.responderPregunta(id, alumno(), unica.getIdPreguntaIntento(), dos));
-        assertError("no pertenece a la pregunta", () -> intentoService.responderPregunta(id, alumno(), unica.getIdPreguntaIntento(),
+        assertError("una sola opción", () -> intentoService.responderPregunta(id, alumno(), unica.getPregunta().getIdPregunta(), dos));
+        assertError("no pertenece a la pregunta", () -> intentoService.responderPregunta(id, alumno(), unica.getPregunta().getIdPregunta(),
                 List.of(otra.getPregunta().getOpcionesActivas().get(0).getIdOpcionRespuesta())));
         assertError("no pertenece al intento", () -> intentoService.responderPregunta(id, alumno(), 999999, correctas(unica)));
 
-        intentoService.responderPregunta(id, alumno(), unica.getIdPreguntaIntento(), List.of()); // limpiar
+        intentoService.responderPregunta(id, alumno(), unica.getPregunta().getIdPregunta(), List.of()); // limpiar
         assertFalse(unica.estaRespondida());
 
         // Con navegación libre se puede marcar para revisar
-        intentoService.marcarPregunta(id, alumno(), otra.getIdPreguntaIntento(), true);
+        intentoService.marcarPregunta(id, alumno(), otra.getPregunta().getIdPregunta(), true);
         assertTrue(otra.getMarcada());
         assertEquals(1, intento.getCantidadMarcadas());
     }
@@ -169,15 +169,15 @@ class IntentoAutoevaluacionServiceTest {
         assertEquals(preguntas.get(0), intento.getPreguntaActualSecuencial());
 
         assertError("solo podés responder la pregunta actual", () -> intentoService.responderPregunta(id, alumno(),
-                preguntas.get(1).getIdPreguntaIntento(), correctas(preguntas.get(1))));
-        assertError("no permite marcar", () -> intentoService.marcarPregunta(id, alumno(), preguntas.get(0).getIdPreguntaIntento(), true));
+                preguntas.get(1).getPregunta().getIdPregunta(), correctas(preguntas.get(1))));
+        assertError("no permite marcar", () -> intentoService.marcarPregunta(id, alumno(), preguntas.get(0).getPregunta().getIdPregunta(), true));
 
-        intentoService.responderPregunta(id, alumno(), preguntas.get(0).getIdPreguntaIntento(), correctas(preguntas.get(0)));
+        intentoService.responderPregunta(id, alumno(), preguntas.get(0).getPregunta().getIdPregunta(), correctas(preguntas.get(0)));
         intentoService.avanzarPregunta(id, alumno()); // pasa a la 2
         assertEquals(preguntas.get(1), intento.getPreguntaActualSecuencial());
         assertTrue(preguntas.get(0).getPasada());
         assertError("solo podés responder la pregunta actual", () -> intentoService.responderPregunta(id, alumno(),
-                preguntas.get(0).getIdPreguntaIntento(), incorrecta(preguntas.get(0)))); // no se vuelve atrás
+                preguntas.get(0).getPregunta().getIdPregunta(), incorrecta(preguntas.get(0)))); // no se vuelve atrás
 
         intentoService.avanzarPregunta(id, alumno()); // la 2 pasa sin responder
         assertTrue(preguntas.get(1).getPasada());
@@ -198,7 +198,7 @@ class IntentoAutoevaluacionServiceTest {
         assertFalse(inscripcion.estaTemaCompletada(secuencial.getTema()));
 
         for (PreguntaIntento pregunta : intento.getPreguntasOrdenadas()) {
-            intentoService.responderPregunta(id, alumno(), pregunta.getIdPreguntaIntento(), correctas(pregunta));
+            intentoService.responderPregunta(id, alumno(), pregunta.getPregunta().getIdPregunta(), correctas(pregunta));
             intentoService.avanzarPregunta(id, alumno());
         }
         IntentoAutoevaluacion entregado = intentoService.entregar(id, alumno());
@@ -210,7 +210,7 @@ class IntentoAutoevaluacionServiceTest {
         assertTrue(inscripcion.estaTemaCompletada(secuencial.getTema()));
         assertTrue(inscripcion.estaTemaHabilitada(inscripcion.getCohorte().getPrograma().getCronogramaOrdenado().get(2)));
         assertError("ya fue entregado", () -> intentoService.responderPregunta(id, alumno(),
-                intento.getPreguntasOrdenadas().get(0).getIdPreguntaIntento(), List.of()));
+                intento.getPreguntasOrdenadas().get(0).getPregunta().getIdPregunta(), List.of()));
         // Entregar de nuevo no repite la corrección
         assertEquals(10f, intentoService.entregar(id, alumno()).getNota());
     }
@@ -239,7 +239,7 @@ class IntentoAutoevaluacionServiceTest {
 
         // Pasado el tiempo pero dentro de la tolerancia todavía se acepta la respuesta
         intento.setFechaCreacion(LocalDateTime.now().minusMinutes(20).minusSeconds(5));
-        intentoService.responderPregunta(id, alumno(), primera.getIdPreguntaIntento(), correctas(primera));
+        intentoService.responderPregunta(id, alumno(), primera.getPregunta().getIdPregunta(), correctas(primera));
         assertTrue(intento.estaEnCurso());
 
         // Pasada la tolerancia se cierra y se corrige con lo guardado
@@ -249,7 +249,7 @@ class IntentoAutoevaluacionServiceTest {
         assertEquals(1, cerrado.getCantidadRespondidas());
         assertNotNull(cerrado.getNota());
         assertError("Se agotó el tiempo", () -> intentoService.responderPregunta(id, alumno(),
-                primera.getIdPreguntaIntento(), incorrecta(primera)));
+                primera.getPregunta().getIdPregunta(), incorrecta(primera)));
     }
 
     @Test

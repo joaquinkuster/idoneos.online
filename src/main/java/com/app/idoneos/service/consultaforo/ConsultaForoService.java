@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /** Servicio de la consulta del foro. */
-public interface ConsultaForoService extends CrudService<ConsultaForo> {
+public interface ConsultaForoService extends CrudService<ConsultaForo, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

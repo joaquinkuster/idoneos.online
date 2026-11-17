@@ -5,7 +5,7 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TemaCronograma;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.ProgramaRepository;
 import com.app.idoneos.repository.TemaCronogramaRepository;
 import com.app.idoneos.repository.TemaRepository;
@@ -40,7 +40,7 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
     private TemaRepository temaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private TemaService temaService;
@@ -61,7 +61,7 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
 
     /** Busca el tema del cronograma por su identificador. */
     @Override
-    public Optional<TemaCronograma> buscarPorId(Integer id) {
+    public Optional<TemaCronograma> buscarPorId(TemaCronograma.Clave id) {
         return temaCronogramaRepository.findById(id)
                 .filter(entidad -> !entidad.esInactivo()); // Solo devuelve registros activos
     }
@@ -74,7 +74,7 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
 
     /** Verifica si existe un registro con el identificador dado y está activo. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(TemaCronograma.Clave id) {
         return temaCronogramaRepository.existsById(id) &&
                 buscarPorId(id).isPresent(); // Solo cuenta registros activos
     }
@@ -130,7 +130,7 @@ public class TemaCronogramaServiceImpl implements TemaCronogramaService {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        boolean participa = docenteCursoRepository.findByCursoAndBajaFalse(programa.getCurso()).stream()
+        boolean participa = integranteEquipoRepository.findByCursoAndBajaFalse(programa.getCurso()).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");

@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del progreso. */
-public interface ProgresoService extends CrudService<Progreso> {
+public interface ProgresoService extends CrudService<Progreso, Progreso.Clave> {
 
     // ----------------------------------------------------------------------
     // Lecturas

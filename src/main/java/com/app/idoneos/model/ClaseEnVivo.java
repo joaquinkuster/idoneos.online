@@ -25,8 +25,8 @@ public class ClaseEnVivo {
 
     /** Docente curso de este registro. */
     @ManyToOne
-    @JoinColumn(name = "idDocenteCurso", nullable = false)
-    private DocenteCurso docenteCurso;
+    @JoinColumn(name = "idIntegranteEquipo", nullable = false)
+    private IntegranteEquipo integranteEquipo;
 
     /** Estado clase en vivo de este registro. */
     @ManyToOne
@@ -85,9 +85,9 @@ public class ClaseEnVivo {
     private Boolean baja = false;
 
     /** Crea la clase en vivo con los datos básicos. */
-    public ClaseEnVivo(DocenteCurso docenteCurso, EstadoClaseEnVivo estadoClaseEnVivo, Tema tema, Cohorte cohorte, String titulo, LocalDateTime fechaHoraInicio,
+    public ClaseEnVivo(IntegranteEquipo integranteEquipo, EstadoClaseEnVivo estadoClaseEnVivo, Tema tema, Cohorte cohorte, String titulo, LocalDateTime fechaHoraInicio,
             LocalDateTime fechaHoraCierre) {
-        this.docenteCurso = docenteCurso;
+        this.integranteEquipo = integranteEquipo;
         this.estadoClaseEnVivo = estadoClaseEnVivo;
         this.tema = tema;
         this.cohorte = cohorte;
@@ -192,7 +192,7 @@ public class ClaseEnVivo {
 
     /** Indica si la clase la registró el docente indicado. */
     public boolean esDeDocente(Docente docente) {
-        return docente != null && docenteCurso.getDocente().getIdDocente() == docente.getIdDocente();
+        return docente != null && integranteEquipo.getDocente().getIdDocente() == docente.getIdDocente();
     }
 
     /** Devuelve una representación en forma de cadena de la clase en vivo. */

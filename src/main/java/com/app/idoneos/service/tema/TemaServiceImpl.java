@@ -11,7 +11,7 @@ import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.repository.CursoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.ProgramaRepository;
 import com.app.idoneos.repository.TemaCronogramaRepository;
 import com.app.idoneos.repository.TemaRepository;
@@ -40,7 +40,7 @@ public class TemaServiceImpl implements TemaService {
     private TemaRepository temaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private com.app.idoneos.repository.CursoRepository cursoRepository;
@@ -91,7 +91,7 @@ public class TemaServiceImpl implements TemaService {
             return true;
         }
         Docente docente = usuario.getDocente();
-        if (docente != null && docenteCursoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
+        if (docente != null && integranteEquipoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente())) {
             return true;
         }
@@ -338,7 +338,7 @@ public class TemaServiceImpl implements TemaService {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        boolean participa = docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        boolean participa = integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
         if (!participa) {
             throw new IllegalArgumentException("Error! No participás en este curso.");

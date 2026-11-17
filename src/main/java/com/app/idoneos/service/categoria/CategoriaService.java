@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio de la categoría. */
-public interface CategoriaService extends CrudService<Categoria> {
+public interface CategoriaService extends CrudService<Categoria, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

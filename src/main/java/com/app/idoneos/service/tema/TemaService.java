@@ -11,7 +11,7 @@ import com.app.idoneos.model.Usuario;
 import java.util.List;
 
 /** Servicio del tema. */
-public interface TemaService extends CrudService<Tema> {
+public interface TemaService extends CrudService<Tema, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

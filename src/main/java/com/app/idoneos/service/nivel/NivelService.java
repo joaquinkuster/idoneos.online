@@ -6,7 +6,7 @@ import com.app.idoneos.model.Nivel;
 import java.util.Optional;
 
 /** Servicio del nivel. */
-public interface NivelService extends CrudService<Nivel> {
+public interface NivelService extends CrudService<Nivel, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

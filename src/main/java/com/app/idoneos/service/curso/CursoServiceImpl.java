@@ -8,7 +8,7 @@ import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.CursoModalidad;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.Modalidad;
 import com.app.idoneos.model.Nivel;
@@ -19,7 +19,7 @@ import com.app.idoneos.model.Usuario;
 import com.app.idoneos.repository.CategoriaRepository;
 import com.app.idoneos.repository.CursoModalidadRepository;
 import com.app.idoneos.repository.CursoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.DocenteRepository;
 import com.app.idoneos.repository.InscripcionRepository;
 import com.app.idoneos.repository.ModalidadRepository;
@@ -90,7 +90,7 @@ public class CursoServiceImpl implements CursoService {
     private CursoModalidadRepository cursoModalidadRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private InscripcionRepository inscripcionRepository;
@@ -157,7 +157,7 @@ public class CursoServiceImpl implements CursoService {
                         : Comparator.comparing(Curso::getNombre, String.CASE_INSENSITIVE_ORDER));
         // Un docente solo recorre los cursos en los que participa (se piden a la base), no todos los del sistema
         List<Curso> candidatos = soloDeDocente == null ? cursoRepository.findAll()
-                : docenteCursoRepository.findByDocenteAndBajaFalse(soloDeDocente).stream()
+                : integranteEquipoRepository.findByDocenteAndBajaFalse(soloDeDocente).stream()
                         .map(participacion -> participacion.getCurso()).distinct().toList();
         return candidatos.stream()
                 .filter(curso -> criterio.isEmpty() || curso.getNombre().toLowerCase().contains(criterio)
@@ -236,9 +236,9 @@ public class CursoServiceImpl implements CursoService {
 
     /** Verifica que el docente pueda acceder al curso. */
     @Override
-    public DocenteCurso validarAccesoDocente(int idCurso, Docente docente) {
+    public IntegranteEquipo validarAccesoDocente(int idCurso, Docente docente) {
         Curso curso = buscarActivoPorId(idCurso);
-        DocenteCurso participacion = docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        IntegranteEquipo participacion = integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
         // Un curso sin programas también se puede abrir: desde ahí el docente registra el primero
@@ -669,7 +669,7 @@ public class CursoServiceImpl implements CursoService {
                 || !modalidadesActuales(curso).equals(new HashSet<>(idsModalidades));
     }
 
-    private boolean tieneActividadVigente(DocenteCurso participacion) {
+    private boolean tieneActividadVigente(IntegranteEquipo participacion) {
         return participacion.getClasesEnVivo().stream().anyMatch(clase -> !clase.getBaja())
                 || participacion.getTemasRecurso().stream().anyMatch(material -> !material.getBaja());
     }
@@ -678,7 +678,7 @@ public class CursoServiceImpl implements CursoService {
         Set<Integer> nuevos = new HashSet<>();
         nuevos.add(titular.getIdDocente());
         ayudantes.forEach(ayudante -> nuevos.add(ayudante.getIdDocente()));
-        for (DocenteCurso participacion : curso.getEquipoDocente()) {
+        for (IntegranteEquipo participacion : curso.getEquipoDocente()) {
             if (!nuevos.contains(participacion.getDocente().getIdDocente()) && tieneActividadVigente(participacion)) {
                 throw new IllegalArgumentException("Error! El docente " + participacion.getDocente().getUsuario().getNombreCompleto()
                         + " tiene clases y/o material activo en el curso. Dé de baja primero sus clases y materiales "
@@ -760,24 +760,24 @@ public class CursoServiceImpl implements CursoService {
             docentes.put(ayudante.getIdDocente(), ayudante);
             titulares.put(ayudante.getIdDocente(), false);
         }
-        for (DocenteCurso participacion : new ArrayList<>(curso.getParticipacionesDocente())) {
+        for (IntegranteEquipo participacion : new ArrayList<>(curso.getParticipacionesDocente())) {
             Integer idDocente = participacion.getDocente().getIdDocente();
             if (titulares.containsKey(idDocente)) {
                 participacion.setEsTitular(titulares.get(idDocente));
                 participacion.setBaja(false);
                 participacion.setUltimaModificacion(LocalDateTime.now());
-                docenteCursoRepository.save(participacion);
+                integranteEquipoRepository.save(participacion);
                 docentes.remove(idDocente);
             } else if (!participacion.esInactivo()) {
                 participacion.marcarInactivo();
                 participacion.setCohortePorDefecto(null);
                 participacion.setUltimaModificacion(LocalDateTime.now());
-                docenteCursoRepository.save(participacion);
+                integranteEquipoRepository.save(participacion);
             }
         }
         for (Docente docente : docentes.values()) {
-            curso.getParticipacionesDocente().add(docenteCursoRepository
-                    .save(new DocenteCurso(curso, docente, titulares.get(docente.getIdDocente()))));
+            curso.getParticipacionesDocente().add(integranteEquipoRepository
+                    .save(new IntegranteEquipo(curso, docente, titulares.get(docente.getIdDocente()))));
         }
     }
 
@@ -844,7 +844,7 @@ public class CursoServiceImpl implements CursoService {
     public SiguienteRecurso buscarSiguienteRecurso(Curso curso, Programa programa, Tema tema) {
         Map<String, Boolean> celdas = buscarContenidoDeTema(curso, tema).celdas();
         if (!celdas.getOrDefault("Material", true)) {
-            return new SiguienteRecurso("BIBLIOGRAFIA", null);
+            return new SiguienteRecurso("MATERIAL_BIBLIOGRAFICO", null);
         }
         if (!celdas.getOrDefault("Autoevaluación", true)) {
             if (hayPoolsParaElTema(programa, tema)) {
@@ -863,7 +863,7 @@ public class CursoServiceImpl implements CursoService {
     public List<String> buscarColumnasDeContenido(Curso curso) {
         List<String> columnas = new ArrayList<>();
         if (curso.incluyeModalidad(Modalidad.CLON_IA)) {
-            columnas.add("Video clon");
+            columnas.add("Video con clon");
         }
         if (curso.incluyeModalidad(Modalidad.GRABADA)) {
             columnas.add("Clase grabada");
@@ -879,7 +879,7 @@ public class CursoServiceImpl implements CursoService {
         Map<String, Boolean> celdas = new LinkedHashMap<>();
         List<TemaRecurso> publicados = tema.getMaterialesPublicados();
         if (curso.incluyeModalidad(Modalidad.CLON_IA)) {
-            celdas.put("Video clon", publicados.stream().anyMatch(m -> m.getRecurso().getVideoClon() != null
+            celdas.put("Video con clon", publicados.stream().anyMatch(m -> m.getRecurso().getVideoClon() != null
                     && EstadoGeneracionIA.LISTO.equals(m.getRecurso().getVideoClon().getEstadoGeneracionIa().getNombre())));
         }
         if (curso.incluyeModalidad(Modalidad.GRABADA)) {

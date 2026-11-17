@@ -21,13 +21,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.app.idoneos.model.Bibliografia;
-import com.app.idoneos.model.CategoriaMaterialLectura;
+import com.app.idoneos.model.MaterialBibliografico;
+import com.app.idoneos.model.CategoriaMaterialDidactico;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.Documento;
+import com.app.idoneos.model.DocumentoFuente;
+import com.app.idoneos.model.IndiceDocumento;
+import com.app.idoneos.model.Oracion;
+import com.app.idoneos.model.PoolFuente;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.EstadoGeneracionIA;
 import com.app.idoneos.model.EstadoOCR;
-import com.app.idoneos.model.MaterialLectura;
+import com.app.idoneos.model.MaterialDidactico;
 import com.app.idoneos.model.OpcionRespuesta;
 import com.app.idoneos.model.Parametro;
 import com.app.idoneos.model.Pool;
@@ -36,19 +41,22 @@ import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TerminoGlosario;
 import com.app.idoneos.model.TemaRecurso;
-import com.app.idoneos.repository.CategoriaMaterialLecturaRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.CategoriaMaterialDidacticoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.EstadoGeneracionIARepository;
 import com.app.idoneos.repository.EstadoOCRRepository;
-import com.app.idoneos.repository.MaterialLecturaRepository;
+import com.app.idoneos.repository.MaterialDidacticoRepository;
+import com.app.idoneos.repository.DocumentoFuenteRepository;
 import com.app.idoneos.repository.OpcionRespuestaRepository;
+import com.app.idoneos.repository.OracionRepository;
+import com.app.idoneos.repository.PoolFuenteRepository;
 import com.app.idoneos.repository.PoolRepository;
 import com.app.idoneos.repository.PreguntaRepository;
 import com.app.idoneos.repository.RecursoRepository;
 import com.app.idoneos.repository.TemaRecursoRepository;
 import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.repository.TerminoGlosarioRepository;
-import com.app.idoneos.service.indice.IndiceRecursoService;
+import com.app.idoneos.service.indice.IndiceDocumentoService;
 import com.app.idoneos.service.parametro.ParametroService;
 import com.app.idoneos.util.MarcadoresPdfUtil.Marcador;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
@@ -60,6 +68,8 @@ import com.app.idoneos.util.LogicaPreguntasAurea;
 import com.app.idoneos.util.ManejadorArchivosUtil;
 import com.app.idoneos.util.OracionesUtil;
 import com.app.idoneos.util.PalabrasClaveUtil;
+import com.app.idoneos.service.estructura.EstructuraDocumentoService.Seccion;
+import com.app.idoneos.service.recurso.RecursoService;
 import com.app.idoneos.util.PresentacionPdfUtil;
 import com.app.idoneos.util.PresentacionPdfUtil.Presentacion;
 import com.app.idoneos.util.ResumenPdfUtil;
@@ -135,15 +145,12 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     /** Cantidad máxima de preguntas de un banco. */
     private static final int PREGUNTAS_MAXIMAS = 30;
 
-    /** Las preguntas que admite un pool en Aurea: con su flujo, el banco no pasa de ahí. */
-    private static final int PREGUNTAS_MAXIMAS_DE_AUREA = 8;
-
     /** Tipos de contenido que se pueden generar. */
     private enum Tipo {
-        RESUMEN(CategoriaMaterialLectura.RESUMEN, TipoRecurso.RESUMEN, "Resumen IA de ", "el resumen", "un resumen",
-                "Resumen generado con inteligencia artificial a partir de la bibliografía del tema. Revisalo antes de publicarlo."),
-        PRESENTACION(CategoriaMaterialLectura.PRESENTACION, TipoRecurso.PRESENTACION, "Presentación IA de ", "la presentación", "una presentación",
-                "Presentación generada con inteligencia artificial a partir de la bibliografía del tema. Revisala antes de publicarla.");
+        RESUMEN(CategoriaMaterialDidactico.APUNTE_DE_CATEDRA, TipoRecurso.APUNTE_DE_CATEDRA, "Resumen IA de ", "el resumen", "un resumen",
+                "Resumen generado con inteligencia artificial a partir del material bibliográfico del tema. Revisalo antes de publicarlo."),
+        PRESENTACION(CategoriaMaterialDidactico.PRESENTACION, TipoRecurso.PRESENTACION, "Presentación IA de ", "la presentación", "una presentación",
+                "Presentación generada con inteligencia artificial a partir del material bibliográfico del tema. Revisala antes de publicarla.");
 
         private final String categoria;
         private final TipoRecurso tipoRecurso;
@@ -166,9 +173,9 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     private final TemaRepository temaRepository;
     private final TemaRecursoRepository temaRecursoRepository;
     private final RecursoRepository recursoRepository;
-    private final MaterialLecturaRepository materialLecturaRepository;
-    private final CategoriaMaterialLecturaRepository categoriaRepository;
-    private final DocenteCursoRepository docenteCursoRepository;
+    private final MaterialDidacticoRepository materialDidacticoRepository;
+    private final CategoriaMaterialDidacticoRepository categoriaRepository;
+    private final IntegranteEquipoRepository integranteEquipoRepository;
     private final EstadoGeneracionIARepository estadoGeneracionRepository;
     private final EstadoOCRRepository estadoOcrRepository;
     private final PoolRepository poolRepository;
@@ -176,11 +183,22 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     private final OpcionRespuestaRepository opcionRespuestaRepository;
     private final TerminoGlosarioRepository terminoGlosarioRepository;
     private final ParametroService parametroService;
-    private final IndiceRecursoService indiceService;
+    private final IndiceDocumentoService indiceService;
+    private final DocumentoFuenteRepository documentoFuenteRepository;
+    private final PoolFuenteRepository poolFuenteRepository;
+    private final OracionRepository oracionRepository;
+    private final com.app.idoneos.service.estructura.EstructuraDocumentoService estructuraService;
+    private final RecursoService recursoService;
     private final ModeloIAService modelo;
     private final TaskExecutor cola;
     private final TransactionTemplate transaccion;
     private final Path directorioCursos;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.app.idoneos.service.notificacion.NotificacionService notificacionService;
+
+    /** Docente que pidió cada banco de preguntas que se está generando, para avisarle cuando termina. */
+    private final java.util.Map<Integer, com.app.idoneos.model.Usuario> solicitantesDePool = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Value("${idoneos.ia.max-caracteres-material:8000}")
     private int maximoCaracteresMaterial;
@@ -190,19 +208,20 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
 
     /** Crea el servicio con lo que necesita para registrar, leer y generar. */
     public GeneracionIAServiceImpl(TemaRepository temaRepository, TemaRecursoRepository temaRecursoRepository,
-            RecursoRepository recursoRepository, MaterialLecturaRepository materialLecturaRepository,
-            CategoriaMaterialLecturaRepository categoriaRepository, DocenteCursoRepository docenteCursoRepository,
+            RecursoRepository recursoRepository, MaterialDidacticoRepository materialDidacticoRepository,
+            CategoriaMaterialDidacticoRepository categoriaRepository, IntegranteEquipoRepository integranteEquipoRepository,
             EstadoGeneracionIARepository estadoGeneracionRepository, EstadoOCRRepository estadoOcrRepository,
             PoolRepository poolRepository, PreguntaRepository preguntaRepository, OpcionRespuestaRepository opcionRespuestaRepository,
-            TerminoGlosarioRepository terminoGlosarioRepository, ParametroService parametroService, IndiceRecursoService indiceService,
-            ModeloIAService modelo, @Qualifier("colaIA") TaskExecutor cola,
+            TerminoGlosarioRepository terminoGlosarioRepository, ParametroService parametroService, IndiceDocumentoService indiceService,
+            DocumentoFuenteRepository documentoFuenteRepository, PoolFuenteRepository poolFuenteRepository, OracionRepository oracionRepository,
+            com.app.idoneos.service.estructura.EstructuraDocumentoService estructuraService, RecursoService recursoService, ModeloIAService modelo, @Qualifier("colaIA") TaskExecutor cola,
             PlatformTransactionManager gestorTransacciones, @Qualifier("directorioCursos") Path directorioCursos) {
         this.temaRepository = temaRepository;
         this.temaRecursoRepository = temaRecursoRepository;
         this.recursoRepository = recursoRepository;
-        this.materialLecturaRepository = materialLecturaRepository;
+        this.materialDidacticoRepository = materialDidacticoRepository;
         this.categoriaRepository = categoriaRepository;
-        this.docenteCursoRepository = docenteCursoRepository;
+        this.integranteEquipoRepository = integranteEquipoRepository;
         this.estadoGeneracionRepository = estadoGeneracionRepository;
         this.estadoOcrRepository = estadoOcrRepository;
         this.poolRepository = poolRepository;
@@ -211,18 +230,31 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         this.terminoGlosarioRepository = terminoGlosarioRepository;
         this.parametroService = parametroService;
         this.indiceService = indiceService;
+        this.documentoFuenteRepository = documentoFuenteRepository;
+        this.poolFuenteRepository = poolFuenteRepository;
+        this.oracionRepository = oracionRepository;
+        this.estructuraService = estructuraService;
+        this.recursoService = recursoService;
         this.modelo = modelo;
         this.cola = cola;
         this.transaccion = new TransactionTemplate(gestorTransacciones);
         this.directorioCursos = directorioCursos;
     }
 
-    /** Documento de la bibliografía que se va a leer. */
-    private record Documento(String titulo, String ruta, List<Marcador> indice) {
+    /** Oración de un documento, con su identificador para dejar registrado de cuál salió una pregunta. */
+    private record Frase(int id, String texto) {
+    }
+
+    /** Entrada del índice de un documento con sus oraciones. */
+    private record Tramo(String titulo, List<Frase> frases) {
+    }
+
+    /** Documento elegido como fuente, leído de la base: su índice y sus oraciones. */
+    private record Fuente(String titulo, int paginas, List<Tramo> tramos) {
     }
 
     /** Lo que necesita la generación, leído de la base antes de empezar. */
-    private record Pedido(String tituloTema, int idDocente, int idRecurso, String tituloRecurso, List<Documento> documentos) {
+    private record Pedido(String tituloTema, int idDocente, int idRecurso, String tituloRecurso, List<Fuente> documentos) {
     }
 
     /** Parte del material que se trabaja por separado: una sección del índice, o el documento entero si no tiene índice. */
@@ -239,19 +271,19 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
 
     /** Pide el resumen de un tema. Registra el material oculto y en espera, y lo genera en segundo plano. */
     @Override
-    public TemaRecurso solicitarResumen(Docente docente, Integer idTema) {
-        return solicitar(docente, idTema, Tipo.RESUMEN);
+    public TemaRecurso solicitarResumen(Docente docente, Integer idTema, List<Integer> fuentes) {
+        return solicitar(docente, idTema, Tipo.RESUMEN, fuentes);
     }
 
     /** Pide la presentación de un tema. Registra el material oculto y en espera, y lo genera en segundo plano. */
     @Override
-    public TemaRecurso solicitarPresentacion(Docente docente, Integer idTema) {
-        return solicitar(docente, idTema, Tipo.PRESENTACION);
+    public TemaRecurso solicitarPresentacion(Docente docente, Integer idTema, List<Integer> fuentes) {
+        return solicitar(docente, idTema, Tipo.PRESENTACION, fuentes);
     }
 
-    private TemaRecurso solicitar(Docente docente, Integer idTema, Tipo tipo) {
-        TemaRecurso material = transaccion.execute(estado -> registrar(docente, idTema, tipo));
-        int idMaterial = material.getRecurso().getMaterialLectura().getIdMaterialLectura();
+    private TemaRecurso solicitar(Docente docente, Integer idTema, Tipo tipo, List<Integer> fuentes) {
+        TemaRecurso material = transaccion.execute(estado -> registrar(docente, idTema, tipo, fuentes));
+        int idMaterial = material.getRecurso().getMaterialDidactico().getIdMaterialDidactico();
         try {
             cola.execute(() -> generar(idMaterial, tipo));
         } catch (TaskRejectedException e) {
@@ -262,13 +294,13 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     }
 
     /** Valida el pedido y registra el material, oculto y en espera, sin archivo. */
-    private TemaRecurso registrar(Docente docente, Integer idTema, Tipo tipo) {
+    private TemaRecurso registrar(Docente docente, Integer idTema, Tipo tipo, List<Integer> fuentes) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
         Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(t -> !t.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activo."));
-        DocenteCurso participacion = docenteCursoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
+        IntegranteEquipo participacion = integranteEquipoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
 
@@ -279,19 +311,27 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         if (yaGenerando) {
             throw new IllegalArgumentException("Error! Ya hay " + tipo.conArticuloIndefinido + " de este tema en generación. Esperá a que termine.");
         }
-        validarBibliografia(delTema, tipo);
+        validarMaterialBibliografico(delTema, tipo);
+        List<Documento> elegidas = elegirFuentes(tema, fuentes);
+        if (elegidas.isEmpty()) {
+            throw new IllegalArgumentException("Error! Elegí al menos un documento como fuente.");
+        }
 
         EstadoGeneracionIA pendiente = estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.PENDIENTE).orElseThrow();
-        CategoriaMaterialLectura categoria = categoriaRepository.findByNombre(tipo.categoria)
-                .orElseThrow(() -> new IllegalStateException("Falta la categoría de material de lectura '" + tipo.categoria + "'."));
+        CategoriaMaterialDidactico categoria = categoriaRepository.findByNombre(tipo.categoria)
+                .orElseThrow(() -> new IllegalStateException("Falta la categoría de material didáctico '" + tipo.categoria + "'."));
 
-        Recurso recurso = new Recurso(docente, abreviar(tipo.prefijoTitulo + tema.getTitulo(), 150));
+        Recurso recurso = new Recurso(docente, abreviar(tipo.prefijoTitulo + tituloSegunFuentes(elegidas, tema), 150));
         recurso.setDescripcion(tipo.descripcion);
         recurso = recursoRepository.saveAndFlush(recurso);
-        MaterialLectura lectura = new MaterialLectura(recurso, categoria, null,
+        MaterialDidactico lectura = new MaterialDidactico(recurso, categoria, null,
                 abreviar(docente.getUsuario().getNombreCompleto(), 100));
         lectura.setEstadoGeneracionIa(pendiente);
-        recurso.setMaterialLectura(materialLecturaRepository.save(lectura));
+        recurso.setMaterialDidactico(materialDidacticoRepository.save(lectura));
+        indiceService.crear(recurso.getDocumento(), null);
+        for (Documento fuente : elegidas) {
+            documentoFuenteRepository.save(new DocumentoFuente(recurso.getDocumento(), fuente));
+        }
 
         int orden = delTema.stream().mapToInt(TemaRecurso::getNumeroOrden).max().orElse(0) + 1;
         TemaRecurso material = new TemaRecurso(tema, recurso, participacion, orden);
@@ -302,21 +342,132 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return material;
     }
 
-    /** Verifica que el tema tenga al menos una bibliografía con el texto ya reconocido. */
-    private void validarBibliografia(List<TemaRecurso> delTema, Tipo tipo) {
-        List<Bibliografia> bibliografias = delTema.stream().map(TemaRecurso::getRecurso).filter(r -> !r.esInactivo())
-                .map(Recurso::getBibliografia).filter(b -> b != null && b.getRutaArchivo() != null).toList();
-        if (bibliografias.isEmpty()) {
-            throw new IllegalArgumentException("Error! El tema debe tener al menos una bibliografía cargada para generar " + tipo.conArticulo + ".");
+    /**
+     * El título que se sugiere para lo que se genera, según sus fuentes: el del documento si es uno solo, y el del primero y cuántos más si son varios.
+     * Sin fuentes (un banco que sale solo del glosario), el del tema.
+     */
+    private static String tituloSegunFuentes(List<Documento> fuentes, Tema tema) {
+        if (fuentes.isEmpty()) {
+            return tema == null ? "los documentos elegidos" : tema.getTitulo();
         }
-        if (bibliografias.stream().noneMatch(this::tieneTextoListo)) {
-            throw new IllegalArgumentException("Error! La bibliografía del tema todavía se está procesando. Intentá de nuevo en unos minutos.");
+        String primero = fuentes.get(0).getRecurso().getTitulo();
+        return fuentes.size() == 1 ? primero : primero + " y " + (fuentes.size() - 1) + (fuentes.size() == 2 ? " más" : " más");
+    }
+
+    /** Los documentos activos del tema cuyo texto ya se puede leer: tienen archivo y no esperan el reconocimiento de texto. */
+    private List<Documento> documentosLeibles(Tema tema) {
+        return temaRecursoRepository.findByTemaAndBajaFalse(tema).stream().map(TemaRecurso::getRecurso).filter(r -> !r.esInactivo())
+                .map(Recurso::getDocumento).filter(GeneracionIAServiceImpl::esLeible).distinct().toList();
+    }
+
+    /** Indica si el texto del documento se puede leer: tiene archivo y no espera el reconocimiento de texto. */
+    private static boolean esLeible(Documento d) {
+        return d != null && d.getRutaArchivo() != null && (d.getEstadoOcr() == null || EstadoOCR.LISTO.equals(d.getEstadoOcr().getNombre()));
+    }
+
+    /** Los documentos de la biblioteca digital que ve el docente y cuyo texto se puede leer. */
+    private List<Documento> documentosDeBiblioteca(Docente docente) {
+        return recursoService.buscarRecursosVisibles(docente).stream().filter(r -> !r.esInactivo()).map(Recurso::getDocumento)
+                .filter(GeneracionIAServiceImpl::esLeible).distinct().toList();
+    }
+
+    @Override
+    public List<FuenteDisponible> fuentesDeBiblioteca(Docente docente) {
+        return transaccion.execute(estado -> documentosDeBiblioteca(docente).stream()
+                .map(d -> new FuenteDisponible(d.getIdDocumento(), d.getRecurso().getTitulo(), d.getRecurso().getTipo(), d.getRecurso().getFechaCreacion(),
+                        d.getRecurso().getGeneradoPorIa(), !d.getRecurso().getGeneradoPorIa()))
+                .toList());
+    }
+
+    @Override
+    public Recurso solicitarEnBiblioteca(Docente docente, boolean presentacion, List<Integer> fuentes) {
+        Tipo tipo = presentacion ? Tipo.PRESENTACION : Tipo.RESUMEN;
+        Recurso recurso = transaccion.execute(estado -> registrarEnBiblioteca(docente, tipo, fuentes));
+        int idMaterial = recurso.getMaterialDidactico().getIdMaterialDidactico();
+        try {
+            cola.execute(() -> generar(idMaterial, tipo));
+        } catch (TaskRejectedException e) {
+            marcarError(idMaterial, "La cola de generación está llena.");
+            throw new IllegalArgumentException("Error! Hay demasiadas generaciones en espera. Intentá de nuevo en unos minutos.");
+        }
+        return recurso;
+    }
+
+    /** Valida el pedido y registra el material en la biblioteca del docente, sin tema, en espera y sin archivo. */
+    private Recurso registrarEnBiblioteca(Docente docente, Tipo tipo, List<Integer> ids) {
+        if (docente == null) {
+            throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
+        }
+        List<Documento> visibles = documentosDeBiblioteca(docente);
+        List<Documento> elegidas = ids == null ? visibles.stream().filter(d -> !d.getRecurso().getGeneradoPorIa()).toList()
+                : visibles.stream().filter(d -> ids.contains(d.getIdDocumento())).toList();
+        if (ids != null && elegidas.size() < ids.stream().distinct().count()) {
+            throw new IllegalArgumentException("Error! Alguna de las fuentes elegidas no está disponible para leer.");
+        }
+        if (elegidas.isEmpty()) {
+            throw new IllegalArgumentException("Error! Elegí al menos un documento como fuente.");
+        }
+        EstadoGeneracionIA pendiente = estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.PENDIENTE).orElseThrow();
+        CategoriaMaterialDidactico categoria = categoriaRepository.findByNombre(tipo.categoria)
+                .orElseThrow(() -> new IllegalStateException("Falta la categoría de material didáctico '" + tipo.categoria + "'."));
+        Recurso recurso = new Recurso(docente, abreviar(tipo.prefijoTitulo + tituloSegunFuentes(elegidas, null), 150));
+        recurso.setDescripcion(tipo.descripcion);
+        recurso = recursoRepository.saveAndFlush(recurso);
+        MaterialDidactico lectura = new MaterialDidactico(recurso, categoria, null, abreviar(docente.getUsuario().getNombreCompleto(), 100));
+        lectura.setEstadoGeneracionIa(pendiente);
+        recurso.setMaterialDidactico(materialDidacticoRepository.save(lectura));
+        indiceService.crear(recurso.getDocumento(), null);
+        for (Documento fuente : elegidas) {
+            documentoFuenteRepository.save(new DocumentoFuente(recurso.getDocumento(), fuente));
+        }
+        return recurso;
+    }
+
+    /**
+     * Elige los documentos que se leen: los que indicó el docente, que tienen que ser del tema, o, si no indicó ninguno, los que no generó la IA.
+     *
+     * @param ids Los identificadores elegidos, o {@code null} para usar los que no generó la IA.
+     */
+    private List<Documento> elegirFuentes(Tema tema, List<Integer> ids) {
+        List<Documento> leibles = documentosLeibles(tema);
+        if (ids == null) {
+            return leibles.stream().filter(d -> !d.getRecurso().getGeneradoPorIa()).toList();
+        }
+        List<Documento> elegidas = leibles.stream().filter(d -> ids.contains(d.getIdDocumento())).toList();
+        if (elegidas.size() < ids.stream().distinct().count()) {
+            throw new IllegalArgumentException("Error! Alguna de las fuentes elegidas no está disponible para leer.");
+        }
+        return elegidas;
+    }
+
+    /** Lista los documentos del tema que se pueden elegir como fuente, marcando los que se usan si no se elige ninguno. */
+    @Override
+    public List<FuenteDisponible> fuentesDisponibles(Integer idTema) {
+        return transaccion.execute(estado -> {
+            Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(t -> !t.esInactivo()).orElse(null);
+            if (tema == null) {
+                return List.<FuenteDisponible>of();
+            }
+            return documentosLeibles(tema).stream().map(d -> new FuenteDisponible(d.getIdDocumento(), d.getRecurso().getTitulo(),
+                    d.getRecurso().getTipo(), d.getRecurso().getFechaCreacion(), d.getRecurso().getGeneradoPorIa(), !d.getRecurso().getGeneradoPorIa())).toList();
+        });
+    }
+
+    /** Verifica que el tema tenga al menos una bibliografía con el texto ya reconocido. */
+    private void validarMaterialBibliografico(List<TemaRecurso> delTema, Tipo tipo) {
+        List<MaterialBibliografico> materialesBibliograficos = delTema.stream().map(TemaRecurso::getRecurso).filter(r -> !r.esInactivo())
+                .map(Recurso::getMaterialBibliografico).filter(b -> b != null && b.getRutaArchivo() != null).toList();
+        if (materialesBibliograficos.isEmpty()) {
+            throw new IllegalArgumentException("Error! El tema debe tener al menos un material bibliográfico cargado para generar " + tipo.conArticulo + ".");
+        }
+        if (materialesBibliograficos.stream().noneMatch(this::tieneTextoListo)) {
+            throw new IllegalArgumentException("Error! El material bibliográfico del tema todavía se está procesando. Intentá de nuevo en unos minutos.");
         }
     }
 
     /** Indica si el texto del archivo ya se puede leer: no tiene OCR pendiente o ya terminó bien. */
-    private boolean tieneTextoListo(Bibliografia bibliografia) {
-        EstadoOCR estado = bibliografia.getEstadoOcr();
+    private boolean tieneTextoListo(MaterialBibliografico materialBibliografico) {
+        EstadoOCR estado = materialBibliografico.getEstadoOcr();
         return estado == null || EstadoOCR.LISTO.equals(estado.getNombre());
     }
 
@@ -342,7 +493,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
 
     /** Indica si el material (o su recurso) se dio de baja o ya no existe. */
     private boolean materialDadoDeBaja(int idMaterial) {
-        return Boolean.TRUE.equals(transaccion.execute(estado -> materialLecturaRepository.findById(idMaterial)
+        return Boolean.TRUE.equals(transaccion.execute(estado -> materialDidacticoRepository.findById(idMaterial)
                 .map(m -> m.getRecurso().esInactivo()).orElse(true)));
     }
 
@@ -367,7 +518,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             long inicio = System.currentTimeMillis();
             List<Leido> textos = leerDocumentos(pedido.documentos(), maximoCaracteresMaterial);
             if (textos.isEmpty()) {
-                throw new ModeloIAException("No se pudo leer texto de la bibliografía del tema.");
+                throw new ModeloIAException("No se pudo leer texto del material bibliográfico del tema.");
             }
             String material = armarMaterial(textos, maximoCaracteresMaterial);
             String lectura = describirLectura(tipo, textos, material.length(), pedido.documentos().size());
@@ -378,6 +529,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             archivo = carpeta.resolve(tipo.tipoRecurso.getNombreDeArchivo() + pedido.idRecurso() + ".pdf");
             int paginas;
             List<String> titulosDelIndice;
+            List<Seccion> secciones;
             long desde = System.currentTimeMillis();
             List<Parte> partes = armarPartes(textos);
             REGISTRO.info("{} {}: {} parte(s) para trabajar por separado.", tipo, idMaterial, partes.size());
@@ -390,9 +542,11 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 } else {
                     resumen = resumirPorSecciones(partes, cancelado);
                 }
+                resumen = asegurarEstructura(resumen, material);
                 registrarTiempo(desde, material);
                 paginas = ResumenPdfUtil.escribir(pedido.tituloRecurso(), resumen, lectura, archivo);
-                titulosDelIndice = resumen.bloques().stream().map(Resumen.Bloque::subtitulo).filter(t -> t != null && !t.isBlank()).toList();
+                secciones = seccionesDe(resumen);
+                titulosDelIndice = secciones.stream().map(Seccion::titulo).toList();
             } else {
                 // La presentación sale del mismo resumen: cada bloque es una diapositiva y cada oración, un punto
                 Resumen resumen;
@@ -402,12 +556,13 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 } else {
                     resumen = resumirPorSecciones(partes, cancelado);
                 }
+                resumen = asegurarEstructura(resumen, material);
                 Presentacion presentacion = presentacionDesdeResumen(resumen);
                 registrarTiempo(desde, material);
                 paginas = PresentacionPdfUtil.escribir(pedido.tituloRecurso(), presentacion, lectura, archivo);
                 // Las diapositivas que siguen a otra con el mismo título no son una entrada nueva del índice
-                titulosDelIndice = presentacion.diapositivas().stream().map(Presentacion.Diapositiva::titulo)
-                        .filter(t -> t != null && !t.isBlank() && !t.endsWith("(continuación)")).toList();
+                secciones = seccionesDe(presentacion);
+                titulosDelIndice = secciones.stream().map(Seccion::titulo).toList();
             }
 
             verificarVigencia(cancelado);
@@ -415,7 +570,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             List<Marcador> indice = armarIndice(archivo, titulosDelIndice);
             String ruta = ManejadorArchivosUtil.construirRutaRelativa(directorioCursos, archivo);
             long tamanio = Files.size(archivo);
-            transaccion.executeWithoutResult(estado -> terminar(idMaterial, ruta, tamanio, paginas, indice));
+            transaccion.executeWithoutResult(estado -> terminar(idMaterial, ruta, tamanio, paginas, indice, secciones));
             REGISTRO.info("{} {} generado en {} segundos.", tipo, idMaterial, (System.currentTimeMillis() - inicio) / 1000);
         } catch (GeneracionCancelada e) {
             REGISTRO.info("{} {} se dio de baja mientras se generaba: se descarta lo generado.", tipo, idMaterial);
@@ -451,63 +606,108 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
 
     /** Pasa el material a generándose y lee de la base lo que hace falta. */
     private Pedido empezar(int idMaterial) {
-        MaterialLectura material = materialLecturaRepository.findById(idMaterial).orElseThrow();
+        MaterialDidactico material = materialDidacticoRepository.findById(idMaterial).orElseThrow();
         material.setDetalleError(null);
         Recurso recurso = material.getRecurso();
-        TemaRecurso delTema = recurso.getTemasRecurso().stream().filter(t -> !t.getBaja()).findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("El material ya no pertenece a ningún tema."));
-        List<Documento> documentos = new ArrayList<>();
-        for (TemaRecurso candidato : temaRecursoRepository.findByTemaAndBajaFalse(delTema.getTema())) {
-            Recurso otro = candidato.getRecurso();
-            Bibliografia bibliografia = otro.getBibliografia();
-            if (!otro.esInactivo() && bibliografia != null && bibliografia.getRutaArchivo() != null && tieneTextoListo(bibliografia)) {
-                documentos.add(new Documento(otro.getTitulo(), bibliografia.getRutaArchivo(), indiceDe(otro)));
-            }
+        // Un material de la biblioteca digital no tiene tema: se genera igual, solo de las fuentes elegidas
+        TemaRecurso delTema = recurso.getTemasRecurso().stream().filter(t -> !t.getBaja()).findFirst().orElse(null);
+        List<Documento> elegidas = documentoFuenteRepository.findByDocumento(recurso.getDocumento()).stream()
+                .map(DocumentoFuente::getDocumentoFuente).toList();
+        if (elegidas.isEmpty() && delTema != null) {
+            elegidas = elegirFuentes(delTema.getTema(), null);
         }
-        return new Pedido(delTema.getTema().getTitulo(), recurso.getDocente().getIdDocente(), recurso.getIdRecurso(),
-                recurso.getTitulo(), documentos);
+        if (elegidas.isEmpty()) {
+            throw new IllegalArgumentException("El material no tiene fuentes para leer.");
+        }
+        return new Pedido(delTema != null ? delTema.getTema().getTitulo() : recurso.getTitulo(), recurso.getDocente().getIdDocente(), recurso.getIdRecurso(),
+                recurso.getTitulo(), leerFuentes(elegidas));
     }
 
-    /** Lee de la base el índice de un documento, vacío si no tiene. */
-    private List<Marcador> indiceDe(Recurso recurso) {
-        return indiceService.buscar(recurso).stream().map(e -> new Marcador(e.titulo(), e.pagina(), e.nivel())).toList();
+    /** Lee de la base el índice y las oraciones de los documentos. Los que no tienen oraciones (todavía sin texto) se dejan afuera. */
+    private List<Fuente> leerFuentes(List<Documento> documentos) {
+        List<Fuente> fuentes = new ArrayList<>();
+        for (Documento documento : documentos) {
+            java.util.Map<Integer, String> titulos = new java.util.LinkedHashMap<>();
+            java.util.Map<Integer, List<Frase>> frases = new java.util.LinkedHashMap<>();
+            for (Oracion oracion : oracionRepository.buscarDelDocumento(documento)) {
+                IndiceDocumento entrada = oracion.getIndiceDocumento();
+                titulos.putIfAbsent(entrada.getIdIndiceDocumento(), entrada.getTitulo());
+                String limpia = limpiarFrase(oracion.getTexto());
+                if (limpia == null) {
+                    continue;
+                }
+                frases.computeIfAbsent(entrada.getIdIndiceDocumento(), k -> new ArrayList<>())
+                        .add(new Frase(oracion.getIdOracion(), limpia));
+            }
+            if (frases.isEmpty()) {
+                REGISTRO.warn("El documento {} no tiene oraciones guardadas: no se usa como fuente.", documento.getIdDocumento());
+                continue;
+            }
+            List<Tramo> tramos = new ArrayList<>();
+            frases.forEach((id, lista) -> tramos.add(new Tramo(titulos.get(id), lista)));
+            fuentes.add(new Fuente(documento.getRecurso().getTitulo(), documento.getPaginas() == null ? 0 : documento.getPaginas(), tramos));
+        }
+        return fuentes;
     }
 
     /**
-     * Lee el principio del texto de los documentos, en orden, hasta juntar el presupuesto de caracteres. Los documentos que siguen no se leen,
-     * como en AUREA. Puede devolver una lista vacía.
-     *
-     * @param presupuesto Los caracteres a leer: los del material para el modelo, o los del texto de validación del banco.
+     * Quita de una oración los restos de formato del PDF: las rayas, los signos «=» o «_» repetidos y los puntos sueltos. Nula si lo que queda no alcanza para
+     * armar un texto.
      */
-    private List<Leido> leerDocumentos(List<Documento> documentos, int presupuesto) throws IOException {
-        List<Leido> textos = new ArrayList<>();
-        int acumulado = 0;
-        for (Documento documento : documentos) {
-            if (acumulado >= presupuesto) {
+    private static String limpiarFrase(String texto) {
+        String limpia = texto.replaceAll("[-=_~*•·]{3,}", " ").replaceAll("\\s+", " ").trim();
+        limpia = limpia.replaceAll("^[.:;,\\s]+", "").replaceAll("(\\.\\s*){2,}$", ".").trim();
+        return limpia.length() < 15 ? null : limpia;
+    }
+
+    private static String unir(Tramo tramo) {
+        return tramo.frases().stream().map(Frase::texto).collect(java.util.stream.Collectors.joining(" "));
+    }
+
+    /**
+     * Elige el material que se le da al modelo: las oraciones más importantes de todas las fuentes juntas (BM25 y MMR, como en el banco de preguntas), las
+     * que entran en el presupuesto de caracteres, y solo esas. Cada documento conserva sus secciones y el orden de sus oraciones. Puede devolver una lista vacía.
+     *
+     * @param presupuesto Los caracteres de material que se le dan al modelo.
+     */
+    private List<Leido> leerDocumentos(List<Fuente> documentos, int presupuesto) {
+        List<String> todas = new ArrayList<>();
+        documentos.forEach(d -> d.tramos().forEach(tr -> tr.frases().forEach(f -> todas.add(f.texto()))));
+        if (todas.isEmpty()) {
+            return List.of();
+        }
+        Set<String> elegidas = new HashSet<>();
+        int largo = 0;
+        for (String oracion : LogicaPreguntasAurea.masImportantes(todas, Math.min(todas.size(), presupuesto / 60 + 10))) {
+            if (largo + oracion.length() + 1 > presupuesto) {
                 break;
             }
-            Path pdf = ManejadorArchivosUtil.resolver(directorioCursos, documento.ruta());
-            if (pdf == null || !Files.isRegularFile(pdf)) {
-                continue;
-            }
-            // Con índice, el material se reparte entre sus secciones. Sin índice, se leen las primeras páginas, como AUREA.
-            if (!documento.indice().isEmpty()) {
-                TextoPdfUtil.LecturaPorIndice porIndice = TextoPdfUtil.leerPorIndice(pdf, documento.indice(),
-                        presupuesto - acumulado - 1);
-                if (porIndice != null) {
-                    String junto = porIndice.secciones().stream().map(TextoPdfUtil.Seccion::texto)
-                            .collect(java.util.stream.Collectors.joining(" "));
-                    TextoPdfUtil.Lectura lectura = new TextoPdfUtil.Lectura(junto, porIndice.paginasTotales(), porIndice.paginasTotales(),
-                            porIndice.recortado());
-                    textos.add(new Leido(documento.titulo(), lectura, porIndice.secciones()));
-                    acumulado += junto.length() + 1;
-                    continue;
+            elegidas.add(oracion);
+            largo += oracion.length() + 1;
+        }
+        List<Leido> textos = new ArrayList<>();
+        for (Fuente documento : documentos) {
+            List<TextoPdfUtil.Seccion> secciones = new ArrayList<>();
+            int total = 0;
+            int usadas = 0;
+            for (Tramo tramo : documento.tramos()) {
+                total += tramo.frases().size();
+                List<String> delTramo = tramo.frases().stream().map(Frase::texto).filter(elegidas::contains).toList();
+                usadas += delTramo.size();
+                if (!delTramo.isEmpty()) {
+                    secciones.add(new TextoPdfUtil.Seccion(tramo.titulo(), String.join(" ", delTramo)));
                 }
             }
-            TextoPdfUtil.Lectura lectura = TextoPdfUtil.leerInicio(pdf, presupuesto - acumulado);
-            if (lectura.texto().length() >= 200) {
+            if (secciones.isEmpty()) {
+                continue;
+            }
+            String junto = secciones.stream().map(TextoPdfUtil.Seccion::texto).collect(java.util.stream.Collectors.joining(" "));
+            TextoPdfUtil.Lectura lectura = new TextoPdfUtil.Lectura(junto, documento.paginas(), documento.paginas(), usadas < total);
+            // Con índice, el material se reparte entre sus secciones. Sin índice (una sola entrada), se trabaja el documento entero
+            if (documento.tramos().size() > 1 && secciones.size() > 1) {
+                textos.add(new Leido(documento.titulo(), lectura, secciones));
+            } else if (junto.length() >= 200) {
                 textos.add(new Leido(documento.titulo(), lectura, List.of()));
-                acumulado += lectura.texto().length() + 1;
             }
         }
         return textos;
@@ -621,6 +821,43 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     }
 
     /**
+     * Asegura que el resumen tenga introducción, desarrollo y conclusión, en ese orden. Lo que falta se arma con oraciones del propio material: el
+     * desarrollo con las más importantes, la introducción con las primeras oraciones del desarrollo y la conclusión con las últimas. El modelo chico a veces
+     * devuelve solo una de las partes.
+     */
+    private Resumen asegurarEstructura(Resumen resumen, String material) {
+        List<Resumen.Bloque> introducciones = new ArrayList<>();
+        List<Resumen.Bloque> desarrollo = new ArrayList<>();
+        List<Resumen.Bloque> conclusiones = new ArrayList<>();
+        for (Resumen.Bloque bloque : resumen.bloques() == null ? List.<Resumen.Bloque>of() : resumen.bloques()) {
+            String nombre = bloque.subtitulo() == null ? "" : quitarNumeracion(bloque.subtitulo()).toLowerCase(java.util.Locale.ROOT);
+            (nombre.startsWith("introducci") ? introducciones : nombre.startsWith("conclusi") ? conclusiones : desarrollo).add(bloque);
+        }
+        boolean hayDesarrollo = desarrollo.stream().anyMatch(b -> b.parrafos() != null && b.parrafos().stream().anyMatch(p -> p != null && !p.isBlank()));
+        if (!hayDesarrollo) {
+            List<String> oraciones = java.util.Arrays.stream(material.split("(?<=[.!?])\\s+")).filter(o -> o.length() >= 30).toList();
+            List<String> elegidas = LogicaPreguntasAurea.masImportantes(oraciones, 6);
+            if (elegidas.isEmpty()) {
+                return resumen;
+            }
+            desarrollo = new ArrayList<>(List.of(new Resumen.Bloque("Desarrollo", List.of(String.join(" ", elegidas)))));
+        }
+        List<String> parrafosDelDesarrollo = desarrollo.stream().flatMap(b -> b.parrafos() == null ? java.util.stream.Stream.<String>empty() : b.parrafos().stream())
+                .filter(p -> p != null && !p.isBlank()).toList();
+        if (introducciones.isEmpty() && !parrafosDelDesarrollo.isEmpty()) {
+            introducciones.add(new Resumen.Bloque("Introducción", List.of(primerasOraciones(parrafosDelDesarrollo.get(0), 2))));
+        }
+        if (conclusiones.isEmpty() && !parrafosDelDesarrollo.isEmpty()) {
+            String[] oraciones = parrafosDelDesarrollo.get(parrafosDelDesarrollo.size() - 1).split("(?<=[.!?])\\s+");
+            conclusiones.add(new Resumen.Bloque("Conclusión", List.of(oraciones[oraciones.length - 1])));
+        }
+        List<Resumen.Bloque> ordenados = new ArrayList<>(introducciones);
+        ordenados.addAll(desarrollo);
+        ordenados.addAll(conclusiones);
+        return new Resumen(resumen.titulo(), ordenados);
+    }
+
+    /**
      * Arma el resumen con una llamada al modelo por sección, más una para la introducción y otra para las conclusiones.
      * Los tokens de AUREA se reparten entre las llamadas, y el máximo de palabras se le pide en el prompt.
      */
@@ -650,7 +887,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             }
         }
         if (desarrollo.isEmpty()) {
-            throw new ModeloIAException("El modelo no pudo armar " + Tipo.RESUMEN.conArticuloIndefinido + " que se base en la bibliografía del tema.");
+            throw new ModeloIAException("El modelo no pudo armar " + Tipo.RESUMEN.conArticuloIndefinido + " que se base en el material bibliográfico del tema.");
         }
         String sintesis = String.join("\n", desarrollo.stream().map(d -> d[0] + ". " + d[1]).toList());
         // La introducción y las conclusiones se comparan solo entre sí: es natural que retomen lo que dicen las secciones.
@@ -735,7 +972,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             }
         }
         if (diapositivas.isEmpty()) {
-            throw new ModeloIAException("El modelo no pudo armar " + Tipo.PRESENTACION.conArticuloIndefinido + " que se base en la bibliografía del tema.");
+            throw new ModeloIAException("El modelo no pudo armar " + Tipo.PRESENTACION.conArticuloIndefinido + " que se base en el material bibliográfico del tema.");
         }
         return new Presentacion("", diapositivas);
     }
@@ -832,7 +1069,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         boolean recortado = caracteresDelMaterial < caracteres || textos.size() < documentosEnElTema || textos.stream().anyMatch(t -> t.lectura().recortado());
         String fuentes = " Fuentes: " + String.join(", ", textos.stream().map(Leido::titulo).toList()) + ".";
         if (!recortado) {
-            return "Se usó la bibliografía completa (" + totales + " páginas)." + fuentes;
+            return "Se usó el material completo" + (totales > 0 ? " (" + totales + " páginas)" : "") + "." + fuentes;
         }
         return "Puede haber temas sin cubrir." + fuentes;
     }
@@ -855,6 +1092,8 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         private EntidadesUtil.Indice entidades = new EntidadesUtil.Indice(java.util.Map.of(), java.util.Set.of(), java.util.Set.of());
         /** La sección del documento (el último título) en la que está cada oración. */
         private final java.util.Map<String, String> secciones = new java.util.HashMap<>();
+        /** El identificador de la oración guardada de cada texto, para dejar registrado de cuál salió cada pregunta. */
+        private final java.util.Map<String, Integer> idsDeOraciones = new java.util.HashMap<>();
 
         private int deSeleccion() {
             return (int) generadas.stream().filter(p -> p.tipo() != LogicaPreguntasAurea.Tipo.VERDADERO_FALSO).count();
@@ -866,19 +1105,20 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     }
 
     /** Lo que necesita la generación del banco, leído de la base antes de empezar. */
-    private record PedidoBanco(String tituloTema, List<Documento> documentos, List<String> glosario, int preguntas, int porcentajeOpcionMultiple,
-            int porcentajeModelo, int estrategia, List<String> existentes) {
+    private record PedidoBanco(String tituloTema, List<Fuente> documentos, List<String> glosario, int preguntas, int porcentajeOpcionMultiple, List<String> existentes,
+            java.util.Map<Integer, Integer> usos) {
     }
 
     /** Pide el banco de preguntas de un tema. Registra el pool en espera y lo genera en segundo plano. */
     @Override
-    public Pool solicitarBanco(Docente docente, Integer idTema, String guion) {
+    public Pool solicitarBanco(Docente docente, Integer idTema, String guion, List<Integer> fuentes) {
         String guionLimpio = guion == null ? "" : guion.trim();
         if (guionLimpio.length() > LARGO_GUION) {
             throw new IllegalArgumentException("Error! El guión adicional no puede superar los " + LARGO_GUION + " caracteres.");
         }
-        Pool pool = transaccion.execute(estado -> registrarBanco(docente, idTema));
+        Pool pool = transaccion.execute(estado -> registrarBanco(docente, idTema, fuentes));
         int idPool = pool.getIdPool();
+        solicitantesDePool.put(idPool, docente.getUsuario());
         try {
             cola.execute(() -> generarBanco(idPool, guionLimpio));
         } catch (TaskRejectedException e) {
@@ -889,13 +1129,13 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     }
 
     /** Valida el pedido y registra el pool, en espera y sin preguntas. */
-    private Pool registrarBanco(Docente docente, Integer idTema) {
+    private Pool registrarBanco(Docente docente, Integer idTema, List<Integer> fuentes) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
         Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(t -> !t.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activo."));
-        docenteCursoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
+        integranteEquipoRepository.findByCursoAndBajaFalse(tema.getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
 
@@ -904,23 +1144,38 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         if (yaGenerando) {
             throw new IllegalArgumentException("Error! Ya hay un banco de preguntas de este tema en generación. Esperá a que termine.");
         }
-        List<Bibliografia> bibliografias = temaRecursoRepository.findByTemaAndBajaFalse(tema).stream().map(TemaRecurso::getRecurso)
-                .filter(r -> !r.esInactivo()).map(Recurso::getBibliografia).filter(b -> b != null && b.getRutaArchivo() != null).toList();
+        List<MaterialBibliografico> materialesBibliograficos = temaRecursoRepository.findByTemaAndBajaFalse(tema).stream().map(TemaRecurso::getRecurso)
+                .filter(r -> !r.esInactivo()).map(Recurso::getMaterialBibliografico).filter(b -> b != null && b.getRutaArchivo() != null).toList();
         boolean hayGlosario = !terminoGlosarioRepository.findByTemaAndBajaFalse(tema).isEmpty();
-        if (bibliografias.isEmpty() && !hayGlosario) {
-            throw new IllegalArgumentException("Error! El tema debe tener al menos una bibliografía o un término de glosario cargado para generar el banco de preguntas.");
+        if (materialesBibliograficos.isEmpty() && !hayGlosario) {
+            throw new IllegalArgumentException("Error! El tema debe tener al menos un material bibliográfico o un término de glosario cargado para generar el banco de preguntas.");
         }
-        if (!bibliografias.isEmpty() && bibliografias.stream().noneMatch(this::tieneTextoListo) && !hayGlosario) {
-            throw new IllegalArgumentException("Error! La bibliografía del tema todavía se está procesando. Intentá de nuevo en unos minutos.");
+        if (!materialesBibliograficos.isEmpty() && materialesBibliograficos.stream().noneMatch(this::tieneTextoListo) && !hayGlosario) {
+            throw new IllegalArgumentException("Error! El material bibliográfico del tema todavía se está procesando. Intentá de nuevo en unos minutos.");
         }
 
-        // El nombre incluye la hora, hasta el segundo, porque no se repite el nombre de un pool dentro de un tema
-        String nombre = abreviar("IA " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM HH:mm:ss")) + " " + tema.getTitulo(),
-                LARGO_NOMBRE_POOL);
+        List<Documento> elegidas = elegirFuentes(tema, fuentes);
+        if (fuentes != null && elegidas.isEmpty() && !hayGlosario) {
+            throw new IllegalArgumentException("Error! Elegí al menos un documento como fuente.");
+        }
+
+        // El nombre sale del título de las fuentes. No se repite el nombre de un pool dentro de un tema: si ya existe, lleva un número
+        String base = "Pool de preguntas IA de " + tituloSegunFuentes(elegidas, tema);
+        java.util.Set<String> existentes = new HashSet<>();
+        poolRepository.findByTema(tema).forEach(otro -> existentes.add(otro.getNombre()));
+        String nombre = abreviar(base, LARGO_NOMBRE_POOL);
+        for (int n = 2; existentes.contains(nombre); n++) {
+            String sufijo = " (" + n + ")";
+            nombre = abreviar(base, LARGO_NOMBRE_POOL - sufijo.length()) + sufijo;
+        }
         Pool pool = new Pool(tema, nombre);
         pool.setRevisado(false);
         pool.setEstadoGeneracionIa(estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.PENDIENTE).orElseThrow());
-        return poolRepository.save(pool);
+        pool = poolRepository.save(pool);
+        for (Documento fuente : elegidas) {
+            poolFuenteRepository.save(new PoolFuente(pool, fuente));
+        }
+        return pool;
     }
 
     /** Hasta cuántos caracteres de cada documento se leen para buscar lo que pide el guion. */
@@ -930,86 +1185,12 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     private record Hallada(String oracion, int puntaje, int orden) {
     }
 
-    /** Cuántos intentos, con oraciones distintas, tiene el modelo para armar cada pregunta. */
-    private static final int INTENTOS_POR_PREGUNTA = 5;
-
-    /** Largo máximo, en tokens, de lo que escribe el modelo en cada llamada: una pregunta, una variante o una paráfrasis. Escribir es lo más lento. */
-    private static final int TOKENS_POR_LLAMADA = 130;
-
-    /** Oraciones más largas que esto no se le dan al modelo: en las largas reescribe de más y las variantes no sirven. */
-    private static final int LARGO_MAXIMO_PARA_EL_MODELO = 170;
-
-    /** Lo que se le pide al modelo para escribir la pregunta de una oración. Es un pedido chico, con un ejemplo resuelto: un modelo de 1B falla si se le pide mucho junto. */
-    private static final String INSTRUCCIONES_PREGUNTA = """
-            Recibís una oración de un texto de estudio. Escribí una pregunta de examen, con signos ¿?, cuya respuesta sea exactamente lo que dice esa oración.
-            La pregunta no repite la oración ni dice la respuesta, y no agrega datos ni siglas que no estén en la oración.
-            Es una sola pregunta, no dos.
-            Puede venir una línea «Documento: …» que dice de qué trata el material y una línea «Sección: …» que dice a qué parte pertenece la oración.
-            Son solo contexto y no son parte de la oración: sirven para saber de qué habla cuando dice «su», «él» o «esto».
-
-            Ejemplo.
-            Oración: "Las acciones representan una parte del capital de una empresa y dan derecho a dividendos."
-            Salida: {"pregunta": "¿Qué representan las acciones y qué derecho dan?"}""";
-
-    /** Lo que se le pide al modelo para decir lo mismo que una oración con otras palabras. */
-    private static final String INSTRUCCIONES_PREGUNTA_DEL_DATO = """
-            Recibís una oración de un texto de estudio y un dato de esa oración. Escribí una pregunta de examen, con signos ¿?, cuya respuesta sea exactamente
-            ese dato. La pregunta no dice el dato ni lo repite, y no agrega datos que no estén en la oración. Es una sola pregunta, no dos.
-            Puede venir una línea «Documento: …» que dice de qué trata el material y una línea «Sección: …» que dice a qué parte pertenece la oración.
-            Son solo contexto y no son parte de la oración.
-
-            Ejemplo.
-            Oración: "El Banco Central fue creado en 1935 para regular la moneda."
-            Dato: "1935"
-            Salida: {"pregunta": "¿En qué año fue creado el Banco Central?"}""";
-
-    /** Lo que se le pide al modelo para comprobar una pregunta: que la responda con la parte de la oración que la contesta. */
-    private static final String INSTRUCCIONES_RESPUESTA = """
-            Recibís una oración de un texto de estudio y una pregunta sobre ella. Respondé la pregunta con la parte de la oración que la contesta, copiada tal
-            cual y en pocas palabras. No expliques nada más.
-
-            Ejemplo.
-            Oración: "Los bonos son emitidos por los estados y las obligaciones negociables, por las empresas."
-            Pregunta: "¿Quién emite los bonos?"
-            Salida: {"respuesta": "los estados"}""";
-
-    private static final String INSTRUCCIONES_PARAFRASIS = """
-            Recibís una oración de un texto de estudio. Escribila de nuevo con otras palabras, en una sola oración, sin agregar ni quitar ninguna idea.
-
-            Ejemplo.
-            Oración: "Las acciones dan derecho a dividendos."
-            Salida: {"afirmacion": "Quien tiene acciones recibe dividendos."}""";
-
-    /** Reparte entre los tipos que arma el modelo las preguntas que le tocan: las múltiples según el porcentaje, y el resto, entre única y verdadero o falso. */
-    private static List<LogicaPreguntasAurea.Tipo> planDelModelo(int cantidad, int porcentajeMultiple) {
-        int multiples = Math.min(cantidad, Math.round(cantidad * porcentajeMultiple / 100f));
-        int resto = cantidad - multiples;
-        int unicas = (resto + 1) / 2;
-        int verdaderoFalso = resto - unicas;
-        List<LogicaPreguntasAurea.Tipo> plan = new ArrayList<>();
-        // Se intercalan, para que los tipos no queden todos juntos
-        while (unicas + multiples + verdaderoFalso > 0) {
-            if (unicas-- > 0) {
-                plan.add(LogicaPreguntasAurea.Tipo.UNICA_RESPUESTA);
-            }
-            if (multiples-- > 0) {
-                plan.add(LogicaPreguntasAurea.Tipo.MULTIPLE_CHOICE);
-            }
-            if (verdaderoFalso-- > 0) {
-                plan.add(LogicaPreguntasAurea.Tipo.VERDADERO_FALSO);
-            }
-        }
-        return plan;
-    }
-
     /** Lee el texto completo de los documentos, no solo el principio: el modelo ya no lee el material, solo recibe oraciones sueltas. */
-    private String leerTextoCompleto(List<Documento> documentos) throws IOException {
+    private String leerTextoCompleto(List<Fuente> documentos) {
         StringBuilder texto = new StringBuilder();
-        for (Documento documento : documentos) {
-            Path pdf = ManejadorArchivosUtil.resolver(directorioCursos, documento.ruta());
-            if (pdf != null && Files.isRegularFile(pdf)) {
-                texto.append(TextoPdfUtil.leerInicio(pdf, LECTURA_COMPLETA).texto()).append(' ');
-            }
+        for (Fuente documento : documentos) {
+            String entero = documento.tramos().stream().map(GeneracionIAServiceImpl::unir).collect(java.util.stream.Collectors.joining(" "));
+            texto.append(TextoPdfUtil.cortar(entero, LECTURA_COMPLETA)).append(' ');
         }
         return texto.toString().strip();
     }
@@ -1018,25 +1199,20 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
      * Saca las oraciones de los documentos respetando su estructura: los títulos, las celdas de las tablas y los ítems de las listas quedan separados, y
      * cada oración conserva la sección en la que está. Si un PDF no se puede leer así, se usa el texto plano de ese documento, sin sección.
      */
-    private List<OracionesUtil.OracionDeSeccion> leerOraciones(List<Documento> documentos, String textoPlano) {
+    private List<OracionesUtil.OracionDeSeccion> leerOraciones(List<Fuente> documentos, String textoPlano, AvanceBanco avance) {
         List<OracionesUtil.OracionDeSeccion> oraciones = new ArrayList<>();
-        for (Documento documento : documentos) {
-            Path pdf = ManejadorArchivosUtil.resolver(directorioCursos, documento.ruta());
-            if (pdf == null || !Files.isRegularFile(pdf)) {
-                continue;
-            }
-            try {
-                List<EstructuraPdfUtil.Bloque> bloques = EstructuraPdfUtil.leer(pdf, LECTURA_COMPLETA);
-                // Se le agrega el título del documento como sección de lo que viene antes del primer título
-                List<EstructuraPdfUtil.Bloque> conSeccion = bloques.stream().map(b -> b.seccion().isEmpty()
-                        ? new EstructuraPdfUtil.Bloque(b.tipo(), b.texto(), documento.titulo(), b.campo()) : b).toList();
-                oraciones.addAll(OracionesUtil.candidatasPorBloques(conSeccion, Integer.MAX_VALUE));
-            } catch (IOException | RuntimeException e) {
-                REGISTRO.warn("No se pudo leer la estructura de «{}»: se usa el texto plano. {}", documento.titulo(), e.getMessage());
+        for (Fuente documento : documentos) {
+            for (Tramo tramo : documento.tramos()) {
+                // Con índice, la sección es la entrada; sin índice (una sola entrada), el título del documento
+                String seccion = documento.tramos().size() > 1 ? tramo.titulo() : documento.titulo();
+                for (Frase frase : tramo.frases()) {
+                    oraciones.add(new OracionesUtil.OracionDeSeccion(frase.texto(), seccion, "", 0));
+                    avance.idsDeOraciones.putIfAbsent(frase.texto(), frase.id());
+                }
             }
         }
         if (oraciones.isEmpty()) {
-            LogicaPreguntasAurea.candidatas(textoPlano, Integer.MAX_VALUE).forEach(o -> oraciones.add(new OracionesUtil.OracionDeSeccion(o, "", "")));
+            LogicaPreguntasAurea.candidatas(textoPlano, Integer.MAX_VALUE).forEach(o -> oraciones.add(new OracionesUtil.OracionDeSeccion(o, "", "", 0)));
         }
         return oraciones;
     }
@@ -1080,39 +1256,6 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return candidatas.stream().limit(40).map(Hallada::oracion).toList();
     }
 
-    /** Una llamada al modelo con un pedido chico. Devuelve nulo si el modelo falla. */
-    private <T> T llamarAlModelo(String instrucciones, String contenido, Class<T> tipo, java.util.Map<String, Object> esquema) {
-        return llamarAlModelo(instrucciones, contenido, tipo, esquema, TOKENS_POR_LLAMADA);
-    }
-
-    private <T> T llamarAlModelo(String instrucciones, String contenido, Class<T> tipo, java.util.Map<String, Object> esquema, int tokens) {
-        try {
-            return modelo.generarObjeto(instrucciones, contenido, tipo, esquema, tokens);
-        } catch (ModeloIAException e) {
-            REGISTRO.warn("El modelo no respondió: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    private String pedirPregunta(String instrucciones, String contenido) {
-        PreguntaIA respuesta = llamarAlModelo(instrucciones, contenido, PreguntaIA.class, EsquemasIA.pregunta());
-        return respuesta == null ? null : respuesta.pregunta();
-    }
-
-    /**
-     * El pedido de una oración, con la línea de contexto del material delante y la sección del documento en la que está. La sección es el último título
-     * que apareció antes de la oración: le dice al modelo de qué habla cuando la oración dice «su», «él» o «esto».
-     */
-    private static String conContexto(String contexto, String oracion, String seccion) {
-        return (contexto.isEmpty() ? "" : contexto + "\n") + (seccion == null || seccion.isBlank() ? "" : LogicaPreguntasAurea.ETIQUETA_DE_SECCION + ": " + seccion + "\n")
-                + LogicaPreguntasAurea.ETIQUETA_DE_ORACION + ": \"" + oracion + "\"";
-    }
-
-    private String pedirAfirmacion(String oracion, String contexto, String seccion) {
-        AfirmacionIA respuesta = llamarAlModelo(INSTRUCCIONES_PARAFRASIS, conContexto(contexto, oracion, seccion), AfirmacionIA.class, EsquemasIA.afirmacion());
-        return respuesta == null ? null : respuesta.afirmacion();
-    }
-
     // ----------------------------------------------------------------------
     // Flujo de un pool, paso por paso
     //
@@ -1142,10 +1285,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 throw new ModeloIAException("El servidor del modelo de IA no está disponible.");
             }
             long inicio = System.currentTimeMillis();
-            // Con el flujo de Aurea, un pool tiene como mucho las preguntas que admite Aurea, y todas se le piden al modelo
-            boolean flujoDeAurea = pedido.estrategia() == Parametro.IA_ESTRATEGIA_BANCO_EN_UNA_LLAMADA;
-            boolean porRondas = pedido.estrategia() == Parametro.IA_ESTRATEGIA_BANCO_POR_RONDAS;
-            int total = flujoDeAurea ? Math.min(pedido.preguntas(), PREGUNTAS_MAXIMAS_DE_AUREA) : pedido.preguntas();
+            int total = pedido.preguntas();
 
             // 1. LEER EL TEXTO COMPLETO. El modelo recibe una oración por vez, así que no hay un límite de lectura que cuidar
             String texto = leerTextoCompleto(pedido.documentos());
@@ -1157,32 +1297,24 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
 
             // 2. ELEGIR LAS ORACIONES: primero las que pidió el docente y después las más importantes de todo el texto. Salen de la estructura del PDF
             // (títulos, párrafos, celdas, ítems), y cada una conserva la sección donde está
-            List<OracionesUtil.OracionDeSeccion> delDocumento = leerOraciones(pedido.documentos(), texto);
-            List<String> oraciones = elegirOraciones(idPool, delDocumento, guion, total, contexto, avance);
+            List<OracionesUtil.OracionDeSeccion> delDocumento = leerOraciones(pedido.documentos(), texto, avance);
+            List<String> oraciones = elegirOraciones(idPool, delDocumento, guion, total, contexto, avance, pedido.usos());
 
-            // 3. ARMAR LAS PREGUNTAS DEL MODELO
-            int deModelo = flujoDeAurea || porRondas ? total : Math.min(total, Math.round(total * pedido.porcentajeModelo() / 100f));
-            int delModelo;
-            if (porRondas) {
-                // Camino por rondas: el modelo solo escribe las preguntas, de a pocas oraciones objetivo; el código arma las opciones
-                avance.generadas.addAll(new BancoPorRondasIA(modelo).armar(deModelo, oraciones, avance.distractores, avance.usados, avance.entidades,
-                        () -> hayTiempo(inicio)));
-                delModelo = avance.generadas.size();
-            } else if (flujoDeAurea) {
-                // Camino alternativo (flujo de Aurea): el modelo escribe preguntas y opciones en una sola llamada por lote, de a pocas oraciones objetivo
-                avance.generadas.addAll(new BancoEnUnaLlamadaIA(modelo).armar(deModelo, oraciones, avance.distractores, avance.usados, pedido.existentes(),
-                        oraciones.subList(0, Math.min(60, oraciones.size()))));
-                delModelo = avance.generadas.size();
-            } else {
-                // Camino principal: oración -> el modelo redacta la pregunta -> el código arma las opciones
-                delModelo = armarPreguntasConModelo(idPool, planDelModelo(deModelo, pedido.porcentajeOpcionMultiple()), oraciones, contexto, avance, inicio);
-                if (delModelo < 0) {
-                    return;
-                }
-            }
+            // 3. ARMAR LAS PREGUNTAS DEL MODELO por rondas: el modelo solo escribe las preguntas, de a pocas oraciones objetivo; el código arma las opciones
+            // Los tipos se reparten según el parámetro: el porcentaje de opción múltiple y, del resto, mitad opción única y mitad verdadero o falso
+            int multiples = Math.min(total, Math.round(total * pedido.porcentajeOpcionMultiple() / 100f));
+            int resto = total - multiples;
+            int verdaderoFalso = resto / 2;
+            avance.generadas.addAll(new BancoPorRondasIA(modelo).armar(total, multiples, verdaderoFalso, oraciones, avance.distractores, avance.usados,
+                    avance.entidades, () -> hayTiempo(inicio)));
+            int deModelo = total;
+            int delModelo = avance.generadas.size();
             REGISTRO.info("Banco {}: el modelo armó {} de {} preguntas.", idPool, delModelo, deModelo);
 
             // 4. COMPLETAR CON REGLAS: arman las que les tocan y, si el modelo no logró alguna de las suyas, también esa
+            java.util.Map<String, Integer> usoPorOracion = new java.util.HashMap<>();
+            avance.idsDeOraciones.forEach((oracion, id) -> usoPorOracion.put(oracion, pedido.usos().getOrDefault(id, 0)));
+            contexto.rotar(usoPorOracion, total - avance.generadas.size());
             avance.generadas.addAll(LogicaPreguntasAurea.armarFormatosDeReglas(contexto, total - avance.generadas.size(), avance.usados));
             int conReglas = avance.generadas.size() - delModelo;
             // Si no alcanzaron las preguntas pero hay al menos la mitad, se guardan las que hay: es mejor que ninguna y el docente puede completarlas
@@ -1202,7 +1334,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             List<LogicaPreguntasAurea.Pregunta> aGuardar = new ArrayList<>(avance.generadas.subList(0, Math.min(total, avance.generadas.size())));
             // Se mezclan las del modelo con las de las reglas
             java.util.Collections.shuffle(aGuardar);
-            transaccion.executeWithoutResult(estado -> terminarBanco(idPool, aGuardar));
+            transaccion.executeWithoutResult(estado -> terminarBanco(idPool, aGuardar, avance.idsDeOraciones));
             REGISTRO.info("Banco {} generado con {} preguntas ({} del modelo y {} con reglas) en {} segundos.", idPool, aGuardar.size(), delModelo,
                     conReglas, (System.currentTimeMillis() - inicio) / 1000);
         } catch (Exception e) {
@@ -1219,7 +1351,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         pedido.existentes().forEach(enunciado -> avance.usados.add(LogicaPreguntasAurea.normalizar(enunciado)));
         // El contexto breve del material: el título del documento y sus palabras clave. Se usa el título del documento y no el del tema, porque el
         // documento dice de qué trata de verdad, y el tema puede ser otro
-        avance.contextoDelMaterial = "Documento: " + String.join("; ", pedido.documentos().stream().map(Documento::titulo).limit(2).toList())
+        avance.contextoDelMaterial = "Documento: " + String.join("; ", pedido.documentos().stream().map(Fuente::titulo).limit(2).toList())
                 + ". Palabras clave: " + String.join(", ", PalabrasClaveUtil.extraer(texto, 6)) + ".";
         return avance;
     }
@@ -1231,14 +1363,21 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
      * donde salen los distractores.
      */
     private List<String> elegirOraciones(int idPool, List<OracionesUtil.OracionDeSeccion> delDocumento, String guion, int total,
-            LogicaPreguntasAurea.Contexto contexto, AvanceBanco avance) {
+            LogicaPreguntasAurea.Contexto contexto, AvanceBanco avance, java.util.Map<Integer, Integer> usos) {
         List<String> candidatas = delDocumento.stream().map(OracionesUtil.OracionDeSeccion::texto).toList();
         delDocumento.forEach(o -> avance.secciones.putIfAbsent(o.texto(), o.seccion()));
         List<String> oraciones = new ArrayList<>(guion.isEmpty() ? List.<String>of() : buscarOracionesDelGuion(candidatas, guion));
         if (!guion.isEmpty()) {
             REGISTRO.info("Banco {}: {} oraciones del documento mencionan lo que pide el guion.", idPool, oraciones.size());
         }
-        for (String oracion : LogicaPreguntasAurea.masImportantes(candidatas, Math.max(30, total * 6))) {
+        // Rotación entre los bancos del tema: las oraciones de las que todavía no salió ninguna pregunta vigente van primero, y después las menos usadas.
+        // Para que alcancen, se piden más candidatas que las necesarias: tantas como oraciones ya usadas hay
+        java.util.function.ToIntFunction<String> usoDe = texto -> usos.getOrDefault(avance.idsDeOraciones.getOrDefault(texto, -1), 0);
+        long usadas = candidatas.stream().filter(c -> usoDe.applyAsInt(c) > 0).count();
+        int cuantas = (int) Math.min(candidatas.size(), Math.max(30, total * 6) + usadas);
+        List<String> importantes = new ArrayList<>(LogicaPreguntasAurea.masImportantes(candidatas, cuantas));
+        importantes.sort(java.util.Comparator.comparingInt(usoDe));
+        for (String oracion : importantes) {
             if (!oraciones.contains(oracion)) {
                 oraciones.add(oracion);
             }
@@ -1254,184 +1393,8 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         return oraciones;
     }
 
-    /**
-     * PASO 3. Arma las preguntas que le tocan al modelo. Cada una tiene hasta INTENTOS_POR_PREGUNTA intentos, y cada intento usa una oración distinta:
-     * si el modelo no redacta una pregunta que sirva, o no hay tres distractores buenos, se pasa a la oración siguiente.
-     *
-     * @return Cuántas preguntas se armaron, o -1 si el pool se dio de baja mientras se generaba.
-     */
-    private int armarPreguntasConModelo(int idPool, List<LogicaPreguntasAurea.Tipo> plan, List<String> oraciones, LogicaPreguntasAurea.Contexto contexto,
-            AvanceBanco avance, long inicio) {
-        int siguiente = 0;
-        int armadas = 0;
-        for (LogicaPreguntasAurea.Tipo tipo : plan) {
-            boolean armada = false;
-            for (int intento = 1; intento <= INTENTOS_POR_PREGUNTA && !armada && siguiente < oraciones.size() && hayTiempo(inicio); intento++) {
-                if (poolDadoDeBaja(idPool)) {
-                    REGISTRO.info("El banco {} se dio de baja mientras se generaba: se descarta.", idPool);
-                    return -1;
-                }
-                // 3.1 Tomar la siguiente oración
-                String oracion = oraciones.get(siguiente++);
-                if (oracion.length() > LARGO_MAXIMO_PARA_EL_MODELO) {
-                    // No consume el intento: simplemente no sirve para el modelo
-                    intento--;
-                    continue;
-                }
-                LogicaPreguntasAurea.Pregunta pregunta = armarPregunta(tipo, oracion, oraciones, contexto, avance);
-                if (pregunta != null) {
-                    avance.generadas.add(pregunta);
-                    armadas++;
-                    armada = true;
-                }
-            }
-        }
-        return armadas;
-    }
-
-    /** Arma una pregunta del tipo indicado con una oración, o devuelve nulo si esa oración no sirve para ese tipo. */
-    private LogicaPreguntasAurea.Pregunta armarPregunta(LogicaPreguntasAurea.Tipo tipo, String oracion, List<String> oraciones,
-            LogicaPreguntasAurea.Contexto contexto, AvanceBanco avance) {
-        if (tipo == LogicaPreguntasAurea.Tipo.MULTIPLE_CHOICE) {
-            // Opción múltiple: dos oraciones con al menos dos palabras clave en común
-            String pareja = LogicaPreguntasAurea.parejaDe(oracion, oraciones, contexto);
-            String consigna = pareja == null ? null : LogicaPreguntasAurea.consignaMultiple(oracion, pareja, contexto);
-            if (consigna != null) {
-                return armarOpcionMultiple(oracion, pareja, consigna, contexto, avance);
-            }
-            // Sin otra oración que trate de lo mismo, no hay opción múltiple posible: se arma una de opción única
-            tipo = LogicaPreguntasAurea.Tipo.UNICA_RESPUESTA;
-        }
-        return tipo == LogicaPreguntasAurea.Tipo.VERDADERO_FALSO ? armarVerdaderoFalso(oracion, avance) : armarOpcionUnica(oracion, avance);
-    }
-
-    /**
-     * Opción única. 3.2 El modelo redacta la pregunta de la oración (su única tarea). 3.3 El código comprueba la pregunta. 3.4 El código elige tres
-     * oraciones distractoras del mismo texto. La respuesta correcta es la oración tal cual.
-     */
-    private LogicaPreguntasAurea.Pregunta armarOpcionUnica(String oracion, AvanceBanco avance) {
-        // Primero con un dato de la oración (un número o un nombre): la pregunta pide ese dato y las incorrectas son la misma oración con el dato cambiado
-        EntidadesUtil.Entidad dato = EntidadesUtil.elegir(oracion, avance.entidades, avance.idf);
-        if (dato != null) {
-            String pregunta = redactarPreguntaDelDato(oracion, dato, avance);
-            if (pregunta != null) {
-                List<String> cambiadas = EntidadesUtil.incorrectas(oracion, dato, avance.entidades, avance.distractores, 3);
-                LogicaPreguntasAurea.Pregunta armada = LogicaPreguntasAurea.unicaConCambios(oracion, pregunta, cambiadas, avance.distractores, avance.usados);
-                if (armada != null) {
-                    return armada;
-                }
-            }
-        }
-        // Sin un dato que sirva: el modelo redacta la pregunta de la oración y las incorrectas son las oraciones más parecidas del documento
-        String enunciado = redactarPregunta(oracion, avance);
-        if (enunciado == null) {
-            REGISTRO.info("Opción única descartada: la pregunta del modelo no sirve para «{}»", oracion);
-            return null;
-        }
-        LogicaPreguntasAurea.Pregunta armada = LogicaPreguntasAurea.unica(oracion, enunciado, avance.distractores, avance.usados);
-        if (armada == null) {
-            REGISTRO.info("Opción única descartada: no hay tres oraciones distractoras buenas para «{}»", enunciado);
-        }
-        return armada;
-    }
-
-    /**
-     * Le pide al modelo una pregunta cuya respuesta sea el dato de la oración y la comprueba con la vuelta: le da la pregunta y la oración y le pide que
-     * la responda; si no responde con el dato, la pregunta no apunta a él y se descarta. También se descarta si nombra el dato (lo regalaría) o si tiene
-     * poca similitud con la oración. Prueba hasta tres versiones: la primera, la más precisa, y dos con más variedad.
-     */
-    private String redactarPreguntaDelDato(String oracion, EntidadesUtil.Entidad dato, AvanceBanco avance) {
-        String seccion = avance.secciones.getOrDefault(oracion, "");
-        String contextoValido = avance.contextoDelMaterial + " " + LogicaPreguntasAurea.ETIQUETA_DE_SECCION + ": " + seccion;
-        String contenido = conContexto(avance.contextoDelMaterial, oracion, seccion) + "\nDato: \"" + dato.texto() + "\"";
-        for (int version = 0; version < VERSIONES_DE_LA_PREGUNTA; version++) {
-            String texto = version == 0 ? pedirPregunta(INSTRUCCIONES_PREGUNTA_DEL_DATO, contenido) : pedirPreguntaVariada(INSTRUCCIONES_PREGUNTA_DEL_DATO, contenido);
-            String pregunta = LogicaPreguntasAurea.mejorEnunciado(oracion, contextoValido, List.of(texto == null ? "" : texto), avance.idf);
-            if (pregunta == null || (" " + LogicaPreguntasAurea.normalizar(pregunta) + " ").contains(" " + LogicaPreguntasAurea.normalizar(dato.texto()) + " ")) {
-                continue;
-            }
-            String respuesta = pedirRespuesta(oracion, pregunta);
-            String normalRespuesta = LogicaPreguntasAurea.normalizar(respuesta == null ? "" : respuesta);
-            String normalDato = LogicaPreguntasAurea.normalizar(dato.texto());
-            if (!normalRespuesta.isEmpty() && (normalRespuesta.contains(normalDato) || normalDato.contains(normalRespuesta))) {
-                return pregunta;
-            }
-        }
-        return null;
-    }
-
-    /** La vuelta: el modelo responde la pregunta usando solo la oración. Devuelve nulo si no responde. */
-    private String pedirRespuesta(String oracion, String pregunta) {
-        RespuestaIA respuesta = llamarAlModelo(INSTRUCCIONES_RESPUESTA, LogicaPreguntasAurea.ETIQUETA_DE_ORACION + ": \"" + oracion + "\"\nPregunta: \"" + pregunta
-                + "\"", RespuestaIA.class, EsquemasIA.respuesta());
-        return respuesta == null ? null : respuesta.respuesta();
-    }
-
-    /** 3.2 y 3.3. Le pide al modelo la pregunta de una oración y la comprueba. Devuelve nulo si el modelo falla o la pregunta no sirve. */
-    private String redactarPregunta(String oracion, AvanceBanco avance) {
-        String seccion = avance.secciones.getOrDefault(oracion, "");
-        // Las palabras de la sección también valen en la pregunta: el modelo las usa para nombrar de qué habla una oración que dice «su» o «esto»
-        String contextoValido = avance.contextoDelMaterial + " " + LogicaPreguntasAurea.ETIQUETA_DE_SECCION + ": " + seccion;
-        String contenido = conContexto(avance.contextoDelMaterial, oracion, seccion);
-        // La primera versión es la más precisa. Si ya sirve y no agrega palabras de su cuenta, no hace falta pedir más
-        List<String> versiones = new ArrayList<>();
-        versiones.add(pedirPregunta(INSTRUCCIONES_PREGUNTA, contenido));
-        String mejor = LogicaPreguntasAurea.mejorEnunciado(oracion, contextoValido, versiones, avance.idf);
-        if (mejor != null && LogicaPreguntasAurea.palabrasAjenas(oracion, contextoValido, mejor) == 0) {
-            return mejor;
-        }
-        // Las otras versiones se piden con más variedad, para que no sean la misma pregunta. Se elige la que se apoya más en la oración
-        for (int version = 1; version < VERSIONES_DE_LA_PREGUNTA; version++) {
-            versiones.add(pedirPreguntaVariada(INSTRUCCIONES_PREGUNTA, contenido));
-        }
-        return LogicaPreguntasAurea.mejorEnunciado(oracion, contextoValido, versiones, avance.idf);
-    }
-
     /** Cuántas versiones de la pregunta se piden como máximo para cada oración: el código elige la que mejor se apoya en ella. */
     private static final int VERSIONES_DE_LA_PREGUNTA = 3;
-
-    /** Pide una pregunta con más variedad (más temperatura y más palabras candidatas), para obtener versiones distintas de la misma oración. */
-    private String pedirPreguntaVariada(String instrucciones, String contenido) {
-        try {
-            PreguntaIA respuesta = modelo.generarObjeto(instrucciones, contenido, PreguntaIA.class, EsquemasIA.pregunta(), TOKENS_POR_LLAMADA, 0.7, 0.95, 40, 1.15);
-            return respuesta == null ? null : respuesta.pregunta();
-        } catch (ModeloIAException e) {
-            REGISTRO.warn("El modelo no respondió: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Opción múltiple: las dos correctas son las dos oraciones tal cual, la consigna la arma el código y las dos incorrectas son otras oraciones del
-     * texto que no mencionan la palabra clave de la consigna. El modelo no interviene.
-     */
-    private LogicaPreguntasAurea.Pregunta armarOpcionMultiple(String oracion, String pareja, String consigna, LogicaPreguntasAurea.Contexto contexto,
-            AvanceBanco avance) {
-        LogicaPreguntasAurea.Pregunta armada = LogicaPreguntasAurea.multiple(oracion, pareja, consigna,
-                LogicaPreguntasAurea.claveDeLaConsigna(oracion, pareja, contexto), avance.distractores, avance.usados);
-        if (armada == null) {
-            REGISTRO.info("Pregunta múltiple descartada: {} (no hay dos oraciones incorrectas buenas)", consigna);
-        }
-        return armada;
-    }
-
-    /**
-     * Verdadero o falso. Se alternan verdaderas y falsas. La verdadera es la oración (o su paráfrasis, que escribe el modelo); la falsa es el término de una
-     * definición con la definición de otro término, armada por el código. Si no se puede armar una falsa, se arma una verdadera.
-     */
-    private LogicaPreguntasAurea.Pregunta armarVerdaderoFalso(String oracion, AvanceBanco avance) {
-        // Un objetivo en infinitivo («Gestionar pagos…») no es una afirmación: no se puede decir si es verdadero o falso
-        if (LogicaPreguntasAurea.esItemDeLista(oracion)) {
-            return null;
-        }
-        String falsa = avance.deVerdaderoFalso() % 2 == 1 ? LogicaPreguntasAurea.falsaDeDefinicion(oracion, avance.distractores) : null;
-        LogicaPreguntasAurea.Pregunta armada = falsa != null ? LogicaPreguntasAurea.verdaderoFalsoFalso(falsa, avance.usados)
-                : LogicaPreguntasAurea.verdaderoFalso(oracion, pedirAfirmacion(oracion, avance.contextoDelMaterial, avance.secciones.getOrDefault(oracion, "")), avance.usados);
-        if (armada == null) {
-            REGISTRO.info("Verdadero o falso descartado: {}", oracion);
-        }
-        return armada;
-    }
 
     private boolean hayTiempo(long inicio) {
         return (System.currentTimeMillis() - inicio) / 1000 < maximoSegundosBanco;
@@ -1442,13 +1405,11 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         Pool pool = poolRepository.findById(idPool).orElseThrow();
         pool.setDetalleError(null);
         Tema tema = pool.getTema();
-        List<Documento> documentos = new ArrayList<>();
-        for (TemaRecurso candidato : temaRecursoRepository.findByTemaAndBajaFalse(tema)) {
-            Recurso otro = candidato.getRecurso();
-            Bibliografia bibliografia = otro.getBibliografia();
-            if (!otro.esInactivo() && bibliografia != null && bibliografia.getRutaArchivo() != null && tieneTextoListo(bibliografia)) {
-                documentos.add(new Documento(otro.getTitulo(), bibliografia.getRutaArchivo(), indiceDe(otro)));
-            }
+        List<Documento> elegidas = poolFuenteRepository.findByPool(pool).stream().map(PoolFuente::getDocumento).toList();
+        List<Fuente> documentos = leerFuentes(elegidas);
+        java.util.Map<Integer, Integer> usos = new java.util.HashMap<>();
+        for (Object[] fila : preguntaRepository.contarEvidenciasDelTema(tema)) {
+            usos.put(((Number) fila[0]).intValue(), ((Number) fila[1]).intValue());
         }
         List<String> glosario = terminoGlosarioRepository.findByTemaAndBajaFalse(tema).stream()
                 .map((TerminoGlosario t) -> t.getTermino() + ": " + t.getDefinicion()).toList();
@@ -1456,19 +1417,21 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 Parametro.IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO)));
         int porcentaje = Math.max(0, Math.min(100, parametroService.obtenerEntero(Parametro.IA_PROPORCION_OPCION_MULTIPLE,
                 Parametro.IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO)));
-        int porcentajeModelo = Math.max(0, Math.min(100, parametroService.obtenerEntero(Parametro.IA_PROPORCION_MODELO,
-                Parametro.IA_PROPORCION_MODELO_POR_DEFECTO)));
-        int estrategia = parametroService.obtenerEntero(Parametro.IA_ESTRATEGIA_BANCO, Parametro.IA_ESTRATEGIA_BANCO_POR_DEFECTO);
-        return new PedidoBanco(tema.getTitulo(), documentos, glosario, preguntas, porcentaje, porcentajeModelo, estrategia,
-                preguntaRepository.findTextosDeOtrosPoolsDelTema(tema, idPool));
+        return new PedidoBanco(tema.getTitulo(), documentos, glosario, preguntas, porcentaje,
+                preguntaRepository.findTextosDeOtrosPoolsDelTema(tema, idPool), usos);
     }
 
     /** Guarda las preguntas y sus opciones en el pool y lo da por generado. */
-    private void terminarBanco(int idPool, List<LogicaPreguntasAurea.Pregunta> preguntas) {
+    private void terminarBanco(int idPool, List<LogicaPreguntasAurea.Pregunta> preguntas, java.util.Map<String, Integer> idsDeOraciones) {
         Pool pool = poolRepository.findById(idPool).orElseThrow();
         for (LogicaPreguntasAurea.Pregunta valida : preguntas) {
-            Pregunta pregunta = preguntaRepository.save(new Pregunta(pool, valida.enunciado(),
-                    valida.tipo() == LogicaPreguntasAurea.Tipo.MULTIPLE_CHOICE));
+            Pregunta nueva = new Pregunta(pool, valida.enunciado(), valida.tipo() == LogicaPreguntasAurea.Tipo.MULTIPLE_CHOICE);
+            // La oración del documento de la que salió la pregunta queda registrada
+            Integer idOracion = valida.evidencia() == null ? null : idsDeOraciones.get(valida.evidencia());
+            if (idOracion != null) {
+                nueva.setOracionEvidencia(oracionRepository.getReferenceById(idOracion));
+            }
+            Pregunta pregunta = preguntaRepository.save(nueva);
             for (LogicaPreguntasAurea.Opcion opcion : valida.opciones()) {
                 pregunta.getOpcionesRespuesta().add(opcionRespuestaRepository
                         .save(new OpcionRespuesta(pregunta, opcion.texto(), opcion.correcta())));
@@ -1478,7 +1441,31 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         pool.setEstadoGeneracionIa(estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.LISTO).orElseThrow());
         pool.setDetalleError(null);
         pool.setUltimaModificacion(LocalDateTime.now());
+        avisarPool(pool, true, null);
     }
+
+    /** Avisa al docente que pidió el banco de preguntas que ya está listo para revisar, o que falló. */
+    private void avisarPool(Pool pool, boolean listo, String motivo) {
+        com.app.idoneos.model.Usuario docente = solicitantesDePool.remove(pool.getIdPool());
+        // Si la cola estaba llena el docente ya lo vio en pantalla al pedirlo: no hace falta avisarle de nuevo
+        if (docente == null || (!listo && MOTIVO_COLA_LLENA.equals(motivo))) {
+            return;
+        }
+        String url = "/pool/buscar?cursoId=" + pool.getTema().getCurso().getIdCurso();
+        if (listo) {
+            notificacionService.notificar(docente, com.app.idoneos.model.TipoNotificacion.MATERIAL_PARA_REVISAR, "Un pool está listo para revisar",
+                    "El pool «" + pool.getNombre() + "» del tema «" + pool.getTema().getTitulo() + "» ya se generó. Revisalo antes de usarlo en una autoevaluación.",
+                    url, null, false);
+        } else {
+            notificacionService.notificar(docente, com.app.idoneos.model.TipoNotificacion.GENERACION_FALLIDA, "Falló la generación de un pool",
+                    "No se pudo generar el pool «" + pool.getNombre() + "» del tema «" + pool.getTema().getTitulo() + "»: "
+                            + abreviar(motivo, 250) + " Podés intentarlo de nuevo.",
+                    url, null, false);
+        }
+    }
+
+    /** Motivo con el que se marca una generación cuando no hay lugar en la cola. */
+    private static final String MOTIVO_COLA_LLENA = "La cola de generación está llena.";
 
     /** Pasa el pool a error con el motivo, sin dejar nunca que esto mismo falle hacia afuera. */
     private void marcarErrorBanco(int idPool, String motivo) {
@@ -1487,6 +1474,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
                 Pool pool = poolRepository.findById(idPool).orElseThrow();
                 pool.setEstadoGeneracionIa(estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.FALLIDO).orElseThrow());
                 pool.setDetalleError(abreviar(motivo, LARGO_DETALLE));
+                avisarPool(pool, false, motivo);
             });
         } catch (RuntimeException e) {
             REGISTRO.error("No se pudo registrar el error del pool {}: {}", idPool, e.getMessage());
@@ -1536,7 +1524,7 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
             }
         }
         if (bloques.isEmpty()) {
-            throw new ModeloIAException("El modelo no pudo armar " + Tipo.RESUMEN.conArticuloIndefinido + " que se base en la bibliografía del tema.");
+            throw new ModeloIAException("El modelo no pudo armar " + Tipo.RESUMEN.conArticuloIndefinido + " que se base en el material bibliográfico del tema.");
         }
         return new Resumen(dividido.titulo(), aEsqueleto(bloques));
     }
@@ -1690,8 +1678,8 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     }
 
     /** Guarda el archivo y su índice en el material y lo da por generado. */
-    private void terminar(int idMaterial, String ruta, long tamanio, int paginas, List<Marcador> indice) {
-        MaterialLectura material = materialLecturaRepository.findById(idMaterial).orElseThrow();
+    private void terminar(int idMaterial, String ruta, long tamanio, int paginas, List<Marcador> indice, List<Seccion> secciones) {
+        MaterialDidactico material = materialDidacticoRepository.findById(idMaterial).orElseThrow();
         material.setRutaArchivo(ruta);
         material.setTamanioBytes(tamanio);
         material.setExtension("pdf");
@@ -1700,14 +1688,264 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
         material.setEstadoGeneracionIa(estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.LISTO).orElseThrow());
         material.setDetalleError(null);
         material.getRecurso().setUltimaModificacion(LocalDateTime.now());
+        avisarMaterial(material, true, null);
         try {
             List<java.util.Map<String, Object>> entradas = new ArrayList<>();
             for (Marcador marcador : indice) {
                 entradas.add(java.util.Map.of("titulo", marcador.titulo(), "pagina", marcador.pagina(), "nivel", marcador.nivel()));
             }
-            indiceService.reemplazar(material.getRecurso(), new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(entradas));
+            indiceService.reemplazar(material.getRecurso().getDocumento(), new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(entradas));
+            // El texto del archivo generado queda guardado tal cual se escribió: se puede editar y usar como fuente de otro material
+            estructuraService.guardarSecciones(material.getRecurso().getDocumento(), secciones);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             throw new IllegalStateException("No se pudo guardar el índice del archivo generado.", e);
+        }
+    }
+
+    // ----------------------------------------------------------------------
+    // Edición del contenido generado
+    // ----------------------------------------------------------------------
+
+    private static final int MAXIMO_SECCIONES = 60;
+    private static final int MAXIMO_TEXTOS_POR_SECCION = 200;
+    private static final int MAXIMO_LARGO_TEXTO = 2000;
+    private static final int MAXIMO_LARGO_TITULO = 150;
+
+    /** Las secciones de un resumen: cada bloque con subtítulo abre una; los que no lo tienen siguen la sección anterior. */
+    private static List<Seccion> seccionesDe(Resumen resumen) {
+        List<String> titulos = new ArrayList<>();
+        List<List<String>> textos = new ArrayList<>();
+        for (Resumen.Bloque bloque : resumen.bloques() == null ? List.<Resumen.Bloque>of() : resumen.bloques()) {
+            String titulo = bloque.subtitulo() == null ? "" : bloque.subtitulo().strip();
+            if (!titulo.isEmpty() || titulos.isEmpty()) {
+                titulos.add(titulo.isEmpty() ? "Resumen" : titulo);
+                textos.add(new ArrayList<>());
+            }
+            for (String parrafo : bloque.parrafos() == null ? List.<String>of() : bloque.parrafos()) {
+                if (parrafo != null && !parrafo.isBlank()) {
+                    textos.get(textos.size() - 1).add(parrafo.strip());
+                }
+            }
+        }
+        List<Seccion> secciones = new ArrayList<>();
+        for (int i = 0; i < titulos.size(); i++) {
+            // Los títulos «2.1. …» son del segundo nivel, bajo «2. Desarrollo»
+            secciones.add(new Seccion(titulos.get(i), titulos.get(i).matches("^\\d+\\.\\d+\\.\\s.*") ? 2 : 1, textos.get(i)));
+        }
+        return secciones;
+    }
+
+    /** Las secciones de una presentación: una por diapositiva, salvo las que siguen a otra con el mismo título. */
+    private static List<Seccion> seccionesDe(Presentacion presentacion) {
+        List<Seccion> secciones = new ArrayList<>();
+        for (Presentacion.Diapositiva diapositiva : presentacion.diapositivas()) {
+            String titulo = diapositiva.titulo() == null ? "" : diapositiva.titulo().strip();
+            boolean continuacion = titulo.endsWith("(continuación)") && !secciones.isEmpty();
+            List<String> puntos = diapositiva.puntos() == null ? List.of() : diapositiva.puntos().stream().filter(s -> s != null && !s.isBlank())
+                    .map(String::strip).toList();
+            if (continuacion) {
+                secciones.get(secciones.size() - 1).textos().addAll(puntos);
+            } else if (!titulo.isEmpty()) {
+                // Un «2.1. …» sin su «2. Desarrollo» delante: se agrega el padre, que no tiene diapositiva propia
+                java.util.regex.Matcher hijo = java.util.regex.Pattern.compile("^(\\d+)\\.\\d+\\.\\s").matcher(titulo);
+                if (hijo.find() && secciones.stream().noneMatch(s -> s.titulo().startsWith(hijo.group(1) + ". "))) {
+                    secciones.add(new Seccion(hijo.group(1) + ". Desarrollo", 1, new ArrayList<>()));
+                }
+                secciones.add(new Seccion(titulo, titulo.matches("^\\d+\\.\\d+\\.\\s.*") ? 2 : 1, new ArrayList<>(puntos)));
+            }
+        }
+        return secciones;
+    }
+
+    @Override
+    public boolean puedeEditarContenido(Docente docente, TemaRecurso material) {
+        return Boolean.TRUE.equals(transaccion.execute(estado -> puedeEditar(docente, material)));
+    }
+
+    private boolean puedeEditar(Docente docente, TemaRecurso material) {
+        if (docente == null || material == null) {
+            return false;
+        }
+        TemaRecurso actual = temaRecursoRepository.findById(material.getClave()).orElse(null);
+        if (actual == null || actual.getBaja() || !Boolean.TRUE.equals(actual.getOculto()) || actual.getRecurso().esInactivo()) {
+            return false;
+        }
+        MaterialDidactico didactico = actual.getRecurso().getMaterialDidactico();
+        if (didactico == null || didactico.getEstadoGeneracionIa() == null
+                || !EstadoGeneracionIA.LISTO.equals(didactico.getEstadoGeneracionIa().getNombre())) {
+            return false;
+        }
+        return integranteEquipoRepository.findByCursoAndBajaFalse(actual.getTema().getCurso()).stream()
+                .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
+    }
+
+    @Override
+    public ContenidoEditable contenido(Docente docente, TemaRecurso material) {
+        return transaccion.execute(estado -> {
+            if (!puedeEditar(docente, material)) {
+                throw new IllegalArgumentException("Error! No se puede editar el contenido de este material.");
+            }
+            TemaRecurso actual = temaRecursoRepository.findById(material.getClave()).orElseThrow();
+            return new ContenidoEditable(actual.getRecurso().getTitulo(), estructuraService.secciones(actual.getRecurso().getDocumento()));
+        });
+    }
+
+    @Override
+    public void guardarContenido(Docente docente, TemaRecurso material, ContenidoEditable contenido) {
+        List<Seccion> secciones = validarSecciones(contenido == null ? null : contenido.secciones());
+        String tituloNuevo = contenido.titulo() == null ? "" : contenido.titulo().strip().replaceAll("\\s+", " ");
+        if (tituloNuevo.isEmpty()) {
+            throw new IllegalArgumentException("Error! El título del documento no puede estar vacío.");
+        }
+        if (tituloNuevo.length() > 150) {
+            throw new IllegalArgumentException("Error! El título del documento puede tener hasta 150 caracteres.");
+        }
+        transaccion.executeWithoutResult(estado -> {
+            Recurso recurso = recursoEditable(docente, material);
+            Documento documento = recurso.getDocumento();
+            // El índice conserva las páginas de las entradas que siguen; las nuevas toman la de la anterior, hasta que se regenere el archivo
+            List<IndiceDocumentoService.Entrada> actuales = new ArrayList<>(indiceService.buscar(documento));
+            List<java.util.Map<String, Object>> entradas = new ArrayList<>();
+            int pagina = 1;
+            for (Seccion seccion : secciones) {
+                IndiceDocumentoService.Entrada igual = actuales.stream().filter(e -> e.titulo().equals(seccion.titulo().strip())).findFirst().orElse(null);
+                if (igual != null) {
+                    actuales.remove(igual);
+                    pagina = igual.pagina();
+                }
+                entradas.add(java.util.Map.of("titulo", seccion.titulo(), "pagina", pagina, "nivel", seccion.nivel()));
+            }
+            try {
+                indiceService.reemplazar(documento, new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(entradas));
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                throw new IllegalStateException("No se pudo guardar el índice del material.", e);
+            }
+            estructuraService.guardarSecciones(documento, secciones);
+            // reemplazar() limpia el contexto de persistencia: el recurso se vuelve a leer para cambiarle el título
+            Recurso actualizado = recursoRepository.findById(recurso.getIdRecurso()).orElseThrow();
+            if (!tituloNuevo.equals(actualizado.getTitulo())) {
+                actualizado.setTitulo(tituloNuevo);
+                actualizado.setUltimaModificacion(LocalDateTime.now());
+                recursoRepository.saveAndFlush(actualizado);
+            }
+        });
+    }
+
+    /** Comprueba que el docente puede editar el material y que no es fuente de otro contenido; devuelve su recurso. */
+    private Recurso recursoEditable(Docente docente, TemaRecurso material) {
+        if (!puedeEditar(docente, material)) {
+            throw new IllegalArgumentException("Error! No se puede editar el contenido de este material. Solo se edita mientras está oculto.");
+        }
+        Recurso recurso = temaRecursoRepository.findById(material.getClave()).orElseThrow().getRecurso();
+        if (documentoFuenteRepository.enUsoPorIa(recurso.getDocumento().getIdDocumento())) {
+            throw new IllegalArgumentException("Error! No se puede modificar el documento «" + recurso.getTitulo()
+                    + "» porque es fuente o evidencia de contenido generado con inteligencia artificial.");
+        }
+        return recurso;
+    }
+
+    @Override
+    public void regenerarArchivo(Docente docente, TemaRecurso material) {
+        transaccion.executeWithoutResult(estado -> {
+            Recurso recurso = recursoEditable(docente, material);
+            Documento documento = recurso.getDocumento();
+            List<Seccion> secciones = estructuraService.secciones(documento);
+            if (secciones.isEmpty()) {
+                throw new IllegalArgumentException("Error! El contenido debe tener al menos una sección con texto.");
+            }
+            boolean presentacion = CategoriaMaterialDidactico.PRESENTACION
+                    .equals(documento.getMaterialDidactico().getCategoriaMaterialDidactico().getNombre());
+            String fuentes = String.join(", ", documentoFuenteRepository.findByDocumento(documento).stream()
+                    .map(f -> f.getDocumentoFuente().getRecurso().getTitulo()).toList());
+            String lecturas = "Contenido editado por el docente." + (fuentes.isEmpty() ? "" : " Fuentes: " + fuentes + ".");
+            Path destino = ManejadorArchivosUtil.resolver(directorioCursos, documento.getRutaArchivo());
+            Path temporal = destino.resolveSibling(destino.getFileName() + ".tmp");
+            try {
+                List<Resumen.Bloque> bloques = secciones.stream().map(s -> new Resumen.Bloque(s.titulo(), s.textos(), s.nivel())).toList();
+                int paginas;
+                if (presentacion) {
+                    paginas = PresentacionPdfUtil.escribir(recurso.getTitulo(), presentacionDesdeResumen(new Resumen("", bloques)), lecturas, temporal);
+                } else {
+                    paginas = ResumenPdfUtil.escribir(recurso.getTitulo(), new Resumen("", bloques), lecturas, temporal);
+                }
+                // El índice sigue los niveles que armó el docente, con la página en la que quedó cada título
+                int[] paginasDeTitulos = TextoPdfUtil.ubicarTitulos(temporal, secciones.stream().map(Seccion::titulo).toList());
+                List<java.util.Map<String, Object>> entradas = new ArrayList<>();
+                for (int i = 0; i < secciones.size(); i++) {
+                    // Una sección sin textos no tiene página propia: va a la de la que le sigue
+                    int paginaDeEntrada = secciones.get(i).textos().isEmpty() && i + 1 < secciones.size() ? paginasDeTitulos[i + 1] : paginasDeTitulos[i];
+                    entradas.add(java.util.Map.of("titulo", secciones.get(i).titulo(), "pagina", Math.max(1, paginaDeEntrada), "nivel", secciones.get(i).nivel()));
+                }
+                int idMaterialDidactico = documento.getMaterialDidactico().getIdMaterialDidactico();
+                indiceService.reemplazar(documento, new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(entradas));
+                estructuraService.guardarSecciones(documento, secciones);
+                // reemplazar() limpia el contexto de persistencia: el material se vuelve a leer antes de cambiarlo
+                MaterialDidactico didactico = materialDidacticoRepository.findById(idMaterialDidactico).orElseThrow();
+                didactico.setPaginas(paginas);
+                didactico.setTamanioBytes(Files.size(temporal));
+                didactico.getRecurso().setUltimaModificacion(LocalDateTime.now());
+                materialDidacticoRepository.saveAndFlush(didactico);
+                Files.move(temporal, destino, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException e) {
+                borrarSiExiste(temporal);
+                throw new IllegalStateException("No se pudo regenerar el archivo del material.", e);
+            } catch (RuntimeException e) {
+                borrarSiExiste(temporal);
+                throw e;
+            }
+        });
+    }
+
+    /** Valida el contenido que mandó el docente: textos limpios, sin secciones vacías y dentro de los máximos. */
+    private static List<Seccion> validarSecciones(List<Seccion> pedidas) {
+        List<Seccion> secciones = new ArrayList<>();
+        for (Seccion pedida : pedidas == null ? List.<Seccion>of() : pedidas) {
+            String titulo = pedida.titulo() == null ? "" : pedida.titulo().strip().replaceAll("\\s+", " ");
+            List<String> textos = new ArrayList<>();
+            for (String texto : pedida.textos() == null ? List.<String>of() : pedida.textos()) {
+                String limpio = texto == null ? "" : texto.strip().replaceAll("\\s+", " ");
+                if (limpio.length() > MAXIMO_LARGO_TEXTO) {
+                    throw new IllegalArgumentException("Error! Cada texto puede tener hasta " + MAXIMO_LARGO_TEXTO + " caracteres.");
+                }
+                if (!limpio.isEmpty()) {
+                    textos.add(limpio);
+                }
+            }
+            if (titulo.isEmpty() && textos.isEmpty()) {
+                continue;
+            }
+            if (titulo.isEmpty()) {
+                throw new IllegalArgumentException("Error! Todas las secciones deben tener título.");
+            }
+            if (titulo.length() > MAXIMO_LARGO_TITULO) {
+                throw new IllegalArgumentException("Error! El título de una sección puede tener hasta " + MAXIMO_LARGO_TITULO + " caracteres.");
+            }
+            if (textos.size() > MAXIMO_TEXTOS_POR_SECCION) {
+                throw new IllegalArgumentException("Error! Una sección puede tener hasta " + MAXIMO_TEXTOS_POR_SECCION + " textos.");
+            }
+            // Una sección sin textos es válida: agrupa a las de los niveles de abajo (por ejemplo, «2. Desarrollo»)
+            secciones.add(new Seccion(titulo, Math.max(1, Math.min(4, pedida.nivel())), textos));
+        }
+        if (secciones.stream().allMatch(s -> s.textos().isEmpty())) {
+            throw new IllegalArgumentException("Error! El contenido debe tener al menos una sección con texto.");
+        }
+        if (secciones.size() > MAXIMO_SECCIONES) {
+            throw new IllegalArgumentException("Error! El contenido puede tener hasta " + MAXIMO_SECCIONES + " secciones.");
+        }
+        return secciones;
+    }
+
+    /** Avisa al docente dueño del material generado que ya está listo para revisar, o que falló. */
+    private void avisarMaterial(MaterialDidactico material, boolean listo, String motivo) {
+        Recurso recurso = material.getRecurso();
+        com.app.idoneos.model.Usuario docente = recurso.getDocente().getUsuario();
+        String url = "/recurso/ver/" + recurso.getIdRecurso();
+        if (listo) {
+            notificacionService.notificar(docente, com.app.idoneos.model.TipoNotificacion.MATERIAL_PARA_REVISAR, "Un material está listo para revisar",
+                    "El material «" + recurso.getTitulo() + "» ya se generó. Revisalo antes de publicarlo.", url, null, false);
+        } else if (!MOTIVO_COLA_LLENA.equals(motivo)) {
+            notificacionService.notificar(docente, com.app.idoneos.model.TipoNotificacion.GENERACION_FALLIDA, "Falló la generación de un material",
+                    "No se pudo generar el material «" + recurso.getTitulo() + "»: " + abreviar(motivo, 250) + " Podés intentarlo de nuevo.", url, null, false);
         }
     }
 
@@ -1715,9 +1953,10 @@ public class GeneracionIAServiceImpl implements GeneracionIAService {
     private void marcarError(int idMaterial, String motivo) {
         try {
             transaccion.executeWithoutResult(estado -> {
-                MaterialLectura material = materialLecturaRepository.findById(idMaterial).orElseThrow();
+                MaterialDidactico material = materialDidacticoRepository.findById(idMaterial).orElseThrow();
                 material.setEstadoGeneracionIa(estadoGeneracionRepository.findByNombre(EstadoGeneracionIA.FALLIDO).orElseThrow());
                 material.setDetalleError(abreviar(motivo, LARGO_DETALLE));
+                avisarMaterial(material, false, motivo);
             });
         } catch (RuntimeException e) {
             REGISTRO.error("No se pudo registrar el error del material {}: {}", idMaterial, e.getMessage());

@@ -1,15 +1,16 @@
 package com.app.idoneos.service.recurso;
 
 import com.app.idoneos.model.Alumno;
-import com.app.idoneos.model.Bibliografia;
-import com.app.idoneos.model.CategoriaMaterialLectura;
+import com.app.idoneos.model.Documento;
+import com.app.idoneos.model.MaterialBibliografico;
+import com.app.idoneos.model.CategoriaMaterialDidactico;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Enlace;
 import com.app.idoneos.model.Grabacion;
 import com.app.idoneos.model.Inscripcion;
-import com.app.idoneos.model.MaterialLectura;
+import com.app.idoneos.model.MaterialDidactico;
 import com.app.idoneos.model.Modalidad;
 import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.Tema;
@@ -17,18 +18,21 @@ import com.app.idoneos.model.TemaRecurso;
 import com.app.idoneos.model.VideoClon;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.model.Usuario;
-import com.app.idoneos.repository.BibliografiaRepository;
-import com.app.idoneos.repository.CategoriaMaterialLecturaRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.MaterialBibliograficoRepository;
+import com.app.idoneos.repository.CategoriaMaterialDidacticoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.EnlaceRepository;
 import com.app.idoneos.repository.GrabacionRepository;
-import com.app.idoneos.repository.MaterialLecturaRepository;
+import com.app.idoneos.repository.MaterialDidacticoRepository;
 import com.app.idoneos.repository.RecursoRepository;
 import com.app.idoneos.repository.TemaRecursoRepository;
 import com.app.idoneos.repository.TemaRepository;
 import com.app.idoneos.repository.VideoClonRepository;
 import com.app.idoneos.service.CrudService;
 import com.app.idoneos.service.inscripcion.InscripcionService;
+import com.app.idoneos.service.estructura.EstructuraDocumentoService;
+import com.app.idoneos.service.indice.IndiceDocumentoService;
+import com.app.idoneos.util.IdentificadorUtil;
 import com.app.idoneos.util.ManejadorArchivosUtil;
 import com.app.idoneos.util.MensajeErrorUtil;
 import com.app.idoneos.util.RespuestaFormularioUtil;
@@ -52,8 +56,8 @@ public class RecursoServiceImpl implements RecursoService {
     private static final int LARGO_TITULO = 150;
     private static final int LARGO_DESCRIPCION = 500;
     private static final int LARGO_AUTOR = 100;
-    private static final int LARGO_ISBN = 17;
-    private static final int LARGO_EDITORIAL = 100;
+    private static final int LARGO_IDENTIFICADOR = 150;
+    private static final int LARGO_PUBLICADO_EN = 150;
     private static final int LARGO_ENLACE = 500;
 
     @Autowired
@@ -64,10 +68,19 @@ public class RecursoServiceImpl implements RecursoService {
     private Path directorioCursos;
 
     @Autowired
+    private IndiceDocumentoService indiceService;
+
+    @Autowired
+    private EstructuraDocumentoService estructuraService;
+
+    @Autowired
     private TemaRecursoRepository temaRecursoRepository;
 
     @Autowired
     private RecursoRepository recursoRepository;
+
+    @Autowired
+    private com.app.idoneos.repository.DocumentoFuenteRepository documentoFuenteRepository;
 
     @Autowired
     private EnlaceRepository enlaceRepository;
@@ -76,16 +89,16 @@ public class RecursoServiceImpl implements RecursoService {
     private GrabacionRepository grabacionRepository;
 
     @Autowired
-    private MaterialLecturaRepository materialLecturaRepository;
+    private MaterialDidacticoRepository materialDidacticoRepository;
 
     @Autowired
-    private BibliografiaRepository bibliografiaRepository;
+    private MaterialBibliograficoRepository materialBibliograficoRepository;
 
     @Autowired
     private VideoClonRepository videoClonRepository;
 
     @Autowired
-    private CategoriaMaterialLecturaRepository categoriaMaterialLecturaRepository;
+    private CategoriaMaterialDidacticoRepository categoriaMaterialDidacticoRepository;
 
     @Autowired
     private TemaRepository temaRepository;
@@ -94,7 +107,7 @@ public class RecursoServiceImpl implements RecursoService {
     private InscripcionService inscripcionService;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -102,7 +115,7 @@ public class RecursoServiceImpl implements RecursoService {
 
     /** Busca el material por su identificador. */
     @Override
-    public Optional<TemaRecurso> buscarPorId(Integer id) {
+    public Optional<TemaRecurso> buscarPorId(TemaRecurso.Clave id) {
         return temaRecursoRepository.findById(id).filter(entidad -> !entidad.esInactivo());
     }
 
@@ -114,7 +127,7 @@ public class RecursoServiceImpl implements RecursoService {
 
     /** Verifica si existe un registro activo con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(TemaRecurso.Clave id) {
         return buscarPorId(id).isPresent();
     }
 
@@ -122,7 +135,7 @@ public class RecursoServiceImpl implements RecursoService {
     @Override
     public List<TemaRecurso> buscarPorTema(Tema tema) {
         return temaRecursoRepository.findByTemaAndBajaFalse(tema).stream()
-                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(TemaRecurso::getIdTemaRecurso))
+                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(m -> m.getRecurso().getIdRecurso()))
                 .toList();
     }
 
@@ -140,7 +153,7 @@ public class RecursoServiceImpl implements RecursoService {
                 .filter(m -> soloDeDocente == null || participaEnElCurso(m.getCurso(), soloDeDocente))
                 .sorted(Comparator.comparing(TemaRecurso::getBaja)
                         .thenComparingInt((TemaRecurso m) -> m.getTema().getIdTema())
-                        .thenComparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(TemaRecurso::getIdTemaRecurso))
+                        .thenComparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(m -> m.getRecurso().getIdRecurso()))
                 .toList();
     }
 
@@ -228,7 +241,7 @@ public class RecursoServiceImpl implements RecursoService {
 
     @Override
     @Transactional
-    public Recurso subirABiblioteca(Docente docente, String tipoTexto, DatosRecurso datos, MultipartFile archivo, boolean terminos) {
+    public Recurso subirABiblioteca(Docente docente, String tipoTexto, DatosRecurso datos, MultipartFile archivo, boolean terminos, String indiceJson) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
@@ -238,7 +251,7 @@ public class RecursoServiceImpl implements RecursoService {
         }
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatos(tipo, datos, hayArchivo, true);
-        validarIsbnNoRepetido(tipo, datos, -1);
+        validarIdentificadorNoRepetido(tipo, datos, -1);
         if (hayArchivo) {
             ManejadorArchivosUtil.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
@@ -248,12 +261,26 @@ public class RecursoServiceImpl implements RecursoService {
         }
         Recurso recurso = new Recurso(docente, datos.titulo().trim());
         recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
-        recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
+        recurso.setPrivado(tipo != TipoRecurso.MATERIAL_BIBLIOGRAFICO && datos.privado()); // las bibliografías son siempre públicas
         recurso.setFechaAceptacionTyc(LocalDateTime.now());
         recurso = recursoRepository.saveAndFlush(recurso); // para conocer su identificador
         String ruta = hayArchivo ? guardarArchivoEnBiblioteca(recurso, docente, tipo, archivo) : null;
         crearDatosPropios(recurso, tipo, datos, ruta, hayArchivo ? archivo.getSize() : null);
+        guardarEstructura(recurso, indiceJson);
         return recurso;
+    }
+
+    @Override
+    public boolean esFuenteDeIa(Recurso recurso) {
+        return recurso.getDocumento() != null && documentoFuenteRepository.enUsoPorIa(recurso.getDocumento().getIdDocumento());
+    }
+
+    /** Rechaza el cambio si el documento es fuente o evidencia de contenido generado con IA vigente. */
+    private void validarNoEsFuenteDeIa(Recurso recurso, String accion) {
+        if (esFuenteDeIa(recurso)) {
+            throw new IllegalArgumentException("Error! No se puede " + accion + " el documento «" + recurso.getTitulo()
+                    + "» porque es fuente o evidencia de contenido generado con inteligencia artificial.");
+        }
     }
 
     @Override
@@ -269,9 +296,10 @@ public class RecursoServiceImpl implements RecursoService {
             throw new IllegalArgumentException(MensajeErrorUtil.armarAccionBloqueada("modificar", "el recurso", recurso.getTitulo(),
                     "tiene " + MensajeErrorUtil.formatearCantidad(usos, "tema asociado", "temas asociados"), ""));
         }
+        validarNoEsFuenteDeIa(recurso, "modificar");
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatos(tipo, datos, hayArchivo, false);
-        validarIsbnNoRepetido(tipo, datos, recurso.getIdRecurso());
+        validarIdentificadorNoRepetido(tipo, datos, recurso.getIdRecurso());
         if (hayArchivo) {
             ManejadorArchivosUtil.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
@@ -283,7 +311,7 @@ public class RecursoServiceImpl implements RecursoService {
         actualizarDatosPropios(recurso, tipo, datos, rutaNueva, hayArchivo ? archivo.getSize() : null);
         recurso.setTitulo(datos.titulo().trim());
         recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
-        recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
+        recurso.setPrivado(tipo != TipoRecurso.MATERIAL_BIBLIOGRAFICO && datos.privado()); // las bibliografías son siempre públicas
         recurso.setUltimaModificacion(LocalDateTime.now());
         return recursoRepository.save(recurso);
     }
@@ -302,6 +330,7 @@ public class RecursoServiceImpl implements RecursoService {
 
     /** Comprueba que ningún tema use el recurso. Si alguno lo usa, la baja no se puede. */
     private void validarSinUsos(Recurso recurso) {
+        validarNoEsFuenteDeIa(recurso, "dar de baja");
         long usos = contarUsos(recurso);
         if (usos > 0) {
             throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", recurso.getTitulo(),
@@ -380,18 +409,18 @@ public class RecursoServiceImpl implements RecursoService {
                 renombrados++;
             }
         }
-        for (MaterialLectura lectura : materialLecturaRepository.findAll()) {
-            boolean resumen = CategoriaMaterialLectura.RESUMEN.equals(lectura.getCategoriaMaterialLectura().getNombre());
-            String nueva = renombrarArchivo(lectura.getRutaArchivo(), resumen ? "resumen" : "presentacion");
+        for (MaterialDidactico lectura : materialDidacticoRepository.findAll()) {
+            TipoRecurso tipoDeLectura = TipoRecurso.deTexto(lectura.getCategoriaMaterialDidactico().getNombre());
+            String nueva = renombrarArchivo(lectura.getRutaArchivo(), tipoDeLectura == null ? "presentacion" : tipoDeLectura.getNombreDeArchivo());
             if (nueva != null) {
                 lectura.setRutaArchivo(nueva);
                 renombrados++;
             }
         }
-        for (Bibliografia bibliografia : bibliografiaRepository.findAll()) {
-            String nueva = renombrarArchivo(bibliografia.getRutaArchivo(), "bibliografia");
+        for (MaterialBibliografico materialBibliografico : materialBibliograficoRepository.findAll()) {
+            String nueva = renombrarArchivo(materialBibliografico.getRutaArchivo(), "bibliografia");
             if (nueva != null) {
-                bibliografia.setRutaArchivo(nueva);
+                materialBibliografico.setRutaArchivo(nueva);
                 renombrados++;
             }
         }
@@ -449,10 +478,10 @@ public class RecursoServiceImpl implements RecursoService {
     @Override
     @Transactional
     public TemaRecurso subir(Docente docente, Integer idTema, String tipoTexto, DatosRecurso datos,
-            MultipartFile archivo, boolean terminos) {
+            MultipartFile archivo, boolean terminos, String indiceJson) {
         Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El tema no se encuentra activa."));
-        DocenteCurso participacion = obtenerParticipacion(tema.getCurso(), docente);
+        IntegranteEquipo participacion = obtenerParticipacion(tema.getCurso(), docente);
         TipoRecurso tipo = TipoRecurso.deTexto(tipoTexto);
         if (tipo == null || !tipo.permiteSubidaManual()) {
             throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar un tipo de recurso de la lista.");
@@ -463,7 +492,7 @@ public class RecursoServiceImpl implements RecursoService {
         }
         boolean hayArchivo = archivo != null && !archivo.isEmpty();
         validarDatos(tipo, datos, hayArchivo, true);
-        validarIsbnNoRepetido(tipo, datos, -1);
+        validarIdentificadorNoRepetido(tipo, datos, -1);
         if (hayArchivo) {
             ManejadorArchivosUtil.validar(archivo, tipo.getTamanioMaximo(), tipo.getExtensionesPermitidas());
         }
@@ -474,7 +503,7 @@ public class RecursoServiceImpl implements RecursoService {
 
         Recurso recurso = new Recurso(docente, datos.titulo().trim());
         recurso.setDescripcion(convertirVacioANulo(datos.descripcion()));
-        recurso.setPrivado(tipo != TipoRecurso.BIBLIOGRAFIA && datos.privado()); // las bibliografías son siempre públicas
+        recurso.setPrivado(tipo != TipoRecurso.MATERIAL_BIBLIOGRAFICO && datos.privado()); // las bibliografías son siempre públicas
         recurso.setFechaAceptacionTyc(LocalDateTime.now());
         recurso = recursoRepository.saveAndFlush(recurso); // para conocer su identificador
         String ruta = hayArchivo ? guardarArchivo(recurso, tipo, archivo) : null;
@@ -487,7 +516,18 @@ public class RecursoServiceImpl implements RecursoService {
         material = temaRecursoRepository.save(material);
         tema.getTemasRecurso().add(material);
         recurso.getTemasRecurso().add(material);
+        guardarEstructura(recurso, indiceJson);
         return material;
+    }
+
+    /** Si el recurso es un documento, guarda su índice (el que revisó el docente, o la entrada por defecto) y reparte sus oraciones entre las entradas. */
+    private void guardarEstructura(Recurso recurso, String indiceJson) {
+        Documento documento = recurso.getDocumento();
+        if (documento == null) {
+            return;
+        }
+        indiceService.crear(documento, indiceJson);
+        estructuraService.reconstruir(documento);
     }
 
     /** Registra en un tema un recurso de la biblioteca digital. */
@@ -507,7 +547,7 @@ public class RecursoServiceImpl implements RecursoService {
         }
         Tema tema = temaRepository.findById(idTema == null ? -1 : idTema).filter(u -> !u.esInactivo())
                 .orElseThrow(() -> RespuestaFormularioUtil.armarCampoInvalido("temaId", "Error! Debe seleccionar el tema."));
-        DocenteCurso participacion = obtenerParticipacion(tema.getCurso(), docente);
+        IntegranteEquipo participacion = obtenerParticipacion(tema.getCurso(), docente);
         List<TemaRecurso> delTema = temaRecursoRepository.findByTemaAndBajaFalse(tema);
         List<Recurso> recursos = new java.util.ArrayList<>();
         for (Integer idRecurso : ids) {
@@ -553,7 +593,7 @@ public class RecursoServiceImpl implements RecursoService {
     /** Cambia la visibilidad de un material en su tema. */
     @Override
     @Transactional
-    public TemaRecurso cambiarVisibilidad(Integer id, Docente docente, boolean oculto) {
+    public TemaRecurso cambiarVisibilidad(TemaRecurso.Clave id, Docente docente, boolean oculto) {
         TemaRecurso material = buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
         obtenerParticipacion(material.getCurso(), docente);
@@ -571,14 +611,14 @@ public class RecursoServiceImpl implements RecursoService {
             }
         }
         if (oculto && !material.getOculto()) {
-            programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), Set.of(material.getIdTemaRecurso())).ifPresent(motivo -> {
+            programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), Set.of(material.getClave())).ifPresent(motivo -> {
                 // El error es del campo "Visible para alumnos": se muestra debajo de él, como en las autoevaluaciones
                 throw RespuestaFormularioUtil.armarCampoInvalido("oculto",
                         MensajeErrorUtil.armarAccionBloqueada("ocultar", "el recurso", material.getTitulo(), motivo,
                                 "Registrá otro antes de ocultarlo."));
             });
             // Ocultarlo no puede dejar el diseño del curso incompleto mientras el curso tiene cohortes activas
-            programaService.buscarMotivoDeDisenoIncompleto(material.getTema(), Set.of(material.getIdTemaRecurso())).ifPresent(motivo -> {
+            programaService.buscarMotivoDeDisenoIncompleto(material.getTema(), Set.of(material.getClave())).ifPresent(motivo -> {
                 throw RespuestaFormularioUtil.armarCampoInvalido("oculto",
                         MensajeErrorUtil.armarAccionBloqueada("ocultar", "el recurso", material.getTitulo(), motivo,
                                 "Registrá otro antes de ocultarlo."));
@@ -603,7 +643,7 @@ public class RecursoServiceImpl implements RecursoService {
     /** Da de baja un material. */
     @Override
     @Transactional
-    public void darDeBaja(Integer id, Docente docente) {
+    public void darDeBaja(TemaRecurso.Clave id, Docente docente) {
         TemaRecurso material = validarBaja(id, docente);
         validarMinimoAlDarDeBaja(List.of(material));
         darDeBaja(material);
@@ -612,7 +652,7 @@ public class RecursoServiceImpl implements RecursoService {
     /** Da de baja varios materiales a la vez (todos o ninguno). */
     @Override
     @Transactional
-    public void darDeBajaVarios(List<Integer> ids, Docente docente) {
+    public void darDeBajaVarios(List<TemaRecurso.Clave> ids, Docente docente) {
         if (ids == null || ids.isEmpty()) {
             throw new IllegalArgumentException("Error! Debe seleccionar al menos un recurso.");
         }
@@ -621,7 +661,7 @@ public class RecursoServiceImpl implements RecursoService {
         materiales.forEach(this::darDeBaja);
     }
 
-    private TemaRecurso validarBaja(Integer id, Docente docente) {
+    private TemaRecurso validarBaja(TemaRecurso.Clave id, Docente docente) {
         TemaRecurso material = buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra activo."));
         if (docente != null) {
@@ -631,7 +671,7 @@ public class RecursoServiceImpl implements RecursoService {
     }
 
     private void validarMinimoAlDarDeBaja(List<TemaRecurso> materiales) {
-        Set<Integer> ids = materiales.stream().map(TemaRecurso::getIdTemaRecurso).collect(Collectors.toSet());
+        Set<TemaRecurso.Clave> ids = materiales.stream().map(TemaRecurso::getClave).collect(Collectors.toSet());
         for (TemaRecurso material : materiales) {
             programaService.buscarMotivoDeMinimoPorRecurso(material.getTema(), ids).ifPresent(motivo -> {
                 throw new IllegalArgumentException(MensajeErrorUtil.armarBajaBloqueada("el recurso", material.getTitulo(), motivo,
@@ -664,15 +704,15 @@ public class RecursoServiceImpl implements RecursoService {
 
     /** Cuenta los otros temas activos que usan el mismo recurso. */
     private boolean participaEnElCurso(Curso curso, Docente docente) {
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 
-    private DocenteCurso obtenerParticipacion(Curso curso, Docente docente) {
+    private IntegranteEquipo obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
@@ -685,7 +725,7 @@ public class RecursoServiceImpl implements RecursoService {
         largoMaximo("titulo", "El título", datos.titulo().trim(), LARGO_TITULO);
         largoMaximo("descripcion", "La descripción", convertirVacioANulo(datos.descripcion()), LARGO_DESCRIPCION);
         String autor = convertirVacioANulo(datos.autor());
-        if ((tipo == TipoRecurso.PRESENTACION || tipo == TipoRecurso.RESUMEN || tipo == TipoRecurso.BIBLIOGRAFIA) && autor == null) {
+        if ((tipo == TipoRecurso.MATERIAL_BIBLIOGRAFICO || tipo.esMaterialDidactico()) && autor == null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("autor", "Error! Debe completar el autor.");
         }
         largoMaximo("autor", "El autor", autor, LARGO_AUTOR);
@@ -707,13 +747,17 @@ public class RecursoServiceImpl implements RecursoService {
         } else if (enlace != null) {
             throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de recurso no admite un enlace externo.");
         }
-        if (tipo == TipoRecurso.BIBLIOGRAFIA) {
-            String isbn = convertirVacioANulo(datos.isbn());
-            if (isbn == null) {
-                throw RespuestaFormularioUtil.armarCampoInvalido("isbn", "Error! Debe completar el ISBN.");
+        if (tipo == TipoRecurso.MATERIAL_BIBLIOGRAFICO) {
+            String identificador = convertirVacioANulo(datos.identificador());
+            if (identificador == null) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("identificador", "Error! Debe completar el identificador.");
             }
-            largoMaximo("isbn", "El ISBN", isbn, LARGO_ISBN);
-            largoMaximo("editorial", "La editorial", convertirVacioANulo(datos.editorial()), LARGO_EDITORIAL);
+            largoMaximo("identificador", "El identificador", identificador, LARGO_IDENTIFICADOR);
+            if (IdentificadorUtil.tipoDe(identificador) == null) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("identificador",
+                        MensajeErrorUtil.armarFormatoInvalido("El identificador", "un ISBN, un ISSN o un DOI"));
+            }
+            largoMaximo("publicadoEn", "El campo publicado en", convertirVacioANulo(datos.publicadoEn()), LARGO_PUBLICADO_EN);
         }
         if (tipo == TipoRecurso.ENLACE && hayArchivo) {
             throw RespuestaFormularioUtil.armarCampoInvalido("enlace", "Error! Este tipo de recurso no lleva archivo.");
@@ -721,23 +765,26 @@ public class RecursoServiceImpl implements RecursoService {
         if (esAlta && !hayArchivo && tipo != TipoRecurso.ENLACE) {
             String mensaje = switch (tipo) {
                 case GRABACION -> "Error! Debe seleccionar el archivo de video.";
-                case RESUMEN -> "Error! Debe seleccionar el archivo del resumen.";
-                case BIBLIOGRAFIA -> "Error! Debe seleccionar el archivo de la bibliografía.";
+                case APUNTE_DE_CATEDRA -> "Error! Debe seleccionar el archivo del apunte.";
+                case GUIA_DE_ESTUDIO -> "Error! Debe seleccionar el archivo de la guía.";
+                case MATERIAL_BIBLIOGRAFICO -> "Error! Debe seleccionar el archivo del material bibliográfico.";
                 default -> "Error! Debe seleccionar el archivo de la presentación.";
             };
             throw RespuestaFormularioUtil.armarCampoInvalido("archivo", mensaje);
         }
     }
 
-    /** Valida que no haya dos bibliografías vigentes con el mismo ISBN, ignorando guiones y espacios. */
-    private void validarIsbnNoRepetido(TipoRecurso tipo, DatosRecurso datos, int idRecursoActual) {
-        String isbn = tipo == TipoRecurso.BIBLIOGRAFIA ? convertirVacioANulo(datos.isbn()) : null;
-        if (isbn == null) {
+    /** Valida que no haya dos bibliografías vigentes con el mismo identificador, ignorando guiones y espacios. El ISSN lo comparten los artículos de una revista. */
+    private void validarIdentificadorNoRepetido(TipoRecurso tipo, DatosRecurso datos, int idRecursoActual) {
+        String identificador = tipo == TipoRecurso.MATERIAL_BIBLIOGRAFICO ? convertirVacioANulo(datos.identificador()) : null;
+        if (identificador == null) {
             return;
         }
-        String normalizado = isbn.replace("-", "").replace(" ", "").toUpperCase();
-        if (bibliografiaRepository.existePorIsbn(normalizado, idRecursoActual)) {
-            throw RespuestaFormularioUtil.armarCampoInvalido("isbn", "Error! Ya existe una bibliografía registrada con ese ISBN.");
+        if (!IdentificadorUtil.debeSerUnico(IdentificadorUtil.tipoDe(identificador))) {
+            return;
+        }
+        if (materialBibliograficoRepository.existePorIdentificador(IdentificadorUtil.normalizar(identificador), idRecursoActual)) {
+            throw RespuestaFormularioUtil.armarCampoInvalido("identificador", "Error! Ya existe un material bibliográfico registrado con ese identificador.");
         }
     }
 
@@ -751,25 +798,25 @@ public class RecursoServiceImpl implements RecursoService {
     private void crearDatosPropios(Recurso recurso, TipoRecurso tipo, DatosRecurso datos, String ruta, Long tamanio) {
         String extension = ruta == null ? null : ManejadorArchivosUtil.obtenerExtension(ruta);
         switch (tipo) {
-            case PRESENTACION, RESUMEN -> {
-                String nombreCategoria = tipo == TipoRecurso.RESUMEN ? CategoriaMaterialLectura.RESUMEN : CategoriaMaterialLectura.PRESENTACION;
-                CategoriaMaterialLectura categoria = categoriaMaterialLecturaRepository.findByNombre(nombreCategoria)
-                        .orElseThrow(() -> new IllegalStateException("Falta la categoría de material de lectura '" + nombreCategoria + "'."));
-                MaterialLectura lectura = new MaterialLectura(recurso, categoria, ruta, convertirVacioANulo(datos.autor()));
+            case PRESENTACION, APUNTE_DE_CATEDRA, GUIA_DE_ESTUDIO -> {
+                String nombreCategoria = tipo.getNombre();
+                CategoriaMaterialDidactico categoria = categoriaMaterialDidacticoRepository.findByNombre(nombreCategoria)
+                        .orElseThrow(() -> new IllegalStateException("Falta la categoría de material didáctico '" + nombreCategoria + "'."));
+                MaterialDidactico lectura = new MaterialDidactico(recurso, categoria, ruta, convertirVacioANulo(datos.autor()));
                 lectura.setPaginas(datos.paginas());
                 lectura.setTamanioBytes(tamanio);
                 lectura.setExtension(extension);
-                recurso.setMaterialLectura(materialLecturaRepository.save(lectura));
+                recurso.setMaterialDidactico(materialDidacticoRepository.save(lectura));
             }
-            case BIBLIOGRAFIA -> {
-                Bibliografia bibliografia = new Bibliografia(recurso, convertirVacioANulo(datos.isbn()), convertirVacioANulo(datos.autor()));
-                bibliografia.setEditorial(convertirVacioANulo(datos.editorial()));
-                bibliografia.setPaginas(datos.paginas());
-                bibliografia.setFechaPublicacion(datos.fechaPublicacion());
-                bibliografia.setRutaArchivo(ruta);
-                bibliografia.setTamanioBytes(tamanio);
-                bibliografia.setExtension(extension);
-                recurso.setBibliografia(bibliografiaRepository.save(bibliografia));
+            case MATERIAL_BIBLIOGRAFICO -> {
+                MaterialBibliografico materialBibliografico = new MaterialBibliografico(recurso, convertirVacioANulo(datos.identificador()), convertirVacioANulo(datos.autor()));
+                materialBibliografico.setPublicadoEn(convertirVacioANulo(datos.publicadoEn()));
+                materialBibliografico.setPaginas(datos.paginas());
+                materialBibliografico.setFechaPublicacion(datos.fechaPublicacion());
+                materialBibliografico.setRutaArchivo(ruta);
+                materialBibliografico.setTamanioBytes(tamanio);
+                materialBibliografico.setExtension(extension);
+                recurso.setMaterialBibliografico(materialBibliograficoRepository.save(materialBibliografico));
             }
             case GRABACION -> {
                 Grabacion grabacion = new Grabacion(recurso, ruta);
@@ -786,8 +833,8 @@ public class RecursoServiceImpl implements RecursoService {
     private void actualizarDatosPropios(Recurso recurso, TipoRecurso tipo, DatosRecurso datos, String rutaNueva, Long tamanio) {
         String extension = rutaNueva == null ? null : ManejadorArchivosUtil.obtenerExtension(rutaNueva);
         switch (tipo) {
-            case PRESENTACION, RESUMEN -> {
-                MaterialLectura lectura = recurso.getMaterialLectura();
+            case PRESENTACION, APUNTE_DE_CATEDRA, GUIA_DE_ESTUDIO -> {
+                MaterialDidactico lectura = recurso.getMaterialDidactico();
                 lectura.setAutor(convertirVacioANulo(datos.autor()));
                 lectura.setPaginas(datos.paginas());
                 if (rutaNueva != null) {
@@ -795,21 +842,21 @@ public class RecursoServiceImpl implements RecursoService {
                     lectura.setTamanioBytes(tamanio);
                     lectura.setExtension(extension);
                 }
-                materialLecturaRepository.save(lectura);
+                materialDidacticoRepository.save(lectura);
             }
-            case BIBLIOGRAFIA -> {
-                Bibliografia bibliografia = recurso.getBibliografia();
-                bibliografia.setIsbn(convertirVacioANulo(datos.isbn()));
-                bibliografia.setAutor(convertirVacioANulo(datos.autor()));
-                bibliografia.setEditorial(convertirVacioANulo(datos.editorial()));
-                bibliografia.setPaginas(datos.paginas());
-                bibliografia.setFechaPublicacion(datos.fechaPublicacion());
+            case MATERIAL_BIBLIOGRAFICO -> {
+                MaterialBibliografico materialBibliografico = recurso.getMaterialBibliografico();
+                materialBibliografico.setIdentificador(convertirVacioANulo(datos.identificador()));
+                materialBibliografico.setAutor(convertirVacioANulo(datos.autor()));
+                materialBibliografico.setPublicadoEn(convertirVacioANulo(datos.publicadoEn()));
+                materialBibliografico.setPaginas(datos.paginas());
+                materialBibliografico.setFechaPublicacion(datos.fechaPublicacion());
                 if (rutaNueva != null) {
-                    bibliografia.setRutaArchivo(rutaNueva);
-                    bibliografia.setTamanioBytes(tamanio);
-                    bibliografia.setExtension(extension);
+                    materialBibliografico.setRutaArchivo(rutaNueva);
+                    materialBibliografico.setTamanioBytes(tamanio);
+                    materialBibliografico.setExtension(extension);
                 }
-                bibliografiaRepository.save(bibliografia);
+                materialBibliograficoRepository.save(materialBibliografico);
             }
             case GRABACION -> {
                 Grabacion grabacion = recurso.getGrabacion();

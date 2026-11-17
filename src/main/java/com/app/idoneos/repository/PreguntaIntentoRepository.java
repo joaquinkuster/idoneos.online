@@ -7,6 +7,6 @@ import com.app.idoneos.model.PreguntaIntento;
 
 /** Repositorio de PreguntaIntento. */
 @Repository
-public interface PreguntaIntentoRepository extends JpaRepository<PreguntaIntento, Integer> {
+public interface PreguntaIntentoRepository extends JpaRepository<PreguntaIntento, PreguntaIntento.Clave> {
 
 }

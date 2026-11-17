@@ -1,6 +1,8 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.controller.component.PanelCursoComponent;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import java.time.LocalDate;
@@ -30,7 +32,7 @@ import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.cohorte.CohorteService;
-import com.app.idoneos.service.docentecurso.DocenteCursoService;
+import com.app.idoneos.service.integranteequipo.IntegranteEquipoService;
 import com.app.idoneos.service.programa.ProgramaService;
 
 import com.app.idoneos.util.RespuestaFormularioUtil;
@@ -51,7 +53,7 @@ public class CohorteController {
     private ProgramaService programaService;
 
     @Autowired
-    private DocenteCursoService docenteCursoService;
+    private IntegranteEquipoService integranteEquipoService;
 
     @Autowired
     private CursoService cursoService;
@@ -141,7 +143,7 @@ public class CohorteController {
         // Cohortes que el docente tiene como contexto de trabajo por defecto
         Set<Integer> cohortesDeTrabajo = new HashSet<>();
         if (soloDeDocente != null) {
-            docenteCursoService.buscarPorDocente(soloDeDocente).stream()
+            integranteEquipoService.buscarPorDocente(soloDeDocente).stream()
                     .map(participacion -> participacion.getCohorteDeTrabajo())
                     .filter(java.util.Objects::nonNull)
                     .forEach(cohorte -> cohortesDeTrabajo.add(cohorte.getIdCohorte()));
@@ -149,7 +151,11 @@ public class CohorteController {
 
         // Se ve una página por vez: el motor común filtra, ordena y pagina en el servidor
         final List<Cohorte> todasLasCohortes = cohortes;
-        PaginacionUtil.Pagina<Cohorte> pagina = Filtros.tabla.paginar(cohortes, request.getParameterMap());
+        // El administrador ve las cohortes agrupadas por curso; el docente ya está dentro de un curso
+        PaginacionUtil.Pagina<Cohorte> pagina = esAdministrador
+                ? AgrupacionListadoUtil.paginar(Filtros.tabla, cohortes, request.getParameterMap(), request, model, c -> c.getCurso().getNombre(), null, null,
+                        "curso", "fechaInicioInscripcion")
+                : Filtros.tabla.paginar(cohortes, request.getParameterMap());
         PaginacionUtil.cargarEnModelo(model, pagina);
         cohortes = pagina.filas();
         model.addAttribute("cohortes", cohortes);
@@ -403,6 +409,7 @@ public class CohorteController {
         /** Define las columnas del listado del administrador, que se filtran y ordenan en el servidor. */
         public static final FiltroUtil<Cohorte> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Cohorte>("curso", FiltroUtil.Tipo.LISTA, c -> c.getCurso().getNombre()),
+                new FiltroUtil.Columna<Cohorte>("cohorte", FiltroUtil.Tipo.LISTA, Cohorte::getEtiqueta),
                 new FiltroUtil.Columna<Cohorte>("programa", FiltroUtil.Tipo.LISTA,
                         c -> c.getPrograma() != null ? c.getPrograma().getNombre() : "Sin programa"),
                 new FiltroUtil.Columna<Cohorte>("fechaInicioInscripcion", FiltroUtil.Tipo.FECHA, c -> FiltroUtil.formatearFecha(c.getFechaInicioInscripcion())),

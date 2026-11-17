@@ -47,7 +47,7 @@ BEGIN
     -- 1) El programa conserva el minimo de temas con material publicado y autoevaluacion
     IF EXISTS (SELECT 1 FROM autoevaluacion a WHERE a.id_tema = OLD.id_tema AND a.baja = false AND a.oculto = false)
        AND NOT EXISTS (SELECT 1 FROM tema_recurso tr WHERE tr.id_tema = OLD.id_tema AND tr.baja = false AND tr.oculto = false
-                         AND tr.id_tema_recurso <> OLD.id_tema_recurso) THEN
+                         AND tr.id_recurso <> OLD.id_recurso) THEN
         FOR v_programa IN SELECT DISTINCT tc.id_programa FROM tema_cronograma tc JOIN programa p ON p.id_programa = tc.id_programa
                           WHERE tc.id_tema = OLD.id_tema AND tc.baja = false AND p.baja = false ORDER BY tc.id_programa LOOP
             SELECT count(*) INTO v_antes FROM tema_cronograma tc
@@ -88,7 +88,7 @@ BEGIN
                 INTO v_tiene_despues
                 FROM tema_recurso tr JOIN recurso r ON r.id_recurso = tr.id_recurso
                 WHERE tr.id_tema = OLD.id_tema AND tr.baja = false AND tr.oculto = false AND r.baja = false
-                  AND tr.id_tema_recurso <> OLD.id_tema_recurso;
+                  AND tr.id_recurso <> OLD.id_recurso;
             IF v_aplica AND v_tiene_antes AND NOT v_tiene_despues THEN
                 v_motivo := fn_msg_diseno_incompleto('es ' || CASE v_celda WHEN 'clon' THEN 'el único video clon generado'
                                                                          WHEN 'grabada' THEN 'la única clase grabada publicada'
@@ -125,8 +125,7 @@ BEGIN
     END IF;
     SELECT titulo INTO v_titulo FROM recurso WHERE id_recurso = NEW.id_recurso;
     SELECT titulo, id_curso INTO v_tema, v_curso FROM tema WHERE id_tema = NEW.id_tema;
-    IF EXISTS (SELECT 1 FROM tema_recurso WHERE id_tema = NEW.id_tema AND id_recurso = NEW.id_recurso AND baja = false
-                 AND id_tema_recurso IS DISTINCT FROM NEW.id_tema_recurso) THEN
+    IF TG_OP = 'INSERT' AND EXISTS (SELECT 1 FROM tema_recurso WHERE id_tema = NEW.id_tema AND id_recurso = NEW.id_recurso AND baja = false) THEN
         RAISE EXCEPTION '%', fn_msg_accion('registrar', 'el recurso', v_titulo, 'ya está en el tema «' || v_tema || '»', 'Elegí otro tema.')
             USING ERRCODE = 'restrict_violation', CONSTRAINT = TG_NAME;
     END IF;
@@ -171,7 +170,7 @@ CREATE TRIGGER trg_tema_recurso_publicar BEFORE UPDATE OF oculto ON tema_recurso
 -- A quién pertenece este registro no cambia: solo cambian sus demás datos.
 DROP TRIGGER IF EXISTS trg_tema_recurso_pertenencia ON tema_recurso ^^^
 CREATE TRIGGER trg_tema_recurso_pertenencia BEFORE UPDATE ON tema_recurso
-    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_tema', 'id_recurso', 'id_docente_curso') ^^^
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_tema', 'id_recurso', 'id_integrante_equipo') ^^^
 
 -- ----------------------------------------------------------------------
 -- Sin borrado

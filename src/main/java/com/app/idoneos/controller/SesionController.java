@@ -17,6 +17,8 @@ import com.app.idoneos.config.SesionTokenFilter;
 import com.app.idoneos.model.Sesion;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.sesion.SesionService;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 import com.app.idoneos.util.PaginacionUtil;
 import com.app.idoneos.util.RespuestaFormularioUtil;
@@ -31,6 +33,9 @@ public class SesionController {
     @Autowired
     private SesionService sesionService;
 
+    @Autowired
+    private com.app.idoneos.service.notificacion.NotificacionService notificacionService;
+
     // ----------------------------------------------------------------------
     // Lecturas
     // ----------------------------------------------------------------------
@@ -42,7 +47,11 @@ public class SesionController {
         boolean administrador = actor.esAdministradorActivo();
         List<Sesion> sesiones = administrador ? sesionService.buscarTodasVigentes() : sesionService.buscarVigentes(actor);
         // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-        PaginacionUtil.Pagina<Sesion> pagina = Filtros.tabla.paginar(sesiones, request.getParameterMap());
+        // El administrador ve las sesiones agrupadas por usuario
+        PaginacionUtil.Pagina<Sesion> pagina = administrador
+                ? AgrupacionListadoUtil.paginar(Filtros.tabla, sesiones, request.getParameterMap(), request, model,
+                        s -> s.getUsuario().getNombreCompleto() + " · " + s.getUsuario().getCorreo(), null, null, "usuario", "inicio")
+                : Filtros.tabla.paginar(sesiones, request.getParameterMap());
         PaginacionUtil.cargarEnModelo(model, pagina);
         model.addAttribute("sesiones", pagina.filas());
         model.addAttribute("tokenActual", SesionTokenFilter.leerToken(request));
@@ -61,10 +70,11 @@ public class SesionController {
     // Modificaciones
     // ----------------------------------------------------------------------
 
-    /** POST /sesion/heartbeat: Mantiene viva la sesión mientras haya una pantalla abierta. La renovación la hace el filtro de la sesión. */
+    /** POST /sesion/heartbeat: Mantiene viva la sesión mientras haya una pantalla abierta, y devuelve la cantidad de notificaciones sin leer. La renovación la hace el filtro de la sesión. */
     @PostMapping("/heartbeat")
-    public ResponseEntity<Void> heartbeat() {
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, Long>> heartbeat(Authentication authentication) {
+        // Además informa cuántas notificaciones sin leer tiene el usuario, para actualizar la campana del navbar
+        return ResponseEntity.ok(Map.of("noLeidas", notificacionService.contarNoLeidas((Usuario) authentication.getPrincipal())));
     }
 
     // ----------------------------------------------------------------------

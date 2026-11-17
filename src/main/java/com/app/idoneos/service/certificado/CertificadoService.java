@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del certificado. */
-public interface CertificadoService extends CrudService<Certificado> {
+public interface CertificadoService extends CrudService<Certificado, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

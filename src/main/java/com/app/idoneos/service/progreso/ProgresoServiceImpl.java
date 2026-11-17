@@ -46,7 +46,7 @@ public class ProgresoServiceImpl implements ProgresoService {
 
     /** Busca el progreso por su identificador. */
     @Override
-    public Optional<Progreso> buscarPorId(Integer id) {
+    public Optional<Progreso> buscarPorId(Progreso.Clave id) {
         return progresoRepository.findById(id);
     }
 
@@ -58,7 +58,7 @@ public class ProgresoServiceImpl implements ProgresoService {
 
     /** Verifica si existe un registro con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(Progreso.Clave id) {
         return progresoRepository.existsById(id);
     }
 

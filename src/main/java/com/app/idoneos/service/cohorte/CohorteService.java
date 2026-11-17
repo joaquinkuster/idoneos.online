@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /** Servicio de la cohorte. */
-public interface CohorteService extends CrudService<Cohorte> {
+public interface CohorteService extends CrudService<Cohorte, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

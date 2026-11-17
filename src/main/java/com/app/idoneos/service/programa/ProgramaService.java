@@ -2,6 +2,7 @@ package com.app.idoneos.service.programa;
 
 import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.Tema;
+import com.app.idoneos.model.TemaRecurso;
 import com.app.idoneos.util.MensajeErrorUtil;
 import java.util.Collection;
 import java.util.Optional;
@@ -12,7 +13,7 @@ import com.app.idoneos.model.Programa;
 import java.util.List;
 
 /** Servicio del programa. */
-public interface ProgramaService extends CrudService<Programa> {
+public interface ProgramaService extends CrudService<Programa, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -149,7 +150,7 @@ public interface ProgramaService extends CrudService<Programa> {
      * @param temasQuitadas Los temas que dejarían de formar parte del cronograma.
      * @return El bloqueo, o vacío si el programa se mantiene por encima del mínimo.
      */
-    Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<Integer> materialesQuitados,
+    Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<TemaRecurso.Clave> materialesQuitados,
             Collection<Integer> temasQuitadas);
 
     /**
@@ -168,7 +169,7 @@ public interface ProgramaService extends CrudService<Programa> {
      * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
      * @return El motivo, o vacío si el programa se mantiene por encima del mínimo.
      */
-    Optional<String> buscarMotivoDeMinimoPorRecurso(Tema tema, Collection<Integer> materialesQuitados);
+    Optional<String> buscarMotivoDeMinimoPorRecurso(Tema tema, Collection<TemaRecurso.Clave> materialesQuitados);
 
     /**
      * Motivo (sin punto final) por el que no se puede quitar el material de un tema porque el tema dejaría de tener el contenido que pide el diseño del curso (por ejemplo, su único material publicado o su única clase grabada) y su programa tiene cohortes en curso o inscripciones activas: el diseño pasaría de completo a incompleto.
@@ -177,5 +178,5 @@ public interface ProgramaService extends CrudService<Programa> {
      * @param materialesQuitados Los materiales que dejarían de estar publicados en la operación.
      * @return El motivo, o vacío si el tema conserva todo su contenido o ningún programa que lo incluye está en curso.
      */
-    Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<Integer> materialesQuitados);
+    Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<TemaRecurso.Clave> materialesQuitados);
 }

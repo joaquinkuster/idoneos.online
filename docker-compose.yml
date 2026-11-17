@@ -38,6 +38,8 @@ services:
   ollama:
     image: ollama/ollama:0.6.8
     container_name: idoneos-ollama
+    # Levanta el servidor y, con él andando, descarga el modelo si todavía no está (no hace falta un contenedor aparte que termine y quede apagado)
+    entrypoint: ["/bin/sh", "-c", "ollama serve & until ollama list >/dev/null 2>&1; do sleep 1; done; ollama pull llama3.2:1b; wait"]
     environment:
       OLLAMA_KEEP_ALIVE: 24h
       OLLAMA_NUM_PARALLEL: "1"
@@ -52,18 +54,6 @@ services:
       interval: 10s
       timeout: 10s
       retries: 20
-
-  # Descarga el modelo en el servidor de Ollama y termina. Si ya está descargado, no hace nada
-  ollama-modelo:
-    image: ollama/ollama:0.6.8
-    container_name: idoneos-ollama-modelo
-    depends_on:
-      ollama:
-        condition: service_healthy
-    environment:
-      OLLAMA_HOST: http://ollama:11434
-    entrypoint: ["ollama", "pull", "llama3.2:1b"]
-    restart: "no"
 
   app:
     build: .

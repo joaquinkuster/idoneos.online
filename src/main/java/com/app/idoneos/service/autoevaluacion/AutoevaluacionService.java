@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio de la autoevaluación. */
-public interface AutoevaluacionService extends CrudService<Autoevaluacion> {
+public interface AutoevaluacionService extends CrudService<Autoevaluacion, Integer> {
 
     /**
      * Datos que el docente carga en una autoevaluación (alta o modificación).

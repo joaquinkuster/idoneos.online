@@ -14,7 +14,7 @@ import com.app.idoneos.model.Categoria;
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.Usuario;
@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del curso. */
-public interface CursoService extends CrudService<Curso> {
+public interface CursoService extends CrudService<Curso, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -128,7 +128,7 @@ public interface CursoService extends CrudService<Curso> {
      * @return La participación del docente en el curso, de la que se obtiene su programa y cohorte de trabajo.
      * @throws IllegalArgumentException Si el docente no puede acceder, con el motivo.
      */
-    DocenteCurso validarAccesoDocente(int idCurso, Docente docente);
+    IntegranteEquipo validarAccesoDocente(int idCurso, Docente docente);
 
     /**
      * Busca un curso activo y, si no existe o está dado de baja, informa el motivo.
@@ -279,7 +279,7 @@ public interface CursoService extends CrudService<Curso> {
      * @param urlBase La ruta de la página principal del curso para ese rol.
      * @param urlMisCursos La ruta del listado de cursos para ese rol.
      */
-    public record ContextoCurso(Curso curso, Programa programa, Rol rol, DocenteCurso participacion,
+    public record ContextoCurso(Curso curso, Programa programa, Rol rol, IntegranteEquipo participacion,
             String urlBase, String urlMisCursos) {
 
         /** Rol con el que se entra al panel de un curso. */
@@ -302,7 +302,7 @@ public interface CursoService extends CrudService<Curso> {
          * @param participacion La participación del docente en el curso.
          * @return El contexto del docente.
          */
-        public static ContextoCurso deDocente(DocenteCurso participacion) {
+        public static ContextoCurso deDocente(IntegranteEquipo participacion) {
             Curso curso = participacion.getCurso();
             return new ContextoCurso(curso, participacion.getProgramaDeTrabajo(), Rol.DOCENTE, participacion,
                     "/curso/acceder/" + curso.getIdCurso(), "/curso/buscar");
@@ -347,7 +347,7 @@ public interface CursoService extends CrudService<Curso> {
      * El contenido de un tema del programa vigente, según lo que prometen las modalidades del curso.
      *
      * @param tema El tema.
-     * @param celdas Para cada columna que corresponde al curso (por ejemplo "Video clon"), si el tema ya la tiene.
+     * @param celdas Para cada columna que corresponde al curso (por ejemplo "Video con clon"), si el tema ya la tiene.
      */
     public record ContenidoDeTema(Tema tema, Map<String, Boolean> celdas) {
 
@@ -459,7 +459,7 @@ public interface CursoService extends CrudService<Curso> {
     /**
      * El próximo recurso que el docente debe agregar a un tema para completar su contenido.
      *
-     * @param opcion Qué opción del selector de recursos corresponde: {@code BIBLIOGRAFIA}, {@code AUTOEVALUACION}, {@code POOL}, {@code GRABACION}, o {@code null} si no hay nada que se pueda agregar a mano (por ejemplo, el video clon).
+     * @param opcion Qué opción del selector de recursos corresponde: {@code MATERIAL_BIBLIOGRAFICO}, {@code AUTOEVALUACION}, {@code POOL}, {@code GRABACION}, o {@code null} si no hay nada que se pueda agregar a mano (por ejemplo, el video clon).
      * @param aviso Una nota para el docente (por ejemplo, que primero tiene que registrar un pool), o {@code null}.
      */
     public record SiguienteRecurso(String opcion, String aviso) {
@@ -514,7 +514,7 @@ public interface CursoService extends CrudService<Curso> {
      * Las columnas de contenido que corresponden a un curso, según sus modalidades.
      *
      * @param curso El curso.
-     * @return Por ejemplo "Video clon", "Material", "Autoevaluación".
+     * @return Por ejemplo "Video con clon", "Material", "Autoevaluación".
      */
     List<String> buscarColumnasDeContenido(Curso curso);
 

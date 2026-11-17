@@ -127,7 +127,7 @@ CREATE TRIGGER trg_curso_baja BEFORE UPDATE OF baja ON curso
 -- fn_cascada_curso(): al dar de baja un curso se da de baja su equipo docente.
 CREATE OR REPLACE FUNCTION fn_cascada_curso() RETURNS trigger AS $$
 BEGIN
-    UPDATE docente_curso SET baja = true, ultima_modificacion = now() WHERE id_curso = NEW.id_curso AND baja = false;
+    UPDATE integrante_equipo SET baja = true, ultima_modificacion = now() WHERE id_curso = NEW.id_curso AND baja = false;
     RETURN NULL;
 END
 $$ LANGUAGE plpgsql ^^^

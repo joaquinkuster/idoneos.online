@@ -10,7 +10,7 @@ import com.app.idoneos.model.InteresAlumno;
 
 /** Repositorio de InteresAlumno. */
 @Repository
-public interface InteresAlumnoRepository extends JpaRepository<InteresAlumno, Integer> {
+public interface InteresAlumnoRepository extends JpaRepository<InteresAlumno, InteresAlumno.Clave> {
 
     /** Busca los intereses de un alumno. */
     List<InteresAlumno> findByAlumno(Alumno alumno);

@@ -15,7 +15,7 @@ import java.util.Optional;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Servicio de los recursos de los temas. */
-public interface RecursoService extends CrudService<TemaRecurso> {
+public interface RecursoService extends CrudService<TemaRecurso, TemaRecurso.Clave> {
 
     /**
      * Los datos que se piden al cargar o modificar un material. Cada tipo usa los suyos.
@@ -25,20 +25,20 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @param oculto si queda oculto para los alumnos.
      * @param autor autor (presentación y bibliografía).
      * @param enlace dirección web (enlace).
-     * @param isbn ISBN (bibliografía).
-     * @param editorial editorial (bibliografía, opcional).
+     * @param identificador ISBN, ISSN o DOI (bibliografía).
+     * @param publicadoEn publicadoEn (bibliografía, opcional).
      * @param paginas cantidad de páginas (opcional).
      * @param fechaPublicacion fecha de publicación (bibliografía, opcional).
      * @param duracionMinutos duración en minutos (grabación, opcional).
      * @param privado si el recurso es privado (solo lo usa su dueño) o público (cualquier docente puede usarlo desde la biblioteca).
      */
-    record DatosRecurso(String titulo, String descripcion, boolean oculto, String autor, String enlace, String isbn,
-            String editorial, Integer paginas, LocalDate fechaPublicacion, Integer duracionMinutos, boolean privado) {
+    record DatosRecurso(String titulo, String descripcion, boolean oculto, String autor, String enlace, String identificador,
+            String publicadoEn, Integer paginas, LocalDate fechaPublicacion, Integer duracionMinutos, boolean privado) {
 
         /** Los mismos datos con el recurso privado, que es el valor por defecto. */
-        public DatosRecurso(String titulo, String descripcion, boolean oculto, String autor, String enlace, String isbn,
-                String editorial, Integer paginas, LocalDate fechaPublicacion, Integer duracionMinutos) {
-            this(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas, fechaPublicacion, duracionMinutos, true);
+        public DatosRecurso(String titulo, String descripcion, boolean oculto, String autor, String enlace, String identificador,
+                String publicadoEn, Integer paginas, LocalDate fechaPublicacion, Integer duracionMinutos) {
+            this(titulo, descripcion, oculto, autor, enlace, identificador, publicadoEn, paginas, fechaPublicacion, duracionMinutos, true);
         }
     }
 
@@ -52,7 +52,7 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @param id el identificador del {@link TemaRecurso}.
      * @return el material, o vacío si no existe o está dado de baja.
      */
-    Optional<TemaRecurso> buscarPorId(Integer id);
+    Optional<TemaRecurso> buscarPorId(TemaRecurso.Clave id);
 
     /**
      * Busca los materiales activos de un tema.
@@ -172,6 +172,9 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      */
     long contarUsos(Recurso recurso);
 
+    /** Indica si el recurso es un documento que es fuente o evidencia de contenido generado con inteligencia artificial vigente: no se modifica ni se da de baja. */
+    boolean esFuenteDeIa(Recurso recurso);
+
     /**
      * Carga un recurso a la biblioteca del docente, sin asociarlo a un tema.
      *
@@ -183,7 +186,18 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @return el recurso cargado.
      * @throws IllegalArgumentException si algún dato no es válido.
      */
-    Recurso subirABiblioteca(Docente docente, String tipo, DatosRecurso datos, MultipartFile archivo, boolean terminos);
+    default Recurso subirABiblioteca(Docente docente, String tipo, DatosRecurso datos, MultipartFile archivo, boolean terminos) {
+        return subirABiblioteca(docente, tipo, datos, archivo, terminos, null);
+    }
+
+    /**
+     * Carga un recurso a la biblioteca del docente, con el índice que el docente revisó. Si el recurso es un documento, se guardan su índice y sus
+     * oraciones en la misma operación.
+     *
+     * @param indiceJson el índice del documento, o {@code null} o vacío si el docente no armó ninguno (queda la entrada por defecto).
+     * @see #subirABiblioteca(Docente, String, DatosRecurso, MultipartFile, boolean)
+     */
+    Recurso subirABiblioteca(Docente docente, String tipo, DatosRecurso datos, MultipartFile archivo, boolean terminos, String indiceJson);
 
     /**
      * Modifica un recurso de la biblioteca.
@@ -248,8 +262,18 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @return el material cargado.
      * @throws IllegalArgumentException si algún dato no es válido.
      */
-    TemaRecurso subir(Docente docente, Integer idTema, String tipo, DatosRecurso datos, MultipartFile archivo,
-            boolean terminos);
+    default TemaRecurso subir(Docente docente, Integer idTema, String tipo, DatosRecurso datos, MultipartFile archivo, boolean terminos) {
+        return subir(docente, idTema, tipo, datos, archivo, terminos, null);
+    }
+
+    /**
+     * Carga un material a un tema, con el índice que el docente revisó. Si el material es un documento, se guardan su índice y sus oraciones en la
+     * misma operación.
+     *
+     * @param indiceJson el índice del documento, o {@code null} o vacío si el docente no armó ninguno (queda la entrada por defecto).
+     * @see #subir(Docente, Integer, String, DatosRecurso, MultipartFile, boolean)
+     */
+    TemaRecurso subir(Docente docente, Integer idTema, String tipo, DatosRecurso datos, MultipartFile archivo, boolean terminos, String indiceJson);
 
     /**
      * Registra en un tema un recurso que ya está en la biblioteca digital (propio o público de otro docente).
@@ -286,7 +310,7 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @return el material modificado.
      * @throws IllegalArgumentException si no se puede ocultar (el diseño del curso quedaría incompleto) o publicar (el curso ya no tiene su modalidad).
      */
-    TemaRecurso cambiarVisibilidad(Integer id, Docente docente, boolean oculto);
+    TemaRecurso cambiarVisibilidad(TemaRecurso.Clave id, Docente docente, boolean oculto);
 
     /**
      * Renombra los archivos guardados con el nombre anterior (recurso seguido del identificador) con el nombre de su tipo,
@@ -307,7 +331,7 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @param docente el docente que lo da de baja, o {@code null} si es el administrador.
      * @throws IllegalArgumentException si no se puede.
      */
-    void darDeBaja(Integer id, Docente docente);
+    void darDeBaja(TemaRecurso.Clave id, Docente docente);
 
     /**
      * Da de baja varios materiales a la vez, todos o ninguno.
@@ -316,37 +340,45 @@ public interface RecursoService extends CrudService<TemaRecurso> {
      * @param docente el docente, o {@code null} si es el administrador.
      * @throws IllegalArgumentException si no se puede.
      */
-    void darDeBajaVarios(List<Integer> ids, Docente docente);
+    void darDeBajaVarios(List<TemaRecurso.Clave> ids, Docente docente);
 
     /** Clases de recurso que el docente puede cargar a mano, con lo que cada una pide. */
     public enum TipoRecurso {
 
-        /** Diapositivas de una clase (un archivo PDF). */
-        PRESENTACION(Recurso.PRESENTACION, true, List.of("pdf"), 50, "Diapositivas de una clase."),
+        /** Diapositivas que acompañan una clase o un tema (un archivo PDF). */
+        PRESENTACION(Recurso.PRESENTACION, "presentacion", true, List.of("pdf"), 50, "Diapositivas que acompañan una clase o un tema."),
 
-        /** Resumen de un tema (un archivo PDF que sube el docente). */
-        RESUMEN(Recurso.RESUMEN, true, List.of("pdf"), 50, "Resumen de un tema."),
+        /** Resúmenes, transcripciones de clases, artículos o compilaciones teóricas elaboradas por el equipo docente (un archivo PDF). */
+        APUNTE_DE_CATEDRA(Recurso.APUNTE_DE_CATEDRA, "apunte", true, List.of("pdf"), 50,
+                "Resúmenes, transcripciones de clases, artículos o compilaciones teóricas elaboradas por el equipo docente."),
 
-        /** Texto o material de lectura, con su autor y su ISBN (el archivo PDF es obligatorio). */
-        BIBLIOGRAFIA(Recurso.BIBLIOGRAFIA, true, List.of("pdf"), 50, "Texto o material de lectura, con su autor y su ISBN."),
+        /** Guías de lectura, de ejercicios prácticos o integradores que orientan el estudio de un tema (un archivo PDF). */
+        GUIA_DE_ESTUDIO(Recurso.GUIA_DE_ESTUDIO, "guia", true, List.of("pdf"), 50,
+                "Guías de lectura, de ejercicios prácticos o integradores que orientan el estudio de un tema."),
+
+        /** Libros, manuales y publicaciones formales, con su autor y su identificador (el archivo PDF es obligatorio). */
+        MATERIAL_BIBLIOGRAFICO(Recurso.MATERIAL_BIBLIOGRAFICO, "bibliografia", true, List.of("pdf"), 50,
+                "Libros, manuales y publicaciones formales con ISBN, ISSN o DOI. Es público para todos los docentes."),
 
         /** Video de una clase dictada. */
-        GRABACION(Recurso.GRABACION, true, List.of("mp4", "webm"), 2048, "Video de una clase dictada."),
+        GRABACION(Recurso.GRABACION, "grabacion", true, List.of("mp4", "webm"), 2048, "Video de una clase dictada."),
 
         /** Dirección web de un material que está fuera de la plataforma. */
-        ENLACE(Recurso.ENLACE, true, List.of(), 0, "Dirección web de un material externo."),
+        ENLACE(Recurso.ENLACE, "enlace", true, List.of(), 0, "Dirección web de un material externo."),
 
         /** Video con el clon de inteligencia artificial del docente (lo genera el sistema). */
-        VIDEO_CLON(Recurso.VIDEO_CLON, false, List.of("mp4", "webm"), 500, "Video con el clon del docente.");
+        VIDEO_CLON(Recurso.VIDEO_CLON, "videoclon", false, List.of("mp4", "webm"), 500, "Video con el clon del docente.");
 
         private final String nombre;
+        private final String prefijoDeArchivo;
         private final boolean subidaManual;
         private final List<String> extensiones;
         private final long tamanioMaximoMb;
         private final String descripcion;
 
-        TipoRecurso(String nombre, boolean subidaManual, List<String> extensiones, long tamanioMaximoMb, String descripcion) {
+        TipoRecurso(String nombre, String prefijoDeArchivo, boolean subidaManual, List<String> extensiones, long tamanioMaximoMb, String descripcion) {
             this.nombre = nombre;
+            this.prefijoDeArchivo = prefijoDeArchivo;
             this.subidaManual = subidaManual;
             this.extensiones = extensiones;
             this.tamanioMaximoMb = tamanioMaximoMb;
@@ -355,7 +387,12 @@ public interface RecursoService extends CrudService<TemaRecurso> {
 
         /** Obtiene el nombre con el que se guardan los archivos de este tipo de recurso: en minúscula y sin tildes, por ejemplo {@code grabacion}. */
         public String getNombreDeArchivo() {
-            return java.text.Normalizer.normalize(nombre, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase();
+            return prefijoDeArchivo;
+        }
+
+        /** Indica si es un material didáctico: una presentación, un apunte de cátedra o una guía de estudio. */
+        public boolean esMaterialDidactico() {
+            return this == PRESENTACION || this == APUNTE_DE_CATEDRA || this == GUIA_DE_ESTUDIO;
         }
 
         /**

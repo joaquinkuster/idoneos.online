@@ -6,7 +6,7 @@ import com.app.idoneos.model.TipoAccionAuditoria;
 import java.util.Optional;
 
 /** Servicio del tipo de acción auditada. */
-public interface TipoAccionAuditoriaService extends CrudService<TipoAccionAuditoria> {
+public interface TipoAccionAuditoriaService extends CrudService<TipoAccionAuditoria, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

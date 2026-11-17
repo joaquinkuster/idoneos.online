@@ -1,40 +1,67 @@
 package com.app.idoneos.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** Entidad que representa un recurso usado en un tema, con el docente que lo incorporó, su orden y si está oculto para los alumnos. */
 @Entity
-@Table(name = "TemaRecurso", uniqueConstraints = @UniqueConstraint(name = "uk_tema_recurso", columnNames = {"idTema", "idRecurso"}))
+@Table(name = "TemaRecurso")
+@IdClass(TemaRecurso.Clave.class)
 @Getter
 @Setter
 @NoArgsConstructor
 public class TemaRecurso {
+    /** Clave primaria compuesta del recurso de un tema. */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Clave implements Serializable {
+        private int tema;
+        private int recurso;
 
-    /** Identificador único. */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idTemaRecurso")
-    private int idTemaRecurso;
+        /** Arma la clave desde su texto «tema-recurso», que es como viaja en las direcciones y en los formularios. */
+        public static Clave valueOf(String texto) {
+            String[] partes = texto == null ? new String[0] : texto.trim().split("-");
+            if (partes.length != 2) {
+                throw new IllegalArgumentException("Error! La clave del recurso del tema no es válida.");
+            }
+            try {
+                return new Clave(Integer.parseInt(partes[0]), Integer.parseInt(partes[1]));
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Error! La clave del recurso del tema no es válida.", e);
+            }
+        }
+
+        /** Devuelve la clave como texto «tema-recurso». */
+        @Override
+        public String toString() {
+            return tema + "-" + recurso;
+        }
+    }
 
     /** Tema de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idTema", nullable = false)
     private Tema tema;
 
     /** Recurso de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idRecurso", nullable = false)
     private Recurso recurso;
 
-    /** Relación con DocenteCurso: la participación del docente que incorporó el recurso al tema. */
+    /** Relación con IntegranteEquipo: la participación del docente que incorporó el recurso al tema. */
     @ManyToOne
-    @JoinColumn(name = "idDocenteCurso", nullable = false)
-    private DocenteCurso docenteCurso;
+    @JoinColumn(name = "idIntegranteEquipo", nullable = false)
+    private IntegranteEquipo integranteEquipo;
 
     /** Indica si está oculto para los alumnos. */
     @Column(name = "oculto", nullable = false)
@@ -57,10 +84,10 @@ public class TemaRecurso {
     private Boolean baja = false;
 
     /** Crea el recurso de un tema con los datos básicos. */
-    public TemaRecurso(Tema tema, Recurso recurso, DocenteCurso docenteCurso, int numeroOrden) {
+    public TemaRecurso(Tema tema, Recurso recurso, IntegranteEquipo integranteEquipo, int numeroOrden) {
         this.tema = tema;
         this.recurso = recurso;
-        this.docenteCurso = docenteCurso;
+        this.integranteEquipo = integranteEquipo;
         this.numeroOrden = numeroOrden;
     }
 
@@ -72,6 +99,11 @@ public class TemaRecurso {
     /** Verifica si el registro está dado de baja. */
     public boolean esInactivo() {
         return baja;
+    }
+
+    /** Devuelve la clave primaria del registro: el tema y el recurso. */
+    public Clave getClave() {
+        return new Clave(tema.getIdTema(), recurso.getIdRecurso());
     }
 
     /** Devuelve una representación en forma de cadena. */

@@ -7,7 +7,7 @@ import com.app.idoneos.model.Parametro;
 import java.util.Optional;
 
 /** Servicio del parámetro. */
-public interface ParametroService extends CrudService<Parametro> {
+public interface ParametroService extends CrudService<Parametro, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

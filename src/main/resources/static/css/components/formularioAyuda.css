@@ -26,3 +26,11 @@
 .pn-modal-cuerpo .row > .ayuda-desplegable.abierto {
     margin-top: 0;
 }
+
+/* Ícono de información junto a una etiqueta: el detalle va como tooltip */
+.pn-info { color: var(--pn-texto-suave); cursor: help; margin-left: 4px; font-size: 0.85em; }
+
+.ayuda-desplegable[hidden] { display: none; }
+
+/* Aviso del tipo de recurso abierto: deja su margen de 20px antes de la fila que sigue */
+#ayudaTipoRecurso.abierto { margin-bottom: 20px; }

@@ -1,12 +1,14 @@
 package com.app.idoneos.service.respuestaforo;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import com.app.idoneos.model.ConsultaForo;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Parametro;
 import com.app.idoneos.model.RespuestaForo;
 import com.app.idoneos.repository.ConsultaForoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.RespuestaForoRepository;
 import com.app.idoneos.service.CrudService;
 import com.app.idoneos.service.parametro.ParametroService;
@@ -23,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class RespuestaForoServiceImpl implements RespuestaForoService {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
+
     @Autowired
     private RespuestaForoRepository respuestaForoRepository;
 
@@ -30,7 +35,7 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
     private ConsultaForoRepository consultaForoRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private ParametroService parametroService;
@@ -76,10 +81,17 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
         ConsultaForo consulta = consultaForoRepository.findById(consultaId == null ? -1 : consultaId)
                 .filter(c -> !c.esInactivo())
                 .orElseThrow(() -> new IllegalArgumentException("Error! La consulta no se encuentra activa."));
-        DocenteCurso participacion = obtenerParticipacion(consulta, docente);
+        IntegranteEquipo participacion = obtenerParticipacion(consulta, docente);
         RespuestaForo respuesta = respuestaForoRepository.save(new RespuestaForo(participacion, consulta,
                 validarTexto(texto)));
         consulta.getRespuestasForo().add(respuesta);
+        // Avisa al alumno que hizo la consulta, salvo que ya no forme parte del curso o su cuenta no esté activa
+        if (!consulta.tieneAutorInactivo()) {
+            notificacionService.notificar(consulta.getInscripcion().getAlumno().getUsuario(), TipoNotificacion.RESPUESTA_FORO,
+                    "Respondieron tu consulta", docente.getUsuario().getNombreCompleto() + " respondió tu consulta en «"
+                            + consulta.getTema().getTitulo() + "».",
+                    "/consulta/ver/" + consulta.getIdConsulta(), consulta.getInscripcion().getCohorte(), false);
+        }
         return respuesta;
     }
 
@@ -99,7 +111,7 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
     public RespuestaForo modificar(Integer id, Docente docente, String texto) {
         RespuestaForo respuesta = buscarActiva(id);
         obtenerParticipacion(respuesta.getConsulta(), docente);
-        if (respuesta.getDocenteCurso().getDocente().getIdDocente() != docente.getIdDocente()) {
+        if (respuesta.getIntegranteEquipo().getDocente().getIdDocente() != docente.getIdDocente()) {
             throw new IllegalArgumentException("Error! Solo podés modificar tus propias respuestas.");
         }
         int plazo = parametroService.obtenerEntero(Parametro.PLAZO_EDICION_FORO,
@@ -140,11 +152,11 @@ public class RespuestaForoServiceImpl implements RespuestaForoService {
     }
 
     /** Obtiene la participación del docente en el curso de la consulta (como titular o ayudante). */
-    private DocenteCurso obtenerParticipacion(ConsultaForo consulta, Docente docente) {
+    private IntegranteEquipo obtenerParticipacion(ConsultaForo consulta, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return docenteCursoRepository.findByCursoAndBajaFalse(consulta.getTema().getCurso()).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(consulta.getTema().getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }

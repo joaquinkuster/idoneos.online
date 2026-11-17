@@ -29,7 +29,7 @@ class RecursoTest {
 
     private Recurso lectura(String categoria, String ruta) {
         Recurso recurso = new Recurso(null, "Diapositivas");
-        recurso.setMaterialLectura(new MaterialLectura(recurso, new CategoriaMaterialLectura(categoria), ruta, "Autor"));
+        recurso.setMaterialDidactico(new MaterialDidactico(recurso, new CategoriaMaterialDidactico(categoria), ruta, "Autor"));
         return recurso;
     }
 
@@ -42,12 +42,12 @@ class RecursoTest {
     void tipo() {
         assertEquals("Grabación", grabacion("a.mp4").getTipo());
         assertEquals("Enlace", enlace("https://sitio.com").getTipo());
-        assertEquals("Resumen", lectura(CategoriaMaterialLectura.RESUMEN, "r.pdf").getTipo());
-        assertEquals("Autor", lectura(CategoriaMaterialLectura.RESUMEN, "r.pdf").getAutor());
+        assertEquals("Apunte de Cátedra", lectura(CategoriaMaterialDidactico.APUNTE_DE_CATEDRA, "r.pdf").getTipo());
+        assertEquals("Autor", lectura(CategoriaMaterialDidactico.APUNTE_DE_CATEDRA, "r.pdf").getAutor());
 
         Recurso libro = new Recurso(null, "Libro");
-        libro.setBibliografia(new Bibliografia(libro, "978-0-00-000000-0", "Autor"));
-        assertEquals("Bibliografía", libro.getTipo());
+        libro.setMaterialBibliografico(new MaterialBibliografico(libro, "978-0-00-000000-0", "Autor"));
+        assertEquals("Material bibliográfico", libro.getTipo());
     }
 
     @Test
@@ -79,8 +79,8 @@ class RecursoTest {
     void formatoDeVista() {
         assertEquals("video", material(grabacion("curso1/tema2/recurso3.mp4")).getFormatoDeVista());
         assertEquals("video", material(grabacion("curso1/tema2/recurso3.webm")).getFormatoDeVista());
-        assertEquals("pdf", material(lectura(CategoriaMaterialLectura.PRESENTACION, "curso1/tema2/recurso3.PDF")).getFormatoDeVista());
-        assertEquals("vacio", material(lectura(CategoriaMaterialLectura.PRESENTACION, "curso1/tema2/recurso3.pptx")).getFormatoDeVista());
+        assertEquals("pdf", material(lectura(CategoriaMaterialDidactico.PRESENTACION, "curso1/tema2/recurso3.PDF")).getFormatoDeVista());
+        assertEquals("vacio", material(lectura(CategoriaMaterialDidactico.PRESENTACION, "curso1/tema2/recurso3.pptx")).getFormatoDeVista());
         assertEquals("enlace", material(enlace("https://sitio.com/libro")).getFormatoDeVista());
         assertEquals("vacio", material(new Recurso(null, "Vacío")).getFormatoDeVista());
     }
@@ -109,14 +109,15 @@ class RecursoTest {
     void tipos() {
         assertTrue(TipoRecurso.GRABACION.permiteSubidaManual());
         assertTrue(TipoRecurso.PRESENTACION.permiteSubidaManual());
-        assertTrue(TipoRecurso.BIBLIOGRAFIA.permiteSubidaManual());
+        assertTrue(TipoRecurso.MATERIAL_BIBLIOGRAFICO.permiteSubidaManual());
         assertTrue(TipoRecurso.ENLACE.permiteSubidaManual());
-        assertFalse(TipoRecurso.RESUMEN.permiteSubidaManual());
+        assertTrue(TipoRecurso.APUNTE_DE_CATEDRA.permiteSubidaManual());
+        assertTrue(TipoRecurso.GUIA_DE_ESTUDIO.permiteSubidaManual());
         assertFalse(TipoRecurso.VIDEO_CLON.permiteSubidaManual());
         assertEquals(List.of("mp4", "webm"), TipoRecurso.GRABACION.getExtensionesPermitidas());
         assertEquals(List.of("pdf"), TipoRecurso.PRESENTACION.getExtensionesPermitidas());
         assertEquals(2048L * 1024 * 1024, TipoRecurso.GRABACION.getTamanioMaximo());
-        assertEquals(50L * 1024 * 1024, TipoRecurso.BIBLIOGRAFIA.getTamanioMaximo());
+        assertEquals(50L * 1024 * 1024, TipoRecurso.MATERIAL_BIBLIOGRAFICO.getTamanioMaximo());
         assertEquals(TipoRecurso.GRABACION, TipoRecurso.deTexto("Grabación"));
         assertEquals(TipoRecurso.PRESENTACION, TipoRecurso.deTexto("presentacion"));
         assertTrue(TipoRecurso.GRABACION.getDescripcionDeSubida().contains("MP4, WEBM"));

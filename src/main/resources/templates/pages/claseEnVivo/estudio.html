@@ -91,10 +91,16 @@
                                 <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalRegenerarClave">Generar clave nueva</button>
                             </div>
                         </th:block>
-                        <p class="sc-ayuda" th:if="${conexion == null}">La clave se muestra solo al generarla. Si la perdiste, generá una nueva.</p>
-                        <div th:if="${conexion == null}">
-                            <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalRegenerarClave">Generar clave nueva</button>
-                        </div>
+                        <!-- Sin clave a la vista (solo se muestra al generarla): se conecta igual, y la clave nueva se genera al pedirlo -->
+                        <th:block th:if="${conexion == null}">
+                            <div class="sc-obs">
+                                <p class="sc-ayuda">La clave se muestra solo al generarla. Para conectar OBS se genera una clave nueva: la anterior deja de funcionar.</p>
+                                <div class="sc-obs-botones">
+                                    <button type="button" class="pn-btn pn-btn-ver pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalRegenerarClave">Conectar con mi OBS</button>
+                                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-bs-toggle="modal" data-bs-target="#modalRegenerarClave">Conectar manualmente</button>
+                                </div>
+                            </div>
+                        </th:block>
                         <p class="sc-ayuda" th:text="${'Si se corta la señal, tenés ' + minutosSinSenal + (minutosSinSenal == 1 ? ' minuto' : ' minutos') + ' para volver a conectar antes de que la clase se cierre sola.'}">Si se corta la señal, tenés 10 minutos para volver a conectar antes de que la clase se cierre sola.</p>
                     </div>
                 </aside>

@@ -31,7 +31,7 @@ import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.util.DuracionUtil;
@@ -239,7 +239,7 @@ public class CursoController {
         boolean esAdministrador = false;
         try {
             // Si participa en el curso como docente trabaja como tal. Si no, solo el administrador puede entrar
-            DocenteCurso participacion = null;
+            IntegranteEquipo participacion = null;
             Docente docente = usuario.getDocente();
             if (docente != null) {
                 try {

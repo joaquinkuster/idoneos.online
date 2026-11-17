@@ -26,7 +26,7 @@
             <div class="pn-encabezado">
                 <div>
                     <h1 class="pn-titulo">Recursos</h1>
-                    <p class="pn-subtitulo" th:text="${'Gestiona los recursos de ' + curso.nombre + ': grabaciones, bibliografía, presentaciones y enlaces'}">Gestiona los recursos del curso</p>
+                    <p class="pn-subtitulo" th:text="${'Gestiona los recursos de ' + curso.nombre + ': grabaciones, material bibliográfico, presentaciones y enlaces'}">Gestiona los recursos del curso</p>
                 </div>
                 <div class="d-flex gap-2 flex-wrap" th:if="${puedeGestionar}">
                     <button type="button" class="pn-btn pn-btn-contorno" data-bs-toggle="modal" data-bs-target="#modalGenerarIa">
@@ -73,18 +73,18 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="m : ${materiales}" data-fila th:classappend="${m.baja} ? 'pn-fila-baja'"
-                                th:attr="data-ver-url=${!m.baja and m.disponible} ? @{'/recurso/ver/' + ${m.idTemaRecurso}}">
+                            <th:block th:each="m, it : ${materiales}">
+                            <th:block th:if="${agrupar == true and (it.first or materiales[it.index - 1].tipo != m.tipo)}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaTipo(${m.tipo}, ${materialesPorTipo.getOrDefault(m.tipo, 0L)})}"></tr>
+                            </th:block>
+                            <tr data-fila th:classappend="${m.baja} ? 'pn-fila-baja'"
+                                th:attr="data-ver-url=${!m.baja and m.disponible} ? @{'/recurso/ver/' + ${m.clave}}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
-                                    th:value="${m.idTemaRecurso}" th:disabled="${m.baja}"></td>
+                                    th:value="${m.clave}" th:disabled="${m.baja}"></td>
                                 <td>
                                     <a class="pn-celda-principal pn-truncar pn-enlace-ver" th:if="${!m.baja and m.disponible}" title="Ver el recurso"
-                                       th:href="@{'/recurso/ver/' + ${m.idTemaRecurso}}" th:text="${m.titulo}">Clase 3</a>
+                                       th:href="@{'/recurso/ver/' + ${m.clave}}" th:text="${m.titulo}">Clase 3</a>
                                     <span class="pn-celda-principal pn-truncar" th:if="${m.baja or !m.disponible}" th:text="${m.titulo}">Clase 3</span>
-                                    <span class="pn-insignia pn-insignia-azul ms-1" th:if="${m.generadoPorIa}">IA</span>
-                                    <span class="pn-insignia ms-1" th:if="${!m.disponible}" th:title="${m.detalleErrorGeneracion}"
-                                          th:classappend="${m.estadoGeneracion == 'Fallido'} ? 'pn-insignia-roja' : 'pn-insignia-dorada'"
-                                          th:text="${m.estadoGeneracion == 'Fallido'} ? 'Fallido' : 'Pendiente'">Pendiente</span>
                                 </td>
                                 <td><span class="pn-truncar" th:text="${m.tema.titulo}">Renta fija y bonos</span></td>
                                 <td>
@@ -103,21 +103,29 @@
                                     <span class="pn-insignia" th:classappend="${m.recurso.privado} ? 'pn-insignia-gris' : 'pn-insignia-verde'"
                                           th:text="${m.recurso.privado} ? 'No' : 'Sí'">No</span>
                                 </td>
-                                <td th:text="${m.generadoPorIa ? 'Sí' : 'No'}">No</td>
+                                <td>
+                                    <span th:if="${!m.generadoPorIa}">No</span>
+                                    <span th:if="${m.generadoPorIa and (m.estadoGeneracion == null or m.estadoGeneracion == 'Listo')}">Sí</span>
+                                    <span class="pn-insignia" th:if="${m.generadoPorIa and m.estadoGeneracion != null and m.estadoGeneracion != 'Listo'}" th:title="${m.detalleErrorGeneracion}"
+                                          th:attr="data-generando=${m.estadoGeneracion == 'Pendiente'} ? 'true' : null"
+                                          th:classappend="${m.estadoGeneracion == 'Fallido'} ? 'pn-insignia-roja' : 'pn-insignia-dorada'"
+                                          th:text="${m.estadoGeneracion}">Pendiente</span>
+                                </td>
                                 <td th:text="${m.fechaCreacion != null ? #temporals.format(m.fechaCreacion, 'dd/MM/yyyy HH:mm') : '—'}">28/08/2026 10:30</td>
                                 <td>
                                     <div class="pn-acciones">
-                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja and m.disponible}"
-                                                th:data-bs-target="'#modalModificarMaterial' + ${m.idTemaRecurso}"
-                                                th:data-modal-url="@{'/recurso/modificar/' + ${m.idTemaRecurso}}">Modificar</button>
+                                        <button type="button" class="pn-btn pn-btn-editar pn-btn-chico" th:if="${puedeGestionar and !m.baja and (m.disponible or m.estadoGeneracion == 'Fallido')}"
+                                                th:data-bs-target="'#modalModificarMaterial' + ${m.clave}"
+                                                th:data-modal-url="@{'/recurso/modificar/' + ${m.clave}}">Modificar</button>
                                         <button type="button" class="pn-btn pn-btn-peligro pn-btn-chico" th:if="${!m.baja}"
                                                 data-bs-toggle="modal" data-bs-target="#modalBajaMaterial"
-                                                th:data-baja-accion="@{'/recurso/darDeBaja/' + ${m.idTemaRecurso}}"
+                                                th:data-baja-accion="@{'/recurso/darDeBaja/' + ${m.clave}}"
                                                 th:data-baja-pregunta="'¿Confirmas dar de baja el recurso «' + ${m.titulo} + '»?'"
                                                 data-baja-nota="El recurso dejará de mostrarse a los alumnos en este tema. Sigue en la biblioteca para reutilizarlo.">Dar de baja</button>
                                     </div>
                                 </td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(11, 'fa-folder-open', 'No se encontraron recursos', 'Ningún recurso coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
@@ -147,35 +155,56 @@
 
 <!-- Modal: generar el resumen o la presentación de un tema con IA. Queda oculto hasta que el docente lo revisa -->
 <div class="modal fade pn-modal" id="modalGenerarIa" tabindex="-1" aria-hidden="true" th:if="${puedeGestionar}">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
                 <h3 class="pn-modal-titulo">Generar con IA</h3>
                 <button type="button" class="pn-modal-cerrar" data-bs-dismiss="modal" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="pn-modal-cuerpo">
-                <form th:action="@{/recurso/generarIa}" method="post" class="form-ajax" novalidate>
-                    <p class="pn-ayuda">Se arma solo con la bibliografía del tema y puede tardar unos minutos. Queda oculto para los alumnos hasta que lo revises y lo publiques.</p>
-                    <div class="pn-campo">
-                        <label class="pn-etiqueta">Qué generar <span class="pn-obligatorio">*</span></label>
-                        <select name="tipo" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar qué generar.">
-                            <option value="resumen">Resumen</option>
-                            <option value="presentacion">Presentación</option>
-                        </select>
-                        <div class="pn-ayuda-error"></div>
-                    </div>
-                    <div class="pn-campo">
-                        <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
-                        <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
-                            <option value="">Seleccionar tema</option>
-                            <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:text="${uc.tema.titulo}">Tema</option>
-                        </select>
-                        <div class="pn-ayuda-error"></div>
-                    </div>
-                    <div class="pn-modal-pie">
-                        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="pn-btn pn-btn-primario">Generar</button>
-                    </div>
+                <form th:action="@{/recurso/generarIa}" method="post" class="form-ajax" data-validar data-pasos novalidate>
+    <div class="pn-pasos pn-pasos-nombrados">
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">1</span><span class="pn-pasos-nombre">Datos</span></span><span class="pn-pasos-linea"></span>
+        <span class="pn-pasos-item"><span class="pn-pasos-punto">2</span><span class="pn-pasos-nombre">Fuentes</span></span>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Qué generar</h4>
+            <p>Se arma solo con el material del tema y puede tardar unos minutos. Queda oculto para los alumnos hasta que lo revises y lo publiques.</p>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Qué generar <span class="pn-obligatorio">*</span></label>
+                <select name="tipo" class="pn-input" required data-mensaje-obligatorio="Debe seleccionar qué generar.">
+                    <option value="resumen" th:selected="${generarIaTipo != 'presentacion'}">Resumen (Apunte de Cátedra)</option>
+                    <option value="presentacion" th:selected="${generarIaTipo == 'presentacion'}">Presentación</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
+                <select name="temaId" data-buscable class="pn-input" required data-mensaje-obligatorio="Debe seleccionar el tema.">
+                    <option value="">Seleccionar tema</option>
+                    <option th:each="uc : ${temas}" th:value="${uc.tema.idTema}" th:text="${uc.tema.titulo}"
+                            th:selected="${temaSeleccionada != null and temaSeleccionada == uc.tema.idTema}">Tema</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+        </div>
+    </div>
+    <div class="pn-paso">
+        <div class="pn-seccion-titulo">
+            <h4>Fuentes</h4>
+            <p>Elegí los documentos del tema de los que sale el contenido</p>
+        </div>
+        <div data-fuentes-ia></div>
+    </div>
+    <div class="pn-modal-pie">
+        <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
+        <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar>Generar</button>
+    </div>
                 </form>
             </div>
         </div>
@@ -209,14 +238,18 @@
         </div>
         <div class="row g-3">
 <div class="col-md-6 pn-campo" data-campo-tipo>
-                            <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
+                            <div class="pn-etiqueta-con-ayuda">
+                                <label class="pn-etiqueta">Tipo de recurso <span class="pn-obligatorio">*</span></label>
+                                <button type="button" class="cn-ayuda" aria-expanded="false" aria-label="Sobre el tipo de recurso" title="Ayuda" data-ayuda-destino="ayudaTipoRecurso"><i class="fa-solid fa-circle-info"></i></button>
+                            </div>
                             <select class="pn-input" data-tipo-grupo aria-label="Tipo de recurso">
-                                <option value="MATERIAL_LECTURA">Material de lectura</option>
-                                <option value="BIBLIOGRAFIA">Bibliografía</option>
+                                <option value="MATERIAL_DIDACTICO" title="Lo que elaborás para tu curso: presentaciones, apuntes de cátedra y guías de estudio. Podés mantenerlo privado.">Material didáctico</option>
+                                <option value="MATERIAL_BIBLIOGRAFICO" title="Libros, manuales y publicaciones formales con ISBN, ISSN o DOI. Es público para todos los docentes.">Material bibliográfico</option>
                                 <option value="GRABACION">Grabación</option>
                                 <option value="ENLACE">Enlace</option>
                             </select>
-                            <!-- El servidor recibe el tipo concreto: lo arman estos selectores (Material de lectura + su clase) -->
+                            
+                            <!-- El servidor recibe el tipo concreto: lo arman estos selectores (Material didáctico + su categoría) -->
                             <select name="tipo" class="d-none" required tabindex="-1" aria-hidden="true">
                                 <option th:each="t : ${tiposDeSubida}" th:value="${t.name()}" th:text="${t.nombre}"
                                         th:attr="data-nombre=${t.nombre},
@@ -230,9 +263,14 @@
 <div class="col-md-6 pn-campo" data-bloque="categoria-material">
                             <label class="pn-etiqueta">Categoría de material <span class="pn-obligatorio">*</span></label>
                             <select class="pn-input" data-categoria-material aria-label="Categoría de material">
-                                <option value="PRESENTACION">Presentación</option>
-                                <option value="RESUMEN">Resumen</option>
+                                <option value="PRESENTACION" title="Diapositivas que acompañan una clase o un tema.">Presentación</option>
+                                <option value="APUNTE_DE_CATEDRA" title="Resúmenes, transcripciones de clases, artículos o compilaciones teóricas elaboradas por el equipo docente.">Apunte de Cátedra</option>
+                                <option value="GUIA_DE_ESTUDIO" title="Guías de lectura, de ejercicios prácticos o integradores que orientan el estudio de un tema.">Guía de Estudio</option>
                             </select>
+                            
+                        </div>
+<div class="col-12 ayuda-desplegable" id="ayudaTipoRecurso">
+                            <div class="ayuda-desplegable-interior"><div class="cn-info"><div data-tipo-ayuda-texto></div></div></div>
                         </div>
 <div class="col-12 pn-campo" data-resumen-omitir>
                             <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
@@ -299,20 +337,20 @@
                             <input type="text" name="autor" class="pn-input" maxlength="100" placeholder="Autor" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo" data-bloque="isbn" hidden>
+<div class="col-md-6 pn-campo" data-bloque="identificador" hidden>
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
-                                <span class="pn-contador">0 / 17</span>
+                                <label class="pn-etiqueta">Identificador (ISBN, ISSN o DOI) <span class="pn-obligatorio">*</span></label>
+                                <span class="pn-contador">0 / 150</span>
                             </div>
-                            <input type="text" name="isbn" class="pn-input" maxlength="17" placeholder="978-0-00-000000-0" data-contador>
+                            <input type="text" name="identificador" class="pn-input" maxlength="150" placeholder="978-0-00-000000-0, 1234-5678 o 10.1000/ejemplo" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
-<div class="col-md-6 pn-campo" data-bloque="editorial" hidden>
+<div class="col-md-6 pn-campo" data-bloque="publicadoEn" hidden>
                             <div class="pn-etiqueta-fila">
-                                <label class="pn-etiqueta">Editorial (opcional)</label>
-                                <span class="pn-contador">0 / 100</span>
+                                <label class="pn-etiqueta">Publicado en: editorial, revista o congreso (opcional)</label>
+                                <span class="pn-contador">0 / 150</span>
                             </div>
-                            <input type="text" name="editorial" class="pn-input" maxlength="100" placeholder="Editorial" data-contador>
+                            <input type="text" name="publicadoEn" class="pn-input" maxlength="150" placeholder="Editorial, revista o congreso" data-contador>
                             <div class="pn-ayuda-error"></div>
                         </div>
 <div class="col-md-6 pn-campo" data-bloque="fechaPublicacion" hidden>
@@ -386,6 +424,9 @@
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/core/curso.js}"></script>
 <script th:src="@{/js/components/indiceDocumento.js}"></script>
+<script th:src="@{/js/components/fuentesIa.js}"></script>
+<script th:src="@{/js/core/recargaGeneracion.js}"></script>
+<script th:src="@{/js/components/ayudaDesplegable.js}"></script>
 <script th:src="@{/js/pages/recurso/recurso.js}"></script>
 <script th:src="@{/js/core/abrirModal.js}"></script>
 </body>

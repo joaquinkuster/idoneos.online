@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.app.idoneos.model.EstadoGeneracionIA;
-import com.app.idoneos.model.MaterialLectura;
+import com.app.idoneos.model.MaterialDidactico;
 import com.app.idoneos.model.Pool;
 import com.app.idoneos.repository.EstadoGeneracionIARepository;
-import com.app.idoneos.repository.MaterialLecturaRepository;
+import com.app.idoneos.repository.MaterialDidacticoRepository;
 import com.app.idoneos.repository.PoolRepository;
 
 /** Componente que cierra como fallidas las generaciones con inteligencia artificial que quedaron a medias al reiniciarse la aplicación. */
@@ -26,14 +26,14 @@ public class GeneracionIAInterrumpidaRecuperador {
     static final String MOTIVO = "La generación se interrumpió porque el sistema se reinició. Se puede volver a pedir.";
 
     private final PoolRepository poolRepository;
-    private final MaterialLecturaRepository materialLecturaRepository;
+    private final MaterialDidacticoRepository materialDidacticoRepository;
     private final EstadoGeneracionIARepository estadoRepository;
 
     /** Crea el componente con los repositorios que necesita. */
-    public GeneracionIAInterrumpidaRecuperador(PoolRepository poolRepository, MaterialLecturaRepository materialLecturaRepository,
+    public GeneracionIAInterrumpidaRecuperador(PoolRepository poolRepository, MaterialDidacticoRepository materialDidacticoRepository,
             EstadoGeneracionIARepository estadoRepository) {
         this.poolRepository = poolRepository;
-        this.materialLecturaRepository = materialLecturaRepository;
+        this.materialDidacticoRepository = materialDidacticoRepository;
         this.estadoRepository = estadoRepository;
     }
 
@@ -43,7 +43,7 @@ public class GeneracionIAInterrumpidaRecuperador {
     public void recuperar() {
         List<String> enCurso = List.of(EstadoGeneracionIA.PENDIENTE);
         List<Pool> pools = poolRepository.findByEstadoGeneracionIaNombreIn(enCurso);
-        List<MaterialLectura> materiales = materialLecturaRepository.findByEstadoGeneracionIaNombreIn(enCurso);
+        List<MaterialDidactico> materiales = materialDidacticoRepository.findByEstadoGeneracionIaNombreIn(enCurso);
         if (pools.isEmpty() && materiales.isEmpty()) {
             return;
         }
@@ -52,7 +52,7 @@ public class GeneracionIAInterrumpidaRecuperador {
             pool.setEstadoGeneracionIa(error);
             pool.setDetalleError(MOTIVO);
         }
-        for (MaterialLectura material : materiales) {
+        for (MaterialDidactico material : materiales) {
             material.setEstadoGeneracionIa(error);
             material.setDetalleError(MOTIVO);
         }

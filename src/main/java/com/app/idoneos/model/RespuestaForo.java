@@ -27,8 +27,8 @@ public class RespuestaForo {
 
     /** Docente curso de este registro. */
     @ManyToOne
-    @JoinColumn(name = "idDocenteCurso", nullable = false)
-    private DocenteCurso docenteCurso;
+    @JoinColumn(name = "idIntegranteEquipo", nullable = false)
+    private IntegranteEquipo integranteEquipo;
 
     /** Consulta de este registro. */
     @ManyToOne
@@ -52,25 +52,33 @@ public class RespuestaForo {
     private Boolean baja = false;
 
     /** Crea la respuesta del foro con los datos básicos. */
-    public RespuestaForo(DocenteCurso docenteCurso, ConsultaForo consulta, String texto) {
-        this.docenteCurso = docenteCurso;
+    public static final String AUTOR_ANONIMO = "Docente anónimo";
+
+    public RespuestaForo(IntegranteEquipo integranteEquipo, ConsultaForo consulta, String texto) {
+        this.integranteEquipo = integranteEquipo;
         this.consulta = consulta;
         this.texto = texto;
     }
 
-    /** Obtiene el nombre del docente que respondió. */
-    public String getAutor() {
-        return docenteCurso.getDocente().getUsuario().getNombreCompleto();
+    /** Indica si el docente que respondió ya no forma parte del curso, su cuenta no está activa o ya no tiene el rol de docente. */
+    public boolean tieneAutorInactivo() {
+        Usuario usuario = integranteEquipo.getDocente().getUsuario();
+        return integranteEquipo.esInactivo() || usuario.esInactivo() || !usuario.esDocente();
     }
 
-    /** Obtiene el usuario del docente que respondió. */
+    /** Obtiene el nombre del docente que respondió, o anónimo si ya no forma parte del curso o su cuenta no está activa. */
+    public String getAutor() {
+        return tieneAutorInactivo() ? AUTOR_ANONIMO : integranteEquipo.getDocente().getUsuario().getNombreCompleto();
+    }
+
+    /** Obtiene el usuario del docente que respondió, o nulo si ya no forma parte del curso o su cuenta no está activa. */
     public Usuario getUsuario() {
-        return docenteCurso.getDocente().getUsuario();
+        return tieneAutorInactivo() ? null : integranteEquipo.getDocente().getUsuario();
     }
 
     /** Indica si un docente puede modificar la respuesta: es el autor. */
     public boolean puedeModificar(Docente docente, int minutos) {
-        return docente != null && !baja && docenteCurso.getDocente().getIdDocente() == docente.getIdDocente()
+        return docente != null && !baja && integranteEquipo.getDocente().getIdDocente() == docente.getIdDocente()
                 && LocalDateTime.now().isBefore(fechaCreacion.plusMinutes(minutos));
     }
 

@@ -121,14 +121,14 @@ public class Tema {
     /** Obtiene el material publicado del tema (vigente y no oculto). */
     public List<TemaRecurso> getMaterialesPublicados() {
         return temasRecurso.stream().filter(TemaRecurso::estaPublicado)
-                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(TemaRecurso::getIdTemaRecurso))
+                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(m -> m.getRecurso().getIdRecurso()))
                 .toList();
     }
 
     /** Obtiene el material vigente del tema (no dado de baja), incluido el oculto: es el que ve el docente. */
     public List<TemaRecurso> getMaterialesVigentes() {
         return temasRecurso.stream().filter(material -> !material.getBaja() && !material.getRecurso().getBaja())
-                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(TemaRecurso::getIdTemaRecurso))
+                .sorted(Comparator.comparingInt(TemaRecurso::getNumeroOrden).thenComparingInt(m -> m.getRecurso().getIdRecurso()))
                 .toList();
     }
 

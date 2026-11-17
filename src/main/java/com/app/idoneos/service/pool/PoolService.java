@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del pool de preguntas. */
-public interface PoolService extends CrudService<Pool> {
+public interface PoolService extends CrudService<Pool, Integer> {
 
     /**
      * Pregunta que se carga en un pool (alta o modificación).

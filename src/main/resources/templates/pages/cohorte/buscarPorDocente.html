@@ -45,7 +45,7 @@
                             <table class="pn-tabla">
                                 <thead>
                             <tr>
-                                <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="lista">Cohorte</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th data-col="Programa" data-oculta data-campo="programa" data-filtro="lista">Programa</th>
                                 <th data-col="Inicio de inscripción" data-orden-inicial="desc" data-campo="fechaInicioInscripcion" data-filtro="fecha">Inicio de inscripción</th>
@@ -64,7 +64,7 @@
                                         th:data-o-curso="${coh.curso.nombre}"
                                         th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
-                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div>
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.etiqueta}">Septiembre 2026</div>
                                     <span class="pn-marca-estado" th:if="${cohortesDeTrabajo != null and cohortesDeTrabajo.contains(coh.idCohorte)}">(Por defecto)</span></td>
                                 <td>
                                             <span class="pn-insignia"

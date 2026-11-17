@@ -42,10 +42,11 @@ public final class EstructuraPdfUtil {
      * @param tipo Si es un título o un párrafo (un párrafo puede ser también una celda de tabla o un ítem de lista).
      * @param texto El texto, con un solo espacio entre palabras.
      * @param seccion El último título que apareció antes, o vacío si no hubo ninguno.
+     * @param pagina La página donde empieza el bloque (la primera es la 1).
      * @param campo La última etiqueta de ficha que apareció antes, dentro de la misma sección («Precondición»), o vacío si no hubo ninguna. Una etiqueta de
      *        ficha es un texto corto, sin punto final, que se repite varias veces en el documento.
      */
-    public record Bloque(Tipo tipo, String texto, String seccion, String campo) {
+    public record Bloque(Tipo tipo, String texto, String seccion, String campo, int pagina) {
     }
 
     /** Una etiqueta de ficha tiene como mucho esta cantidad de palabras. */
@@ -183,17 +184,17 @@ public final class EstructuraPdfUtil {
             if (primera.celdas().size() >= 2) {
                 // Una fila de tabla: cada celda es un bloque aparte
                 for (String celda : primera.celdas()) {
-                    bloques.add(new Bloque(Tipo.PARRAFO, celda, seccion, campo));
+                    bloques.add(new Bloque(Tipo.PARRAFO, celda, seccion, campo, primera.pagina()));
                 }
             } else if (esTitulo(racha, cuerpo) && vecesQueAparece.getOrDefault(clave(texto), 0) < VECES_QUE_SE_REPITE_UNA_ETIQUETA) {
                 seccion = texto;
                 campo = "";
-                bloques.add(new Bloque(Tipo.TITULO, texto, seccion, campo));
+                bloques.add(new Bloque(Tipo.TITULO, texto, seccion, campo, primera.pagina()));
             } else if (esEtiqueta(texto) && vecesQueSeRepiteUnTextoCorto.getOrDefault(clave(texto), 0) >= VECES_QUE_SE_REPITE_UNA_ETIQUETA) {
                 campo = texto;
-                bloques.add(new Bloque(Tipo.PARRAFO, texto, seccion, ""));
+                bloques.add(new Bloque(Tipo.PARRAFO, texto, seccion, "", primera.pagina()));
             } else {
-                bloques.add(new Bloque(Tipo.PARRAFO, texto, seccion, campo));
+                bloques.add(new Bloque(Tipo.PARRAFO, texto, seccion, campo, primera.pagina()));
             }
             caracteres += texto.length();
             if (caracteres >= maximoDeCaracteres) {

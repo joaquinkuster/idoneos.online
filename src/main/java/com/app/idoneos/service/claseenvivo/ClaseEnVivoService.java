@@ -11,7 +11,7 @@ import com.app.idoneos.service.streaming.StreamingService.DatosDeConexion;
 import java.util.Optional;
 
 /** Servicio de la clase en vivo. */
-public interface ClaseEnVivoService extends CrudService<ClaseEnVivo> {
+public interface ClaseEnVivoService extends CrudService<ClaseEnVivo, Integer> {
 
     /**
      * Datos que el docente carga en una clase en vivo (alta o modificación).

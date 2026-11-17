@@ -63,7 +63,7 @@ public class Docente {
 
     /** Participaciones docente que referencian a este registro. */
     @OneToMany(mappedBy = "docente", cascade = CascadeType.ALL)
-    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
+    private Set<IntegranteEquipo> participacionesDocente = new HashSet<>();
 
     /** Crea el docente con los datos básicos. */
     public Docente(Usuario usuario) {

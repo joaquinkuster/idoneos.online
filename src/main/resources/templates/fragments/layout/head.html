@@ -29,4 +29,5 @@
     <script th:src="@{/js/layout/navbar.js}" defer></script>
     <!-- Latido de la sesión: mientras haya una pantalla abierta, la sesión sigue viva -->
     <script th:if="${usuario != null}" th:src="@{/js/layout/heartbeat.js}" defer></script>
+    <script th:if="${usuario != null}" th:src="@{/js/layout/notificaciones.js}" defer></script>
 </th:block>

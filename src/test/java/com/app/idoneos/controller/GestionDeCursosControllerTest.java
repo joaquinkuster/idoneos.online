@@ -11,7 +11,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import com.app.idoneos.config.SecurityConfig;
+import com.app.idoneos.config.SesionTokenFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,18 +44,17 @@ class GestionDeCursosControllerTest {
     }
 
     @Test
-    @DisplayName("Al iniciar sesión con \"Recordarme\" se guarda la cookie de sesión recordada, y sin él no")
+    @DisplayName("Al iniciar sesión se guarda la cookie del token: con \"Recordarme\" dura 30 días y sin él se borra al cerrar el navegador")
     void iniciarSesionConRecordarme() throws Exception {
         mockMvc.perform(post("/login").param("username", "admin@idoneos.online").param("password", "123456")
                 .param("recordarme", "true"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/curso/buscar"))
-                .andExpect(cookie().exists(SecurityConfig.COOKIE_RECORDARME))
-                // la cookie de la sesión dura 30 días (en lugar de cerrarse con el navegador)
-                .andExpect(cookie().maxAge(SecurityConfig.COOKIE_SESION, 30 * 24 * 60 * 60));
+                .andExpect(cookie().exists(SesionTokenFilter.COOKIE_TOKEN))
+                .andExpect(cookie().maxAge(SesionTokenFilter.COOKIE_TOKEN, SesionTokenFilter.SEGUNDOS_RECORDADA));
         mockMvc.perform(post("/login").param("username", "admin@idoneos.online").param("password", "123456"))
-                .andExpect(cookie().doesNotExist(SecurityConfig.COOKIE_RECORDARME))
-                .andExpect(cookie().doesNotExist(SecurityConfig.COOKIE_SESION));
+                .andExpect(cookie().exists(SesionTokenFilter.COOKIE_TOKEN))
+                .andExpect(cookie().maxAge(SesionTokenFilter.COOKIE_TOKEN, -1));
     }
 
     @Test

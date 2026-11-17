@@ -4,7 +4,7 @@ import com.app.idoneos.service.CrudService;
 import com.app.idoneos.model.Pregunta;
 
 /** Servicio de la pregunta. */
-public interface PreguntaService extends CrudService<Pregunta> {
+public interface PreguntaService extends CrudService<Pregunta, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

@@ -20,22 +20,14 @@
     // ----------------------------------------------------------------------
 
     function rolesMarcados(formulario) {
-        return Array.prototype.map.call(formulario.querySelectorAll('input[name="roles"]:checked'), function (c) { return c.value; });
+        var selector = formulario.querySelector('select[name="roles"]');
+        return selector ? Array.prototype.map.call(selector.selectedOptions, function (opcion) { return opcion.value; }) : [];
     }
 
     /** Muestra u oculta los pasos del docente y deja al día los textos del resumen. */
     function actualizar(formulario) {
         var roles = rolesMarcados(formulario);
         formulario.querySelectorAll('[data-paso-docente]').forEach(function (paso) { paso.hidden = roles.indexOf('Docente') < 0; });
-        var nota = formulario.querySelector('[data-nota-admin]');
-        if (nota) { nota.classList.toggle('d-none', roles.indexOf('Administrador') < 0); }
-
-        var resumenRoles = formulario.querySelector('[data-resumen-roles]');
-        if (resumenRoles) { resumenRoles.textContent = roles.join(', '); }
-        var resumenHabilitado = formulario.querySelector('[data-resumen-habilitado]');
-        var habilitado = formulario.querySelector('input[name="habilitado"]');
-        if (resumenHabilitado && habilitado) { resumenHabilitado.textContent = habilitado.checked ? 'Sí' : 'No'; }
-
         if (formulario.pasos && formulario.pasos.refrescar) { formulario.pasos.refrescar(); }
     }
 
@@ -267,16 +259,6 @@
             if (campos.telefono.value.trim() && !FORMATO_TELEFONO.test(campos.telefono.value.trim())) {
                 marcar(campos.telefono, 'No es válido. Formato válido: entre 6 y 20 dígitos, con +, espacios o guiones.');
                 valido = false;
-            }
-        }
-
-        if (paso === 2) {
-            var primero = formulario.querySelector('input[name="roles"]');
-            if (!rolesMarcados(formulario).length) {
-                marcar(primero, 'Seleccioná al menos un rol.');
-                valido = false;
-            } else {
-                marcar(primero, '');
             }
         }
 

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 /** Repositorio de TemaCronograma. */
 @Repository
-public interface TemaCronogramaRepository extends JpaRepository<TemaCronograma, Integer> {
+public interface TemaCronogramaRepository extends JpaRepository<TemaCronograma, TemaCronograma.Clave> {
 
     /** Encuentra todos los registros activos (no dados de baja). */
     List<TemaCronograma> findByBajaFalse();

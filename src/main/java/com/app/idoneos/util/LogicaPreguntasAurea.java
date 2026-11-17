@@ -31,8 +31,17 @@ public final class LogicaPreguntasAurea {
     public record Opcion(String texto, boolean correcta) {
     }
 
-    /** Pregunta armada o validada. */
-    public record Pregunta(String enunciado, List<Opcion> opciones, Tipo tipo) {
+    /**
+     * Pregunta armada o validada.
+     *
+     * @param evidencia La oración del documento de la que salió, tal como está en el documento, o {@code null} si no sale de una sola oración.
+     */
+    public record Pregunta(String enunciado, List<Opcion> opciones, Tipo tipo, String evidencia) {
+
+        /** Crea una pregunta que no sale de una oración en particular. */
+        public Pregunta(String enunciado, List<Opcion> opciones, Tipo tipo) {
+            this(enunciado, opciones, tipo, null);
+        }
     }
 
     /** Lo que se sabe del material para armar preguntas: sus oraciones, sus palabras clave y el glosario. */
@@ -46,6 +55,8 @@ public final class LogicaPreguntasAurea {
         private final String materialNormalizado;
         /** Las oraciones que eligió el modelo como importantes: las preguntas se arman con ellas primero. */
         private final List<String> preferidas = new ArrayList<>();
+        /** Las oraciones menos usadas por otros bancos del tema, si se rotaron. */
+        private List<String> rotadas;
 
         private Contexto(List<String> sentencias, List<String> palabrasClave, List<String> palabrasParaEmparejar, Map<String, String> formaOriginal,
                 List<String[]> glosario, String materialNormalizado) {
@@ -120,8 +131,30 @@ public final class LogicaPreguntasAurea {
             return new ArrayList<>(preferidas);
         }
 
-        /** Las oraciones con las que se arman las preguntas: las del modelo si hay suficientes, o todas. */
+        /**
+         * Rota las oraciones con las que se arman las preguntas: quedan solo las menos usadas por preguntas vigentes de otros bancos, las suficientes
+         * para armar las que faltan (y al menos cuatro). Si hay más oraciones con el mismo uso que el de la última, entran todas.
+         *
+         * @param usoPorOracion Cuántas preguntas vigentes salieron de cada oración (las que no figuran, ninguna).
+         * @param cuantas Cuántas preguntas se necesitan armar.
+         */
+        public void rotar(Map<String, Integer> usoPorOracion, int cuantas) {
+            Map<String, Integer> uso = new HashMap<>();
+            usoPorOracion.forEach((oracion, veces) -> uso.merge(limpiar(oracion), veces, Math::max));
+            List<String> ordenadas = new ArrayList<>(base());
+            if (ordenadas.isEmpty()) {
+                return;
+            }
+            ordenadas.sort(java.util.Comparator.comparingInt(o -> uso.getOrDefault(o, 0)));
+            int tope = uso.getOrDefault(ordenadas.get(Math.min(ordenadas.size(), Math.max(4, cuantas)) - 1), 0);
+            rotadas = ordenadas.stream().filter(o -> uso.getOrDefault(o, 0) <= tope).toList();
+        }
+
+        /** Las oraciones con las que se arman las preguntas: las menos usadas si se rotaron, las del modelo si hay suficientes, o todas. */
         private List<String> base() {
+            if (rotadas != null) {
+                return rotadas;
+            }
             return preferidas.size() >= 4 ? preferidas : sentencias;
         }
 
@@ -890,7 +923,7 @@ public final class LogicaPreguntasAurea {
                     // La oración queda usada: no se arma otra pregunta tapando una palabra distinta de la misma
                     usados.add(normalizar(oracion));
                     Collections.shuffle(opciones, azar);
-                    return new Pregunta(enunciado, opciones, Tipo.UNICA_RESPUESTA);
+                    return new Pregunta(enunciado, opciones, Tipo.UNICA_RESPUESTA, oracion);
                 }
             }
         }

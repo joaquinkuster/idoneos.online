@@ -148,8 +148,8 @@ public final class OracionesUtil {
         return candidatas;
     }
 
-    /** Una oración candidata con la sección del documento en la que está y la etiqueta de ficha que la precede («Precondición»), o vacío si no hay. */
-    public record OracionDeSeccion(String texto, String seccion, String campo) {
+    /** Una oración candidata con la sección del documento en la que está, la etiqueta de ficha que la precede («Precondición», o vacío si no hay) y su página. */
+    public record OracionDeSeccion(String texto, String seccion, String campo, int pagina) {
     }
 
     /**
@@ -165,7 +165,7 @@ public final class OracionesUtil {
         for (EstructuraPdfUtil.Bloque bloque : bloques) {
             if (bloque.tipo() == EstructuraPdfUtil.Tipo.PARRAFO) {
                 for (String trozo : bloque.texto().split("(?<=[.!?])\\s+")) {
-                    trozos.add(new String[] { trozo, bloque.seccion(), bloque.campo() });
+                    trozos.add(new String[] { trozo, bloque.seccion(), bloque.campo(), String.valueOf(bloque.pagina()) });
                 }
             }
         }
@@ -176,7 +176,7 @@ public final class OracionesUtil {
         for (String[] trozo : trozos) {
             for (String oracion : oracionesDeUnTrozo(trozo[0], estadistica)) {
                 if (esOracionValida(oracion) && vistas.add(oracion)) {
-                    candidatas.add(new OracionDeSeccion(oracion, trozo[1], trozo[2]));
+                    candidatas.add(new OracionDeSeccion(oracion, trozo[1], trozo[2], Integer.parseInt(trozo[3])));
                 }
             }
             if (candidatas.size() >= maximo) {

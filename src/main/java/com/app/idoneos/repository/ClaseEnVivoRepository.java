@@ -37,7 +37,7 @@ public interface ClaseEnVivoRepository extends JpaRepository<ClaseEnVivo, Intege
     /** Busca las clases vigentes de un docente que ocupan su agenda: las que tienen alguno de los estados indicados. */
     @Query("""
             select c from ClaseEnVivo c
-            where c.baja = false and c.docenteCurso.docente = :docente and c.estadoClaseEnVivo.nombre in :estados
+            where c.baja = false and c.integranteEquipo.docente = :docente and c.estadoClaseEnVivo.nombre in :estados
             """)
     List<ClaseEnVivo> buscarOcupadasDelDocente(@Param("docente") Docente docente, @Param("estados") List<String> estados);
 

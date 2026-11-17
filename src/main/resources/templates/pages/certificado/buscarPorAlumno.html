@@ -40,7 +40,11 @@
                                     </tr>
                                 </thead>
                                 <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                                    <tr th:each="c : ${certificados}" data-fila>
+                                    <th:block th:each="c, cIt : ${certificados}">
+                                    <th:block th:if="${agrupar == true and (cIt.first or clavesGrupo[cIt.index] != clavesGrupo[cIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[cIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[cIt.index], 0L)}, 'certificado', 'certificados')}"></tr>
+                            </th:block>
+                                    <tr data-fila>
                                         <td><span class="pn-celda-principal pn-truncar" th:text="${c.inscripcion.curso.nombre}">Curso</span></td>
                                         <td><span class="pn-truncar" th:text="${c.inscripcion.cohorte.programa.nombre}">Programa</span></td>
                                         <td th:text="${c.numero}">CERT-2026-000001</td>
@@ -52,6 +56,7 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    </th:block>
                                     <tr th:replace="~{fragments/components/empty :: fila(5, 'fa-certificate', 'Todavía no tenés certificados', 'Cuando completes todos los temas de un curso, vas a ver acá tu certificado.')}"></tr>
                                 </tbody>
                             </table>

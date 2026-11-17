@@ -1,34 +1,44 @@
 package com.app.idoneos.model;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
+
 import org.hibernate.annotations.Check;
+
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** Entidad que representa la posición y duración en días de un tema dentro del cronograma de un programa. */
 @Entity
-@Table(name = "TemaCronograma", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPrograma", "idTema"}), @UniqueConstraint(columnNames = {"idPrograma", "numeroOrden"}) })
+@Table(name = "TemaCronograma", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPrograma", "numeroOrden"}) })
+@IdClass(TemaCronograma.Clave.class)
 @Check(name = "ck_tema_cronograma_duracion_dias", constraints = "duracion_dias > 0")
 @Check(name = "ck_tema_cronograma_orden", constraints = "numero_orden > 0")
 @Getter
 @Setter
 @NoArgsConstructor
 public class TemaCronograma {
-
-    /** Identificador único del tema del cronograma. */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idTemaCronograma")
-    private int idTemaCronograma;
+    /** Clave primaria compuesta del tema dentro del cronograma de un programa. */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Clave implements Serializable {
+        private int tema;
+        private int programa;
+    }
 
     /** Programa de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idPrograma", nullable = false)
     private Programa programa;
 
     /** Tema de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idTema", nullable = false)
     private Tema tema;
@@ -74,7 +84,7 @@ public class TemaCronograma {
     /** Devuelve una representación en forma de cadena del tema del cronograma. */
     @Override
     public String toString() {
-        return "TemaCronograma #" + idTemaCronograma;
+        return "TemaCronograma #" + tema.getIdTema() + "-" + programa.getIdPrograma();
     }
 
     /** Obtiene el primer día del programa en el que se dicta el tema. */

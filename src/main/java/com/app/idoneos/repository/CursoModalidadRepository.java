@@ -9,7 +9,7 @@ import com.app.idoneos.model.CursoModalidad;
 
 /** Repositorio de CursoModalidad. */
 @Repository
-public interface CursoModalidadRepository extends JpaRepository<CursoModalidad, Integer> {
+public interface CursoModalidadRepository extends JpaRepository<CursoModalidad, CursoModalidad.Clave> {
 
     /** Busca los registros de cursoModalidad asociados a curso. */
     List<CursoModalidad> findByCurso(Curso curso);

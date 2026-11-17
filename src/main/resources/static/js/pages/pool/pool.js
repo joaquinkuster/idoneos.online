@@ -20,6 +20,7 @@
         var resumen = raiz.querySelector('[data-pl-resumen]');
         var siguienteUid = 1;
         var preguntas = [];
+        var seleccionada = null;
 
         // ----------------------------------------------------------------------
         // Estado
@@ -168,25 +169,22 @@
             return fila;
         }
 
-        function dibujarPregunta(pregunta, indice) {
-            var card = elemento('article', { clase: 'pl-pregunta' + (pregunta.abierta ? '' : ' pl-cerrada') });
+        /** Lista de preguntas a la izquierda y detalle de la elegida a la derecha, como en la ventana de temas. */
+        function dibujarDetalle(pregunta, indice) {
+            var detalle = elemento('div', {});
+            var cabecera = elemento('div', { clase: 'pn-temas-formulario-cabecera' }, [
+                elemento('h5', { clase: 'pn-temas-subtitulo', texto: 'Pregunta ' + (indice + 1) })]);
+            var nueva = elemento('button', { type: 'button', clase: 'pn-btn pn-btn-contorno pn-btn-chico' },
+                [icon('fa-solid fa-plus'), document.createTextNode(' Nueva pregunta')]);
+            nueva.addEventListener('click', agregarPregunta);
+            cabecera.appendChild(nueva);
+            detalle.appendChild(cabecera);
 
-            var resumenTitulo = elemento('span', { clase: 'pl-resumen' });
-            var titulo = elemento('button', { type: 'button', clase: 'pl-titulo', 'aria-expanded': String(pregunta.abierta) }, [
-                icon('fa-solid fa-chevron-down pl-flecha'),
-                elemento('span', { clase: 'pl-numero', texto: 'Pregunta ' + (indice + 1) }), resumenTitulo]);
-            titulo.addEventListener('click', function () {
-                pregunta.abierta = !pregunta.abierta;
-                card.classList.toggle('pl-cerrada', !pregunta.abierta);
-                titulo.setAttribute('aria-expanded', String(pregunta.abierta));
-            });
-            function actualizarTitulo() {
-                resumenTitulo.textContent = pregunta.texto ? '- ' + pregunta.texto : '';
-            }
-            actualizarTitulo();
+            var campos = elemento('div', { clase: 'row g-3' });
 
-            var selectorTipo = elemento('select', { clase: 'pn-input pl-tipo', 'aria-label': 'Tipo de pregunta',
-                'data-sin-busqueda': '' }, [
+            var colTipo = elemento('div', { clase: 'col-12 pn-campo' });
+            colTipo.appendChild(elemento('label', { clase: 'pn-etiqueta', texto: 'Tipo de pregunta' }));
+            var selectorTipo = elemento('select', { clase: 'pn-input', 'aria-label': 'Tipo de pregunta', 'data-sin-busqueda': '' }, [
                 elemento('option', { value: 'unica', texto: TIPOS.unica }),
                 elemento('option', { value: 'multiple', texto: TIPOS.multiple }),
                 elemento('option', { value: 'vf', texto: TIPOS.vf })]);
@@ -195,55 +193,108 @@
                 cambiarTipo(pregunta, selectorTipo.value);
                 dibujar();
             });
+            colTipo.appendChild(selectorTipo);
+            campos.appendChild(colTipo);
 
-            var cabecera = elemento('div', { clase: 'pl-pregunta-cabecera' }, [titulo, selectorTipo]);
-            cabecera.appendChild(boton('pl-icon-boton pl-quitar', 'fa-solid fa-trash', 'Quitar pregunta', function () {
-                preguntas.splice(indice, 1);
-                dibujar();
-            }));
-            card.appendChild(cabecera);
-
-            var cuerpo = elemento('div', { clase: 'pl-pregunta-cuerpo' });
+            var colEnunciado = elemento('div', { clase: 'col-12 pn-campo' });
             var contador = elemento('span', { clase: 'pn-contador', texto: pregunta.texto.length + ' / ' + LARGO_TEXTO });
-            var enunciado = elemento('textarea', { clase: 'pn-input pl-enunciado', rows: '2', maxlength: LARGO_TEXTO,
+            var enunciado = elemento('textarea', { clase: 'pn-input pl-enunciado', rows: '3', maxlength: LARGO_TEXTO,
                 placeholder: 'Enunciado de la pregunta' });
             enunciado.value = pregunta.texto;
             enunciado.addEventListener('input', function () {
                 pregunta.texto = enunciado.value;
                 contador.textContent = enunciado.value.length + ' / ' + LARGO_TEXTO;
-                actualizarTitulo();
+                var item = lista.querySelector('.pn-tema-item.activo .pn-tema-item-titulo');
+                if (item) { item.textContent = tituloDeItem(pregunta, indice); }
                 actualizarResumen();
             });
-            cuerpo.appendChild(elemento('div', { clase: 'pn-etiqueta-fila' }, [
+            colEnunciado.appendChild(elemento('div', { clase: 'pn-etiqueta-fila' }, [
                 elemento('label', { clase: 'pn-etiqueta', texto: 'Enunciado' }), contador]));
-            cuerpo.appendChild(enunciado);
+            colEnunciado.appendChild(enunciado);
+            campos.appendChild(colEnunciado);
 
-            var ayuda = pregunta.tipo === 'multiple'
-                ? 'Marcá todas las opciones correctas (al menos una).'
-                : 'Marcá la única opción correcta.';
-            cuerpo.appendChild(elemento('p', { clase: 'pl-ayuda', texto: 'Opciones de respuesta. ' + ayuda }));
-            pregunta.opciones.forEach(function (o, i) { cuerpo.appendChild(dibujarOpcion(pregunta, i)); });
-
+            var colOpciones = elemento('div', { clase: 'col-12 pn-campo' });
+            colOpciones.appendChild(elemento('label', { clase: 'pn-etiqueta', texto: 'Opciones de respuesta' }));
+            colOpciones.appendChild(elemento('p', { clase: 'pl-ayuda', texto: pregunta.tipo === 'multiple'
+                ? 'Marcá todas las opciones correctas (al menos una).' : 'Marcá la única opción correcta.' }));
+            pregunta.opciones.forEach(function (o, i) { colOpciones.appendChild(dibujarOpcion(pregunta, i)); });
             if (pregunta.tipo !== 'vf' && pregunta.opciones.length < MAXIMO_OPCIONES) {
                 var agregar = elemento('button', { type: 'button', clase: 'pn-btn pn-btn-contorno pn-btn-chico' },
                     [icon('fa-solid fa-plus'), document.createTextNode(' Agregar opción')]);
-                agregar.style.marginTop = '20px';
+                agregar.style.marginTop = '12px';
                 agregar.addEventListener('click', function () {
                     pregunta.opciones.push(nuevaOpcion());
                     dibujar();
                 });
-                cuerpo.appendChild(agregar);
+                colOpciones.appendChild(agregar);
             }
-            card.appendChild(cuerpo);
-            return card;
+            campos.appendChild(colOpciones);
+            detalle.appendChild(campos);
+            return detalle;
+        }
+
+        function tituloDeItem(pregunta, indice) {
+            var texto = pregunta.texto || 'Sin enunciado';
+            return (indice + 1) + '. ' + (texto.length > 38 ? texto.substring(0, 37) + '…' : texto);
+        }
+
+        function agregarPregunta() {
+            var nueva = nuevaPregunta();
+            preguntas.push(nueva);
+            seleccionada = nueva.uid;
+            dibujar();
+            var campo = lista.querySelector('.pl-enunciado');
+            if (campo) { campo.focus(); }
         }
 
         function dibujar() {
             lista.textContent = '';
-            preguntas.forEach(function (pregunta, indice) { lista.appendChild(dibujarPregunta(pregunta, indice)); });
-            if (!preguntas.length) {
-                lista.appendChild(elemento('p', { clase: 'pl-empty', texto: 'Todavía no cargaste ninguna pregunta.' }));
+            lista.className = 'pn-temas-doble pl-doble';
+            if (!preguntas.some(function (p) { return p.uid === seleccionada; })) {
+                seleccionada = preguntas.length ? preguntas[0].uid : null;
             }
+
+            var izquierda = elemento('div', {});
+            izquierda.appendChild(elemento('h5', { clase: 'pn-temas-subtitulo',
+                texto: 'Preguntas agregadas (' + preguntas.length + ')' }));
+            var caja = elemento('div', { clase: 'pn-temas-caja' });
+            var items = elemento('div', { clase: 'pn-temas-items' });
+            preguntas.forEach(function (pregunta, indice) {
+                var item = elemento('div', { clase: 'pn-tema-item' + (pregunta.uid === seleccionada ? ' activo' : ''), role: 'button', tabindex: '0' });
+                var cuerpo = elemento('div', { clase: 'pn-tema-item-cuerpo' }, [
+                    elemento('span', { clase: 'pn-tema-item-titulo', texto: tituloDeItem(pregunta, indice) }),
+                    elemento('span', { clase: 'pn-tema-item-desc', texto: TIPOS[pregunta.tipo] + ' · ' + pregunta.opciones.length + ' opciones' })]);
+                item.appendChild(cuerpo);
+                item.appendChild(boton('pn-tema-item-quitar', 'fa-solid fa-trash', 'Quitar pregunta', function (e) {
+                    e.stopPropagation();
+                    preguntas.splice(indice, 1);
+                    dibujar();
+                }));
+                item.addEventListener('click', function () { seleccionada = pregunta.uid; dibujar(); });
+                item.addEventListener('keydown', function (e) {
+                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); seleccionada = pregunta.uid; dibujar(); }
+                });
+                items.appendChild(item);
+            });
+            caja.appendChild(items);
+            if (!preguntas.length) {
+                caja.appendChild(elemento('div', { clase: 'pn-temas-empty' }, [
+                    elemento('p', { texto: 'No hay preguntas agregadas aún' }), elemento('small', { texto: 'Agregá la primera →' })]));
+            }
+            izquierda.appendChild(caja);
+            lista.appendChild(izquierda);
+
+            var derecha = elemento('div', {});
+            var elegida = preguntas.filter(function (p) { return p.uid === seleccionada; })[0];
+            if (elegida) {
+                derecha.appendChild(dibujarDetalle(elegida, preguntas.indexOf(elegida)));
+            } else {
+                var nuevaVacia = elemento('button', { type: 'button', clase: 'pn-btn pn-btn-contorno pn-btn-chico' },
+                    [icon('fa-solid fa-plus'), document.createTextNode(' Nueva pregunta')]);
+                nuevaVacia.addEventListener('click', agregarPregunta);
+                derecha.appendChild(nuevaVacia);
+            }
+            lista.appendChild(derecha);
             actualizarResumen();
         }
 
@@ -257,17 +308,7 @@
         }
         dibujar();
 
-        raiz.querySelectorAll('[data-agregar-pregunta]').forEach(function (agregar) {
-            agregar.addEventListener('click', function () {
-                preguntas.forEach(function (p) { p.abierta = false; });
-                preguntas.push(nuevaPregunta());
-                dibujar();
-                var ultima = lista.lastElementChild;
-                if (ultima && ultima.scrollIntoView) {
-                    ultima.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                }
-            });
-        });
+        raiz.querySelectorAll('[data-agregar-pregunta]').forEach(function (agregar) { agregar.addEventListener('click', agregarPregunta); });
 
         formulario.addEventListener('submit', function () {
             campoPreguntas.value = JSON.stringify(preguntas.map(function (p) {

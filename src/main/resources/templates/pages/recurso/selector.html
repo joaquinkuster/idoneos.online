@@ -13,10 +13,17 @@
                         <div class="ac-selector-grupo">Recursos</div>
 
                         <label class="ac-selector-opcion" th:each="t : ${tiposDeSubida}"
-                               th:attr="data-tipo-id=${t.name()}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}, data-biblioteca='true'">
+                               th:attr="data-tipo-id=${t.name()}, data-nombre=${t.nombre}, data-descripcion=${t.descripcionDeSubida}, data-biblioteca='true',
+                                     data-ia=${t.name() == 'PRESENTACION' ? 'presentacion' : (t.name() == 'APUNTE_DE_CATEDRA' ? 'resumen' : null)},
+                                     data-ia-texto=${t.name() == 'PRESENTACION' ? 'Generar con IA' : (t.name() == 'APUNTE_DE_CATEDRA' ? 'Generar resumen con IA' : null)}">
                             <input type="radio" name="recurso" th:value="${t.name()}">
                             <th:block th:replace="~{pages/recurso/icon :: icon(${t.nombre}, 'ac-recurso-icon-chico')}"></th:block>
                             <span th:text="${t.nombre}">Grabación</span>
+                        </label>
+                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
+                            <input type="radio" name="recurso" disabled>
+                            <th:block th:replace="~{pages/recurso/icon :: icon('Video con clon', 'ac-recurso-icon-chico')}"></th:block>
+                            <span>Video con clon</span><small>Próximamente</small>
                         </label>
                         <label class="ac-selector-opcion" data-glosario="true" data-nombre="Glosario"
                                data-descripcion="Registrás un nuevo término del glosario: cargás el término con su definición, para que los alumnos consulten el vocabulario del tema. Se abre el glosario del tema con el formulario de alta.">
@@ -32,16 +39,11 @@
                             <th:block th:replace="~{pages/recurso/icon :: icon('Autoevaluación', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Autoevaluación</span>
                         </label>
-                        <label class="ac-selector-opcion" data-ruta="/pool/buscar" data-nombre="Pool de preguntas"
+                        <label class="ac-selector-opcion" data-ruta="/pool/buscar" data-nombre="Pool de preguntas" data-ia="pool" data-ia-texto="Generar con IA"
                                data-descripcion="Registrás un nuevo pool de preguntas: cargás el conjunto de preguntas de un tema, del que se sortean las de cada autoevaluación, y elegís el tema al que va. Se abre el listado de pools del curso con el formulario de alta.">
                             <input type="radio" name="recurso" value="pool">
                             <th:block th:replace="~{pages/recurso/icon :: icon('Pool de preguntas', 'ac-recurso-icon-chico')}"></th:block>
                             <span>Pool de preguntas</span>
-                        </label>
-                        <label class="ac-selector-opcion ac-selector-opcion-deshabilitada">
-                            <input type="radio" name="recurso" disabled>
-                            <th:block th:replace="~{pages/recurso/icon :: icon('Clase con clon', 'ac-recurso-icon-chico')}"></th:block>
-                            <span>Clase con clon</span><small>Próximamente</small>
                         </label>
                     </div>
                     <div class="ac-selector-detalle">
@@ -54,6 +56,9 @@
                         <div data-panel="nuevo">
                             <p data-selector-descripcion></p>
                             <p class="ac-selector-aviso" data-selector-aviso hidden></p>
+                            <button type="button" class="pn-btn pn-btn-contorno" data-selector-ia hidden>
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-selector-ia-texto>Generar con IA</span>
+                            </button>
                         </div>
                         <div data-panel="biblioteca" hidden>
                             <label class="pn-etiqueta">Tema <span class="pn-obligatorio">*</span></label>
@@ -62,7 +67,7 @@
                                 <option th:each="uc : ${filasDeTemas != null ? filasDeTemas : (temas != null ? temas : {})}" th:value="${uc.tema.idTema}"
                                         th:text="${uc.tema.titulo}">Tema</option>
                             </select>
-                            <input type="search" class="pn-input ac-selector-buscar" data-selector-buscar placeholder="Buscar por título, autor o ISBN">
+                            <input type="search" class="pn-input ac-selector-buscar" data-selector-buscar placeholder="Buscar por título, autor o identificador">
                             <div class="ac-selector-biblioteca" data-selector-biblioteca></div>
                             <div class="ac-selector-pie" data-selector-pie>
                                 <div class="pn-por-pagina">

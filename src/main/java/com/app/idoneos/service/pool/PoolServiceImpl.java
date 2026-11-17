@@ -7,7 +7,7 @@ import com.app.idoneos.model.OpcionRespuesta;
 import com.app.idoneos.model.Pool;
 import com.app.idoneos.model.Pregunta;
 import com.app.idoneos.model.Tema;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.OpcionRespuestaRepository;
 import com.app.idoneos.repository.PoolRepository;
 import com.app.idoneos.repository.PreguntaRepository;
@@ -50,7 +50,7 @@ public class PoolServiceImpl implements PoolService {
     private OpcionRespuestaRepository opcionRespuestaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -230,7 +230,7 @@ public class PoolServiceImpl implements PoolService {
     // ----------------------------------------------------------------------
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 

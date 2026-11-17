@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 
 /** Repositorio de Progreso. */
 @Repository
-public interface ProgresoRepository extends JpaRepository<Progreso, Integer> {
+public interface ProgresoRepository extends JpaRepository<Progreso, Progreso.Clave> {
 
     /** Busca los registros de progreso asociados a tema. */
     List<Progreso> findByTema(Tema tema);

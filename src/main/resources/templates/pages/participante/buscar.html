@@ -60,7 +60,10 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <th:block th:each="f : ${filas}">
+                            <th:block th:each="f, fIt : ${filas}">
+                            <th:block th:if="${agrupar == true and (fIt.first or clavesGrupo[fIt.index] != clavesGrupo[fIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[fIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[fIt.index], 0L)}, 'participante', 'participantes')}"></tr>
+                            </th:block>
                             <tr th:if="${f.docente != null}" th:with="d=${f.docente}" data-fila>
                                 <td>
                                     <span class="pn-celda-principal d-inline-flex align-items-center gap-2">
@@ -73,7 +76,7 @@
                                           th:text="${d.esTitular ? 'Docente titular' : 'Docente ayudante'}">Docente titular</span>
                                 </td>
                                 <td>—</td>
-                                <td th:unless="${soloCohorte}" th:text="${d.cohorteDeTrabajo != null ? d.cohorteDeTrabajo.etiqueta : '—'}">Septiembre 2026</td>
+                                <td th:unless="${soloCohorte}" th:text="'—'">Septiembre 2026</td>
                                 <td th:text="${#temporals.format(d.docente.usuario.fechaCreacion, 'dd/MM/yyyy HH:mm')}">28/08/2026 10:30</td>
                             </tr>
                             <tr th:if="${f.alumno != null}" th:with="a=${f.alumno}, i=${f.inscripcion}" data-fila>

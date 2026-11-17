@@ -6,7 +6,7 @@ import com.app.idoneos.model.MetodoPago;
 import java.util.Optional;
 
 /** Servicio del método de pago. */
-public interface MetodoPagoService extends CrudService<MetodoPago> {
+public interface MetodoPagoService extends CrudService<MetodoPago, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

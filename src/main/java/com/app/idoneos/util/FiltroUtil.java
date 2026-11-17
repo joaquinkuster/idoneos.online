@@ -280,14 +280,24 @@ public final class FiltroUtil<T> {
      */
     public PaginacionUtil.Pagina<T> paginarMostrando(List<T> items, Map<String, String[]> params,
             java.util.function.Predicate<T> buscada) {
-        PaginacionUtil.Pagina<T> pagina = paginar(items, params);
+        return paginarMostrando(items, params, buscada, null);
+    }
+
+    /**
+     * Igual que la variante sin agrupación, pero después de ordenar agrupa las filas con el comparador dado.
+     *
+     * @param agrupacion Cómo se agrupan las filas, o {@code null} para no reagrupar.
+     */
+    public PaginacionUtil.Pagina<T> paginarMostrando(List<T> items, Map<String, String[]> params,
+            java.util.function.Predicate<T> buscada, java.util.Comparator<? super T> agrupacion) {
+        PaginacionUtil.Pagina<T> pagina = paginar(items, params, agrupacion);
         if (pagina.filas().stream().anyMatch(buscada)) {
             return pagina;
         }
         for (int n = 1; n <= pagina.paginas(); n++) {
             Map<String, String[]> otros = new java.util.HashMap<>(params);
             otros.put("pagina", new String[] { String.valueOf(n) });
-            PaginacionUtil.Pagina<T> candidata = paginar(items, otros);
+            PaginacionUtil.Pagina<T> candidata = paginar(items, otros, agrupacion);
             if (candidata.filas().stream().anyMatch(buscada)) {
                 return candidata;
             }

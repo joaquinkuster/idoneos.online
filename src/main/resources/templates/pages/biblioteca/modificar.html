@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <body>
 <!-- Ventana de modificación. -->
-    <div th:fragment="modal(r, usos)" class="modal fade pn-modal" th:id="'modalModificarRecurso' + ${r.idRecurso}" tabindex="-1" aria-hidden="true"
-         th:with="tipo=${r.tipo}, bibliografia=${r.bibliografia}, bloqueado=${usos > 0}">
+    <div th:fragment="modal(r, usos, fuenteIa)" class="modal fade pn-modal" th:id="'modalModificarRecurso' + ${r.idRecurso}" tabindex="-1" aria-hidden="true"
+         th:with="tipo=${r.tipo}, materialBibliografico=${r.materialBibliografico}, bloqueado=${usos > 0 or fuenteIa}">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="pn-modal-cabecera">
@@ -38,9 +38,9 @@
                             </div>
 <div class="col-md-4 pn-campo">
                                 <label class="pn-etiqueta" title="No: solo vos podés usarlo. Sí: otros docentes pueden usarlo desde la biblioteca.">Compartido con docentes</label>
-                                <select name="privado" class="pn-input" th:disabled="${tipo == 'Bibliografía'}">
-                                    <option value="true" th:selected="${r.privado and tipo != 'Bibliografía'}">No</option>
-                                    <option value="false" th:selected="${!r.privado or tipo == 'Bibliografía'}">Sí</option>
+                                <select name="privado" class="pn-input" th:disabled="${tipo == 'Material bibliográfico'}">
+                                    <option value="true" th:selected="${r.privado and tipo != 'Material bibliográfico'}">No</option>
+                                    <option value="false" th:selected="${!r.privado or tipo == 'Material bibliográfico'}">Sí</option>
                                 </select>
                             </div>
 <div class="col-12 pn-campo">
@@ -50,6 +50,15 @@
                                 </div>
                                 <textarea name="descripcion" class="pn-input" rows="2" maxlength="500" data-contador th:text="${r.descripcion}"></textarea>
                                 <div class="pn-ayuda-error"></div>
+                            </div>
+<div class="pn-campo" th:if="${r.generadoPorIa}" data-resumen-omitir
+                                 th:classappend="${r.detalleErrorGeneracion != null and !#strings.isEmpty(r.detalleErrorGeneracion)} ? 'col-md-4' : 'col-12'">
+                                <label class="pn-etiqueta">Estado de generación</label>
+                                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${r.estadoGeneracion}">
+                            </div>
+<div class="col-md-8 pn-campo" th:if="${r.generadoPorIa and r.detalleErrorGeneracion != null and !#strings.isEmpty(r.detalleErrorGeneracion)}" data-resumen-omitir>
+                                <label class="pn-etiqueta">Detalle del error</label>
+                                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${r.detalleErrorGeneracion}" th:title="${r.detalleErrorGeneracion}">
                             </div>
         </div>
     </div>
@@ -80,7 +89,7 @@
                                 </div>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Resumen' or tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${r.documento != null}">
                                 <div class="pn-etiqueta-fila">
                                     <label class="pn-etiqueta">Autor <span class="pn-obligatorio">*</span></label>
                                     <span class="pn-contador" th:text="${#strings.length(r.autor != null ? r.autor : '') + ' / 100'}">0 / 100</span>
@@ -88,31 +97,31 @@
                                 <input type="text" name="autor" class="pn-input" maxlength="100" th:value="${r.autor}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Material bibliográfico'}">
                                 <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">ISBN <span class="pn-obligatorio">*</span></label>
-                                    <span class="pn-contador" th:text="${#strings.length(bibliografia.isbn) + ' / 17'}">0 / 17</span>
+                                    <label class="pn-etiqueta">Identificador (ISBN, ISSN o DOI) <span class="pn-obligatorio">*</span></label>
+                                    <span class="pn-contador" th:text="${#strings.length(materialBibliografico.identificador) + ' / 150'}">0 / 150</span>
                                 </div>
-                                <input type="text" name="isbn" class="pn-input" maxlength="17" th:value="${bibliografia.isbn}" data-contador required>
+                                <input type="text" name="identificador" class="pn-input" maxlength="150" th:value="${materialBibliografico.identificador}" data-contador required>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Material bibliográfico'}">
                                 <div class="pn-etiqueta-fila">
-                                    <label class="pn-etiqueta">Editorial (opcional)</label>
-                                    <span class="pn-contador" th:text="${#strings.length(bibliografia.editorial != null ? bibliografia.editorial : '') + ' / 100'}">0 / 100</span>
+                                    <label class="pn-etiqueta">Publicado en: editorial, revista o congreso (opcional)</label>
+                                    <span class="pn-contador" th:text="${#strings.length(materialBibliografico.publicadoEn != null ? materialBibliografico.publicadoEn : '') + ' / 150'}">0 / 100</span>
                                 </div>
-                                <input type="text" name="editorial" class="pn-input" maxlength="100" th:value="${bibliografia.editorial}" data-contador>
+                                <input type="text" name="publicadoEn" class="pn-input" maxlength="150" th:value="${materialBibliografico.publicadoEn}" data-contador>
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${tipo == 'Material bibliográfico'}">
                                 <label class="pn-etiqueta">Fecha de publicación (opcional)</label>
-                                <input type="date" name="fechaPublicacion" class="pn-input" th:value="${bibliografia.fechaPublicacion}">
+                                <input type="date" name="fechaPublicacion" class="pn-input" th:value="${materialBibliografico.fechaPublicacion}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
-<div class="col-md-6 pn-campo" th:if="${tipo == 'Presentación' or tipo == 'Resumen' or tipo == 'Bibliografía'}">
+<div class="col-md-6 pn-campo" th:if="${r.documento != null}">
                                 <label class="pn-etiqueta">Páginas</label>
                                 <input type="number" name="paginas" class="pn-input pn-bloqueado" readonly placeholder="Se calcula"
-                                       th:value="${tipo == 'Bibliografía' ? bibliografia.paginas : r.materialLectura.paginas}">
+                                       th:value="${tipo == 'Material bibliográfico' ? materialBibliografico.paginas : r.materialDidactico.paginas}">
                                 <div class="pn-ayuda-error"></div>
                             </div>
 <div class="col-md-6 pn-campo" th:if="${tipo == 'Grabación'}" th:with="minutosGrabados=${r.grabacion.duracionMinutos}">
@@ -142,7 +151,10 @@
     </div>
     </fieldset>
 
-    <div class="pn-alerta pn-alerta-dorado" th:if="${bloqueado}">
+    <div class="pn-alerta pn-alerta-dorado" th:if="${fuenteIa}">
+        El documento es <strong>fuente o evidencia de contenido generado con inteligencia artificial</strong>: no se puede <strong>modificar</strong> mientras ese contenido siga vigente.
+    </div>
+    <div class="pn-alerta pn-alerta-dorado" th:if="${usos > 0}">
         El recurso tiene <strong th:text="${usos + (usos == 1 ? ' tema asociado' : ' temas asociados')}">2 temas asociados</strong>: no se puede <strong>modificar</strong> mientras siga en uso, porque el cambio afectaría a quienes ya lo usan.
     </div>
 

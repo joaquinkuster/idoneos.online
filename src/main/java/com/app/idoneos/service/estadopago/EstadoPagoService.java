@@ -6,7 +6,7 @@ import com.app.idoneos.model.EstadoPago;
 import java.util.Optional;
 
 /** Servicio del estado del pago. */
-public interface EstadoPagoService extends CrudService<EstadoPago> {
+public interface EstadoPagoService extends CrudService<EstadoPago, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

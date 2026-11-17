@@ -1,5 +1,7 @@
 package com.app.idoneos.controller;
 
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.util.PaginacionUtil;
@@ -48,7 +50,8 @@ public class CertificadoController {
         Alumno alumno = ((Usuario) authentication.getPrincipal()).getAlumno();
         List<Certificado> certificados = certificadoService.buscarVigentesDelAlumno(alumno);
         // El filtro, el orden por columna y la página los resuelve el servidor
-        PaginacionUtil.Pagina<Certificado> pagina = Filtros.tabla.paginar(certificados, request.getParameterMap());
+        PaginacionUtil.Pagina<Certificado> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, certificados, request.getParameterMap(), request, model,
+                c -> c.getInscripcion().getCurso().getNombre(), null, null, "curso", "fechaEmision");
         PaginacionUtil.cargarEnModelo(model, pagina);
         model.addAttribute("certificados", pagina.filas());
         if (PaginacionUtil.pideSoloFilas(request)) {

@@ -22,7 +22,7 @@ public class AutoevaluacionPoolServiceImpl implements AutoevaluacionPoolService 
 
     /** Busca la relación entre autoevaluación y pool por su identificador. */
     @Override
-    public Optional<AutoevaluacionPool> buscarPorId(Integer id) {
+    public Optional<AutoevaluacionPool> buscarPorId(AutoevaluacionPool.Clave id) {
         return autoevaluacionPoolRepository.findById(id);
     }
 
@@ -34,7 +34,7 @@ public class AutoevaluacionPoolServiceImpl implements AutoevaluacionPoolService 
 
     /** Verifica si existe un registro con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(AutoevaluacionPool.Clave id) {
         return autoevaluacionPoolRepository.existsById(id);
     }
 

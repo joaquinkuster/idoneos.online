@@ -20,6 +20,15 @@
         </td>
     </tr>
 
+    <!-- Divisor de una tabla agrupada por un texto cualquiera, con el nombre de lo que se cuenta (por ejemplo, los pools de cada tema). -->
+    <tr th:fragment="filaGrupo(nombre, total, singular, plural)" class="pn-grupo pn-grupo-fila" data-grupo role="button" tabindex="0" aria-expanded="true">
+        <td colspan="99">
+            <i class="fa-solid fa-chevron-down pn-grupo-flecha" aria-hidden="true"></i>
+            <span class="pn-grupo-nombre" th:text="${nombre}">Tema</span>
+            <span class="pn-grupo-conteo" th:text="${total + ' ' + (total == 1 ? singular : plural)}">6 pools</span>
+        </td>
+    </tr>
+
     <!-- Encabezado de la carta de una categoría (cards): la etiqueta dorada. -->
     <div th:fragment="carta(categoria, total)" class="pn-grupo pn-grupo-cabecera" data-grupo role="button" tabindex="0" aria-expanded="true">
         <div>

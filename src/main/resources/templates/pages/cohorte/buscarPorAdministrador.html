@@ -58,7 +58,8 @@
                         <thead>
                             <tr>
                                 <th class="pn-col-seleccion"><input type="checkbox" data-seleccionar-todos aria-label="Seleccionar todas"></th>
-                                <th data-col="Curso" data-campo="curso" data-filtro="lista">Curso</th>
+                                <th data-col="Cohorte" data-campo="cohorte" data-filtro="lista">Cohorte</th>
+                                <th data-col="Curso" data-oculta data-campo="curso" data-filtro="lista">Curso</th>
                                 <th data-col="Estado" data-campo="estado" data-filtro="lista" data-sin-busqueda>Estado</th>
                                 <th data-col="Programa" data-oculta data-campo="programa" data-filtro="lista">Programa</th>
                                 <th data-col="Inicio de inscripción" data-orden-inicial="desc" data-campo="fechaInicioInscripcion" data-filtro="fecha">Inicio de inscripción</th>
@@ -72,7 +73,11 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="coh : ${cohortes}" data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
+                            <th:block th:each="coh, cohIt : ${cohortes}">
+                            <th:block th:if="${agrupar == true and (cohIt.first or clavesGrupo[cohIt.index] != clavesGrupo[cohIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[cohIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[cohIt.index], 0L)}, 'cohorte', 'cohortes')}"></tr>
+                            </th:block>
+                            <tr data-fila th:classappend="${coh.baja} ? 'pn-fila-baja'"
                                 th:data-o-recientes="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
                                 th:data-o-curso="${coh.curso.nombre}"
                                 th:data-o2-curso="${#temporals.format(coh.fechaInicioInscripcion, 'yyyyMMdd')}"
@@ -80,7 +85,8 @@
                                 th:data-f-cupomaximo="${coh.cupoMaximo != null ? coh.cupoMaximo : ''}">
                                 <td class="pn-col-seleccion"><input type="checkbox" data-seleccionar-fila aria-label="Seleccionar fila"
                                     th:value="${coh.idCohorte}" th:disabled="${coh.baja}"></td>
-                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.curso.nombre}">Curso</div></td>
+                                <td><div class="pn-celda-principal pn-truncar" th:text="${coh.etiqueta}">Septiembre 2026</div></td>
+                                <td><div class="pn-truncar" th:text="${coh.curso.nombre}">Curso</div></td>
                                 <td>
                                     <span class="pn-insignia"
                                           th:classappend="${coh.baja} ? 'pn-insignia-gris' : (${coh.estado == 'Inscripción abierta'} ? 'pn-insignia-verde' : (${coh.estado == 'En dictado'} ? 'pn-insignia-azul' : (${coh.estado == 'Pendiente de contenido'} ? 'pn-insignia-dorada' : (${coh.estado == 'Inscripción próxima'} ? 'pn-insignia-violeta' : (${coh.estado == 'Cancelada por falta de contenido'} ? 'pn-insignia-roja' : 'pn-insignia-gris')))))"
@@ -115,7 +121,8 @@
                                     <span th:if="${coh.baja}" class="pn-celda-secundaria">—</span>
                                 </td>
                             </tr>
-                            <tr th:replace="~{fragments/components/empty :: fila(12, 'fa-calendar-days', 'No se encontraron cohortes', 'Ninguna cohorte coincide con los criterios ingresados.')}"></tr>
+                            </th:block>
+                            <tr th:replace="~{fragments/components/empty :: fila(13, 'fa-calendar-days', 'No se encontraron cohortes', 'Ninguna cohorte coincide con los criterios ingresados.')}"></tr>
                         </tbody>
                     </table>
                 </div>

@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="es">
 <head>
     <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/pages/usuario/usuario.css}">
 </head>
 <body class="pn-body">
@@ -60,7 +61,7 @@
                                     th:value="${u.idUsuario}" th:disabled="${u.baja or u.idUsuario == idActual}"></td>
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${u.apellido + ', ' + u.nombre}">Gómez, Laura</span>
                                     <span class="pn-marca-estado" th:if="${u.idUsuario == idActual}">(Vos)</span></td>
-                                <td class="pn-truncar" th:text="${u.correo}">laura@correo.com</td>
+                                <td><span class="pn-truncar pn-truncar-ancho" th:text="${u.correo}" th:title="${u.correo}">laura@correo.com</span></td>
                                 <td th:text="${u.dni}">30123456</td>
                                 <td>
                                     <span class="us-roles-celda">
@@ -119,7 +120,7 @@
 
 <!-- Modal: registrar usuario -->
 <div class="modal fade pn-modal" id="modalNuevoUsuario" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
             <div class="pn-modal-cabecera">
                 <h3 class="pn-modal-titulo">Registrar usuario</h3>
@@ -136,7 +137,10 @@
 <!-- Una sola ventana de baja para todo el listado: el botón de cada fila le pasa la acción. -->
 <th:block th:replace="~{fragments/components/modalBaja :: bloque('modalBajaUsuario', 'usuario', '¿Confirmas dar de baja?', '', '/usuario/darDeBaja/0', null, null)}"></th:block>
 
+<!-- Tom Select (selector múltiple de roles): antes de panel.js -->
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
+<script th:src="@{/js/core/comprimirImagen.js}"></script>
 <script th:src="@{/js/core/modalModificar.js}"></script>
 <script th:src="@{/js/pages/usuario/usuario.js}"></script>
 </body>

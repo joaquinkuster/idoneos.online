@@ -22,7 +22,7 @@ public class RespuestaIntentoServiceImpl implements RespuestaIntentoService {
 
     /** Busca la respuesta del intento por su identificador. */
     @Override
-    public Optional<RespuestaIntento> buscarPorId(Integer id) {
+    public Optional<RespuestaIntento> buscarPorId(RespuestaIntento.Clave id) {
         return respuestaIntentoRepository.findById(id);
     }
 
@@ -34,7 +34,7 @@ public class RespuestaIntentoServiceImpl implements RespuestaIntentoService {
 
     /** Verifica si existe un registro con el identificador dado. */
     @Override
-    public boolean existePorId(Integer id) {
+    public boolean existePorId(RespuestaIntento.Clave id) {
         return respuestaIntentoRepository.existsById(id);
     }
 

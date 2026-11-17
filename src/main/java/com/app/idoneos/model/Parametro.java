@@ -96,38 +96,20 @@ public class Parametro {
     // Generación de contenido con inteligencia artificial
     // ----------------------------------------------------------------------
 
-    /** Clave del porcentaje de preguntas de opción múltiple en los bancos generados con IA. El resto son de verdadero o falso. */
-    public static final String IA_PROPORCION_OPCION_MULTIPLE = "ia.proporcion_opcion_multiple";
-
-    /** Porcentaje de preguntas de opción múltiple que se usa cuando el parámetro no está cargado. */
-    public static final int IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO = 50;
-
     /** Clave de la cantidad de preguntas de un banco generado con IA. */
     public static final String IA_CANTIDAD_PREGUNTAS_BANCO = "ia.cantidad_preguntas_banco";
 
     /** Cantidad de preguntas de un banco que se usa cuando el parámetro no está cargado. */
     public static final int IA_CANTIDAD_PREGUNTAS_BANCO_POR_DEFECTO = 10;
 
-    /** Clave del porcentaje de preguntas de un banco generado con IA que arma el modelo. El resto las arman las reglas del código. */
-    public static final String IA_PROPORCION_MODELO = "ia.proporcion_modelo";
-
-    /** Porcentaje de preguntas que arma el modelo cuando el parámetro no está cargado. */
-    public static final int IA_PROPORCION_MODELO_POR_DEFECTO = 50;
-
     /**
-     * Clave de cómo arma las preguntas el modelo: 0, a partir de una oración del material, redactando solo la pregunta (camino principal); 1, escribiendo
-     * preguntas, opciones y cita en una sola llamada (camino alternativo).
+     * Clave del porcentaje de preguntas de opción múltiple (varias correctas) de un banco generado con IA. Del resto, la mitad son de opción única y la otra
+     * mitad de verdadero o falso.
      */
-    public static final String IA_ESTRATEGIA_BANCO = "ia.estrategia_banco";
+    public static final String IA_PROPORCION_OPCION_MULTIPLE = "ia.proporcion_opcion_multiple";
 
-    /** El modelo escribe las preguntas, las opciones y la cita en una sola llamada. */
-    public static final int IA_ESTRATEGIA_BANCO_EN_UNA_LLAMADA = 1;
-
-    /** El modelo solo escribe una pregunta por oración objetivo, por rondas; el código arma las opciones. */
-    public static final int IA_ESTRATEGIA_BANCO_POR_RONDAS = 2;
-
-    /** Estrategia que se usa cuando el parámetro no está cargado: por rondas (2) mientras se prueba; el principal es 0 y el de Aurea es 1. */
-    public static final int IA_ESTRATEGIA_BANCO_POR_DEFECTO = IA_ESTRATEGIA_BANCO_POR_RONDAS;
+    /** Porcentaje de preguntas de opción múltiple que se usa cuando el parámetro no está cargado. */
+    public static final int IA_PROPORCION_OPCION_MULTIPLE_POR_DEFECTO = 50;
 
     // ----------------------------------------------------------------------
     // Medio de pago MODO: lo que el cliente reemplaza cuando abre su cuenta de MODO. La semilla (solo desarrollo)

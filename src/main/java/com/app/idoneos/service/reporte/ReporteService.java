@@ -8,7 +8,7 @@ import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Reporte;
 
 /** Servicio del reporte. */
-public interface ReporteService extends CrudService<Reporte> {
+public interface ReporteService extends CrudService<Reporte, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

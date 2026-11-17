@@ -30,7 +30,7 @@ import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.modeloia.GeneracionIAService;
 import com.app.idoneos.service.recurso.RecursoService;
-import com.app.idoneos.service.indice.IndiceRecursoService;
+import com.app.idoneos.service.indice.IndiceDocumentoService;
 import com.app.idoneos.service.resaltado.ResaltadoAlumnoService;
 import com.app.idoneos.service.ocr.OCRService;
 import com.app.idoneos.model.Recurso;
@@ -55,7 +55,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class RecursoController {
 
     @Autowired
-    private IndiceRecursoService indiceService;
+    private IndiceDocumentoService indiceService;
 
     @Autowired
     private OCRService ocrService;
@@ -90,8 +90,9 @@ public class RecursoController {
             @RequestParam(value = "generadoPorIa", required = false) Boolean generadoPorIa,
             @RequestParam(value = "baja", required = false) Boolean baja,
             @RequestParam(value = "nuevo", required = false) String nuevo,
+            @RequestParam(value = "generarIa", required = false) String generarIa,
             @RequestParam(value = "accion", required = false) String accion,
-            @RequestParam(value = "materialId", required = false) Integer materialId, Model model,
+            @RequestParam(value = "materialId", required = false) TemaRecurso.Clave materialId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -113,17 +114,31 @@ public class RecursoController {
 
             String abrirModal = null;
             boolean hayAccion = accion != null && materialId != null
-                    && materiales.stream().anyMatch(m -> m.getIdTemaRecurso() == materialId && !m.getBaja());
+                    && materiales.stream().anyMatch(m -> m.getClave().equals(materialId) && !m.getBaja());
             if (hayAccion && "baja".equals(accion)) {
                 abrirModal = "modalBajaMaterial" + materialId;
             } else if (hayAccion && "editar".equals(accion) && !esAdministrador) {
                 abrirModal = "modalModificarMaterial" + materialId;
             }
 
+            // Desde el selector de recursos se llega con ?generarIa=resumen|presentacion: se abre sola la ventana de generación
+            boolean generarValido = ("resumen".equals(generarIa) || "presentacion".equals(generarIa)) && !esAdministrador;
+            if (abrirModal == null && generarValido) {
+                abrirModal = "modalGenerarIa";
+            }
+            model.addAttribute("generarIaTipo", generarValido ? generarIa : null);
+
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
+            // Agrupado por tipo salvo que se ordene por otra columna
+            String campoOrden = request.getParameter("ordenCampo");
+            boolean agrupar = campoOrden == null || campoOrden.isBlank() || "titulo".equals(campoOrden) || "tipo".equals(campoOrden);
+            java.util.Comparator<TemaRecurso> porTipo = java.util.Comparator.comparing(TemaRecurso::getTipo, String.CASE_INSENSITIVE_ORDER);
             PaginacionUtil.Pagina<TemaRecurso> pagina = Filtros.tabla.paginarMostrando(materiales, request.getParameterMap(),
-                    m -> accion != null && materialId != null && m.getIdTemaRecurso() == materialId);
+                    m -> accion != null && materialId != null && m.getClave().equals(materialId),
+                    agrupar && !"tipo".equals(campoOrden) ? porTipo : null);
             PaginacionUtil.cargarEnModelo(model, pagina);
+            model.addAttribute("agrupar", agrupar);
+            model.addAttribute("materialesPorTipo", agrupar ? Filtros.tabla.contar(materiales, request.getParameterMap(), TemaRecurso::getTipo) : Map.of());
             // Cuántos otros temas usan el recurso de cada material de la página: si hay alguno no se modifica ni se da de baja
             panel.cargarContexto(model, contexto, "materiales");
             model.addAttribute("abrirModal", abrirModal);
@@ -151,7 +166,8 @@ public class RecursoController {
 
     /** GET /recurso/ver/{id}: Muestra un material en una vista aparte: el reproductor de una grabación, el visor de páginas de un PDF. */
     @GetMapping("/ver/{id}")
-    public String ver(@PathVariable("id") Integer id, Model model, Authentication authentication) {
+    public String ver(@PathVariable("id") TemaRecurso.Clave id, @RequestParam(value = "modo", required = false) String modo, Model model,
+            Authentication authentication) {
         TemaRecurso material = materialService.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -168,14 +184,18 @@ public class RecursoController {
         model.addAttribute("material", material);
         model.addAttribute("tema", material.getTema());
         model.addAttribute("formato", material.getFormatoDeVista());
-        model.addAttribute("urlArchivo", "/recurso/archivo/" + material.getIdTemaRecurso());
+        model.addAttribute("urlArchivo", "/recurso/archivo/" + material.getClave());
+        boolean puedeEditar = generacionIAService.puedeEditarContenido(usuario.getDocente(), material);
+        model.addAttribute("puedeEditarContenido", puedeEditar);
+        // Un material editable se abre en modo edición, salvo que se pida ver el documento final
+        model.addAttribute("modoEdicion", puedeEditar && !"visualizacion".equals(modo));
         model.addAttribute("titulo", material.getTitulo() + " | Idóneos Online");
         return "pages/recurso/ver";
     }
 
     /** GET /recurso/archivo/{id}: Entrega el contenido de un material a la propia plataforma (al reproductor de video o al visor de PDF). */
     @GetMapping("/archivo/{id}")
-    public ResponseEntity<Resource> abrirArchivo(@PathVariable("id") Integer id, Authentication authentication,
+    public ResponseEntity<Resource> abrirArchivo(@PathVariable("id") TemaRecurso.Clave id, Authentication authentication,
             HttpServletRequest request) {
         TemaRecurso material = materialService.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
@@ -202,20 +222,69 @@ public class RecursoController {
                 .body(new FileSystemResource(archivo));
     }
 
+    /** GET /recurso/contenido/{id}: Entrega el contenido de un material generado con IA, por secciones, para que el docente lo edite. */
+    @GetMapping("/contenido/{id}")
+    public ResponseEntity<?> contenido(@PathVariable("id") TemaRecurso.Clave id, Authentication authentication) {
+        TemaRecurso material = materialService.buscarPorId(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        try {
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private")
+                    .body(generacionIAService.contenido(usuario.getDocente(), material));
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+        }
+    }
+
+    /** POST /recurso/contenido/{id}: Guarda en el momento el contenido que edita el docente en el visor (sin regenerar el archivo). */
+    @PostMapping("/contenido/{id}")
+    public ResponseEntity<Map<String, String>> guardarContenido(@PathVariable("id") TemaRecurso.Clave id,
+            @RequestParam(value = "contenido", required = false) String contenido, Authentication authentication) {
+        try {
+            TemaRecurso material = materialService.buscarPorId(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            Usuario usuario = (Usuario) authentication.getPrincipal();
+            com.app.idoneos.service.modeloia.GeneracionIAService.ContenidoEditable editado;
+            try {
+                editado = contenido == null ? null : new com.fasterxml.jackson.databind.ObjectMapper().readValue(contenido,
+                        com.app.idoneos.service.modeloia.GeneracionIAService.ContenidoEditable.class);
+            } catch (java.io.IOException e) {
+                throw new IllegalArgumentException("Error! El contenido no tiene un formato válido.");
+            }
+            if (editado == null) {
+                throw new IllegalArgumentException("Error! El contenido no tiene un formato válido.");
+            }
+            generacionIAService.guardarContenido(usuario.getDocente(), material, editado);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Cambios guardados.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
+    /** POST /recurso/contenido/{id}/archivo: Regenera el archivo del material con el contenido guardado. */
+    @PostMapping("/contenido/{id}/archivo")
+    public ResponseEntity<Map<String, String>> regenerarArchivo(@PathVariable("id") TemaRecurso.Clave id, Authentication authentication) {
+        try {
+            TemaRecurso material = materialService.buscarPorId(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            generacionIAService.regenerarArchivo(((Usuario) authentication.getPrincipal()).getDocente(), material);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Se actualizó el archivo del material.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
     /** GET /recurso/indice/{id}: Entrega el índice del documento (las entradas con su página) al visor y a los formularios. */
     @GetMapping("/indice/{id}")
-    public ResponseEntity<List<IndiceRecursoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<List<IndiceDocumentoService.Entrada>> indice(@PathVariable("id") TemaRecurso.Clave id, Authentication authentication) {
         TemaRecurso material = materialService.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (!materialService.puedeAcceder(material, (Usuario) authentication.getPrincipal())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(material.getRecurso()));
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(material.getRecurso().getDocumento()));
     }
 
     /** GET /recurso/resaltados/{id}: Las anotaciones (lápiz y marcador) que el alumno hizo sobre el documento, una entrada por página. */
     @GetMapping("/resaltados/{id}")
-    public ResponseEntity<List<ResaltadoAlumnoService.Pagina>> resaltados(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<List<ResaltadoAlumnoService.Pagina>> resaltados(@PathVariable("id") TemaRecurso.Clave id, Authentication authentication) {
         TemaRecurso material = materialService.buscarPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Usuario usuario = (Usuario) authentication.getPrincipal();
@@ -223,13 +292,13 @@ public class RecursoController {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
         List<ResaltadoAlumnoService.Pagina> paginas = usuario.esAlumnoActivo() && usuario.getAlumno() != null
-                ? resaltadoService.buscar(usuario.getAlumno(), material.getRecurso()) : List.of();
+                ? resaltadoService.buscar(usuario.getAlumno(), material.getRecurso().getDocumento()) : List.of();
         return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(paginas);
     }
 
     /** POST /recurso/resaltados/{id}/{pagina}: Guarda las anotaciones del alumno en una página del documento, reemplazando las anteriores. */
     @PostMapping("/resaltados/{id}/{pagina}")
-    public ResponseEntity<Map<String, String>> guardarResaltados(@PathVariable("id") Integer id, @PathVariable("pagina") Integer pagina,
+    public ResponseEntity<Map<String, String>> guardarResaltados(@PathVariable("id") TemaRecurso.Clave id, @PathVariable("pagina") Integer pagina,
             @RequestParam(value = "trazos", required = false) String trazos, Authentication authentication) {
         try {
             TemaRecurso material = materialService.buscarPorId(id)
@@ -238,19 +307,13 @@ public class RecursoController {
             if (!materialService.puedeAcceder(material, usuario) || usuario.getAlumno() == null) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN);
             }
-            resaltadoService.guardar(usuario.getAlumno(), material.getRecurso(), pagina, trazos);
+            resaltadoService.guardar(usuario.getAlumno(), material.getRecurso().getDocumento(), pagina, trazos);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Anotaciones guardadas.");
         } catch (ResponseStatusException e) {
             throw e;
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
-    }
-
-    /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo, se vacía. */
-    private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
-        String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
-        indiceService.reemplazar(recurso, json);
     }
 
     // ----------------------------------------------------------------------
@@ -336,8 +399,8 @@ public class RecursoController {
             @RequestParam(value = "oculto", defaultValue = "false") boolean oculto,
             @RequestParam(value = "autor", required = false) String autor,
             @RequestParam(value = "enlace", required = false) String enlace,
-            @RequestParam(value = "isbn", required = false) String isbn,
-            @RequestParam(value = "editorial", required = false) String editorial,
+            @RequestParam(value = "identificador", required = false) String identificador,
+            @RequestParam(value = "publicadoEn", required = false) String publicadoEn,
             @RequestParam(value = "paginas", required = false) Integer paginas,
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
@@ -351,18 +414,15 @@ public class RecursoController {
             MultipartFile archivo = ocrService.reemplazarPorProcesado(ocrToken, archivoSubido);
             Usuario usuario = (Usuario) authentication.getPrincipal();
             TemaRecurso material = materialService.subir(usuario.getDocente(), temaId, tipo,
-                    new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, isbn, editorial, paginas,
+                    new RecursoService.DatosRecurso(titulo, descripcion, oculto, autor, enlace, identificador, publicadoEn, paginas,
                             fechaPublicacion, duracionMinutos, privado),
-                    archivo, terminos);
-            guardarIndice(material.getRecurso(), indiceJson, archivo);
+                    archivo, terminos, indiceJson);
             ocrService.descartarPrevio(ocrToken);
             // Se muestra cómo quedó dentro del curso: el panel del curso con el tema del material expandido
             // El panel abre el tema del material; si no está en pantalla, el parámetro se ignora
-            String expandir = "?expandir=" + material.getTema().getIdTema();
             // Alerta guía: si todavía falta contenido, propone seguir completándolo
             ResponseEntity<Map<String, String>> respuesta = panel.exitoConContenidoPendiente("Recurso '" + material.getTitulo() + "' subido con éxito.",
-                    "/curso/acceder/" + material.getTema().getCurso().getIdCurso() + expandir,
-                    material.getTema().getCurso().getIdCurso(), usuario.getDocente());
+                    null, material.getTema().getCurso().getIdCurso(), usuario.getDocente());
             // Al final del alta se pregunta si se publica en la biblioteca digital (las bibliografías ya son públicas)
             if (!material.getRecurso().getPrivado()) {
                 return respuesta;
@@ -378,15 +438,18 @@ public class RecursoController {
     /** POST /recurso/generarIa: Pide a la inteligencia artificial un resumen o una presentación de un tema, que queda oculto hasta que el docente lo revise. */
     @PostMapping("/generarIa")
     public ResponseEntity<Map<String, String>> generarConIa(@RequestParam(value = "tipo", required = false) String tipo,
-            @RequestParam(value = "temaId", required = false) Integer temaId, Authentication authentication) {
+            @RequestParam(value = "temaId", required = false) Integer temaId,
+            @RequestParam(value = "fuentesIndicadas", required = false) boolean fuentesIndicadas,
+            @RequestParam(value = "fuenteIds", required = false) List<Integer> fuenteIds, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
+            List<Integer> fuentes = fuentesIndicadas ? (fuenteIds == null ? List.<Integer>of() : fuenteIds) : null;
             boolean presentacion = "presentacion".equals(tipo);
             if (!presentacion && !"resumen".equals(tipo)) {
                 throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar qué querés generar.");
             }
-            TemaRecurso material = presentacion ? generacionIAService.solicitarPresentacion(usuario.getDocente(), temaId)
-                    : generacionIAService.solicitarResumen(usuario.getDocente(), temaId);
+            TemaRecurso material = presentacion ? generacionIAService.solicitarPresentacion(usuario.getDocente(), temaId, fuentes)
+                    : generacionIAService.solicitarResumen(usuario.getDocente(), temaId, fuentes);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Se está generando " + (presentacion ? "la presentación" : "el resumen")
                     + " del tema '" + material.getTema().getTitulo()
                     + "'. Va a aparecer oculto en el listado cuando termine, para que lo revises antes de publicarlo.",
@@ -394,6 +457,22 @@ public class RecursoController {
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
+    }
+
+    /** GET /recurso/fuentes: Lista los documentos de un tema que se pueden elegir como fuente de un contenido generado con IA. */
+    @GetMapping("/fuentes")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public List<Map<String, Object>> fuentes(@RequestParam(value = "temaId", required = false) Integer temaId) {
+        return generacionIAService.fuentesDisponibles(temaId).stream().map(f -> {
+            Map<String, Object> fila = new java.util.LinkedHashMap<>();
+            fila.put("id", f.idDocumento());
+            fila.put("titulo", f.titulo());
+            fila.put("tipo", f.tipo());
+            fila.put("fecha", f.fechaCreacion() == null ? "" : f.fechaCreacion().toString());
+            fila.put("generadaConIa", f.generadaConIa());
+            fila.put("porDefecto", f.porDefecto());
+            return fila;
+        }).toList();
     }
 
     /** GET /recurso/reutilizables: Lista los recursos de la biblioteca digital que el docente puede reutilizar en un tema. */
@@ -416,7 +495,7 @@ public class RecursoController {
             fila.put("titulo", recurso.getTitulo());
             fila.put("tipo", tipoDelRecurso.name());
             fila.put("autor", recurso.getAutor());
-            fila.put("isbn", recurso.getBibliografia() == null ? null : recurso.getBibliografia().getIsbn());
+            fila.put("identificador", recurso.getMaterialBibliografico() == null ? null : recurso.getMaterialBibliografico().getIdentificador());
             fila.put("detalle", detalleDeReutilizable(recurso, tipoDelRecurso));
             fila.put("propio", propio);
             fila.put("docente", recurso.getDocente().getUsuario().getNombreCompleto());
@@ -430,13 +509,13 @@ public class RecursoController {
     private String detalleDeReutilizable(com.app.idoneos.model.Recurso recurso, TipoRecurso tipo) {
         java.util.List<String> partes = new java.util.ArrayList<>();
         switch (tipo) {
-            case BIBLIOGRAFIA -> {
+            case MATERIAL_BIBLIOGRAFICO -> {
                 partes.add(recurso.getAutor());
-                partes.add(recurso.getBibliografia() == null ? null : recurso.getBibliografia().getIsbn());
+                partes.add(recurso.getMaterialBibliografico() == null ? null : recurso.getMaterialBibliografico().getIdentificador());
             }
-            case PRESENTACION, RESUMEN -> {
+            case PRESENTACION, APUNTE_DE_CATEDRA, GUIA_DE_ESTUDIO -> {
                 partes.add(recurso.getAutor());
-                Integer paginas = recurso.getMaterialLectura() == null ? null : recurso.getMaterialLectura().getPaginas();
+                Integer paginas = recurso.getMaterialDidactico() == null ? null : recurso.getMaterialDidactico().getPaginas();
                 partes.add(paginas == null ? null : paginas + (paginas == 1 ? " página" : " páginas"));
             }
             case GRABACION -> {
@@ -480,12 +559,20 @@ public class RecursoController {
 
     /** POST /recurso/modificar/{id}: Cambia la visibilidad de un material en su tema. */
     @PostMapping("/modificar/{id}")
-    public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") Integer id,
+    public ResponseEntity<Map<String, String>> modificar(@PathVariable("id") TemaRecurso.Clave id,
             @RequestParam(value = "oculto", defaultValue = "false") boolean oculto, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
-            materialService.cambiarVisibilidad(id, usuario.getDocente(), oculto);
-            return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
+            boolean eraOculto = materialService.buscarPorId(id).map(TemaRecurso::getOculto).orElse(false);
+            TemaRecurso material = materialService.cambiarVisibilidad(id, usuario.getDocente(), oculto);
+            ResponseEntity<Map<String, String>> respuesta = RespuestaFormularioUtil.armarRespuestaExitosa("Recurso modificado correctamente.");
+            // Al pasar de oculto a visible se pregunta si se comparte en la biblioteca digital, como al registrarlo
+            if (eraOculto && !oculto && material.getRecurso().getPrivado()) {
+                Map<String, String> cuerpo = new java.util.LinkedHashMap<>(respuesta.getBody());
+                cuerpo.put("publicarId", String.valueOf(material.getRecurso().getIdRecurso()));
+                return ResponseEntity.ok(cuerpo);
+            }
+            return respuesta;
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConError(e);
         }
@@ -497,7 +584,7 @@ public class RecursoController {
 
     /** POST /recurso/darDeBaja/{id}: Da de baja un material activo. */
     @PostMapping("/darDeBaja/{id}")
-    public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<Map<String, String>> darDeBaja(@PathVariable("id") TemaRecurso.Clave id, Authentication authentication) {
         try {
             materialService.darDeBaja(id, docenteQueGestiona(authentication));
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso dado de baja con éxito.");
@@ -509,7 +596,7 @@ public class RecursoController {
     /** POST /recurso/darDeBajaMasiva: Da de baja varios materiales a la vez, todos o ninguno: si alguno no puede darse de baja. */
     @PostMapping("/darDeBajaMasiva")
     public ResponseEntity<Map<String, String>> darDeBajaVarios(
-            @RequestParam(value = "ids", required = false) List<Integer> ids, Authentication authentication) {
+            @RequestParam(value = "ids", required = false) List<TemaRecurso.Clave> ids, Authentication authentication) {
         try {
             materialService.darDeBajaVarios(ids, docenteQueGestiona(authentication));
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recursos dados de baja con éxito.");
@@ -537,7 +624,7 @@ public class RecursoController {
 
     /** GET /recurso/modificar/{id}: Ventana de modificación de un material. */
     @GetMapping("/modificar/{id}")
-    public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
+    public String modificar(@PathVariable("id") TemaRecurso.Clave id, Model model, Authentication authentication) {
         TemaRecurso m = materialService.buscarPorId(id).filter(x -> !x.getBaja())
                 .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra disponible."));
         ContextoCurso contexto = panel.contextoDelPanel(m.getCurso().getIdCurso(), (Usuario) authentication.getPrincipal());

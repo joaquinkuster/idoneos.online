@@ -35,7 +35,7 @@ CREATE TRIGGER trg_respuesta_foro_validar BEFORE INSERT OR UPDATE ON respuesta_f
 
 DROP TRIGGER IF EXISTS trg_respuesta_foro_inmutable ON respuesta_foro ^^^
 CREATE TRIGGER trg_respuesta_foro_inmutable BEFORE UPDATE ON respuesta_foro
-    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_consulta', 'id_docente_curso') ^^^
+    FOR EACH ROW EXECUTE FUNCTION fn_columnas_inmutables('id_consulta', 'id_integrante_equipo') ^^^
 
 DROP TRIGGER IF EXISTS trg_respuesta_foro_consulta_activa ON respuesta_foro ^^^
 CREATE TRIGGER trg_respuesta_foro_consulta_activa BEFORE INSERT OR UPDATE OF id_consulta, baja ON respuesta_foro

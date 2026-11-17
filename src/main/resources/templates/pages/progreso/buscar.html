@@ -63,7 +63,10 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <th:block th:each="i : ${inscripciones}">
+                            <th:block th:each="i, iIt : ${inscripciones}">
+                            <th:block th:if="${agrupar == true and (iIt.first or clavesGrupo[iIt.index] != clavesGrupo[iIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[iIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[iIt.index], 0L)}, 'alumno', 'alumnos')}"></tr>
+                            </th:block>
                             <tr data-fila
                                 th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
                                 th:data-f-cohorte="${i.cohorte.idCohorte}">

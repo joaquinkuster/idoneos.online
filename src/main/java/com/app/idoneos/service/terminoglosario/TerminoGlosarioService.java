@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /** Servicio del término del glosario. */
-public interface TerminoGlosarioService extends CrudService<TerminoGlosario> {
+public interface TerminoGlosarioService extends CrudService<TerminoGlosario, Integer> {
 
     /**
      * Busca un término vigente por su identificador.

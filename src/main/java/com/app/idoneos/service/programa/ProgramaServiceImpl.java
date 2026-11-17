@@ -3,16 +3,17 @@ package com.app.idoneos.service.programa;
 import java.util.Set;
 import com.app.idoneos.model.Parametro;
 import com.app.idoneos.model.Tema;
+import com.app.idoneos.model.TemaRecurso;
 import java.util.Collection;
 
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.model.TemaCronograma;
 import com.app.idoneos.repository.CursoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.ProgramaRepository;
 import com.app.idoneos.repository.TemaCronogramaRepository;
 import com.app.idoneos.service.CrudService;
@@ -45,7 +46,7 @@ public class ProgramaServiceImpl implements ProgramaService {
     private TemaCronogramaRepository temaCronogramaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     @org.springframework.context.annotation.Lazy
@@ -272,11 +273,11 @@ public class ProgramaServiceImpl implements ProgramaService {
     }
 
     /** Obtiene la participación del docente en el curso (como titular o ayudante). */
-    private DocenteCurso obtenerParticipacion(Curso curso, Docente docente) {
+    private IntegranteEquipo obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }
@@ -310,7 +311,7 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     /** Indica si una operación dejaría al programa por debajo del mínimo. */
     @Override
-    public Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<Integer> materialesQuitados,
+    public Optional<Bloqueo> verificarMinimoDeContenido(Programa programa, Collection<TemaRecurso.Clave> materialesQuitados,
             Collection<Integer> temasQuitadas) {
         int minimo = buscarMinimoDeContenido();
         int antes = programa.getCantidadTemasConMaterialPublicado();
@@ -333,7 +334,7 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     /** Busca el motivo, sin punto final, por el que no se puede quitar el material de un tema. */
     @Override
-    public Optional<String> buscarMotivoDeMinimoPorRecurso(Tema tema, Collection<Integer> materialesQuitados) {
+    public Optional<String> buscarMotivoDeMinimoPorRecurso(Tema tema, Collection<TemaRecurso.Clave> materialesQuitados) {
         for (Programa programa : tema.getProgramasQueLaIncluyen()) {
             Optional<Bloqueo> bloqueo = verificarMinimoDeContenido(programa, materialesQuitados, java.util.Set.of());
             if (bloqueo.isPresent()) {
@@ -347,14 +348,14 @@ public class ProgramaServiceImpl implements ProgramaService {
 
     /** Busca el motivo por el que quitar material dejaría incompleto el diseño. */
     @Override
-    public Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<Integer> materialesQuitados) {
+    public Optional<String> buscarMotivoDeDisenoIncompleto(Tema tema, Collection<TemaRecurso.Clave> materialesQuitados) {
         // Un programa nunca queda incompleto: alcanza con que algún programa incluya el tema
         if (tema.getProgramasQueLaIncluyen().isEmpty()) {
             return Optional.empty();
         }
         var curso = tema.getCurso();
         var antes = tema.getMaterialesPublicados();
-        var despues = antes.stream().filter(m -> !materialesQuitados.contains(m.getIdTemaRecurso())).toList();
+        var despues = antes.stream().filter(m -> !materialesQuitados.contains(m.getClave())).toList();
         java.util.function.BiPredicate<java.util.List<com.app.idoneos.model.TemaRecurso>, String> tiene = (lista, celda) -> lista.stream().anyMatch(m -> switch (celda) {
             case "clon" -> m.getRecurso().getVideoClon() != null && com.app.idoneos.model.EstadoGeneracionIA.LISTO
                     .equals(m.getRecurso().getVideoClon().getEstadoGeneracionIa().getNombre());

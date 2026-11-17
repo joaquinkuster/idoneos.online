@@ -1,6 +1,8 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.controller.component.PanelCursoComponent;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.service.curso.CursoService;
@@ -122,7 +124,8 @@ public class InscripcionController {
         // Con las dadas de baja: siguen en el listado (sin acciones) para poder ver sus observaciones
         List<Inscripcion> inscripciones = inscripcionService.buscarTodasConBajas();
         // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-        PaginacionUtil.Pagina<Inscripcion> pagina = Filtros.tabla.paginar(inscripciones, request.getParameterMap());
+        PaginacionUtil.Pagina<Inscripcion> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, inscripciones, request.getParameterMap(), request, model,
+                i -> i.getCohorte().getPrograma().getCurso().getNombre() + " · " + i.getCohorte().getEtiqueta(), null, null, "cohorte");
         PaginacionUtil.cargarEnModelo(model, pagina);
         model.addAttribute("inscripciones", pagina.filas());
         if (PaginacionUtil.pideSoloFilas(request)) {

@@ -71,8 +71,8 @@ class RecursoServiceTest {
         return new MockMultipartFile("archivo", nombre, "application/octet-stream", contenido);
     }
 
-    private DatosRecurso datos(String titulo, String autor, String enlace, String isbn) {
-        return new DatosRecurso(titulo, null, false, autor, enlace, isbn, null, null, null, null);
+    private DatosRecurso datos(String titulo, String autor, String enlace, String identificador) {
+        return new DatosRecurso(titulo, null, false, autor, enlace, identificador, null, null, null, null);
     }
 
     private TemaRecurso subirGrabacion(String titulo) {
@@ -118,20 +118,20 @@ class RecursoServiceTest {
                 datos("Diapositivas", "Ana Pérez", null, null), archivo("clase.pdf", PDF), true);
         assertEquals("Presentación", presentacion.getTipo());
         assertEquals("Ana Pérez", presentacion.getAutor());
-        assertNotNull(presentacion.getRecurso().getMaterialLectura());
+        assertNotNull(presentacion.getRecurso().getMaterialDidactico());
         assertEquals("pdf", presentacion.getExtension());
 
-        TemaRecurso bibliografia = recursoService.subir(fausto(), tema, "BIBLIOGRAFIA",
+        TemaRecurso materialBibliografico = recursoService.subir(fausto(), tema, "MATERIAL_BIBLIOGRAFICO",
                 datos("Manual de bonos", "Luis Gómez", null, "978-987-00-0000-7"), null, true);
-        assertEquals("Bibliografía", bibliografia.getTipo());
-        assertEquals("978-987-00-0000-7", bibliografia.getRecurso().getBibliografia().getIsbn());
+        assertEquals("Material bibliográfico", materialBibliografico.getTipo());
+        assertEquals("978-987-00-0000-7", materialBibliografico.getRecurso().getMaterialBibliografico().getIdentificador());
 
-        // no se admiten dos bibliografías con el mismo ISBN (aunque cambien los guiones o los espacios)
-        assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "BIBLIOGRAFIA",
-                datos("Otro manual", "Otra persona", null, "9789870000007"), null, true)).contains("ISBN"));
-        assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "BIBLIOGRAFIA",
-                datos("Otro manual", "Otra persona", null, "978 987 00 0000 7"), null, true)).contains("ISBN"));
-        assertFalse(bibliografia.tieneArchivo());
+        // no se admiten dos bibliografías con el mismo identificador (aunque cambien los guiones o los espacios)
+        assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "MATERIAL_BIBLIOGRAFICO",
+                datos("Otro manual", "Otra persona", null, "9789870000007"), null, true)).contains("identificador"));
+        assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "MATERIAL_BIBLIOGRAFICO",
+                datos("Otro manual", "Otra persona", null, "978 987 00 0000 7"), null, true)).contains("identificador"));
+        assertFalse(materialBibliografico.tieneArchivo());
 
         TemaRecurso enlace = recursoService.subir(fausto(), tema, "ENLACE",
                 datos("Sitio de la CNV", null, "https://www.argentina.gob.ar/cnv", null), null, true);
@@ -141,8 +141,8 @@ class RecursoServiceTest {
 
         // los recursos del tema se ordenan en el orden en que se cargaron
         List<TemaRecurso> delTema = recursoService.buscarPorTema(temaDeRentaFija());
-        assertTrue(delTema.indexOf(presentacion) < delTema.indexOf(bibliografia));
-        assertTrue(delTema.indexOf(bibliografia) < delTema.indexOf(enlace));
+        assertTrue(delTema.indexOf(presentacion) < delTema.indexOf(materialBibliografico));
+        assertTrue(delTema.indexOf(materialBibliografico) < delTema.indexOf(enlace));
     }
 
     @Test
@@ -160,8 +160,8 @@ class RecursoServiceTest {
                 null, true)).contains("archivo de video"));
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "PRESENTACION", datos("Clase", null, null, null),
                 archivo("clase.pdf", PDF), true)).contains("autor"));
-        assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "BIBLIOGRAFIA", datos("Libro", "Autor", null, null),
-                null, true)).contains("ISBN"));
+        assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "MATERIAL_BIBLIOGRAFICO", datos("Libro", "Autor", null, null),
+                null, true)).contains("identificador"));
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "ENLACE", datos("Sitio", null, "sitio.com", null),
                 null, true)).contains("http://"));
         assertTrue(mensaje(() -> recursoService.subir(fausto(), tema, "GRABACION", datos("Clase", null, null, null),
@@ -194,7 +194,7 @@ class RecursoServiceTest {
         TemaRecurso material = subirGrabacion("Clase original");
         String rutaAnterior = material.getRutaArchivo();
 
-        recursoService.cambiarVisibilidad(material.getIdTemaRecurso(), fausto(), true);
+        recursoService.cambiarVisibilidad(material.getClave(), fausto(), true);
 
         assertTrue(material.getOculto());
         assertFalse(material.estaPublicado());
@@ -202,24 +202,24 @@ class RecursoServiceTest {
         assertEquals(rutaAnterior, material.getRutaArchivo());
         assertNotNull(material.getUltimaModificacion());
 
-        recursoService.cambiarVisibilidad(material.getIdTemaRecurso(), fausto(), false);
+        recursoService.cambiarVisibilidad(material.getClave(), fausto(), false);
         assertTrue(material.estaPublicado());
     }
 
     @Test
     @DisplayName("CU-30: la visibilidad la cambia un docente del curso, y un material dado de baja no se modifica")
-    void cambiaLaVisibilidadDeUnaBibliografia() {
-        TemaRecurso bibliografia = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "BIBLIOGRAFIA",
+    void cambiaLaVisibilidadDeUnMaterialBibliografico() {
+        TemaRecurso materialBibliografico = recursoService.subir(fausto(), temaDeRentaFija().getIdTema(), "MATERIAL_BIBLIOGRAFICO",
                 datos("Manual", "Autor", null, "978-0-00-000000-0"), null, true);
 
-        assertTrue(mensaje(() -> recursoService.cambiarVisibilidad(bibliografia.getIdTemaRecurso(),
+        assertTrue(mensaje(() -> recursoService.cambiarVisibilidad(materialBibliografico.getClave(),
                 docente("sebastian.bordato@idoneos.online"), true)).contains("No participás"));
-        recursoService.cambiarVisibilidad(bibliografia.getIdTemaRecurso(), fausto(), true);
-        assertTrue(bibliografia.getOculto());
-        assertEquals("Manual", bibliografia.getTitulo());
+        recursoService.cambiarVisibilidad(materialBibliografico.getClave(), fausto(), true);
+        assertTrue(materialBibliografico.getOculto());
+        assertEquals("Manual", materialBibliografico.getTitulo());
 
-        recursoService.darDeBaja(bibliografia.getIdTemaRecurso(), fausto());
-        assertTrue(mensaje(() -> recursoService.cambiarVisibilidad(bibliografia.getIdTemaRecurso(), fausto(), false))
+        recursoService.darDeBaja(materialBibliografico.getClave(), fausto());
+        assertTrue(mensaje(() -> recursoService.cambiarVisibilidad(materialBibliografico.getClave(), fausto(), false))
                 .contains("no se encuentra activo"));
     }
 
@@ -232,7 +232,7 @@ class RecursoServiceTest {
     void daDeBaja() {
         TemaRecurso material = subirGrabacion("Clase a borrar");
 
-        recursoService.darDeBaja(material.getIdTemaRecurso(), fausto());
+        recursoService.darDeBaja(material.getClave(), fausto());
 
         assertTrue(material.getBaja());
         assertFalse(material.getRecurso().getBaja());
@@ -248,9 +248,9 @@ class RecursoServiceTest {
         TemaRecurso material = recursoService.subir(fausto(), macro.getIdTema(), "GRABACION",
                 datos("Clase", null, null, null), archivo("clase.mp4", MP4), true);
 
-        assertTrue(mensaje(() -> recursoService.darDeBaja(material.getIdTemaRecurso(),
+        assertTrue(mensaje(() -> recursoService.darDeBaja(material.getClave(),
                 docente("sebastian.bordato@idoneos.online"))).contains("No participás"));
-        recursoService.darDeBaja(material.getIdTemaRecurso(), null);
+        recursoService.darDeBaja(material.getClave(), null);
         assertTrue(material.getBaja());
     }
 
@@ -261,11 +261,11 @@ class RecursoServiceTest {
         TemaRecurso dos = subirGrabacion("Dos");
 
         assertTrue(mensaje(() -> recursoService.darDeBajaVarios(List.of(), fausto())).contains("al menos un recurso"));
-        assertTrue(mensaje(() -> recursoService.darDeBajaVarios(List.of(uno.getIdTemaRecurso(), -5), fausto()))
+        assertTrue(mensaje(() -> recursoService.darDeBajaVarios(List.of(uno.getClave(), new TemaRecurso.Clave(-5, -5)), fausto()))
                 .contains("no se encuentra activo"));
         assertFalse(uno.getBaja());
 
-        recursoService.darDeBajaVarios(List.of(uno.getIdTemaRecurso(), dos.getIdTemaRecurso()), fausto());
+        recursoService.darDeBajaVarios(List.of(uno.getClave(), dos.getClave()), fausto());
         assertTrue(uno.getBaja());
         assertTrue(dos.getBaja());
     }
@@ -320,10 +320,10 @@ class RecursoServiceTest {
         // otro tema del mismo curso usa el mismo recurso
         Tema otroTema = temaRepository.findAll().stream().filter(u -> u.getCurso().getIdCurso() == material.getTema().getCurso().getIdCurso()
                 && u.getIdTema() != material.getTema().getIdTema()).findFirst().orElseThrow();
-        TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(otroTema, material.getRecurso(), material.getDocenteCurso(), 1));
+        TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(otroTema, material.getRecurso(), material.getIntegranteEquipo(), 1));
         material.getRecurso().getTemasRecurso().add(uso);
 
-        recursoService.darDeBaja(material.getIdTemaRecurso(), fausto());
+        recursoService.darDeBaja(material.getClave(), fausto());
 
         assertTrue(material.getBaja());
         assertFalse(uso.getBaja());
@@ -378,7 +378,7 @@ class RecursoServiceTest {
 
         // un tema lo usa: no se modifica ni se da de baja
         Tema tema = temaDeRentaFija();
-        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getDocenteCurso();
+        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getIntegranteEquipo();
         TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(tema, recurso, participacion, 99));
         recurso.getTemasRecurso().add(uso);
         assertEquals(1, recursoService.contarUsos(recurso));
@@ -426,7 +426,7 @@ class RecursoServiceTest {
 
         // usado por un tema: no se puede dar de baja
         Tema tema = temaDeRentaFija();
-        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getDocenteCurso();
+        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getIntegranteEquipo();
         TemaRecurso uso = temaRecursoRepository.save(new TemaRecurso(tema, publico, participacion, 98));
         publico.getTemasRecurso().add(uso);
         String bloqueada = mensaje(() -> recursoService.darDeBajaComoAdministrador(publico.getIdRecurso()));
@@ -441,13 +441,13 @@ class RecursoServiceTest {
 
     @Test
     @DisplayName("Biblioteca: las bibliografías son siempre públicas, se registren donde se registren y se pida lo que se pida")
-    void lasBibliografiasSonPublicas() {
+    void losMaterialesBibliograficosSonPublicos() {
         int tema = temaDeRentaFija().getIdTema();
 
-        TemaRecurso enElCurso = recursoService.subir(fausto(), tema, "BIBLIOGRAFIA", datos("Libro del curso", "Autor", null, "978-1-23-456789-7"), null, true);
+        TemaRecurso enElCurso = recursoService.subir(fausto(), tema, "MATERIAL_BIBLIOGRAFICO", datos("Libro del curso", "Autor", null, "978-1-23-456789-7"), null, true);
         assertFalse(enElCurso.getRecurso().getPrivado());
 
-        Recurso enLaBiblioteca = recursoService.subirABiblioteca(fausto(), "BIBLIOGRAFIA",
+        Recurso enLaBiblioteca = recursoService.subirABiblioteca(fausto(), "MATERIAL_BIBLIOGRAFICO",
                 new DatosRecurso("Libro suelto", null, false, "Autor", null, "978-0-12-345678-9", null, null, null, null, true), null, true);
         assertFalse(enLaBiblioteca.getPrivado());
 
@@ -477,7 +477,7 @@ class RecursoServiceTest {
         Recurso libre = recursoService.subirABiblioteca(fausto(), "ENLACE", datos("Libre", null, "https://sitio.com/libre", null), null, true);
         Recurso enUso = recursoService.subirABiblioteca(fausto(), "ENLACE", datos("En uso", null, "https://sitio.com/en-uso", null), null, true);
         Tema tema = temaDeRentaFija();
-        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getDocenteCurso();
+        var participacion = recursoService.buscarPorTema(tema).stream().findFirst().orElseThrow().getIntegranteEquipo();
         enUso.getTemasRecurso().add(temaRecursoRepository.save(new TemaRecurso(tema, enUso, participacion, 97)));
 
         String mensaje = mensaje(() -> recursoService.darDeBajaVariosEnBiblioteca(List.of(libre.getIdRecurso(), enUso.getIdRecurso()), fausto()));
@@ -574,7 +574,7 @@ class RecursoServiceTest {
         org.junit.jupiter.api.Assumptions.assumeTrue(unico != null, "la semilla no tiene un tema con un único material en un curso en marcha");
         Docente docente = unico.getRecurso().getDocente();
 
-        String mensaje = mensaje(() -> recursoService.darDeBaja(unico.getIdTemaRecurso(), docente));
+        String mensaje = mensaje(() -> recursoService.darDeBaja(unico.getClave(), docente));
 
         assertTrue(mensaje.contains("quedaría incompleto") || mensaje.contains("único"), mensaje);
     }

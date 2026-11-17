@@ -83,7 +83,8 @@
                                 <td><span class="pn-celda-principal pn-truncar" th:text="${c.titulo}">Clase 1</span></td>
                                 <td th:text="${c.cohorte.mesAnio}">Abril 2026</td>
                                 <td><span class="pn-truncar" th:text="${c.tema.titulo}">Introducción al mercado</span></td>
-                                <td><span class="pn-truncar" th:text="${c.docenteCurso.docente.usuario.nombreCompleto}">Fausto Spotorno</span></td>
+                                <td><span class="pn-truncar" th:text="${c.integranteEquipo.docente.usuario.nombreCompleto}">Fausto Spotorno</span>
+                                    <div class="pn-celda-secundaria" th:text="${c.integranteEquipo.esTitular ? 'Docente titular' : 'Docente ayudante'}">Docente titular</div></td>
                                 <td th:text="${c.rango}">14/11/2026 19:00 - 20:30</td>
                                 <td>
                                     <span class="pn-insignia"
@@ -118,7 +119,7 @@
                                             <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico pn-mas" data-bs-toggle="dropdown"
                                                     aria-expanded="false" data-bs-popper-config='{"strategy":"fixed"}'>Más <i class="fa-solid fa-chevron-down"></i></button>
                                             <ul class="dropdown-menu dropdown-menu-end">
-                                                <li><a class="dropdown-item" th:href="@{'/recurso/ver/' + ${c.publicacionDeGrabacion.idTemaRecurso}}">Ver grabación</a></li>
+                                                <li><a class="dropdown-item" th:href="@{'/recurso/ver/' + ${c.publicacionDeGrabacion.clave}}">Ver grabación</a></li>
                                             </ul>
                                         </div>
                                         <!-- El administrador da de baja cualquier clase -->

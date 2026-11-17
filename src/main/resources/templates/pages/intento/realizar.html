@@ -4,7 +4,7 @@
     <th:block th:replace="~{fragments/layout/head :: recursos}"></th:block>
 </head>
 <body class="in-body" id="intento"
-      th:attr="data-intento=${intento.idIntentoAutoevaluacion}, data-segundos=${segundosRestantes}, data-pregunta=${actual.idPreguntaIntento},
+      th:attr="data-intento=${intento.idIntentoAutoevaluacion}, data-segundos=${segundosRestantes}, data-pregunta=${actual.pregunta.idPregunta},
                data-multiple=${actual.pregunta.esOpcionMultiple}, data-libre=${libre}, data-total=${total},
                data-url-ficha='/autoevaluacion/ver/' + ${autoevaluacion.idAutoevaluacion}">
 

@@ -31,6 +31,11 @@ public class Pregunta {
     @JoinColumn(name = "idPool", nullable = false)
     private Pool pool;
 
+    /** Oración del documento de la que salió la pregunta, si se generó con inteligencia artificial a partir de un documento. */
+    @ManyToOne
+    @JoinColumn(name = "idOracionEvidencia")
+    private Oracion oracionEvidencia;
+
     /** Texto de la pregunta. */
     @Column(name = "texto", nullable = false, length = 255)
     private String texto;

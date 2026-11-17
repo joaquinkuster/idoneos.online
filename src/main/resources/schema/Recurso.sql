@@ -34,9 +34,22 @@ CREATE TRIGGER trg_recurso_en_uso BEFORE UPDATE ON recurso
                     OR OLD.descripcion IS DISTINCT FROM NEW.descripcion)
     EXECUTE FUNCTION fn_recurso_en_uso() ^^^
 
+-- Un documento que es fuente o evidencia de contenido generado con IA vigente tampoco se modifica (ni siquiera el título).
+DROP TRIGGER IF EXISTS trg_recurso_fuente_ia ON recurso ^^^
+CREATE TRIGGER trg_recurso_fuente_ia BEFORE UPDATE ON recurso
+    FOR EACH ROW WHEN (OLD.titulo IS DISTINCT FROM NEW.titulo
+                    OR OLD.descripcion IS DISTINCT FROM NEW.descripcion)
+    EXECUTE FUNCTION fn_documento_bloqueado_por_ia('modificar') ^^^
+
 -- ----------------------------------------------------------------------
 -- Bajas
 -- ----------------------------------------------------------------------
+
+-- Ni se da de baja.
+DROP TRIGGER IF EXISTS trg_recurso_baja_fuente_ia ON recurso ^^^
+CREATE TRIGGER trg_recurso_baja_fuente_ia BEFORE UPDATE OF baja ON recurso
+    FOR EACH ROW WHEN (OLD.baja = false AND NEW.baja = true)
+    EXECUTE FUNCTION fn_documento_bloqueado_por_ia('dar de baja') ^^^
 
 -- fn_baja_recurso(): un recurso no se da de baja si algun tema lo usa (hay que dar de baja primero su uso en cada tema).
 CREATE OR REPLACE FUNCTION fn_baja_recurso() RETURNS trigger AS $$

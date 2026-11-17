@@ -16,28 +16,6 @@ public final class EsquemasIA {
     private EsquemasIA() {
     }
 
-    /** Esquema de lo que escribe el modelo cuando se le pide una pregunta: solo la pregunta. */
-    public static Map<String, Object> pregunta() {
-        return objeto(List.of("pregunta"), Map.of("pregunta", texto(10, 250)));
-    }
-
-    /** Esquema de la respuesta a una pregunta: solo la respuesta, corta. */
-    public static Map<String, Object> respuesta() {
-        return objeto(List.of("respuesta"), Map.of("respuesta", texto(1, 120)));
-    }
-
-    /**
-     * Esquema de un lote de preguntas completas (enunciado, opciones y cita del material), para el banco que se arma en una sola llamada.
-     *
-     * @param maximo Cuántas preguntas como máximo.
-     */
-    public static Map<String, Object> lote(int maximo) {
-        Map<String, Object> opcion = objeto(List.of("text", "correct"), Map.of("text", texto(1, 250), "correct", Map.of("type", "boolean")));
-        Map<String, Object> pregunta = objeto(List.of("type", "question", "options"),
-                Map.of("type", texto(1, 30), "question", texto(10, 250), "options", lista(opcion, 2, 4)));
-        return objeto(List.of("questions"), Map.of("questions", lista(pregunta, 1, maximo)));
-    }
-
     /**
      * Esquema de una ronda de preguntas: una pregunta por oración numerada, con el número de la oración para saber de cuál es.
      *
@@ -49,11 +27,6 @@ public final class EsquemasIA {
         numero.put("minimum", 1);
         Map<String, Object> pregunta = objeto(List.of("oracion", "pregunta"), Map.of("oracion", numero, "pregunta", texto(10, 250)));
         return objeto(List.of("preguntas"), Map.of("preguntas", lista(pregunta, 1, maximo)));
-    }
-
-    /** Esquema de una paráfrasis de una oración: solo la afirmación. */
-    public static Map<String, Object> afirmacion() {
-        return objeto(List.of("afirmacion"), Map.of("afirmacion", texto(10, 250)));
     }
 
     private static Map<String, Object> texto(int minimo, int maximo) {

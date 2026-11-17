@@ -11,7 +11,7 @@ import com.app.idoneos.model.RolUsuario;
 
 /** Repositorio de RolUsuario. */
 @Repository
-public interface RolUsuarioRepository extends JpaRepository<RolUsuario, Integer> {
+public interface RolUsuarioRepository extends JpaRepository<RolUsuario, RolUsuario.Clave> {
 
     /** Encuentra todos los registros activos (no dados de baja). */
     List<RolUsuario> findByBajaFalse();
@@ -20,5 +20,9 @@ public interface RolUsuarioRepository extends JpaRepository<RolUsuario, Integer>
     @Query("select count(ru) from RolUsuario ru where ru.rol.nombre = :rol and ru.baja = false "
             + "and ru.usuario.baja = false and ru.usuario.idUsuario <> :idUsuario")
     long contarOtrosUsuariosActivosConRol(@Param("rol") String rol, @Param("idUsuario") int idUsuario);
+
+    /** Busca los usuarios activos que tienen el rol indicado. */
+    @Query("select distinct ru.usuario from RolUsuario ru where ru.rol.nombre = :rol and ru.baja = false and ru.usuario.baja = false")
+    List<com.app.idoneos.model.Usuario> buscarUsuariosActivosConRol(@Param("rol") String rol);
 
 }

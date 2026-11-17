@@ -25,6 +25,9 @@ public class ContextoSesionAdvice {
     @Autowired
     private InteresAlumnoService interesAlumnoService;
 
+    @Autowired
+    private com.app.idoneos.service.notificacion.NotificacionService notificacionService;
+
     /** Agrega el mensaje guardado en la sesión, si lo hay, por ejemplo el de inicio de sesión exitoso. */
     @ModelAttribute
     public void agregarMensajeDeSesion(HttpServletRequest request, Model model) {
@@ -54,6 +57,16 @@ public class ContextoSesionAdvice {
         model.addAttribute("interesesCategorias", interesAlumnoService.buscarCategoriasElegibles());
         model.addAttribute("interesesElegidos", elegidas.stream().map(com.app.idoneos.model.Categoria::getIdCategoria).toList());
         model.addAttribute("preguntarIntereses", preguntar);
+    }
+
+    /** Agrega la cantidad de notificaciones sin leer del usuario, para la campana del navbar. */
+    @ModelAttribute("notificacionesNoLeidas")
+    public Long agregarNotificacionesNoLeidas(Authentication authentication, HttpServletRequest request) {
+        if (!"GET".equals(request.getMethod()) || request.getHeader("X-Tabla") != null || request.getHeader("X-Requested-With") != null
+                || !(authentication != null && authentication.getPrincipal() instanceof Usuario usuario)) {
+            return null;
+        }
+        return notificacionService.contarNoLeidas(usuario);
     }
 
     /** Agrega el usuario autenticado al modelo de todas las vistas. */

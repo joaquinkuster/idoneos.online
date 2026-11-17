@@ -1,5 +1,7 @@
 package com.app.idoneos.service.consultaforo;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.ConsultaForo;
 import com.app.idoneos.model.Inscripcion;
@@ -25,6 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 /** Implementación de ConsultaForoService. */
 @Service
 public class ConsultaForoServiceImpl implements ConsultaForoService {
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
 
     @Autowired
     private ConsultaForoRepository consultaForoRepository;
@@ -104,6 +109,15 @@ public class ConsultaForoServiceImpl implements ConsultaForoService {
                 () -> new IllegalArgumentException("Error! No tenés una inscripción vigente con este tema habilitado."));
         ConsultaForo consulta = consultaForoRepository.save(new ConsultaForo(tema, inscripcion, validarTexto(texto)));
         tema.getConsultasForo().add(consulta);
+        // Avisa al equipo docente del curso (titular y ayudantes) que hay una consulta nueva
+        tema.getCurso().getEquipoDocente().forEach(integrante -> {
+            if (!integrante.getDocente().getUsuario().esInactivo()) {
+                notificacionService.notificar(integrante.getDocente().getUsuario(), TipoNotificacion.CONSULTA_FORO, "Nueva consulta en el foro",
+                        alumno.getUsuario().getNombreCompleto() + " hizo una consulta en el tema «" + tema.getTitulo() + "» de «"
+                                + tema.getCurso().getNombre() + "».",
+                        "/consulta/ver/" + consulta.getIdConsulta(), inscripcion.getCohorte(), false);
+            }
+        });
         return consulta;
     }
 

@@ -12,7 +12,7 @@ BEGIN
                        JOIN estado_generacionia eg ON eg.id_estado_generacionia = vc.id_estado_generacionia
                        WHERE tr.id_tema = p_id_tema AND tr.baja = false AND tr.oculto = false AND r.baja = false
                          AND eg.nombre = 'Listo') THEN
-        v_faltan := v_faltan || 'Video clon'::text;
+        v_faltan := v_faltan || 'Video con clon'::text;
     END IF;
     IF fn_curso_incluye_modalidad(p_id_curso, 'Grabada')
        AND NOT EXISTS (SELECT 1 FROM tema_recurso tr JOIN recurso r ON r.id_recurso = tr.id_recurso

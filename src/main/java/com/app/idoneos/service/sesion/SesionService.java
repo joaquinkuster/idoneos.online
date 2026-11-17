@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio de la sesión. */
-public interface SesionService extends CrudService<Sesion> {
+public interface SesionService extends CrudService<Sesion, Integer> {
 
     /** Comienzo del token de una sesión recordada, que dura más tiempo y no se renueva con la actividad. */
     String PREFIJO_RECORDADA = "r.";

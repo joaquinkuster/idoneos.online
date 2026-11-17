@@ -1,5 +1,7 @@
 package com.app.idoneos.controller;
 
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.util.PaginacionUtil;
@@ -76,7 +78,9 @@ public class PagoController {
         }
         List<Pago> pagos = pagoService.buscarConFiltros(null, null, null, null, null, null);
         // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-        PaginacionUtil.Pagina<Pago> pagina = Filtros.tabla.paginar(pagos, request.getParameterMap());
+        PaginacionUtil.Pagina<Pago> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, pagos, request.getParameterMap(), request, model,
+                p -> p.getInscripcion().getAlumno().getUsuario().getNombreCompleto() + " · " + p.getInscripcion().getCurso().getNombre() + " · "
+                        + p.getInscripcion().getCohorte().getEtiqueta(), null, null, "inscripcion", "alumno");
         PaginacionUtil.cargarEnModelo(model, pagina);
         model.addAttribute("pagos", pagina.filas());
         if (PaginacionUtil.pideSoloFilas(request)) {
@@ -113,7 +117,8 @@ public class PagoController {
         Alumno alumno = ((Usuario) authentication.getPrincipal()).getAlumno();
         List<Pago> pagos = pagoService.buscarConFiltros(null, null, null, null, null, alumno);
         // El filtro, el orden por columna y la página los resuelve el servidor
-        PaginacionUtil.Pagina<Pago> pagina = Filtros.tablaAlumno.paginar(pagos, request.getParameterMap());
+        PaginacionUtil.Pagina<Pago> pagina = AgrupacionListadoUtil.paginar(Filtros.tablaAlumno, pagos, request.getParameterMap(), request, model,
+                p -> p.getInscripcion().getCurso().getNombre(), null, null, "curso", "fechaCreacion");
         PaginacionUtil.cargarEnModelo(model, pagina);
         model.addAttribute("pagos", pagina.filas());
         if (PaginacionUtil.pideSoloFilas(request)) {

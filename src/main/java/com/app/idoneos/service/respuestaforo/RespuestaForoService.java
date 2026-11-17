@@ -6,7 +6,7 @@ import com.app.idoneos.model.RespuestaForo;
 import java.util.Optional;
 
 /** Servicio de la respuesta del foro. */
-public interface RespuestaForoService extends CrudService<RespuestaForo> {
+public interface RespuestaForoService extends CrudService<RespuestaForo, Integer> {
 
     /**
      * Busca una respuesta vigente por su identificador.

@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del pago. */
-public interface PagoService extends CrudService<Pago> {
+public interface PagoService extends CrudService<Pago, Integer> {
 
     /**
      * Busca un pago por su identificador.

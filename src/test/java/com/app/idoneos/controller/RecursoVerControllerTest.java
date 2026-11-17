@@ -69,10 +69,10 @@ class RecursoVerControllerTest {
     void grabacion() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isOk())
                 .andExpect(view().name("pages/recurso/ver"))
                 .andExpect(content().string(Matchers.containsString("<video")))
-                .andExpect(content().string(Matchers.containsString("/recurso/archivo/" + material.getIdTemaRecurso())))
+                .andExpect(content().string(Matchers.containsString("/recurso/archivo/" + material.getClave())))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Volver al curso"))))
                 .andExpect(content().string(Matchers.not(Matchers.containsString("Descargar"))))
                 .andExpect(content().string(Matchers.containsString("Recursos")));
@@ -84,7 +84,7 @@ class RecursoVerControllerTest {
     void pdf() throws Exception {
         TemaRecurso material = subir(TipoRecurso.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("data-visor-pdf")))
                 .andExpect(content().string(Matchers.containsString("data-visor-siguiente")))
                 // zoom: acercar, alejar y volver al 100%, sobre una zona que se desplaza
@@ -104,7 +104,7 @@ class RecursoVerControllerTest {
         TemaRecurso pdf = subir(TipoRecurso.PRESENTACION, "clase.pdf", PDF, null, "Renta fija y bonos");
 
         for (TemaRecurso material : new TemaRecurso[] { video, pdf }) {
-            mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
+            mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isOk())
                     .andExpect(content().string(Matchers.not(Matchers.containsString("Descargar"))))
                     .andExpect(content().string(Matchers.not(Matchers.containsString(" download"))))
                     .andExpect(content().string(Matchers.containsString("/js/pages/recurso/proteccion.js")))
@@ -112,7 +112,7 @@ class RecursoVerControllerTest {
                     // la marca de agua lleva el nombre y el correo de quien mira
                     .andExpect(content().string(Matchers.containsString("data-marca=\"Fausto Spotorno · fausto.spotorno@idoneos.online\"")));
         }
-        mockMvc.perform(get("/recurso/ver/" + video.getIdTemaRecurso()))
+        mockMvc.perform(get("/recurso/ver/" + video.getClave()))
                 .andExpect(content().string(Matchers.containsString("nodownload nofullscreen")))
                 .andExpect(content().string(Matchers.containsString("disablePictureInPicture")));
     }
@@ -123,7 +123,7 @@ class RecursoVerControllerTest {
     void enlaceExterno() throws Exception {
         TemaRecurso material = subir(TipoRecurso.ENLACE, null, null, "https://sitio.com/libro", "Renta fija y bonos");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().is3xxRedirection())
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().is3xxRedirection())
                 .andExpect(header().string("Location", "https://sitio.com/libro"));
     }
 
@@ -134,12 +134,12 @@ class RecursoVerControllerTest {
         Docente fausto = docenteRepository.findAll().stream()
                 .filter(d -> d.getUsuario().getCorreo().equals("fausto.spotorno@idoneos.online")).findFirst().orElseThrow();
         // una bibliografía sin archivo (la de la semilla ya tiene el suyo)
-        TemaRecurso material = materialService.subir(fausto, tema("Renta fija y bonos").getIdTema(), "BIBLIOGRAFIA",
+        TemaRecurso material = materialService.subir(fausto, tema("Renta fija y bonos").getIdTema(), "MATERIAL_BIBLIOGRAFICO",
                 new RecursoService.DatosRecurso("Libro sin archivo", null, false, "Autor", null, "978-0-00-000000-0", null, null,
                         null, null),
                 null, true);
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("todavía no tiene archivo")));
     }
 
@@ -149,7 +149,7 @@ class RecursoVerControllerTest {
     void alumnoConAcceso() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("<video")))
                 .andExpect(content().string(Matchers.containsString("/inscripcion/acceder/")));
     }
@@ -160,7 +160,7 @@ class RecursoVerControllerTest {
     void alumnoSinAcceso() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta variable y opciones");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isForbidden());
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isForbidden());
     }
 
     @Test
@@ -169,7 +169,7 @@ class RecursoVerControllerTest {
     void administrador() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().isOk())
                 .andExpect(content().string(Matchers.containsString("<video")));
     }
 
@@ -185,6 +185,6 @@ class RecursoVerControllerTest {
     void sinSesion() throws Exception {
         TemaRecurso material = subir(TipoRecurso.GRABACION, "clase.mp4", MP4, null, "Renta fija y bonos");
 
-        mockMvc.perform(get("/recurso/ver/" + material.getIdTemaRecurso())).andExpect(status().is3xxRedirection());
+        mockMvc.perform(get("/recurso/ver/" + material.getClave())).andExpect(status().is3xxRedirection());
     }
 }

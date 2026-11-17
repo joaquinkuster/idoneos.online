@@ -1,6 +1,8 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.controller.component.PanelCursoComponent;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.service.inscripcion.InscripcionService;
@@ -85,8 +87,9 @@ public class AutoevaluacionController {
             // Listado completo: los filtros se aplican en la pantalla
             List<Autoevaluacion> autoevaluaciones = autoevaluacionService.buscarConFiltros(cursoId, null, null, false, docente);
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-            PaginacionUtil.Pagina<Autoevaluacion> pagina = Filtros.tabla.paginarMostrando(autoevaluaciones, request.getParameterMap(),
-                    a -> accion != null && autoevaluacionId != null && a.getIdAutoevaluacion() == autoevaluacionId);
+            PaginacionUtil.Pagina<Autoevaluacion> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, autoevaluaciones, request.getParameterMap(), request, model,
+                    a -> a.getTema().getTitulo(), null, a -> accion != null && autoevaluacionId != null && a.getIdAutoevaluacion() == autoevaluacionId,
+                    "tema", "nombre");
             PaginacionUtil.cargarEnModelo(model, pagina);
             if (PaginacionUtil.pideSoloFilas(request)) {
                 model.addAttribute("autoevaluaciones", pagina.filas());

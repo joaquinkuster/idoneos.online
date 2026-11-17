@@ -362,7 +362,7 @@
 /* Leyenda flotante de barras y líneas (la maneja tooltipCronograma.js) */
 .cn-tooltip {
     position: fixed;
-    z-index: 2000;
+    z-index: 3000;
     max-width: 260px;
     padding: 6px 10px;
     font-size: 12px;

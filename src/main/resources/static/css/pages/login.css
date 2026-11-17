@@ -25,7 +25,12 @@
 /* PANTALLAS DE ACCESO: registro, nueva contraseña y resultado de un enlace */
 /* ---------------------------------------------------------------------- */
 
-/* Registro: el panel de invitación va a la izquierda y el formulario a la derecha */
+/* Registro: el panel de invitación va a la izquierda y el formulario a la derecha, más ancho que el del inicio de sesión */
+.auth-card.auth-card-invertida {
+    max-width: 1120px;
+    grid-template-columns: 0.7fr 1.3fr;
+}
+
 .auth-card-invertida .auth-derecha {
     border-radius: 1.5rem 0 0 1.5rem;
 }
@@ -71,38 +76,6 @@
     margin: 0.75rem 0 0;
     font-size: 0.8125rem;
     color: var(--pn-texto-suave);
-}
-
-/* Resultado de un enlace del correo */
-.auth-resultado {
-    align-items: center;
-    text-align: center;
-    gap: 0.5rem;
-}
-
-.auth-resultado .auth-subtitulo {
-    margin-bottom: 1.25rem;
-}
-
-.auth-resultado-icono {
-    width: 64px;
-    height: 64px;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    margin-bottom: 0.75rem;
-}
-
-.auth-resultado-exito {
-    background: #DCFCE7;
-    color: var(--pn-exito);
-}
-
-.auth-resultado-error {
-    background: #FEF2F2;
-    color: var(--pn-peligro);
 }
 
 /* Ingreso con Google */

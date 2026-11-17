@@ -80,14 +80,19 @@ public class ConsultaForo {
                 .toList();
     }
 
-    /** Obtiene el nombre del alumno que hizo la consulta. */
-    public String getAutor() {
-        return inscripcion.esInactivo() ? AUTOR_ANONIMO : inscripcion.getAlumno().getUsuario().getNombreCompleto();
+    /** Indica si el alumno que hizo la consulta ya no forma parte del curso o su cuenta no está activa. */
+    public boolean tieneAutorInactivo() {
+        return inscripcion.esInactivo() || inscripcion.getAlumno().getUsuario().esInactivo();
     }
 
-    /** Obtiene el usuario del alumno que hizo la consulta. */
+    /** Obtiene el nombre del alumno que hizo la consulta, o anónimo si ya no forma parte del curso o su cuenta no está activa. */
+    public String getAutor() {
+        return tieneAutorInactivo() ? AUTOR_ANONIMO : inscripcion.getAlumno().getUsuario().getNombreCompleto();
+    }
+
+    /** Obtiene el usuario del alumno que hizo la consulta, o nulo si ya no forma parte del curso o su cuenta no está activa. */
     public Usuario getUsuario() {
-        return inscripcion.esInactivo() ? null : inscripcion.getAlumno().getUsuario();
+        return tieneAutorInactivo() ? null : inscripcion.getAlumno().getUsuario();
     }
 
     /** Obtiene el usuario de quien escribió el último mensaje de la consulta. */

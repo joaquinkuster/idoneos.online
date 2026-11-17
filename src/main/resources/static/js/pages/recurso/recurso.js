@@ -24,9 +24,10 @@
 
     // Qué se hace en la pestaña "Desde cero" de cada tipo de recurso
     var DESDE_CERO = {
-        RESUMEN: 'Registrás un nuevo resumen: subís el resumen de un tema en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        APUNTE_DE_CATEDRA: 'Registrás un nuevo apunte de cátedra: subís resúmenes, transcripciones de clases, artículos o compilaciones teóricas en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        GUIA_DE_ESTUDIO: 'Registrás una nueva guía de estudio: subís una guía de lectura, de ejercicios prácticos o un integrador en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
         PRESENTACION: 'Registrás una nueva presentación: subís las diapositivas de una clase en un archivo PDF y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
-        BIBLIOGRAFIA: 'Registrás una nueva bibliografía: cargás un texto o material de lectura con su autor y su ISBN (el archivo PDF es obligatorio) y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
+        MATERIAL_BIBLIOGRAFICO: 'Registrás un nuevo material bibliográfico: cargás un libro, un manual o una publicación formal con su autor y su identificador (ISBN, ISSN o DOI), con el archivo PDF obligatorio, y elegís el tema al que va. Es público para todos los docentes. Se abre el listado de recursos del curso con el formulario de alta.',
         GRABACION: 'Registrás una nueva grabación: subís el video de una clase dictada y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.',
         ENLACE: 'Registrás un nuevo enlace: cargás la dirección web de un material que está fuera de la plataforma y elegís el tema al que va. Se abre el listado de recursos del curso con el formulario de alta.'
     };
@@ -39,6 +40,12 @@
         // El aviso (por ejemplo, registrar un pool primero) acompaña solo a la opción para la que se dio
         var aviso = selector.querySelector('[data-selector-aviso]');
         if (aviso) { aviso.hidden = !aviso.dataset.opcion || !elegida || aviso.dataset.opcion !== elegida.querySelector('input').value; }
+        // Presentación, apunte y pool se pueden generar con IA: el botón lleva al listado con la ventana de generación abierta
+        var botonIa = selector.querySelector('[data-selector-ia]');
+        if (botonIa) {
+            botonIa.hidden = !elegida || !elegida.dataset.ia;
+            botonIa.querySelector('[data-selector-ia-texto]').textContent = elegida && elegida.dataset.iaTexto ? elegida.dataset.iaTexto : '';
+        }
         prepararPestanas(elegida);
     }
 
@@ -95,7 +102,7 @@
         contenedor.textContent = '';
         // Los del docente primero y luego los de otros docentes. La página se arma sobre ese orden
         var visibles = biblioteca.recursos.filter(function (r) {
-            return !texto || [r.titulo, r.autor, r.isbn].some(function (v) { return v && v.toLowerCase().indexOf(texto) >= 0; });
+            return !texto || [r.titulo, r.autor, r.identificador].some(function (v) { return v && v.toLowerCase().indexOf(texto) >= 0; });
         });
         var total = visibles.length;
         var tamanio = biblioteca.tamanio || total || 1;
@@ -330,6 +337,16 @@
         });
         selector.addEventListener('hidden.bs.modal', function () { cambiarPestana('nuevo'); });
         selector.addEventListener('click', function (e) {
+            if (e.target.closest('[data-selector-ia]')) {
+                var iaElegida = opcionElegida();
+                var destinoIa = selector.dataset.destino;
+                if (!iaElegida || !iaElegida.dataset.ia || !destinoIa) { return; }
+                var consultaIa = new URLSearchParams(destinoIa.substring(destinoIa.indexOf('?') + 1));
+                var tema = consultaIa.get('temaId');
+                var ruta = iaElegida.dataset.ia === 'pool' ? '/pool/buscar' : '/recurso/buscar';
+                window.location.href = ruta + '?cursoId=' + consultaIa.get('cursoId') + '&generarIa=' + iaElegida.dataset.ia + (tema ? '&temaId=' + tema : '');
+                return;
+            }
             if (!e.target.closest('[data-selector-agregar]')) { return; }
             if (biblioteca.pestana === 'biblioteca') { agregarDeLaBiblioteca(); return; }
             var elegida = opcionElegida();
@@ -372,12 +389,13 @@
     /** Qué pide cada tipo de material (los formatos y tamaños vienen del servidor, en la opción elegida). */
     var TIPOS = {
         PRESENTACION: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo de la presentación' },
-        RESUMEN: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo del resumen' },
-        BIBLIOGRAFIA: { archivo: true, archivoObligatorio: true, campos: ['autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion'], obligatorios: ['autor', 'isbn'], etiqueta: 'Archivo de la bibliografía' },
+        APUNTE_DE_CATEDRA: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo del apunte' },
+        GUIA_DE_ESTUDIO: { archivo: true, archivoObligatorio: true, campos: ['autor', 'paginas'], obligatorios: ['autor'], etiqueta: 'Archivo de la guía' },
+        MATERIAL_BIBLIOGRAFICO: { archivo: true, archivoObligatorio: true, campos: ['autor', 'identificador', 'publicadoEn', 'paginas', 'fechaPublicacion'], obligatorios: ['autor', 'identificador'], etiqueta: 'Archivo del material bibliográfico' },
         GRABACION: { archivo: true, archivoObligatorio: true, campos: ['duracionMinutos'], obligatorios: [], etiqueta: 'Archivo de video' },
         ENLACE: { archivo: false, archivoObligatorio: false, campos: ['enlace'], obligatorios: ['enlace'], etiqueta: 'Archivo' }
     };
-    var CAMPOS = ['enlace', 'autor', 'isbn', 'editorial', 'paginas', 'fechaPublicacion', 'duracionMinutos'];
+    var CAMPOS = ['enlace', 'autor', 'identificador', 'publicadoEn', 'paginas', 'fechaPublicacion', 'duracionMinutos'];
 
     /** Adapta el formulario de alta al tipo de material elegido. */
     function aplicarTipo(opcion) {
@@ -393,9 +411,9 @@
         // Las bibliografías son siempre públicas: la biblioteca digital está pensada para eso
         var campoBiblioteca = formulario.elements['privado'];
         if (campoBiblioteca) {
-            var esBibliografia = opcion.value === 'BIBLIOGRAFIA';
-            if (esBibliografia) { campoBiblioteca.value = 'false'; }
-            campoBiblioteca.disabled = esBibliografia;
+            var esMaterialBibliografico = opcion.value === 'MATERIAL_BIBLIOGRAFICO';
+            if (esMaterialBibliografico) { campoBiblioteca.value = 'false'; }
+            campoBiblioteca.disabled = esMaterialBibliografico;
         }
         var ayudaTipo = modalNuevo.querySelector('[data-material-ayuda]');
         if (ayudaTipo) { ayudaTipo.textContent = opcion.dataset.descripcion; }
@@ -434,6 +452,36 @@
         var bloqueCategoria = modalNuevo.querySelector('[data-bloque="categoria-material"]');
         var lineaTipo = modalNuevo.querySelector('[data-tipo-linea]');
         var campoDelTipo = modalNuevo.querySelector('[data-campo-tipo]');
+        var ayudaTipo = modalNuevo.querySelector('[data-tipo-ayuda-texto]');
+
+        function escaparHtml(texto) {
+            var div = document.createElement('div');
+            div.textContent = texto;
+            return div.innerHTML;
+        }
+
+        /**
+         * Un solo aviso para el tipo de recurso: el del material elegido y, si es didáctico, con viñetas la definición de cada categoría (presentación,
+         * apunte de cátedra y guía de estudio). Con grabación y enlace no hay aviso. El texto sale de los tooltips (title) de las opciones.
+         */
+        function mostrarAyudas() {
+            var elegida = grupoTipo.selectedOptions[0];
+            var textoTipo = elegida ? elegida.title : '';
+            var html = '';
+            if (textoTipo) {
+                html = '<strong>' + escaparHtml(elegida.textContent.trim()) + ':</strong> ' + escaparHtml(textoTipo);
+                if (grupoTipo.value === 'MATERIAL_DIDACTICO') {
+                    html += '<ul class="mb-0 mt-2 ps-3">' + Array.prototype.map.call(categoriaMaterial.options, function (o) {
+                        return '<li><strong>' + escaparHtml(o.textContent.trim()) + ':</strong> ' + escaparHtml(o.title) + '</li>';
+                    }).join('') + '</ul>';
+                }
+            }
+            if (ayudaTipo) { ayudaTipo.innerHTML = html; }
+            var avisoTipo = modalNuevo.querySelector('#ayudaTipoRecurso');
+            var botonTipo = modalNuevo.querySelector('[data-ayuda-destino="ayudaTipoRecurso"]');
+            if (avisoTipo) { avisoTipo.hidden = !textoTipo; }
+            if (botonTipo) { botonTipo.hidden = !textoTipo; }
+        }
 
         /** El tipo ocupa todo el ancho cuando no hay categoría de material al lado. */
         function ajustarAncho(esMaterial) {
@@ -444,34 +492,36 @@
         // Solo se ofrecen los tipos que el servidor permite en esta pantalla
         [grupoTipo, categoriaMaterial].forEach(function (select) {
             Array.prototype.slice.call(select.options).forEach(function (opcion) {
-                var existe = opcion.value === 'MATERIAL_LECTURA'
-                    ? campoTipo.querySelector('option[value="PRESENTACION"], option[value="RESUMEN"]') : campoTipo.querySelector('option[value="' + opcion.value + '"]');
+                var existe = opcion.value === 'MATERIAL_DIDACTICO'
+                    ? campoTipo.querySelector('option[value="PRESENTACION"], option[value="APUNTE_DE_CATEDRA"], option[value="GUIA_DE_ESTUDIO"]') : campoTipo.querySelector('option[value="' + opcion.value + '"]');
                 if (!existe) { opcion.remove(); }
             });
         });
 
-        /** Arma el tipo que recibe el servidor: Material de lectura se concreta con su clase (Presentación o Resumen). */
+        /** Arma el tipo que recibe el servidor: Material didáctico se concreta con su categoría (Presentación, Apunte de Cátedra o Guía de Estudio). */
         function sincronizarTipo() {
-            var esMaterial = grupoTipo.value === 'MATERIAL_LECTURA';
+            var esMaterial = grupoTipo.value === 'MATERIAL_DIDACTICO';
             bloqueCategoria.hidden = !esMaterial;
             ajustarAncho(esMaterial);
             campoTipo.value = esMaterial ? categoriaMaterial.value : grupoTipo.value;
+            mostrarAyudas();
             if (lineaTipo) {
-                lineaTipo.textContent = esMaterial ? 'Material de lectura · ' + categoriaMaterial.selectedOptions[0].textContent : grupoTipo.selectedOptions[0].textContent;
+                lineaTipo.textContent = esMaterial ? 'Material didáctico · ' + categoriaMaterial.selectedOptions[0].textContent : grupoTipo.selectedOptions[0].textContent;
             }
             campoTipo.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
-        /** Deja los selectores como corresponde a un tipo concreto (por ejemplo, al abrir desde ?nuevo=RESUMEN). */
+        /** Deja los selectores como corresponde a un tipo concreto (por ejemplo, al abrir desde ?nuevo=APUNTE_DE_CATEDRA). */
         function mostrarTipo(valor) {
-            var esMaterial = valor === 'PRESENTACION' || valor === 'RESUMEN';
-            grupoTipo.value = esMaterial ? 'MATERIAL_LECTURA' : valor;
+            var esMaterial = valor === 'PRESENTACION' || valor === 'APUNTE_DE_CATEDRA' || valor === 'GUIA_DE_ESTUDIO';
+            grupoTipo.value = esMaterial ? 'MATERIAL_DIDACTICO' : valor;
             if (esMaterial) { categoriaMaterial.value = valor; }
             bloqueCategoria.hidden = !esMaterial;
             ajustarAncho(esMaterial);
             campoTipo.value = valor;
+            mostrarAyudas();
             if (lineaTipo) {
-                lineaTipo.textContent = esMaterial ? 'Material de lectura · ' + categoriaMaterial.selectedOptions[0].textContent : grupoTipo.selectedOptions[0].textContent;
+                lineaTipo.textContent = esMaterial ? 'Material didáctico · ' + categoriaMaterial.selectedOptions[0].textContent : grupoTipo.selectedOptions[0].textContent;
             }
         }
 

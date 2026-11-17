@@ -62,6 +62,7 @@ public class PoolController {
     @GetMapping("/buscar")
     public String buscar(@RequestParam(value = "cursoId", required = false) Integer cursoId,
             @RequestParam(value = "nuevo", required = false) String nuevo,
+            @RequestParam(value = "generarIa", required = false) String generarIa,
             @RequestParam(value = "temaId", required = false) Integer temaId, Model model,
             Authentication authentication, RedirectAttributes redirectAttributes, jakarta.servlet.http.HttpServletRequest request) {
         try {
@@ -72,8 +73,15 @@ public class PoolController {
             // Listado completo: los filtros se aplican en la pantalla
             List<Pool> pools = poolService.buscarConFiltros(cursoId, null, null, false, docente);
             // El filtro, el orden por columna y la página los resuelve el servidor (motor común de listados)
-            PaginacionUtil.Pagina<Pool> pagina = Filtros.tabla.paginar(pools, request.getParameterMap());
+            // Agrupado por tema salvo que se ordene por otra columna
+            String campoOrden = request.getParameter("ordenCampo");
+            boolean agrupar = campoOrden == null || campoOrden.isBlank() || "nombre".equals(campoOrden) || "tema".equals(campoOrden);
+            java.util.Comparator<Pool> porTema = java.util.Comparator.comparing((Pool p) -> p.getTema().getTitulo(), String.CASE_INSENSITIVE_ORDER);
+            PaginacionUtil.Pagina<Pool> pagina = Filtros.tabla.paginar(pools, request.getParameterMap(),
+                    agrupar && !"tema".equals(campoOrden) ? porTema : null);
             PaginacionUtil.cargarEnModelo(model, pagina);
+            model.addAttribute("agrupar", agrupar);
+            model.addAttribute("poolsPorTema", agrupar ? Filtros.tabla.contar(pools, request.getParameterMap(), p -> p.getTema().getTitulo()) : Map.of());
             model.addAttribute("pools", pagina.filas());
             if (PaginacionUtil.pideSoloFilas(request)) {
                 model.addAttribute("puedeGestionar", !esAdministrador);
@@ -86,7 +94,7 @@ public class PoolController {
             model.addAttribute("datosNuevo", aJson(Map.of("nombre", "", "preguntas", List.of())));
             model.addAttribute("puedeGestionar", !esAdministrador);
             // Desde "Completar contenido" se llega con ?nuevo&temaId=: se abre sola la ventana para crear el pool de ese tema
-            model.addAttribute("abrirModal", !esAdministrador && nuevo != null ? "modalNuevoPool" : null);
+            model.addAttribute("abrirModal", !esAdministrador && generarIa != null ? "modalGenerarBancoIa" : (!esAdministrador && nuevo != null ? "modalNuevoPool" : null));
             model.addAttribute("temaSeleccionada", temaId);
             model.addAttribute("titulo", "Pools | Idóneos Online");
             return "pages/pool/buscar";
@@ -135,10 +143,13 @@ public class PoolController {
     /** POST /pool/generarIa: Pide a la inteligencia artificial un banco de preguntas de un tema, que queda como pool para que el docente lo revise. */
     @PostMapping("/generarIa")
     public ResponseEntity<Map<String, String>> generarConIa(@RequestParam(value = "temaId", required = false) Integer temaId,
-            @RequestParam(value = "guion", required = false) String guion, Authentication authentication) {
+            @RequestParam(value = "guion", required = false) String guion,
+            @RequestParam(value = "fuentesIndicadas", required = false) boolean fuentesIndicadas,
+            @RequestParam(value = "fuenteIds", required = false) List<Integer> fuenteIds, Authentication authentication) {
         try {
             Usuario usuario = (Usuario) authentication.getPrincipal();
-            Pool pool = generacionIAService.solicitarBanco(usuario.getDocente(), temaId, guion);
+            Pool pool = generacionIAService.solicitarBanco(usuario.getDocente(), temaId, guion,
+                    fuentesIndicadas ? (fuenteIds == null ? List.<Integer>of() : fuenteIds) : null);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Se está generando el banco de preguntas del tema '" + pool.getTema().getTitulo()
                     + "'. Va a aparecer en el listado cuando termine, para que lo revises antes de usarlo en una autoevaluación.",
                     "/pool/buscar?cursoId=" + pool.getTema().getCurso().getIdCurso());
@@ -250,7 +261,8 @@ public class PoolController {
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
         Usuario usuario = (Usuario) authentication.getPrincipal();
-        Pool p = poolService.buscarPorId(id).filter(Pool::estaDisponible)
+        // Un pool que falló al generarse también se abre, solo para ver el detalle del error
+        Pool p = poolService.buscarPorId(id).filter(x -> x.estaDisponible() || "Fallido".equals(x.getEstadoGeneracionIa().getNombre()))
                 .orElseThrow(() -> new IllegalArgumentException("Error! El pool no se encuentra disponible."));
         ContextoCurso contexto = panel.contextoDelPanel(p.getTema().getCurso().getIdCurso(), usuario); // verifica el acceso al curso
         model.addAttribute("curso", contexto.curso());
@@ -273,6 +285,7 @@ public class PoolController {
         public static final FiltroUtil<Pool> tabla = new FiltroUtil<>(List.of(
                 new FiltroUtil.Columna<Pool>("nombre", FiltroUtil.Tipo.TEXTO, Pool::getNombre),
                 new FiltroUtil.Columna<Pool>("tema", FiltroUtil.Tipo.LISTA, p -> p.getTema().getTitulo()),
+                new FiltroUtil.Columna<Pool>("generadoPorIa", FiltroUtil.Tipo.LISTA, p -> p.getGeneradoPorIa() ? "Sí" : "No"),
                 new FiltroUtil.Columna<Pool>("preguntas", FiltroUtil.Tipo.NUMERO, p -> String.valueOf(p.getCantidadPreguntas())),
                 new FiltroUtil.Columna<Pool>("autoevaluaciones", FiltroUtil.Tipo.NUMERO,
                         p -> String.valueOf(p.getAutoevaluacionesActivas().size())),

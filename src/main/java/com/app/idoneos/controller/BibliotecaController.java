@@ -34,7 +34,8 @@ import com.app.idoneos.model.Docente;
 import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.recurso.RecursoService;
-import com.app.idoneos.service.indice.IndiceRecursoService;
+import com.app.idoneos.service.estructura.EstructuraDocumentoService;
+import com.app.idoneos.service.indice.IndiceDocumentoService;
 import com.app.idoneos.service.ocr.OCRService;
 import com.app.idoneos.service.recurso.RecursoService.TipoRecurso;
 import com.app.idoneos.util.FiltroUtil;
@@ -50,7 +51,13 @@ import jakarta.servlet.http.HttpServletRequest;
 public class BibliotecaController {
 
     @Autowired
-    private IndiceRecursoService indiceService;
+    private IndiceDocumentoService indiceService;
+
+    @Autowired
+    private EstructuraDocumentoService estructuraService;
+
+    @Autowired
+    private com.app.idoneos.service.modeloia.GeneracionIAService generacionIAService;
 
     @Autowired
     private OCRService ocrService;
@@ -194,6 +201,43 @@ public class BibliotecaController {
         };
     }
 
+    /** GET /biblioteca/fuentes: Lista los documentos de la biblioteca que el docente puede elegir como fuente de un contenido generado con IA. */
+    @GetMapping("/fuentes")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public List<Map<String, Object>> fuentes(Authentication authentication) {
+        Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
+        return generacionIAService.fuentesDeBiblioteca(docente).stream().map(f -> {
+            Map<String, Object> fila = new java.util.LinkedHashMap<>();
+            fila.put("id", f.idDocumento());
+            fila.put("titulo", f.titulo());
+            fila.put("tipo", f.tipo());
+            fila.put("fecha", f.fechaCreacion() == null ? "" : f.fechaCreacion().toString());
+            fila.put("generadaConIa", f.generadaConIa());
+            fila.put("porDefecto", f.porDefecto());
+            return fila;
+        }).toList();
+    }
+
+    /** POST /biblioteca/generarIa: Pide un resumen o una presentación a partir de documentos de la biblioteca, que queda como recurso de la biblioteca. */
+    @PostMapping("/generarIa")
+    public ResponseEntity<Map<String, String>> generarConIa(@RequestParam(value = "tipo", required = false) String tipo,
+            @RequestParam(value = "fuentesIndicadas", required = false) boolean fuentesIndicadas,
+            @RequestParam(value = "fuenteIds", required = false) List<Integer> fuenteIds, Authentication authentication) {
+        try {
+            Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
+            boolean presentacion = "presentacion".equals(tipo);
+            if (!presentacion && !"resumen".equals(tipo)) {
+                throw RespuestaFormularioUtil.armarCampoInvalido("tipo", "Error! Debe seleccionar qué querés generar.");
+            }
+            Recurso recurso = generacionIAService.solicitarEnBiblioteca(docente, presentacion,
+                    fuentesIndicadas ? (fuenteIds == null ? List.<Integer>of() : fuenteIds) : null);
+            return RespuestaFormularioUtil.armarRespuestaExitosa("Se está generando " + (presentacion ? "la presentación" : "el resumen") + " «"
+                    + recurso.getTitulo() + "». Va a aparecer en la biblioteca cuando termine, para que lo revises.");
+        } catch (Exception e) {
+            return RespuestaFormularioUtil.armarRespuestaConError(e);
+        }
+    }
+
     /** GET /biblioteca/modificar/{id}: Ventana de modificación de un recurso, que el listado pide al abrirla. */
     @GetMapping("/modificar/{id}")
     public String modificar(@PathVariable("id") Integer id, Model model, Authentication authentication) {
@@ -203,24 +247,29 @@ public class BibliotecaController {
                 .orElseThrow(() -> new IllegalArgumentException("Error! El recurso no se encuentra disponible."));
         model.addAttribute("r", recurso);
         model.addAttribute("usos", recursoService.contarUsos(recurso)); // si es mayor a cero, el recurso está en uso: no se modifica
-        return "pages/biblioteca/modificar :: modal(r=${r}, usos=${usos})";
+        model.addAttribute("fuenteIa", recursoService.esFuenteDeIa(recurso)); // fuente o evidencia de contenido generado con IA: tampoco se modifica
+        return "pages/biblioteca/modificar :: modal(r=${r}, usos=${usos}, fuenteIa=${fuenteIa})";
     }
 
     /** GET /biblioteca/indice/{id}: Entrega el índice del documento (las entradas con su página) al visor y a los formularios. */
     @GetMapping("/indice/{id}")
-    public ResponseEntity<List<IndiceRecursoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
+    public ResponseEntity<List<IndiceDocumentoService.Entrada>> indice(@PathVariable("id") Integer id, Authentication authentication) {
         Recurso recurso = recursoService.buscarRecursoPorId(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (!recursoService.puedeVerEnBiblioteca(recurso, (Usuario) authentication.getPrincipal())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
         }
-        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(recurso));
+        return ResponseEntity.ok().header(HttpHeaders.CACHE_CONTROL, "no-store, private").body(indiceService.buscar(recurso.getDocumento()));
     }
 
     /** Guarda el índice que llegó con el formulario. Si se cambió el archivo y no llegó un índice nuevo, se vacía. */
     private void guardarIndice(Recurso recurso, String indiceJson, MultipartFile archivo) {
-        String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "[]" : indiceJson;
-        indiceService.reemplazar(recurso, json);
+        String json = indiceJson == null && archivo != null && !archivo.isEmpty() ? "" : indiceJson;
+        if (json == null || recurso.getDocumento() == null) {
+            return;
+        }
+        indiceService.reemplazar(recurso.getDocumento(), json);
+        estructuraService.reconstruir(recurso.getDocumento());
     }
 
     // ----------------------------------------------------------------------
@@ -235,8 +284,8 @@ public class BibliotecaController {
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "autor", required = false) String autor,
             @RequestParam(value = "enlace", required = false) String enlace,
-            @RequestParam(value = "isbn", required = false) String isbn,
-            @RequestParam(value = "editorial", required = false) String editorial,
+            @RequestParam(value = "identificador", required = false) String identificador,
+            @RequestParam(value = "publicadoEn", required = false) String publicadoEn,
             @RequestParam(value = "paginas", required = false) Integer paginas,
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
@@ -250,10 +299,9 @@ public class BibliotecaController {
             MultipartFile archivo = ocrService.reemplazarPorProcesado(ocrToken, archivoSubido);
             Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
             Recurso recurso = recursoService.subirABiblioteca(docente, tipo,
-                    new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, isbn, editorial, paginas,
+                    new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, identificador, publicadoEn, paginas,
                             fechaPublicacion, duracionMinutos, privado),
-                    archivo, terminos);
-            guardarIndice(recurso, indiceJson, archivo);
+                    archivo, terminos, indiceJson);
             ocrService.descartarPrevio(ocrToken);
             return RespuestaFormularioUtil.armarRespuestaExitosa("Recurso '" + recurso.getTitulo() + "' registrado correctamente.");
         } catch (Exception e) {
@@ -272,8 +320,8 @@ public class BibliotecaController {
             @RequestParam(value = "descripcion", required = false) String descripcion,
             @RequestParam(value = "autor", required = false) String autor,
             @RequestParam(value = "enlace", required = false) String enlace,
-            @RequestParam(value = "isbn", required = false) String isbn,
-            @RequestParam(value = "editorial", required = false) String editorial,
+            @RequestParam(value = "identificador", required = false) String identificador,
+            @RequestParam(value = "publicadoEn", required = false) String publicadoEn,
             @RequestParam(value = "paginas", required = false) Integer paginas,
             @RequestParam(value = "fechaPublicacion", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaPublicacion,
             @RequestParam(value = "duracionMinutos", required = false) Integer duracionMinutos,
@@ -286,7 +334,7 @@ public class BibliotecaController {
             MultipartFile archivo = ocrService.reemplazarPorProcesado(ocrToken, archivoSubido);
             Docente docente = ((Usuario) authentication.getPrincipal()).getDocente();
             recursoService.modificarEnBiblioteca(id, docente,
-                    new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, isbn, editorial, paginas,
+                    new RecursoService.DatosRecurso(titulo, descripcion, false, autor, enlace, identificador, publicadoEn, paginas,
                             fechaPublicacion, duracionMinutos, privado),
                     archivo);
             recursoService.buscarRecursoPorId(id).ifPresent(r -> guardarIndice(r, indiceJson, archivo));
@@ -357,12 +405,12 @@ public class BibliotecaController {
                 new FiltroUtil.Columna<Recurso>("titulo", FiltroUtil.Tipo.TEXTO, Recurso::getTitulo),
                 new FiltroUtil.Columna<Recurso>("tipo", FiltroUtil.Tipo.LISTA, Recurso::getTipo),
                 new FiltroUtil.Columna<Recurso>("autor", FiltroUtil.Tipo.TEXTO, Recurso::getAutor),
-                new FiltroUtil.Columna<Recurso>("isbn", FiltroUtil.Tipo.TEXTO, r -> r.getBibliografia() != null ? r.getBibliografia().getIsbn() : ""),
-                new FiltroUtil.Columna<Recurso>("editorial", FiltroUtil.Tipo.TEXTO,
-                        r -> r.getBibliografia() != null && r.getBibliografia().getEditorial() != null ? r.getBibliografia().getEditorial() : ""),
+                new FiltroUtil.Columna<Recurso>("identificador", FiltroUtil.Tipo.TEXTO, r -> r.getMaterialBibliografico() != null ? r.getMaterialBibliografico().getIdentificador() : ""),
+                new FiltroUtil.Columna<Recurso>("publicadoEn", FiltroUtil.Tipo.TEXTO,
+                        r -> r.getMaterialBibliografico() != null && r.getMaterialBibliografico().getPublicadoEn() != null ? r.getMaterialBibliografico().getPublicadoEn() : ""),
                 new FiltroUtil.Columna<Recurso>("fechaPublicacion", FiltroUtil.Tipo.FECHA,
-                        r -> r.getBibliografia() != null && r.getBibliografia().getFechaPublicacion() != null
-                                ? FiltroUtil.formatearFecha(r.getBibliografia().getFechaPublicacion().atStartOfDay()) : ""),
+                        r -> r.getMaterialBibliografico() != null && r.getMaterialBibliografico().getFechaPublicacion() != null
+                                ? FiltroUtil.formatearFecha(r.getMaterialBibliografico().getFechaPublicacion().atStartOfDay()) : ""),
                 new FiltroUtil.Columna<Recurso>("docente", FiltroUtil.Tipo.LISTA, r -> r.getDocente().getUsuario().getNombreCompleto()),
                 new FiltroUtil.Columna<Recurso>("biblioteca", FiltroUtil.Tipo.LISTA, r -> r.getPrivado() ? "No" : "Sí"),
                 new FiltroUtil.Columna<Recurso>("generadoPorIa", FiltroUtil.Tipo.LISTA, r -> r.getGeneradoPorIa() ? "Sí" : "No"),

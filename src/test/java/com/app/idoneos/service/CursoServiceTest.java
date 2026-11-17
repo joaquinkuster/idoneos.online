@@ -21,7 +21,7 @@ import com.app.idoneos.model.Grabacion;
 import com.app.idoneos.model.Recurso;
 import com.app.idoneos.model.TemaRecurso;
 import com.app.idoneos.model.Modalidad;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.service.categoria.CategoriaServiceImpl;
 import com.app.idoneos.service.curso.CursoServiceImpl;
 import com.app.idoneos.service.docente.DocenteServiceImpl;
@@ -459,7 +459,7 @@ class CursoServiceTest {
     void docenteAccedeAsuCurso() {
         Curso curso = curso("Mercado de Capitales Argentino");
 
-        DocenteCurso participacion = cursoService.validarAccesoDocente(curso.getIdCurso(), docente(FAUSTO));
+        IntegranteEquipo participacion = cursoService.validarAccesoDocente(curso.getIdCurso(), docente(FAUSTO));
 
         assertEquals(curso.getIdCurso(), participacion.getCurso().getIdCurso());
         assertEquals("Programa 2026", participacion.getProgramaDeTrabajo().getNombre());
@@ -481,7 +481,7 @@ class CursoServiceTest {
     @DisplayName("CU-27: el docente accede a un curso sin programas (ahí registra el primero), pero no a uno dado de baja")
     void cursoNoDisponible() {
         Curso sinPrograma = curso("Introducción a las Finanzas");
-        DocenteCurso participacion = cursoService.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN));
+        IntegranteEquipo participacion = cursoService.validarAccesoDocente(sinPrograma.getIdCurso(), docente(SEBASTIAN));
         assertNull(participacion.getProgramaDeTrabajo());
         assertNull(participacion.getCohorteDeTrabajo());
         IllegalArgumentException error;

@@ -40,10 +40,39 @@
                         </p>
                     </div>
                 </div>
+                <div class="mt-2 d-flex align-items-center gap-3 flex-wrap" th:if="${puedeEditarContenido}">
+                    <!-- Modo del documento, como en los editores de texto: se edita directamente o se ve el documento final -->
+                    <div class="dropdown ce-modo">
+                        <button type="button" class="pn-btn pn-btn-contorno ce-modo-boton" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span th:text="${modoEdicion} ? 'Edición' : 'Visualización'">Edición</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                        <ul class="dropdown-menu ce-modo-menu">
+                            <li>
+                                <a class="dropdown-item ce-modo-opcion" th:href="@{'/recurso/ver/' + ${material.clave}(modo='edicion')}">
+                                    <span><b>Edición</b><small>Editar documento directamente</small></span>
+                                    <i class="fa-solid fa-check ce-modo-tilde" th:if="${modoEdicion}"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item ce-modo-opcion" data-contenido-visualizar
+                                        th:attr="data-destino=@{'/recurso/ver/' + ${material.clave}(modo='visualizacion')}">
+                                    <span><b>Visualización</b><small>Leer o imprimir el documento final</small></span>
+                                    <i class="fa-solid fa-check ce-modo-tilde" th:unless="${modoEdicion}"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                    <th:block th:if="${modoEdicion}">
+                        <button type="button" class="pn-btn pn-btn-contorno" data-contenido-guardar>
+                            Guardar cambios
+                        </button>
+                    </th:block>
+                </div>
             </header>
 
             <!-- Vista del material según su formato -->
-            <section class="pn-card mv-contenedor" th:switch="${formato}"
+            <section class="pn-card mv-contenedor" th:unless="${modoEdicion}" th:switch="${formato}"
                      th:attr="data-marca=${usuario.nombreCompleto + ' · ' + usuario.correo}">
                 <!-- Grabación: reproductor sin descarga ni imagen en imagen (el material se ve solo desde la plataforma) -->
                 <div th:case="'video'" class="mv-reproductor">
@@ -57,7 +86,7 @@
 
                 <!-- PDF: visor de páginas -->
                 <th:block th:case="'pdf'">
-                    <th:block th:replace="~{pages/recurso/visorPdf :: visor(${urlArchivo}, ${usuario.esAlumnoActivo() ? '/recurso/resaltados/' + material.idTemaRecurso : null})}"></th:block>
+                    <th:block th:replace="~{pages/recurso/visorPdf :: visor(${urlArchivo}, ${usuario.esAlumnoActivo() ? '/recurso/resaltados/' + material.clave : null})}"></th:block>
                 </th:block>
 
                 <!-- Sin archivo -->
@@ -67,6 +96,16 @@
                     <p>Cuando el docente cargue el archivo en un formato compatible, vas a poder verlo acá.</p>
                 </div>
             </section>
+
+            <!-- Contenido editable de un material generado con IA, escrito directamente sobre el documento: cada cambio se guarda en el momento y
+                 "Guardar cambios" actualiza el archivo -->
+            <section class="pn-card ce-hoja" th:if="${modoEdicion}" data-contenido th:attr="data-url=@{'/recurso/contenido/' + ${material.clave}}">
+                <h1 class="ce-titulo" contenteditable="true" spellcheck="true" data-titulo-documento data-ph="Título del documento" th:text="${material.titulo}">Título</h1>
+                <div data-contenido-secciones></div>
+                <div class="pn-ayuda-error" data-contenido-error></div>
+                <button type="button" class="ce-agregar" data-contenido-agregar-seccion><i class="fa-solid fa-plus"></i> Agregar sección</button>
+                <p class="ce-nota">Editás el documento directamente, con su título; los cambios se guardan y el archivo se actualiza con «Guardar cambios». Con el botón de sangría de cada sección la pasás al nivel siguiente (hasta el 4). Solo se edita mientras el material está oculto.</p>
+            </section>
         </main>
 
         <th:block th:replace="~{fragments/layout/panel :: pie(${esAdministrador ? 'Panel del administrador' : 'Gestión académica'})}"></th:block>
@@ -74,8 +113,9 @@
 </div>
 
 <th:block th:replace="~{fragments/layout/panel :: scripts}"></th:block>
-<script th:if="${formato == 'pdf'}" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script th:if="${formato == 'pdf'}" th:src="@{/js/pages/recurso/visor.js}"></script>
+<script th:if="${formato == 'pdf' and !modoEdicion}" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script th:if="${formato == 'pdf' and !modoEdicion}" th:src="@{/js/pages/recurso/visor.js}"></script>
 <script th:src="@{/js/pages/recurso/proteccion.js}"></script>
+<script th:if="${puedeEditarContenido}" th:src="@{/js/pages/recurso/contenidoGenerado.js}"></script>
 </body>
 </html>

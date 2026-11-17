@@ -102,7 +102,7 @@ public class Cohorte {
 
     /** Participaciones docente que referencian a este registro. */
     @OneToMany(mappedBy = "cohortePorDefecto", cascade = CascadeType.ALL)
-    private Set<DocenteCurso> participacionesDocente = new HashSet<>();
+    private Set<IntegranteEquipo> participacionesDocente = new HashSet<>();
 
     /** Crea la cohorte con los datos básicos. */
     public Cohorte(Programa programa, LocalDateTime fechaInicioInscripcion, LocalDateTime fechaFinInscripcion, int accesoDias) {

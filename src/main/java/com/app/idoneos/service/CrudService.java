@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio genérico con las operaciones básicas de un CRUD. */
-public interface CrudService<T> {
+public interface CrudService<T, ID> {
 
     /**
      * Guarda una entidad en el sistema.
@@ -20,7 +20,7 @@ public interface CrudService<T> {
      * @param id el ID de la entidad a buscar
      * @return un {@link Optional} que contiene la entidad si se encuentra, o {@link Optional#empty()} si no existe
      */
-    Optional<T> buscarPorId(Integer id);
+    Optional<T> buscarPorId(ID id);
 
     /**
      * Obtiene todas las entidades almacenadas en el sistema.
@@ -50,5 +50,5 @@ public interface CrudService<T> {
      * @param id el ID de la entidad
      * @return {@code true} si la entidad existe, {@code false} si no existe
      */
-    boolean existePorId(Integer id);
+    boolean existePorId(ID id);
 }

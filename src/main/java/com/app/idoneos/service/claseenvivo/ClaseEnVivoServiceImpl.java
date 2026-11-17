@@ -1,5 +1,7 @@
 package com.app.idoneos.service.claseenvivo;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,7 +37,7 @@ import com.app.idoneos.model.ClaseEnVivo;
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.EstadoClaseEnVivo;
 import com.app.idoneos.model.EstadoCohorte;
 import com.app.idoneos.model.Grabacion;
@@ -47,7 +49,7 @@ import com.app.idoneos.model.Tema;
 import com.app.idoneos.model.TemaRecurso;
 import com.app.idoneos.repository.ClaseEnVivoRepository;
 import com.app.idoneos.repository.CohorteRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.EstadoClaseEnVivoRepository;
 import com.app.idoneos.repository.GrabacionRepository;
 import com.app.idoneos.repository.InscripcionRepository;
@@ -66,6 +68,15 @@ import com.app.idoneos.util.RespuestaFormularioUtil;
 /** Implementación de ClaseEnVivoService. */
 @Service
 public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
+
+    /** Formato de la fecha y la hora de una clase en los avisos. */
+    private static final java.time.format.DateTimeFormatter FORMATO_AVISO = java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy 'a las' HH:mm");
+
+    /** Días de anticipación con los que se avisa que una grabación está por vencer. */
+    private static final int DIAS_DE_AVISO_DE_VENCIMIENTO = 7;
 
     /** Largo máximo del título de la clase. */
     private static final int LONGITUD_TITULO = 50;
@@ -97,7 +108,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
     private TemaRepository temaRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     @Autowired
     private RecursoRepository recursoRepository;
@@ -257,7 +268,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
                     + "inscripción próxima, abierta, pendiente de contenido o en dictado.");
         }
         Curso curso = cohorte.getCurso();
-        DocenteCurso participacion = obtenerParticipacion(curso, docente);
+        IntegranteEquipo participacion = obtenerParticipacion(curso, docente);
         if (!curso.incluyeModalidad(Modalidad.EN_VIVO)) {
             throw RespuestaFormularioUtil.armarCampoInvalido("idCohorte",
                     "Error! El curso no tiene habilitada la modalidad en vivo.");
@@ -270,7 +281,11 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
 
         ClaseEnVivo clase = new ClaseEnVivo(participacion, estado(EstadoClaseEnVivo.PROGRAMADA), tema, cohorte,
                 datos.titulo(), datos.inicio(), datos.cierre());
-        return claseEnVivoRepository.save(clase);
+        clase = claseEnVivoRepository.save(clase);
+        avisarAlumnos(clase, TipoNotificacion.CLASE_PROGRAMADA, "Nueva clase en vivo: " + clase.getTitulo(),
+                "Se programó la clase «" + clase.getTitulo() + "» de «" + curso.getNombre() + "» para el "
+                        + clase.getFechaHoraInicio().format(FORMATO_AVISO) + ".");
+        return clase;
     }
 
     // ----------------------------------------------------------------------
@@ -289,11 +304,18 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
     public ClaseEnVivo modificar(Integer idClaseEnVivo, Docente docente, SolicitudClaseEnVivo solicitud) {
         ClaseEnVivo clase = claseProgramadaDelDocente(idClaseEnVivo, docente);
         Datos datos = leer(solicitud, clase.getCohorte(), docente, clase);
+        boolean cambioElHorario = !clase.getFechaHoraInicio().equals(datos.inicio()) || !clase.getFechaHoraCierre().equals(datos.cierre());
         clase.setTitulo(datos.titulo());
         clase.setFechaHoraInicio(datos.inicio());
         clase.setFechaHoraCierre(datos.cierre());
         clase.setUltimaModificacion(LocalDateTime.now());
-        return claseEnVivoRepository.save(clase);
+        clase = claseEnVivoRepository.save(clase);
+        if (cambioElHorario) {
+            avisarAlumnos(clase, TipoNotificacion.CLASE_MODIFICADA, "Cambió el horario de una clase en vivo",
+                    "La clase «" + clase.getTitulo() + "» de «" + clase.getCohorte().getCurso().getNombre() + "» cambió su horario: ahora es el "
+                            + clase.getFechaHoraInicio().format(FORMATO_AVISO) + ".");
+        }
+        return clase;
     }
 
     /** Cancela una clase programada que todavía no se transmitió. */
@@ -317,6 +339,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
             clase.setEstadoClaseEnVivo(cancelada);
             clase.setUltimaModificacion(ahora);
             claseEnVivoRepository.save(clase);
+            avisarCancelacion(clase, "El docente la canceló.");
         }
     }
 
@@ -336,6 +359,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
             clase.setEstadoClaseEnVivo(cancelada);
             clase.setUltimaModificacion(ahora);
             claseEnVivoRepository.save(clase);
+            avisarCancelacion(clase, "No se inició a tiempo.");
         }
         return vencidas.size();
     }
@@ -573,6 +597,51 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
         return eliminadas;
     }
 
+    /** Avisa a los alumnos, una sola vez, que la grabación de una clase vence dentro de los próximos días. Se revisa cada hora. */
+    @Scheduled(fixedDelay = 3_600_000, initialDelay = 180_000)
+    @Transactional
+    public void avisarGrabacionesPorVencer() {
+        try {
+            LocalDate hoy = LocalDate.now();
+            for (ClaseEnVivo clase : claseEnVivoRepository
+                    .findByGrabacionIsNotNullAndFechaVencimientoGrabacionBefore(hoy.plusDays(DIAS_DE_AVISO_DE_VENCIMIENTO + 1L))) {
+                LocalDate vencimiento = clase.getFechaVencimientoGrabacion();
+                if (vencimiento.isBefore(hoy) || clase.getGrabacion().getRecurso().esInactivo()) {
+                    continue;
+                }
+                String mensaje = "La grabación de la clase «" + clase.getTitulo() + "» vence el "
+                        + vencimiento.format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + ". Mirala antes de que se elimine.";
+                avisarAlumnos(clase, TipoNotificacion.GRABACION_POR_VENCER, "Una grabación está por vencer", mensaje, true);
+            }
+        } catch (RuntimeException e) {
+            REGISTRO.warn("No se pudieron avisar las grabaciones por vencer", e);
+        }
+    }
+
+    /** Avisa a los alumnos de la cohorte que se canceló una clase, con el motivo. */
+    private void avisarCancelacion(ClaseEnVivo clase, String motivo) {
+        avisarAlumnos(clase, TipoNotificacion.CLASE_CANCELADA, "Se canceló una clase en vivo",
+                "Se canceló la clase «" + clase.getTitulo() + "» de «" + clase.getCohorte().getCurso().getNombre() + "» que estaba programada para el "
+                        + clase.getFechaHoraInicio().format(FORMATO_AVISO) + ". " + motivo);
+    }
+
+    /** Avisa por la bandeja y por correo a los alumnos inscriptos en la cohorte de la clase. */
+    private void avisarAlumnos(ClaseEnVivo clase, String tipo, String asunto, String mensaje) {
+        avisarAlumnos(clase, tipo, asunto, mensaje, false);
+    }
+
+    /** Avisa a los alumnos inscriptos en la cohorte de la clase. Con "sinRepetir" no se le avisa dos veces lo mismo a un alumno. */
+    private void avisarAlumnos(ClaseEnVivo clase, String tipo, String asunto, String mensaje, boolean sinRepetir) {
+        for (com.app.idoneos.model.Inscripcion inscripcion : inscripcionRepository.findByCohorteAndBajaFalse(clase.getCohorte())) {
+            com.app.idoneos.model.Usuario alumno = inscripcion.getAlumno().getUsuario();
+            if (alumno.esInactivo() || (sinRepetir && notificacionService.yaNotificado(alumno, tipo, mensaje))) {
+                continue;
+            }
+            notificacionService.notificar(alumno, tipo, asunto, mensaje, "/inscripcion/acceder/" + inscripcion.getIdInscripcion(),
+                    clase.getCohorte(), true);
+        }
+    }
+
     /** Cancela una clase que se inició pero de la que nunca llegó señal. */
     private void cancelarSinSenal(ClaseEnVivo clase) {
         clase.setEstadoClaseEnVivo(estado(EstadoClaseEnVivo.CANCELADA));
@@ -580,6 +649,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
         claseEnVivoRepository.save(clase);
         chatService.cerrar(clase.getIdClaseEnVivo());
         ultimaSenal.remove(clase.getIdClaseEnVivo());
+        avisarCancelacion(clase, "No llegó la señal de la transmisión.");
     }
 
     /**
@@ -643,7 +713,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
             }
             // Si la señal se cortó y volvió hay un archivo por cada tramo, y se publica el más largo
             Path origen = archivos.stream().max(java.util.Comparator.comparingLong(a -> a.toFile().length())).orElseThrow();
-            Docente docente = clase.getDocenteCurso().getDocente();
+            Docente docente = clase.getIntegranteEquipo().getDocente();
             Recurso recurso = new Recurso(docente, "Grabación: " + clase.getTitulo());
             recurso.setFechaAceptacionTyc(LocalDateTime.now());
             recurso = recursoRepository.saveAndFlush(recurso);
@@ -666,7 +736,7 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
             Tema tema = clase.getTema();
             int orden = temaRecursoRepository.findByTemaAndBajaFalse(tema).stream().mapToInt(TemaRecurso::getNumeroOrden).max()
                     .orElse(0) + 1;
-            TemaRecurso publicacion = temaRecursoRepository.save(new TemaRecurso(tema, recurso, clase.getDocenteCurso(), orden));
+            TemaRecurso publicacion = temaRecursoRepository.save(new TemaRecurso(tema, recurso, clase.getIntegranteEquipo(), orden));
             tema.getTemasRecurso().add(publicacion);
             recurso.getTemasRecurso().add(publicacion);
 
@@ -676,6 +746,8 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
             clase.setFechaVencimientoGrabacion(LocalDate.now().plusMonths(meses));
             claseEnVivoRepository.save(clase);
             streamingService.borrarGrabaciones(clase);
+            avisarAlumnos(clase, TipoNotificacion.GRABACION_DISPONIBLE, "Ya está la grabación de una clase",
+                    "La grabación de la clase «" + clase.getTitulo() + "» ya está disponible en el tema «" + tema.getTitulo() + "».");
         } catch (IOException | RuntimeException e) {
             REGISTRO.error("No se pudo publicar la grabación de la clase {}", clase.getIdClaseEnVivo(), e);
         }
@@ -691,16 +763,16 @@ public class ClaseEnVivoServiceImpl implements ClaseEnVivoService {
     }
 
     private boolean participaEnElCurso(Curso curso, Docente docente) {
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .anyMatch(p -> p.getDocente().getIdDocente() == docente.getIdDocente());
     }
 
     /** Verifica que el docente participe en el curso (como titular o ayudante) y devuelve su participación. */
-    private DocenteCurso obtenerParticipacion(Curso curso, Docente docente) {
+    private IntegranteEquipo obtenerParticipacion(Curso curso, Docente docente) {
         if (docente == null) {
             throw new IllegalArgumentException("Error! El usuario no tiene el rol de docente.");
         }
-        return docenteCursoRepository.findByCursoAndBajaFalse(curso).stream()
+        return integranteEquipoRepository.findByCursoAndBajaFalse(curso).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! No participás en este curso."));
     }

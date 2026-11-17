@@ -6,7 +6,7 @@ import com.app.idoneos.model.TipoReporte;
 import java.util.Optional;
 
 /** Servicio del tipo de reporte. */
-public interface TipoReporteService extends CrudService<TipoReporte> {
+public interface TipoReporteService extends CrudService<TipoReporte, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

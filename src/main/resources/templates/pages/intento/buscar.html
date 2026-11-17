@@ -66,7 +66,11 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="f : ${filas}" data-fila
+                            <th:block th:each="f, fIt : ${filas}">
+                            <th:block th:if="${agrupar == true and (fIt.first or clavesGrupo[fIt.index] != clavesGrupo[fIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[fIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[fIt.index], 0L)}, 'intento', 'intentos')}"></tr>
+                            </th:block>
+                            <tr data-fila
                                 th:with="i=${f.intento}, puedeAprobarEste=${puedeAprobar and i.estaFinalizado() and !i.aprobado}"
                                 th:data-f-alumno="${i.inscripcion.alumno.usuario.nombreCompleto + ' ' + i.inscripcion.alumno.usuario.dni + ' ' + i.inscripcion.alumno.usuario.correo}"
                                 th:data-f-cohorte="${i.inscripcion.cohorte.idCohorte}"
@@ -111,6 +115,7 @@
                                           th:action="@{'/intento/aprobar/' + ${i.idIntentoAutoevaluacion}}" method="post" class="form-ajax d-none"></form>
                                 </td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(10, 'fa-clipboard-check', ${#lists.isEmpty(filas) ? 'Todavía no hay intentos' : 'No se encontraron intentos'}, ${#lists.isEmpty(filas) ? 'Cuando los alumnos rindan las autoevaluaciones, vas a ver sus intentos acá.' : 'Ningún intento coincide con los criterios ingresados.'})}"></tr>
                         </tbody>
                     </table>

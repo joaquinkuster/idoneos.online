@@ -1,19 +1,21 @@
 package com.app.idoneos.service.cohorte;
 
+import com.app.idoneos.model.TipoNotificacion;
+import com.app.idoneos.service.notificacion.NotificacionService;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import com.app.idoneos.model.Cohorte;
 import com.app.idoneos.model.Curso;
 import com.app.idoneos.model.Docente;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.EstadoCohorte;
 import com.app.idoneos.model.Modalidad;
 import com.app.idoneos.model.Parametro;
 import com.app.idoneos.model.Programa;
 import com.app.idoneos.repository.CohorteRepository;
 import com.app.idoneos.repository.CursoRepository;
-import com.app.idoneos.repository.DocenteCursoRepository;
+import com.app.idoneos.repository.IntegranteEquipoRepository;
 import com.app.idoneos.repository.EstadoCohorteRepository;
 import com.app.idoneos.repository.ParametroRepository;
 import com.app.idoneos.repository.ProgramaRepository;
@@ -38,6 +40,12 @@ import com.app.idoneos.repository.*;
 @Service
 public class CohorteServiceImpl implements CohorteService {
 
+    @org.springframework.beans.factory.annotation.Autowired
+    private NotificacionService notificacionService;
+
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.app.idoneos.repository.RecordatorioCohorteRepository recordatorioCohorteRepository;
+
     @Autowired
     private CohorteRepository cohorteRepository;
 
@@ -60,7 +68,7 @@ public class CohorteServiceImpl implements CohorteService {
     private com.app.idoneos.repository.InscripcionRepository inscripcionRepository;
 
     @Autowired
-    private DocenteCursoRepository docenteCursoRepository;
+    private IntegranteEquipoRepository integranteEquipoRepository;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -98,7 +106,7 @@ public class CohorteServiceImpl implements CohorteService {
         String criterio = texto == null ? "" : texto.trim().toLowerCase();
         // Un docente solo recorre las cohortes de sus cursos (se piden a la base), no todas las del sistema
         List<Cohorte> candidatas = soloDeDocente == null ? cohorteRepository.findAll()
-                : cohorteRepository.findByCursoIn(docenteCursoRepository.findByDocenteAndBajaFalse(soloDeDocente).stream()
+                : cohorteRepository.findByCursoIn(integranteEquipoRepository.findByDocenteAndBajaFalse(soloDeDocente).stream()
                         .map(participacion -> participacion.getCurso()).distinct().toList());
         return candidatas.stream()
                 .filter(cohorte -> idPrograma == null
@@ -296,6 +304,21 @@ public class CohorteServiceImpl implements CohorteService {
     private void activar(Cohorte cohorte, LocalDateTime ahora) {
         cohorte.setEstadoCohorte(estadoCohorteRepository.findByNombre(EstadoCohorte.PROXIMA).orElseThrow());
         moverAlEstadoDeLasFechas(cohorte, ahora);
+        // Avisa a los administradores y a los alumnos que pidieron un recordatorio de esta cohorte
+        String curso = cohorte.getCurso().getNombre();
+        String mensaje = "La cohorte «" + cohorte.getEtiqueta() + "» de «" + curso + "» completó su contenido y ya está publicada.";
+        notificacionService.notificarAAdministradores(TipoNotificacion.COHORTE_ACTIVADA, "Cohorte activada", mensaje, "/cohorte/buscar", cohorte, false);
+        avisarAlumnosConRecordatorio(cohorte, TipoNotificacion.COHORTE_ACTIVADA, "Cohorte activada", mensaje);
+    }
+
+    /** Avisa a los alumnos que pidieron un recordatorio de la cohorte, por la bandeja y por correo. */
+    private void avisarAlumnosConRecordatorio(Cohorte cohorte, String tipo, String asunto, String mensaje) {
+        recordatorioCohorteRepository.findByCohorteAndBajaFalse(cohorte).forEach(recordatorio -> {
+            com.app.idoneos.model.Usuario alumno = recordatorio.getAlumno().getUsuario();
+            if (!alumno.esInactivo()) {
+                notificacionService.notificar(alumno, tipo, asunto, mensaje, "/catalogo/ficha/" + cohorte.getCurso().getIdCurso(), cohorte, true);
+            }
+        });
     }
 
     /** Deja a la cohorte (que no esté pendiente ni cancelada) en el estado que le corresponde por sus fechas y por si queda alguna inscripción en juego. */
@@ -327,6 +350,21 @@ public class CohorteServiceImpl implements CohorteService {
         return cambiadas;
     }
 
+    /** Avisa a los docentes del curso, a los administradores y a los alumnos con recordatorio que la cohorte se canceló. */
+    private void avisarCancelacion(Cohorte cohorte) {
+        String mensaje = "La cohorte «" + cohorte.getEtiqueta() + "» de «" + cohorte.getCurso().getNombre()
+                + "» se canceló: llegó su inicio de inscripción sin el contenido completo.";
+        String url = "/cohorte/buscar?cursoId=" + cohorte.getCurso().getIdCurso();
+        cohorte.getCurso().getEquipoDocente().forEach(integrante -> {
+            if (!integrante.getDocente().getUsuario().esInactivo()) {
+                notificacionService.notificar(integrante.getDocente().getUsuario(), TipoNotificacion.COHORTE_CANCELADA, "Cohorte cancelada",
+                        mensaje, url, cohorte, true);
+            }
+        });
+        notificacionService.notificarAAdministradores(TipoNotificacion.COHORTE_CANCELADA, "Cohorte cancelada", mensaje, url, cohorte, false);
+        avisarAlumnosConRecordatorio(cohorte, TipoNotificacion.COHORTE_CANCELADA, "Cohorte cancelada", mensaje);
+    }
+
     /** Cancela las cohortes pendientes que llegaron a su inicio de inscripción sin el contenido completo. */
     @Override
     @Transactional
@@ -340,6 +378,7 @@ public class CohorteServiceImpl implements CohorteService {
                 cohorte.setUltimaModificacion(ahora);
                 cohorteRepository.save(cohorte);
                 canceladas++;
+                avisarCancelacion(cohorte);
             }
         }
         return canceladas;
@@ -369,13 +408,13 @@ public class CohorteServiceImpl implements CohorteService {
         if (cohorte.esCancelada()) {
             throw new IllegalArgumentException("Error! La cohorte está cancelada.");
         }
-        DocenteCurso participacion = docenteCursoRepository
+        IntegranteEquipo participacion = integranteEquipoRepository
                 .findByCursoAndBajaFalse(cohorte.getCurso()).stream()
                 .filter(p -> p.getDocente().getIdDocente() == docente.getIdDocente()).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Error! El docente no participa en el curso de la cohorte."));
         participacion.setCohortePorDefecto(cohorte);
         participacion.setUltimaModificacion(LocalDateTime.now());
-        docenteCursoRepository.save(participacion);
+        integranteEquipoRepository.save(participacion);
     }
 
     // ----------------------------------------------------------------------

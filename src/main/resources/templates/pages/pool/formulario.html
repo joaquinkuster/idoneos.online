@@ -42,6 +42,15 @@
                        th:value="${pool != null ? pool.nombre : ''}" data-mensaje-obligatorio="Debe completar el nombre.">
                 <div class="pn-ayuda-error"></div>
             </div>
+            <div class="pn-campo" th:if="${pool != null and pool.generadoPorIa}" data-resumen-omitir
+                 th:classappend="${pool.detalleError != null and !#strings.isEmpty(pool.detalleError)} ? 'col-md-4' : 'col-12'">
+                <label class="pn-etiqueta">Estado de generación</label>
+                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${pool.estadoGeneracionIa.nombre}">
+            </div>
+            <div class="col-md-8 pn-campo" th:if="${pool != null and pool.generadoPorIa and pool.detalleError != null and !#strings.isEmpty(pool.detalleError)}" data-resumen-omitir>
+                <label class="pn-etiqueta">Detalle del error</label>
+                <input type="text" class="pn-input pn-bloqueado" readonly tabindex="-1" th:value="${pool.detalleError}" th:title="${pool.detalleError}">
+            </div>
         </div>
     </div>
 
@@ -49,16 +58,11 @@
     <div class="pn-paso" data-grupo="Preguntas">
         <div class="pn-seccion-titulo">
             <h4>Preguntas del pool</h4>
-            <p>Cada pregunta es de opción única, de opción múltiple o de verdadero o falso</p>
+            <p>Elegí una pregunta para editarla o agregá una nueva; cada una es de opción única, de opción múltiple o de verdadero o falso</p>
         </div>
         <div class="pl-editor" data-pool-editor th:attr="data-pool=${datos}">
-            <div class="pl-cabecera">
-                <span class="pn-celda-secundaria" data-total-preguntas>0 preguntas</span>
-                <button type="button" class="pn-btn pn-btn-contorno pn-btn-chico" data-agregar-pregunta>
-                    <i class="fa-solid fa-plus"></i> Agregar pregunta
-                </button>
-            </div>
-            <div class="pl-lista" data-pl-lista></div>
+            <span class="d-none" data-total-preguntas></span>
+            <div data-pl-lista></div>
             <div class="pl-resumen-oculto" data-pl-resumen></div>
             <input type="hidden" name="preguntas" data-pl-preguntas>
         </div>
@@ -77,7 +81,7 @@
         <button type="button" class="pn-btn pn-btn-contorno pn-pie-izquierda" data-paso-anterior>Anterior</button>
         <button type="button" class="pn-btn pn-btn-secundario" data-bs-dismiss="modal">Cancelar</button>
         <button type="button" class="pn-btn pn-btn-primario" data-paso-siguiente>Siguiente</button>
-        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar
+        <button type="submit" class="pn-btn pn-btn-primario d-none" data-paso-guardar th:disabled="${pool != null and !pool.estaDisponible()}"
                 th:text="${pool == null ? 'Confirmar y guardar' : 'Confirmar cambios'}">Confirmar y guardar</button>
     </div>
 </form>

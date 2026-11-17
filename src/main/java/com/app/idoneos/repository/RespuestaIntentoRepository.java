@@ -7,6 +7,6 @@ import com.app.idoneos.model.RespuestaIntento;
 
 /** Repositorio de RespuestaIntento. */
 @Repository
-public interface RespuestaIntentoRepository extends JpaRepository<RespuestaIntento, Integer> {
+public interface RespuestaIntentoRepository extends JpaRepository<RespuestaIntento, RespuestaIntento.Clave> {
 
 }

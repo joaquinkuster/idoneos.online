@@ -1,33 +1,45 @@
 package com.app.idoneos.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** Entidad que representa la opción elegida por el alumno para una pregunta de un intento de autoevaluación. */
 @Entity
-@Table(name = "RespuestaIntento", uniqueConstraints = { @UniqueConstraint(columnNames = {"idPreguntaIntento", "idOpcionRespuesta"}) })
+@Table(name = "RespuestaIntento")
+@IdClass(RespuestaIntento.Clave.class)
 @Getter
 @Setter
 @NoArgsConstructor
 public class RespuestaIntento {
 
-    /** Identificador único de la respuesta del intento. */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idRespuestaIntento")
-    private int idRespuestaIntento;
-
-    /** Pregunta intento de este registro. */
-    @ManyToOne
-    @JoinColumn(name = "idPreguntaIntento", nullable = false)
-    private PreguntaIntento preguntaIntento;
+    /** Clave primaria compuesta de la respuesta de un intento. */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Clave implements Serializable {
+        private int opcionRespuesta;
+        private PreguntaIntento.Clave preguntaIntento;
+    }
 
     /** Opcion respuesta de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idOpcionRespuesta", nullable = false)
     private OpcionRespuesta opcionRespuesta;
+
+    /** Pregunta intento de este registro. */
+    @Id
+    @ManyToOne
+    @JoinColumns({
+            @JoinColumn(name = "id_intento_autoevaluacion", referencedColumnName = "id_intento_autoevaluacion", nullable = false),
+            @JoinColumn(name = "id_pregunta", referencedColumnName = "id_pregunta", nullable = false) })
+    private PreguntaIntento preguntaIntento;
 
     /** Crea la respuesta del intento con los datos básicos. */
     public RespuestaIntento(PreguntaIntento preguntaIntento, OpcionRespuesta opcionRespuesta) {
@@ -43,6 +55,6 @@ public class RespuestaIntento {
     /** Devuelve una representación en forma de cadena de la respuesta del intento. */
     @Override
     public String toString() {
-        return "RespuestaIntento #" + idRespuestaIntento;
+        return "RespuestaIntento #" + preguntaIntento + "-" + opcionRespuesta.getIdOpcionRespuesta();
     }
 }

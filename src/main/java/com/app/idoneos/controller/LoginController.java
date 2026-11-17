@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.app.idoneos.config.AccesoComponent;
+import com.app.idoneos.controller.advice.ContextoSesionAdvice;
+import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.sesion.SesionService;
 import com.app.idoneos.service.usuario.UsuarioService;
 
@@ -21,6 +23,9 @@ public class LoginController {
 
     @Autowired
     private SesionService sesionService;
+
+    @Autowired
+    private AccesoComponent accesoComponent;
 
     // ----------------------------------------------------------------------
     // Lecturas
@@ -43,6 +48,9 @@ public class LoginController {
             model.addAttribute("error", "Error! No se pudo ingresar con Google. La cuenta no se encuentra activa.");
         } else if ("google".equals(error)) {
             model.addAttribute("error", "Error! No se pudo ingresar con Google. Intentá nuevamente.");
+        } else if ("enlace".equals(error)) {
+            model.addAttribute("error", "Error! El enlace no es válido o venció. Si no recordás tu contraseña, pedí uno nuevo "
+                    + "desde «¿Olvidaste tu contraseña?».");
         } else if ("limiteSesiones".equals(error)) {
             int limite = sesionService.obtenerLimite();
             model.addAttribute("error", "Error! Alcanzaste el límite de " + limite + (limite == 1 ? " sesión activa" : " sesiones activas")
@@ -83,15 +91,25 @@ public class LoginController {
         return "pages/auth/google";
     }
 
-    /** GET /usuario/validarCorreo/{token}: Valida el correo de una cuenta con el enlace recibido y muestra el resultado. */
+    /** GET /usuario/validarCorreo/{token}: Valida el correo de una cuenta con el enlace recibido e inicia su sesión. */
     @GetMapping("/usuario/validarCorreo/{token}")
-    public String validarCorreo(@PathVariable("token") String token, Model model) {
+    public String validarCorreo(@PathVariable("token") String token, jakarta.servlet.http.HttpServletRequest request,
+            jakarta.servlet.http.HttpServletResponse response) {
+        Usuario usuario;
         try {
-            usuarioService.validarCorreo(token);
-            return resultado(model, true, "Correo validado",
-                    "Tu correo electrónico fue validado. Ya podés iniciar sesión con tu cuenta.");
+            usuario = usuarioService.validarCorreo(token);
         } catch (IllegalArgumentException e) {
-            return resultado(model, false, "No se pudo validar el correo", sinPrefijo(e.getMessage()));
+            return "redirect:/login?error=enlace";
+        }
+        accesoComponent.autenticar(request, response, usuario);
+        try {
+            String destino = accesoComponent.iniciarSesion(request, response, usuario, false);
+            request.getSession().setAttribute(ContextoSesionAdvice.MENSAJE_DE_SESION,
+                    "Correo validado correctamente. ¡Bienvenido/a, " + usuario.getNombre() + "!");
+            return "redirect:" + destino;
+        } catch (IllegalStateException e) {
+            accesoComponent.descartarAutenticacion(request);
+            return "redirect:/login?error=limiteSesiones";
         }
     }
 
@@ -104,7 +122,7 @@ public class LoginController {
             model.addAttribute("titulo", "Nueva contraseña | Idóneos Online");
             return "pages/auth/restablecer";
         } catch (IllegalArgumentException e) {
-            return resultado(model, false, "Enlace no disponible", sinPrefijo(e.getMessage()));
+            return "redirect:/login?error=enlace";
         }
     }
 
@@ -117,17 +135,4 @@ public class LoginController {
         return authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal());
     }
 
-    /** Prepara la pantalla corta que informa el resultado de un enlace del correo. */
-    private String resultado(Model model, boolean exito, String titulo, String mensaje) {
-        model.addAttribute("exito", exito);
-        model.addAttribute("tituloResultado", titulo);
-        model.addAttribute("mensajeResultado", mensaje);
-        model.addAttribute("titulo", titulo + " | Idóneos Online");
-        return "pages/auth/resultado";
-    }
-
-    /** Quita el prefijo "Error! " de un mensaje, que ya no hace falta en una pantalla propia. */
-    private String sinPrefijo(String mensaje) {
-        return mensaje == null ? "" : mensaje.replaceFirst("^Error!\\s*", "");
-    }
 }

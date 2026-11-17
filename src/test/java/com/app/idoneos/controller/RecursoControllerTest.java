@@ -208,8 +208,8 @@ class RecursoControllerTest {
         TemaRecurso material = materialRepository.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
 
-        mockMvc.perform(post("/recurso/modificar/" + material.getIdTemaRecurso()).param("titulo", "Guía actualizada")
-                .param("autor", "Autor nuevo").param("isbn", "978-0-00-000000-0").param("oculto", "true")).andExpect(status().isOk())
+        mockMvc.perform(post("/recurso/modificar/" + material.getClave()).param("titulo", "Guía actualizada")
+                .param("autor", "Autor nuevo").param("identificador", "978-0-00-000000-0").param("oculto", "true")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("modificado")));
 
         org.junit.jupiter.api.Assertions.assertEquals("Guía actualizada", material.getTitulo());
@@ -225,16 +225,16 @@ class RecursoControllerTest {
         TemaRecurso dos = materialRepository.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Borrador: ejercicios de duration")).findFirst().orElseThrow();
 
-        mockMvc.perform(post("/recurso/darDeBaja/" + uno.getIdTemaRecurso())).andExpect(status().isOk())
+        mockMvc.perform(post("/recurso/darDeBaja/" + uno.getClave())).andExpect(status().isOk())
                 .andExpect(jsonPath("$.mensaje").value(Matchers.containsString("dado de baja")));
         org.junit.jupiter.api.Assertions.assertTrue(uno.esInactivo());
 
         // uno ya está de baja: la baja masiva falla y no toca al otro
-        mockMvc.perform(post("/recurso/darDeBajaMasiva").param("ids", String.valueOf(uno.getIdTemaRecurso()))
-                .param("ids", String.valueOf(dos.getIdTemaRecurso()))).andExpect(status().isBadRequest());
+        mockMvc.perform(post("/recurso/darDeBajaMasiva").param("ids", String.valueOf(uno.getClave()))
+                .param("ids", String.valueOf(dos.getClave()))).andExpect(status().isBadRequest());
         org.junit.jupiter.api.Assertions.assertFalse(dos.esInactivo());
 
-        mockMvc.perform(post("/recurso/darDeBajaMasiva").param("ids", String.valueOf(dos.getIdTemaRecurso())))
+        mockMvc.perform(post("/recurso/darDeBajaMasiva").param("ids", String.valueOf(dos.getClave())))
                 .andExpect(status().isOk());
         org.junit.jupiter.api.Assertions.assertTrue(dos.esInactivo());
     }
@@ -246,7 +246,7 @@ class RecursoControllerTest {
         TemaRecurso material = materialRepository.findAll().stream()
                 .filter(m -> m.getTitulo().equals("Guía teórica de renta fija")).findFirst().orElseThrow();
 
-        mockMvc.perform(post("/recurso/darDeBaja/" + material.getIdTemaRecurso())).andExpect(status().isOk());
+        mockMvc.perform(post("/recurso/darDeBaja/" + material.getClave())).andExpect(status().isOk());
 
         org.junit.jupiter.api.Assertions.assertTrue(material.esInactivo());
     }

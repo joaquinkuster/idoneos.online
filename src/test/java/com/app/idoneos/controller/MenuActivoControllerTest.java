@@ -85,7 +85,7 @@ class MenuActivoControllerTest {
         materialRepository.findAll().stream().filter(m -> m.getCurso().getIdCurso() == cursoId).findFirst()
                 .ifPresent(m -> {
                     try {
-                        marca("/recurso/ver/" + m.getIdTemaRecurso(), "Recursos");
+                        marca("/recurso/ver/" + m.getClave(), "Recursos");
                     } catch (Exception e) {
                         throw new IllegalStateException(e);
                     }

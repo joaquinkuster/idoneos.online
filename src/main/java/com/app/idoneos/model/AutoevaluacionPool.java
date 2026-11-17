@@ -1,30 +1,39 @@
 package com.app.idoneos.model;
 
+import java.io.Serializable;
+
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /** Entidad que representa la relación entre una autoevaluación y un pool del que se extraen preguntas. */
 @Entity
-@Table(name = "AutoevaluacionPool", uniqueConstraints = { @UniqueConstraint(columnNames = {"idAutoevaluacion", "idPool"}) })
+@Table(name = "AutoevaluacionPool")
+@IdClass(AutoevaluacionPool.Clave.class)
 @Getter
 @Setter
 @NoArgsConstructor
 public class AutoevaluacionPool {
-
-    /** Identificador único de la relación entre autoevaluación y pool. */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idAutoevaluacionPool")
-    private int idAutoevaluacionPool;
+    /** Clave primaria compuesta de la relación entre autoevaluación y pool. */
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Clave implements Serializable {
+        private int autoevaluacion;
+        private int pool;
+    }
 
     /** Pool de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idPool", nullable = false)
     private Pool pool;
 
     /** Autoevaluacion de este registro. */
+    @Id
     @ManyToOne
     @JoinColumn(name = "idAutoevaluacion", nullable = false)
     private Autoevaluacion autoevaluacion;
@@ -38,6 +47,6 @@ public class AutoevaluacionPool {
     /** Devuelve una representación en forma de cadena de la relación entre autoevaluación y pool. */
     @Override
     public String toString() {
-        return "AutoevaluacionPool #" + idAutoevaluacionPool;
+        return "AutoevaluacionPool #" + autoevaluacion.getIdAutoevaluacion() + "-" + pool.getIdPool();
     }
 }

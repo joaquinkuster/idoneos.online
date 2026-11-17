@@ -1,6 +1,8 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.controller.component.PanelCursoComponent;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.service.inscripcion.InscripcionService;
@@ -18,13 +20,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.app.idoneos.model.Alumno;
 import com.app.idoneos.model.Curso;
-import com.app.idoneos.model.DocenteCurso;
+import com.app.idoneos.model.IntegranteEquipo;
 import com.app.idoneos.model.Inscripcion;
 import com.app.idoneos.model.Usuario;
 import com.app.idoneos.service.alumno.AlumnoService;
 import com.app.idoneos.service.cohorte.CohorteService;
 import com.app.idoneos.service.curso.CursoService.ContextoCurso;
-import com.app.idoneos.service.docentecurso.DocenteCursoService;
+import com.app.idoneos.service.integranteequipo.IntegranteEquipoService;
 
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class ParticipanteController {
     private InscripcionService inscripcionService;
 
     @Autowired
-    private DocenteCursoService docenteCursoService;
+    private IntegranteEquipoService integranteEquipoService;
 
     @Autowired
     private AlumnoService alumnoService;
@@ -62,7 +64,7 @@ public class ParticipanteController {
             ContextoCurso contexto = panel.contextoDelPanel(cursoId, usuario);
             Curso curso = contexto.curso();
             panel.cargarContexto(model, contexto, "docentes");
-            List<DocenteCurso> equipo = docenteCursoService.buscarEquipoPorCurso(curso);
+            List<IntegranteEquipo> equipo = integranteEquipoService.buscarEquipoPorCurso(curso);
             List<Alumno> alumnos = alumnoService.buscarPorCurso(curso);
             model.addAttribute("docentes", equipo);
             model.addAttribute("alumnos", alumnos);
@@ -98,7 +100,7 @@ public class ParticipanteController {
             Curso curso = inscripcion.getCohorte().getPrograma().getCurso();
             panel.cargarContexto(model, ContextoCurso.deAlumno(inscripcion), "docentes");
             model.addAttribute("inscripcion", inscripcion);
-            List<DocenteCurso> equipo = docenteCursoService.buscarEquipoPorCurso(curso);
+            List<IntegranteEquipo> equipo = integranteEquipoService.buscarEquipoPorCurso(curso);
             List<Alumno> alumnos = alumnoService.buscarPorCohorte(inscripcion.getCohorte());
             model.addAttribute("docentes", equipo);
             model.addAttribute("alumnos", alumnos);
@@ -123,16 +125,19 @@ public class ParticipanteController {
     // ----------------------------------------------------------------------
 
     /** Una fila del listado: un docente del equipo o un alumno con su inscripción. */
-    public record FilaParticipante(DocenteCurso docente, Alumno alumno, Inscripcion inscripcion) {
+    public record FilaParticipante(IntegranteEquipo docente, Alumno alumno, Inscripcion inscripcion) {
     }
 
     /** Arma una sola lista con el equipo docente y los alumnos, y deja en el modelo los datos del paginador. */
-    private List<FilaParticipante> paginar(Model model, jakarta.servlet.http.HttpServletRequest request, List<DocenteCurso> equipo,
+    private List<FilaParticipante> paginar(Model model, jakarta.servlet.http.HttpServletRequest request, List<IntegranteEquipo> equipo,
             List<Alumno> alumnos, Curso curso) {
         List<FilaParticipante> todas = new java.util.ArrayList<>();
         equipo.forEach(d -> todas.add(new FilaParticipante(d, null, null)));
         alumnos.forEach(a -> todas.add(new FilaParticipante(null, a, a.getInscripcionActivaEn(curso))));
-        PaginacionUtil.Pagina<FilaParticipante> pagina = Filtros.tabla.paginar(todas, request.getParameterMap());
+        // Por cohorte, con el equipo docente arriba de los alumnos de cada una
+        PaginacionUtil.Pagina<FilaParticipante> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, todas, request.getParameterMap(), request, model,
+                f -> f.docente() != null ? "Equipo docente" : (f.inscripcion() == null ? "Sin cohorte" : f.inscripcion().getCohorte().getEtiqueta()),
+                f -> f.docente() != null, null, null, "cohorte", "programa");
         PaginacionUtil.cargarEnModelo(model, pagina);
         return pagina.filas();
     }

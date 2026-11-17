@@ -54,7 +54,7 @@
             <!-- Foto de perfil: solo al modificar. Sin foto nueva, se conserva la actual -->
             <div class="col-12 pn-campo" th:if="${u != null}">
                 <label class="pn-etiqueta">Foto de perfil (opcional)</label>
-                <input type="file" name="imagen" class="pn-input pn-input-archivo imagen-curso" accept="image/jpeg,image/png,image/webp">
+                <input type="file" name="imagen" class="pn-input pn-input-archivo imagen-curso" accept="image/jpeg,image/png,image/webp" data-comprimir-imagen>
                 <img class="pn-vista-previa mt-2 us-foto" alt="Foto de perfil" th:classappend="${u.urlImagen == null} ? 'd-none'"
                      th:src="${u.urlImagen != null} ? @{${u.urlImagen}}" th:attr="data-original=${u.urlImagen}">
                 <div class="form-check us-quitar-foto" th:if="${u.urlImagen != null}">
@@ -62,9 +62,6 @@
                     <label class="form-check-label" th:for="${'quitarImagen' + u.idUsuario}">Quitar la foto actual</label>
                 </div>
                 <div class="pn-ayuda-error"></div>
-            </div>
-            <div class="col-12" th:if="${u == null}">
-                <p class="us-nota">El usuario recibirá un correo con un enlace para definir su contraseña.</p>
             </div>
         </div>
     </div>
@@ -77,26 +74,14 @@
         </div>
         <div class="pn-campo">
             <label class="pn-etiqueta">Roles <span class="pn-obligatorio">*</span></label>
-            <div class="us-roles">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles" value="Alumno" th:id="${'rolAlumno' + (u != null ? u.idUsuario : 0)}"
-                           th:checked="${u != null and u.tieneRol('Alumno')}">
-                    <label class="form-check-label" th:for="${'rolAlumno' + (u != null ? u.idUsuario : 0)}">Alumno</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles" value="Docente" th:id="${'rolDocente' + (u != null ? u.idUsuario : 0)}"
-                           th:checked="${esDocente}">
-                    <label class="form-check-label" th:for="${'rolDocente' + (u != null ? u.idUsuario : 0)}">Docente</label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="roles" value="Administrador" th:id="${'rolAdministrador' + (u != null ? u.idUsuario : 0)}">
-                    <label class="form-check-label" th:for="${'rolAdministrador' + (u != null ? u.idUsuario : 0)}">Administrador</label>
-                </div>
-            </div>
+            <select name="roles" class="ts-multiselect" multiple placeholder="Seleccioná los roles" required
+                    data-mensaje-obligatorio="Debe seleccionar al menos un rol.">
+                <option value="Alumno" th:selected="${u != null and u.tieneRol('Alumno')}">Alumno</option>
+                <option value="Docente" th:selected="${esDocente}">Docente</option>
+                <option value="Administrador">Administrador</option>
+            </select>
             <div class="pn-ayuda-error"></div>
-            <span class="us-resumen" data-resumen-linea="Roles" data-resumen-roles></span>
         </div>
-        <p class="us-nota us-nota-alerta d-none" data-nota-admin>Las cuentas de administrador no se pueden modificar después de registradas.</p>
     </div>
 
     <!-- Paso 3: datos profesionales. Solo aparece si se marcó el rol Docente. -->
@@ -117,23 +102,23 @@
             </div>
             <div class="col-md-6 pn-campo">
                 <label class="pn-etiqueta">Años de experiencia <span class="pn-obligatorio">*</span></label>
-                <input type="number" name="aniosExperiencia" class="pn-input" min="0" step="1" placeholder="Años de experiencia" required
+                <input type="number" name="aniosExperiencia" class="pn-input" min="0" max="60" step="1" placeholder="Años de experiencia" required
                        th:value="${docente != null ? docente.aniosExperiencia : null}">
                 <div class="pn-ayuda-error"></div>
             </div>
             <div class="col-md-6 pn-campo">
+                <label class="pn-etiqueta">Habilitado para dictar clases <span class="pn-obligatorio">*</span></label>
+                <select name="habilitado" class="pn-input" required>
+                    <option value="true" th:selected="${docente == null or docente.habilitado}">Sí</option>
+                    <option value="false" th:selected="${docente != null and !docente.habilitado}">No</option>
+                </select>
+                <div class="pn-ayuda-error"></div>
+            </div>
+            <div class="col-12 pn-campo">
                 <label class="pn-etiqueta">Matrícula de idóneo (opcional)</label>
                 <input type="text" name="matriculaCnv" class="pn-input" inputmode="numeric" maxlength="8" placeholder="Ej: 984"
                        th:value="${docente != null ? docente.matriculaCnv : null}">
                 <div class="pn-ayuda-error"></div>
-            </div>
-            <div class="col-12 pn-campo">
-                <div class="form-check form-switch us-habilitado">
-                    <input class="form-check-input" type="checkbox" role="switch" name="habilitado" value="true"
-                           th:id="${'habilitado' + (u != null ? u.idUsuario : 0)}" th:checked="${docente == null or docente.habilitado}">
-                    <label class="form-check-label" th:for="${'habilitado' + (u != null ? u.idUsuario : 0)}">Habilitado para dictar clases</label>
-                </div>
-                <span class="us-resumen" data-resumen-linea="Habilitado para dictar clases" data-resumen-habilitado></span>
             </div>
         </div>
     </div>
@@ -188,7 +173,7 @@
                 <div class="pn-temas-formulario-pie">
                     <button type="button" class="pn-btn pn-btn-primario pn-btn-ancho" data-titulo-aplicar>Agregar</button>
                     <button type="button" class="pn-btn pn-btn-contorno pn-btn-ancho" data-titulo-descartar hidden>Descartar cambios</button>
-                    <button type="button" class="pn-btn pn-btn-peligro pn-btn-ancho" data-titulo-quitar hidden>Quitar de la lista</button>
+                    <button type="button" class="pn-btn pn-btn-contorno pn-btn-ancho" data-titulo-quitar hidden>Quitar de la lista</button>
                 </div>
                 <div class="pn-campo">
                     <span class="us-resumen" data-resumen-linea="Títulos y matrículas" data-resumen-titulos></span>

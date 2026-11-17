@@ -10,7 +10,22 @@ BEGIN
     INSERT INTO tipo_notificacion (nombre) VALUES
         ('Cohorte activada'),
         ('Cohorte cancelada'),
-        ('Recordatorio de cohorte')
+        ('Recordatorio de cohorte'),
+        ('Nueva consulta de foro'),
+        ('Respuesta de foro'),
+        ('Pago aprobado'),
+        ('Pago rechazado'),
+        ('Certificado emitido'),
+        ('Intento aprobado'),
+        ('Intento anulado'),
+        ('Clase en vivo programada'),
+        ('Clase en vivo modificada'),
+        ('Clase en vivo cancelada'),
+        ('Grabación disponible'),
+        ('Grabación por vencer'),
+        ('Material para revisar'),
+        ('Generación fallida'),
+        ('Habilitación de docente')
     ON CONFLICT (nombre) DO NOTHING;
 END
 $do$ ^^^

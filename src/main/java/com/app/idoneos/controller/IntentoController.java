@@ -1,6 +1,8 @@
 package com.app.idoneos.controller;
 
 import com.app.idoneos.controller.component.PanelCursoComponent;
+import com.app.idoneos.util.AgrupacionListadoUtil;
+import com.app.idoneos.util.AgrupacionUtil;
 import com.app.idoneos.util.FiltroUtil;
 
 import com.app.idoneos.service.inscripcion.InscripcionService;
@@ -166,11 +168,11 @@ public class IntentoController {
     /** POST /intento/responder/{id}: Guarda la elección del alumno para una pregunta (sin opciones, la deja sin responder). */
     @PostMapping("/responder/{id}")
     public ResponseEntity<Map<String, Object>> responder(@PathVariable("id") Integer id,
-            @RequestParam(value = "preguntaIntentoId", required = false) Integer preguntaIntentoId,
+            @RequestParam(value = "preguntaId", required = false) Integer preguntaId,
             @RequestParam(value = "opcionIds", required = false) List<Integer> opcionIds, Authentication authentication) {
         try {
             return RespuestaFormularioUtil.armarRespuestaConDatos(estado(
-                    intentoService.responderPregunta(id, alumnoDe(authentication), preguntaIntentoId, opcionIds)));
+                    intentoService.responderPregunta(id, alumnoDe(authentication), preguntaId, opcionIds)));
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConErrorEnDatos(e);
         }
@@ -179,11 +181,11 @@ public class IntentoController {
     /** POST /intento/marcar/{id}: Marca o desmarca una pregunta para revisarla antes de entregar (solo con navegación libre). */
     @PostMapping("/marcar/{id}")
     public ResponseEntity<Map<String, Object>> marcar(@PathVariable("id") Integer id,
-            @RequestParam(value = "preguntaIntentoId", required = false) Integer preguntaIntentoId,
+            @RequestParam(value = "preguntaId", required = false) Integer preguntaId,
             @RequestParam(value = "marcada", defaultValue = "false") boolean marcada, Authentication authentication) {
         try {
             return RespuestaFormularioUtil.armarRespuestaConDatos(estado(
-                    intentoService.marcarPregunta(id, alumnoDe(authentication), preguntaIntentoId, marcada)));
+                    intentoService.marcarPregunta(id, alumnoDe(authentication), preguntaId, marcada)));
         } catch (Exception e) {
             return RespuestaFormularioUtil.armarRespuestaConErrorEnDatos(e);
         }
@@ -309,7 +311,8 @@ public class IntentoController {
                 parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
             }
             // El filtro, el orden por columna y la página los resuelve el servidor
-            PaginacionUtil.Pagina<FilaIntento> pagina = Filtros.tabla.paginar(filas, parametros);
+            PaginacionUtil.Pagina<FilaIntento> pagina = AgrupacionListadoUtil.paginar(Filtros.tabla, filas, parametros, request, model,
+                    f -> f.intento().getInscripcion().getCohorte().getEtiqueta(), null, null, "cohorte");
             PaginacionUtil.cargarEnModelo(model, pagina);
 
             panel.cargarContexto(model, contexto, "intentos");
@@ -393,7 +396,8 @@ public class IntentoController {
                 parametros.put("cohorte", new String[] { String.valueOf(cohorteSeleccionada) });
             }
             // El filtro, el orden por columna y la página los resuelve el servidor
-            PaginacionUtil.Pagina<FilaCalificacion> pagina = Filtros.tablaCalificaciones.paginar(filas, parametros);
+            PaginacionUtil.Pagina<FilaCalificacion> pagina = AgrupacionListadoUtil.paginar(Filtros.tablaCalificaciones, filas, parametros, request, model,
+                    f -> f.inscripcion().getCohorte().getEtiqueta(), null, null, "cohorte");
             PaginacionUtil.cargarEnModelo(model, pagina);
 
             panel.cargarContexto(model, contexto, "calificaciones");

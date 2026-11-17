@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 /** Servicio del descuento. */
-public interface DescuentoService extends CrudService<Descuento> {
+public interface DescuentoService extends CrudService<Descuento, Integer> {
 
     // ----------------------------------------------------------------------
     // Lecturas

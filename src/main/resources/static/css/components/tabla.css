@@ -209,6 +209,10 @@ a.pn-enlace-ver:focus-visible {
     --pn-truncar-largo: 20ch;
 }
 
+.pn-truncar-ancho {
+    --pn-truncar-largo: 28ch;
+}
+
 .pn-celda-secundaria {
     font-size: 12px;
     color: var(--pn-texto-suave);
@@ -318,7 +322,8 @@ a.pn-enlace-ver:focus-visible {
     padding: 0 8px;
     font-weight: 600;
     color: #334155;
-}
+}
+
 
 /* Celda con una insignia y, a su derecha, un dato chico en gris centrado verticalmente (por ejemplo, "0 de 30") */
 .pn-celda-con-detalle {

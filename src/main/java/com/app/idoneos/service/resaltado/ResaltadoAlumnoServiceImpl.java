@@ -1,7 +1,7 @@
 package com.app.idoneos.service.resaltado;
 
 import com.app.idoneos.model.Alumno;
-import com.app.idoneos.model.Recurso;
+import com.app.idoneos.model.Documento;
 import com.app.idoneos.model.ResaltadoAlumno;
 import com.app.idoneos.repository.ResaltadoAlumnoRepository;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,14 +26,14 @@ public class ResaltadoAlumnoServiceImpl implements ResaltadoAlumnoService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Pagina> buscar(Alumno alumno, Recurso recurso) {
-        return resaltadoRepository.findByAlumnoAndRecursoOrderByPagina(alumno, recurso).stream()
+    public List<Pagina> buscar(Alumno alumno, Documento documento) {
+        return resaltadoRepository.findByAlumnoAndDocumentoOrderByPagina(alumno, documento).stream()
                 .map(r -> new Pagina(r.getPagina(), r.getTrazos())).toList();
     }
 
     @Override
     @Transactional
-    public void guardar(Alumno alumno, Recurso recurso, int pagina, String trazos) {
+    public void guardar(Alumno alumno, Documento documento, int pagina, String trazos) {
         if (pagina < 1 || pagina > PAGINA_MAXIMA) {
             throw new IllegalArgumentException("Error! La página no es válida.");
         }
@@ -50,12 +50,12 @@ public class ResaltadoAlumnoServiceImpl implements ResaltadoAlumnoService {
         if (arbol == null || !arbol.isArray()) {
             throw new IllegalArgumentException("Error! Las anotaciones no tienen un formato válido.");
         }
-        var existente = resaltadoRepository.findByAlumnoAndRecursoAndPagina(alumno, recurso, pagina);
+        var existente = resaltadoRepository.findByAlumnoAndDocumentoAndPagina(alumno, documento, pagina);
         if (arbol.isEmpty()) {
             existente.ifPresent(resaltadoRepository::delete);
             return;
         }
-        ResaltadoAlumno fila = existente.orElseGet(() -> new ResaltadoAlumno(alumno, recurso, pagina, json));
+        ResaltadoAlumno fila = existente.orElseGet(() -> new ResaltadoAlumno(alumno, documento, pagina, json));
         fila.setTrazos(json);
         fila.setUltimaModificacion(LocalDateTime.now());
         resaltadoRepository.save(fila);

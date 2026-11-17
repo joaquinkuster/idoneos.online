@@ -64,7 +64,11 @@
                             </tr>
                         </thead>
                         <tbody th:fragment="filas" th:attr="data-total=${tablaTotal}, data-pagina=${tablaPagina}, data-paginas=${tablaPaginas}, data-tamanio=${tablaTamanio}">
-                            <tr th:each="f : ${filas}" data-fila
+                            <th:block th:each="f, fIt : ${filas}">
+                            <th:block th:if="${agrupar == true and (fIt.first or clavesGrupo[fIt.index] != clavesGrupo[fIt.index - 1])}">
+                                <tr th:replace="~{fragments/components/groupHeader :: filaGrupo(${clavesGrupo[fIt.index]}, ${conteoGrupos.getOrDefault(clavesGrupo[fIt.index], 0L)}, 'calificación', 'calificaciones')}"></tr>
+                            </th:block>
+                            <tr data-fila
                                 th:with="a=${f.autoevaluacion}, i=${f.inscripcion}, nota=${f.autoevaluacion.mejorNota(f.inscripcion)}"
                                 th:data-f-tema="${a.tema.titulo}" th:data-f-autoevaluacion="${a.nombre}"
                                 th:data-f-alumno="${i.alumno.usuario.nombreCompleto + ' ' + i.alumno.usuario.dni + ' ' + i.alumno.usuario.correo}"
@@ -97,6 +101,7 @@
                                           th:text="${a.estaAprobadaPor(i) ? 'Aprobada' : (nota != null ? 'No aprobada' : (f.habilitada ? 'Sin rendir' : 'Tema bloqueada'))}">Aprobada</span>
                                 </td>
                             </tr>
+                            </th:block>
                             <tr th:replace="~{fragments/components/empty :: fila(7, 'fa-star', ${verAlumnos ? 'Todavía no hay resultados' : 'Todavía no hay autoevaluaciones'}, ${verAlumnos ? 'Cuando haya alumnos inscriptos y autoevaluaciones publicadas, vas a ver sus calificaciones acá.' : 'Cuando el docente publique autoevaluaciones, vas a ver tus resultados acá.'})}"></tr>
                         </tbody>
                     </table>

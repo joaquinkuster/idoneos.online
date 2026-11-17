@@ -233,7 +233,7 @@ CREATE TRIGGER trg_cohorte_baja BEFORE UPDATE OF baja ON cohorte
 -- fn_cascada_cohorte(): al dar de baja una cohorte se desvincula a los docentes que la tenian como su cohorte de trabajo.
 CREATE OR REPLACE FUNCTION fn_cascada_cohorte() RETURNS trigger AS $$
 BEGIN
-    UPDATE docente_curso SET id_cohorte = NULL, ultima_modificacion = now() WHERE id_cohorte = NEW.id_cohorte;
+    UPDATE integrante_equipo SET id_cohorte = NULL, ultima_modificacion = now() WHERE id_cohorte = NEW.id_cohorte;
     RETURN NULL;
 END
 $$ LANGUAGE plpgsql ^^^

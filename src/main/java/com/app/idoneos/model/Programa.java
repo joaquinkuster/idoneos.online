@@ -219,23 +219,23 @@ public class Programa {
     }
 
     /** Obtiene los temas que hoy cuentan (con material publicado y autoevaluación) y dejarían de contar si se quitaran ciertos materiales: las que se quedarían sin ningún material publicado. */
-    public java.util.List<Tema> temasQueDejanDeContarSin(java.util.Collection<Integer> materialesQuitados) {
+    public java.util.List<Tema> temasQueDejanDeContarSin(java.util.Collection<TemaRecurso.Clave> materialesQuitados) {
         return temasCronograma.stream().filter(cronograma -> !cronograma.getBaja()).map(TemaCronograma::getTema)
                 .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
                 .filter(tema -> tema.getMateriales().stream().anyMatch(m -> !m.getBaja() && !m.getOculto()))
                 .filter(tema -> tema.getMateriales().stream().noneMatch(m -> !m.getBaja() && !m.getOculto()
-                        && !materialesQuitados.contains(m.getIdTemaRecurso())))
+                        && !materialesQuitados.contains(m.getClave())))
                 .toList();
     }
 
     /** Cuenta los temas con material publicado y autoevaluación que quedarían si se quitaran ciertos materiales (por ocultarlos o darlos de baja) y ciertas temas del cronograma. */
-    public int cantidadTemasConMaterialPublicadoSin(java.util.Collection<Integer> materialesQuitados,
+    public int cantidadTemasConMaterialPublicadoSin(java.util.Collection<TemaRecurso.Clave> materialesQuitados,
             java.util.Collection<Integer> temasQuitadas) {
         return (int) temasCronograma.stream().filter(cronograma -> !cronograma.getBaja())
                 .map(TemaCronograma::getTema).filter(tema -> !temasQuitadas.contains(tema.getIdTema()))
                 .filter(tema -> !tema.getAutoevaluacionesPublicadas().isEmpty())
                 .filter(tema -> tema.getMateriales().stream().anyMatch(material -> !material.getBaja()
-                        && !material.getOculto() && !materialesQuitados.contains(material.getIdTemaRecurso())))
+                        && !material.getOculto() && !materialesQuitados.contains(material.getClave())))
                 .count();
     }
 

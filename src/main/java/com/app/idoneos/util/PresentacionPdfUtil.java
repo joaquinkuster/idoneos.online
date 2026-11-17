@@ -116,7 +116,7 @@ public final class PresentacionPdfUtil {
             String titulo = limpiar(presentacion.titulo());
             PdfContentByte lienzo = escritor.getDirectContent();
             tituloSobreLaLinea(lienzo, titulo.isEmpty() ? limpiar(tituloPorDefecto) : titulo, fuenteTituloPortada);
-            texto(lienzo, "Presentación generada con inteligencia artificial a partir de la bibliografía del tema. " + limpiar(lecturas),
+            texto(lienzo, "Presentación generada con inteligencia artificial a partir del material bibliográfico del tema. " + limpiar(lecturas),
                     fuenteNota, MARGEN, 40, ANCHO - MARGEN, 215, 14);
 
             for (Presentacion.Diapositiva diapositiva : presentacion.diapositivas() == null
